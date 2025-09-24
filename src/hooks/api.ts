@@ -125,3 +125,52 @@ export const useLogin = () => {
     },
   });
 };
+
+// Signup mutation
+export const useSignup = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      name,
+      email,
+      password,
+    }: {
+      name: string;
+      email: string;
+      password: string;
+    }) => apiClient.signup(name, email, password),
+    onSuccess: data => {
+      // Optionally auto-login after signup if token is returned
+      if (data.token) {
+        localStorage.setItem('authToken', data.token);
+        queryClient.invalidateQueries();
+      }
+    },
+  });
+};
+
+// Forgot password mutation
+export const useForgotPassword = () => {
+  return useMutation({
+    mutationFn: ({ email }: { email: string }) =>
+      apiClient.forgotPassword(email),
+  });
+};
+
+// Reset password mutation
+export const useResetPassword = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ token, password }: { token: string; password: string }) =>
+      apiClient.resetPassword(token, password),
+    onSuccess: data => {
+      // Auto-login after password reset if token is returned
+      if (data.token) {
+        localStorage.setItem('authToken', data.token);
+        queryClient.invalidateQueries();
+      }
+    },
+  });
+};
