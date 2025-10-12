@@ -30,7 +30,7 @@ export default function LoginPage() {
 
     try {
       await login.mutateAsync({ email, password });
-      router.push('/dashboard');
+      router.push('/');
     } catch (err: unknown) {
       const error = err as { response?: { data?: { message?: string } } };
       setError(

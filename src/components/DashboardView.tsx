@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Card } from 'primereact/card';
 import { exchanges, summarize, ExchangeKey } from '@/lib/mock-portfolio';
 import CoreHeader from '@/components/CoreHeader';
@@ -15,6 +15,7 @@ import {
   Legend,
   Filler,
 } from 'chart.js';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 
 ChartJS.register(
   CategoryScale,
@@ -26,8 +27,44 @@ ChartJS.register(
   Filler
 );
 
-export default function DashboardPage() {
-  const [selected, setSelected] = useState<ExchangeKey>('Binance');
+export default function DashboardView() {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  // Initialize from query or localStorage
+  const initialSelected = useMemo<ExchangeKey>(() => {
+    const fromQuery = searchParams?.get('exchange') as ExchangeKey | null;
+    if (fromQuery && exchanges.some(e => e.name === fromQuery))
+      return fromQuery;
+    if (typeof window !== 'undefined') {
+      const fromStorage = localStorage.getItem(
+        'selectedExchange'
+      ) as ExchangeKey | null;
+      if (fromStorage && exchanges.some(e => e.name === fromStorage))
+        return fromStorage;
+    }
+    return 'Binance';
+  }, [searchParams]);
+
+  const [selected, setSelected] = useState<ExchangeKey>(initialSelected);
+
+  // Keep URL and localStorage in sync
+  useEffect(() => {
+    try {
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('selectedExchange', selected);
+      }
+      const params = new URLSearchParams(searchParams?.toString());
+      params.set('exchange', selected);
+      // Avoid replacing if already set to prevent extra history entries
+      if (searchParams?.get('exchange') !== selected) {
+        router.replace(`${pathname}?${params.toString()}`);
+      }
+    } catch {
+      // no-op
+    }
+  }, [selected, router, pathname, searchParams]);
 
   const exchange = useMemo(
     () => exchanges.find(e => e.name === selected) ?? exchanges[0],
@@ -42,7 +79,7 @@ export default function DashboardPage() {
         {
           label: `${selected} Equity`,
           data: exchange.equitySeries.map(p => p.equity),
-          borderColor: 'rgb(59,130,246)', // tailwind blue-500
+          borderColor: 'rgb(59,130,246)',
           backgroundColor: 'rgba(59,130,246,0.15)',
           tension: 0.25,
           fill: true,
@@ -72,7 +109,6 @@ export default function DashboardPage() {
       <div className='max-w-6xl mx-auto space-y-6'>
         <CoreHeader />
 
-        {/* Exchange selector */}
         <Card>
           <div className='flex flex-wrap gap-3'>
             {exchanges.map(e => (
@@ -92,7 +128,6 @@ export default function DashboardPage() {
           </div>
         </Card>
 
-        {/* KPIs */}
         <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
           <Card className='text-center'>
             <h3 className='text-sm text-gray-600'>Total Equity</h3>
@@ -120,7 +155,6 @@ export default function DashboardPage() {
           </Card>
         </div>
 
-        {/* Chart */}
         <Card>
           <div className='h-72 md:h-96'>
             <Line data={data} options={options} />
