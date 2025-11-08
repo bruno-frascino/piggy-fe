@@ -3,6 +3,10 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Card } from 'primereact/card';
 import { exchanges, summarize, ExchangeKey } from '@/lib/mock-portfolio';
+import { Button } from 'primereact/button';
+import AddExchangeDialog, {
+  NewExchangePayload,
+} from '@/components/AddExchangeDialog';
 import HoldingsTable from '@/components/HoldingsTable';
 import CoreHeader from '@/components/CoreHeader';
 import { Line } from 'react-chartjs-2';
@@ -28,6 +32,24 @@ ChartJS.register(
   Filler
 );
 
+// Suggested Exchange structure
+// id: stable unique identifier
+// name: display name (must be unique)
+// type: enum/category (e.g., 'crypto', 'stocks', 'mixed')
+// baseCurrency: reporting currency (ISO 4217 code)
+// description: optional notes
+// equitySeries: time series of equity points (already present in mock)
+// holdings: positions; can be resolved separately
+export interface ExchangeDefinition {
+  id: string;
+  name: ExchangeKey; // keep compatibility with existing keys
+  type: 'crypto' | 'stocks' | 'mixed';
+  baseCurrency: string; // e.g., 'USD'
+  description?: string;
+}
+
+// Form + dialog logic extracted to AddExchangeDialog component.
+
 export default function DashboardView() {
   const router = useRouter();
   const pathname = usePathname();
@@ -49,6 +71,22 @@ export default function DashboardView() {
   }, [searchParams]);
 
   const [selected, setSelected] = useState<ExchangeKey>(initialSelected);
+  const [exchangeList, setExchangeList] = useState(exchanges.map(e => e));
+
+  const [showAddDialog, setShowAddDialog] = useState(false);
+
+  const handleAddExchange = (payload: NewExchangePayload) => {
+    const newEx = {
+      name: payload.name,
+      equitySeries: [],
+      type: payload.type,
+      baseCurrency: payload.baseCurrency,
+      description: payload.description,
+    };
+    setExchangeList(prev => [...prev, newEx]);
+    setSelected(newEx.name);
+    setShowAddDialog(false);
+  };
 
   // Keep URL and localStorage in sync
   useEffect(() => {
@@ -68,8 +106,8 @@ export default function DashboardView() {
   }, [selected, router, pathname, searchParams]);
 
   const exchange = useMemo(
-    () => exchanges.find(e => e.name === selected) ?? exchanges[0],
-    [selected]
+    () => exchangeList.find(e => e.name === selected) ?? exchangeList[0],
+    [selected, exchangeList]
   );
   const stats = useMemo(() => summarize(exchange.equitySeries), [exchange]);
 
@@ -111,8 +149,18 @@ export default function DashboardView() {
         <CoreHeader />
 
         <Card>
+          <div className='flex items-center justify-between mb-3'>
+            <h3 className='font-semibold text-gray-800'>Exchanges</h3>
+            <Button
+              icon='pi pi-plus'
+              rounded
+              severity='success'
+              aria-label='Add Exchange'
+              onClick={() => setShowAddDialog(true)}
+            />
+          </div>
           <div className='flex flex-wrap gap-3'>
-            {exchanges.map(e => (
+            {exchangeList.map(e => (
               <button
                 key={e.name}
                 onClick={() => setSelected(e.name)}
@@ -165,6 +213,12 @@ export default function DashboardView() {
         {/* Holdings */}
         <HoldingsTable selectedExchange={selected} />
       </div>
+      <AddExchangeDialog
+        visible={showAddDialog}
+        onHide={() => setShowAddDialog(false)}
+        onSubmit={handleAddExchange}
+        existingNames={exchangeList.map(e => e.name)}
+      />
     </div>
   );
 }
