@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Card } from 'primereact/card';
 import { exchanges, summarize, ExchangeKey } from '@/lib/mock-portfolio';
+import HoldingsTable from '@/components/HoldingsTable';
 import CoreHeader from '@/components/CoreHeader';
 import { Line } from 'react-chartjs-2';
 import {
@@ -160,6 +161,9 @@ export default function DashboardView() {
             <Line data={data} options={options} />
           </div>
         </Card>
+
+        {/* Holdings */}
+        <HoldingsTable selectedExchange={selected} />
       </div>
     </div>
   );
