@@ -46,7 +46,7 @@ export default function AddHoldingsDialog({
   useEffect(() => {
     if (!visible) return;
     const base: Partial<LocalHolding> = {
-      symbol: '',
+      symbol: (initial?.symbol ?? '').toUpperCase(),
       name: '',
       industry: '',
       openDate: new Date().toISOString().slice(0, 10),
@@ -124,10 +124,12 @@ export default function AddHoldingsDialog({
           <div className='col-span-12 md:col-span-3'>
             <label className='block text-sm font-medium mb-1'>Symbol *</label>
             <InputText
-              value={form.symbol ?? ''}
-              onChange={e => setForm(f => ({ ...f, symbol: e.target.value }))}
+              value={(form.symbol ?? '').toUpperCase()}
+              onChange={e =>
+                setForm(f => ({ ...f, symbol: e.target.value.toUpperCase() }))
+              }
               placeholder='e.g. AAPL'
-              className='w-full'
+              className='w-full uppercase'
             />
             {errors.symbol && (
               <p className='text-xs text-red-600 mt-1'>{errors.symbol}</p>
