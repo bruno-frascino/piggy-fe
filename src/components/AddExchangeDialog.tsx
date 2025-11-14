@@ -23,6 +23,12 @@ const exchangeTypeOptions = [
   { label: 'Mixed', value: 'mixed' },
 ];
 
+const baseCurrencyOptions = [
+  { label: 'AUD', value: 'AUD' },
+  { label: 'BRL', value: 'BRL' },
+  { label: 'USD', value: 'USD' },
+];
+
 export default function AddExchangeDialog({
   visible,
   onHide,
@@ -93,10 +99,10 @@ export default function AddExchangeDialog({
       if (isDuplicate) e.name = 'Another exchange already uses this name';
     }
     if (!form.type) e.type = 'Type is required';
-    const code = form.baseCurrency.trim();
+    const code = form.baseCurrency.trim().toUpperCase();
     if (!code) e.baseCurrency = 'Base currency required';
-    if (code && code.length !== 3)
-      e.baseCurrency = 'Use 3-letter code (e.g., USD)';
+    const allowed = new Set(baseCurrencyOptions.map(o => o.value));
+    if (code && !allowed.has(code)) e.baseCurrency = 'Select a currency';
     setErrors(e);
     return Object.keys(e).length === 0;
   };
@@ -164,15 +170,11 @@ export default function AddExchangeDialog({
           <label className='block text-sm font-medium mb-1'>
             Base Currency *
           </label>
-          <InputText
+          <Dropdown
             value={form.baseCurrency}
-            onChange={e =>
-              setForm(f => ({
-                ...f,
-                baseCurrency: e.target.value.toUpperCase(),
-              }))
-            }
-            placeholder='USD'
+            options={baseCurrencyOptions}
+            onChange={e => setForm(f => ({ ...f, baseCurrency: e.value }))}
+            placeholder='Select base currency'
             className='w-full'
           />
           {errors.baseCurrency && (
