@@ -7,6 +7,9 @@ module.exports = {
   ],
   theme: {
     extend: {
+      screens: {
+        '3xl': '1800px',
+      },
       colors: {
         // PrimeReact Lara theme colors can be customized here
       },

@@ -210,6 +210,7 @@ export default function HoldingsTable({
         size='small'
         scrollable
         scrollHeight='400px'
+        rowHover
         stripedRows
         footer={footer}
         emptyMessage='No holdings'
@@ -239,7 +240,9 @@ export default function HoldingsTable({
               {r.symbol}
             </button>
           )}
-          style={{ minWidth: '130px' }}
+          frozen
+          alignFrozen='left'
+          style={{ minWidth: '130px', width: '130px' }}
         />
         <Column field='name' header='Name' style={{ minWidth: '200px' }} />
         <Column
