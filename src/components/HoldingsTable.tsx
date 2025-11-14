@@ -205,147 +205,154 @@ export default function HoldingsTable({
         </div>
       </div>
 
-      <DataTable
-        value={rows}
-        size='small'
-        scrollable
-        scrollHeight='400px'
-        rowHover
-        stripedRows
-        footer={footer}
-        emptyMessage='No holdings'
-      >
-        <Column
-          header='Symbol'
-          body={(r: HoldingRow) => (
-            <button
-              className='font-semibold text-blue-600 hover:underline'
-              onClick={() => {
-                setMode('edit');
-                setEditIdx(r.originalIndex);
-                setDialogInitial({
-                  symbol: r.symbol,
-                  name: r.name,
-                  openDate: r.openDate,
-                  units: r.units,
-                  buyPrice: r.buyPrice,
-                  buyFee: r.buyFee,
-                  stopLoss: r.stopLoss,
-                  industry: r.industry,
-                  currentPrice: r.currentPrice ?? r.buyPrice,
-                });
-                setShowDialog(true);
-              }}
-            >
-              {r.symbol}
-            </button>
+      {rows.length === 0 ? (
+        <div className='p-4 text-center text-blue-600'>
+          There are no open positions yet
+        </div>
+      ) : (
+        <DataTable
+          value={rows}
+          size='small'
+          scrollable
+          scrollHeight='400px'
+          rowHover
+          stripedRows
+          footer={footer}
+        >
+          <Column
+            header='Symbol'
+            body={(r: HoldingRow) => (
+              <button
+                className='font-semibold text-blue-600 hover:underline'
+                onClick={() => {
+                  setMode('edit');
+                  setEditIdx(r.originalIndex);
+                  setDialogInitial({
+                    symbol: r.symbol,
+                    name: r.name,
+                    openDate: r.openDate,
+                    units: r.units,
+                    buyPrice: r.buyPrice,
+                    buyFee: r.buyFee,
+                    stopLoss: r.stopLoss,
+                    industry: r.industry,
+                    currentPrice: r.currentPrice ?? r.buyPrice,
+                  });
+                  setShowDialog(true);
+                }}
+              >
+                {r.symbol}
+              </button>
+            )}
+            frozen
+            alignFrozen='left'
+            style={{ minWidth: '130px', width: '130px' }}
+          />
+          <Column field='name' header='Name' style={{ minWidth: '200px' }} />
+          <Column
+            header='Date'
+            body={(r: HoldingRow) => formatDate(r.openDate)}
+            style={{ minWidth: '120px' }}
+          />
+          <Column
+            header='Units'
+            body={(r: HoldingRow) => formatNumber(r.units)}
+            style={{ minWidth: '110px' }}
+          />
+          <Column
+            header='Buy'
+            body={(r: HoldingRow) => formatCurrency(r.buyPrice, currency)}
+            style={{ minWidth: '120px' }}
+          />
+          <Column
+            header='Fee'
+            body={(r: HoldingRow) => formatCurrency(r.buyFee, currency)}
+            style={{ minWidth: '120px' }}
+          />
+          <Column
+            header='Open'
+            body={(r: HoldingRow) => formatCurrency(r.openPosition, currency)}
+            style={{ minWidth: '140px' }}
+          />
+          <Column
+            header='Price'
+            body={(r: HoldingRow) =>
+              formatCurrency(r.currentPrice ?? r.buyPrice, currency)
+            }
+            style={{ minWidth: '130px' }}
+          />
+          <Column
+            header='Position'
+            body={(r: HoldingRow) =>
+              formatCurrency(r.currentPosition, currency)
+            }
+            style={{ minWidth: '150px' }}
+          />
+          <Column
+            header='Return'
+            body={(r: HoldingRow) => (
+              <span className={returnClass(r.currentReturnAbs)}>
+                {formatCurrency(r.currentReturnAbs, currency)}
+              </span>
+            )}
+            style={{ minWidth: '130px' }}
+          />
+          <Column
+            header='Return %'
+            body={(r: HoldingRow) => (
+              <span className={returnClass(r.currentReturnPct)}>
+                {formatPct(r.currentReturnPct)}
+              </span>
+            )}
+            style={{ minWidth: '150px' }}
+          />
+          {anyStopLoss && (
+            <>
+              <Column
+                header='Stop Loss'
+                body={(r: HoldingRow) =>
+                  typeof r.stopLoss === 'number' && !isNaN(r.stopLoss)
+                    ? formatCurrency(r.stopLoss, currency)
+                    : ''
+                }
+                style={{ minWidth: '120px' }}
+              />
+              <Column
+                header='SL Return'
+                body={(r: HoldingRow) =>
+                  isNaN(r.stopLossPosition)
+                    ? ''
+                    : formatCurrency(r.stopLossPosition, currency)
+                }
+                style={{ minWidth: '130px' }}
+              />
+              <Column
+                header='SL Return %'
+                body={(r: HoldingRow) =>
+                  isNaN(r.stopLossReturnPct) ? (
+                    ''
+                  ) : (
+                    <span className={returnClass(r.stopLossReturnPct)}>
+                      {formatPct(r.stopLossReturnPct)}
+                    </span>
+                  )
+                }
+                style={{ minWidth: '130px' }}
+              />
+            </>
           )}
-          frozen
-          alignFrozen='left'
-          style={{ minWidth: '130px', width: '130px' }}
-        />
-        <Column field='name' header='Name' style={{ minWidth: '200px' }} />
-        <Column
-          header='Date'
-          body={(r: HoldingRow) => formatDate(r.openDate)}
-          style={{ minWidth: '120px' }}
-        />
-        <Column
-          header='Units'
-          body={(r: HoldingRow) => formatNumber(r.units)}
-          style={{ minWidth: '110px' }}
-        />
-        <Column
-          header='Buy'
-          body={(r: HoldingRow) => formatCurrency(r.buyPrice, currency)}
-          style={{ minWidth: '120px' }}
-        />
-        <Column
-          header='Fee'
-          body={(r: HoldingRow) => formatCurrency(r.buyFee, currency)}
-          style={{ minWidth: '120px' }}
-        />
-        <Column
-          header='Open'
-          body={(r: HoldingRow) => formatCurrency(r.openPosition, currency)}
-          style={{ minWidth: '140px' }}
-        />
-        <Column
-          header='Price'
-          body={(r: HoldingRow) =>
-            formatCurrency(r.currentPrice ?? r.buyPrice, currency)
-          }
-          style={{ minWidth: '130px' }}
-        />
-        <Column
-          header='Position'
-          body={(r: HoldingRow) => formatCurrency(r.currentPosition, currency)}
-          style={{ minWidth: '150px' }}
-        />
-        <Column
-          header='Return'
-          body={(r: HoldingRow) => (
-            <span className={returnClass(r.currentReturnAbs)}>
-              {formatCurrency(r.currentReturnAbs, currency)}
-            </span>
-          )}
-          style={{ minWidth: '130px' }}
-        />
-        <Column
-          header='Return %'
-          body={(r: HoldingRow) => (
-            <span className={returnClass(r.currentReturnPct)}>
-              {formatPct(r.currentReturnPct)}
-            </span>
-          )}
-          style={{ minWidth: '150px' }}
-        />
-        {anyStopLoss && (
-          <>
-            <Column
-              header='Stop Loss'
-              body={(r: HoldingRow) =>
-                typeof r.stopLoss === 'number' && !isNaN(r.stopLoss)
-                  ? formatCurrency(r.stopLoss, currency)
-                  : ''
-              }
-              style={{ minWidth: '120px' }}
-            />
-            <Column
-              header='SL Return'
-              body={(r: HoldingRow) =>
-                isNaN(r.stopLossPosition)
-                  ? ''
-                  : formatCurrency(r.stopLossPosition, currency)
-              }
-              style={{ minWidth: '130px' }}
-            />
-            <Column
-              header='SL Return %'
-              body={(r: HoldingRow) =>
-                isNaN(r.stopLossReturnPct) ? (
-                  ''
-                ) : (
-                  <span className={returnClass(r.stopLossReturnPct)}>
-                    {formatPct(r.stopLossReturnPct)}
-                  </span>
-                )
-              }
-              style={{ minWidth: '130px' }}
-            />
-          </>
-        )}
-        <Column
-          header='Allocation'
-          body={(r: HoldingRow) => formatPct(r.allocationPct)}
-          style={{ minWidth: '120px' }}
-        />
-        <Column
-          field='industry'
-          header='Industry'
-          style={{ minWidth: '180px' }}
-        />
-      </DataTable>
+          <Column
+            header='Allocation'
+            body={(r: HoldingRow) => formatPct(r.allocationPct)}
+            style={{ minWidth: '120px' }}
+          />
+          <Column
+            field='industry'
+            header='Industry'
+            style={{ minWidth: '180px' }}
+          />
+        </DataTable>
+      )}
 
       <AddHoldingsDialog
         visible={showDialog}
