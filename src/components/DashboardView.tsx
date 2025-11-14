@@ -21,6 +21,7 @@ import {
   Filler,
 } from 'chart.js';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { useLongPress } from '@/hooks/useLongPress';
 
 ChartJS.register(
   CategoryScale,
@@ -72,8 +73,13 @@ export default function DashboardView() {
 
   const [selected, setSelected] = useState<ExchangeKey>(initialSelected);
   const [exchangeList, setExchangeList] = useState(exchanges.map(e => e));
+  const [manageMode, setManageMode] = useState(false);
+  const longPressHandlers = useLongPress(() => setManageMode(true), {
+    delay: 500,
+  });
 
   const [showAddDialog, setShowAddDialog] = useState(false);
+  const [showEditDialog, setShowEditDialog] = useState(false);
 
   const handleAddExchange = (payload: NewExchangePayload) => {
     const newEx = {
@@ -86,6 +92,32 @@ export default function DashboardView() {
     setExchangeList(prev => [...prev, newEx]);
     setSelected(newEx.name);
     setShowAddDialog(false);
+  };
+
+  const handleEditExchange = (payload: NewExchangePayload) => {
+    setExchangeList(prev =>
+      prev.map(e =>
+        e.name === selected
+          ? {
+              ...e,
+              // Preserve existing name to avoid breaking holdings mapping
+              type: payload.type,
+              baseCurrency: payload.baseCurrency,
+              description: payload.description,
+            }
+          : e
+      )
+    );
+    setShowEditDialog(false);
+  };
+
+  const handleDeleteExchange = (name: ExchangeKey) => {
+    if (exchangeList.length <= 1) return; // do not delete the last one
+    const updated = exchangeList.filter(e => e.name !== name);
+    setExchangeList(updated);
+    if (selected === name && updated.length) {
+      setSelected(updated[0].name);
+    }
   };
 
   // Keep URL and localStorage in sync
@@ -149,31 +181,74 @@ export default function DashboardView() {
         <CoreHeader />
 
         <Card>
-          <div className='flex items-center justify-between mb-3'>
+          <div className='relative mb-3'>
             <h3 className='font-semibold text-gray-800'>Exchanges</h3>
-            <Button
-              icon='pi pi-plus'
-              rounded
-              severity='success'
-              aria-label='Add Exchange'
-              onClick={() => setShowAddDialog(true)}
-            />
+            <div className='absolute top-0 right-0 flex flex-col gap-2'>
+              {!manageMode && (
+                <Button
+                  icon='pi pi-plus'
+                  rounded
+                  severity='success'
+                  aria-label='Add Exchange'
+                  onClick={() => setShowAddDialog(true)}
+                />
+              )}
+              {manageMode && (
+                <Button
+                  icon='pi pi-pencil'
+                  rounded
+                  aria-label='Edit Selected Exchange'
+                  disabled={!selected}
+                  onClick={() => setShowEditDialog(true)}
+                  style={{ backgroundColor: '#2563EB', borderColor: '#2563EB' }}
+                />
+              )}
+              {manageMode && (
+                <Button
+                  icon='pi pi-undo'
+                  rounded
+                  severity='secondary'
+                  aria-label='Return'
+                  onClick={() => setManageMode(false)}
+                />
+              )}
+            </div>
           </div>
-          <div className='flex flex-wrap gap-3'>
-            {exchangeList.map(e => (
-              <button
-                key={e.name}
-                onClick={() => setSelected(e.name)}
-                className={`px-3 py-1 rounded-full border transition ${
-                  selected === e.name
-                    ? 'bg-blue-600 text-white border-blue-600'
-                    : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
-                }`}
-                aria-pressed={selected === e.name}
-              >
-                {e.name}
-              </button>
-            ))}
+          <div className='flex flex-wrap items-center gap-3 pr-16'>
+            {exchangeList.map(e => {
+              const isSelected = selected === e.name;
+              return (
+                <div key={e.name} className='relative inline-block'>
+                  <button
+                    onClick={() => {
+                      if (!manageMode) setSelected(e.name);
+                    }}
+                    className={`px-3 py-1 rounded-full border transition select-none ${
+                      isSelected
+                        ? 'bg-blue-600 text-white border-blue-600'
+                        : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                    } ${manageMode ? 'animate-shake-slight' : ''}`}
+                    aria-pressed={isSelected}
+                    {...longPressHandlers}
+                  >
+                    {e.name}
+                  </button>
+                  {manageMode && (
+                    <button
+                      aria-label={`Delete ${e.name}`}
+                      title={`Delete ${e.name}`}
+                      className='absolute -top-1 -right-1 h-5 w-5 rounded-full bg-red-500 text-white flex items-center justify-center text-[10px] shadow'
+                      onClick={ev => {
+                        ev.stopPropagation();
+                        handleDeleteExchange(e.name);
+                      }}
+                    >
+                      ×
+                    </button>
+                  )}
+                </div>
+              );
+            })}
           </div>
         </Card>
 
@@ -218,6 +293,26 @@ export default function DashboardView() {
         onHide={() => setShowAddDialog(false)}
         onSubmit={handleAddExchange}
         existingNames={exchangeList.map(e => e.name)}
+        mode='add'
+      />
+      <AddExchangeDialog
+        visible={showEditDialog}
+        onHide={() => setShowEditDialog(false)}
+        onSubmit={handleEditExchange}
+        existingNames={exchangeList.map(e => e.name)}
+        mode='edit'
+        initial={{
+          name: exchange.name,
+          // The following fields may not exist on mock exchanges; dialog will handle defaults
+          type: (
+            exchange as unknown as { type?: 'crypto' | 'stocks' | 'mixed' }
+          ).type,
+          baseCurrency: (exchange as unknown as { baseCurrency?: string })
+            .baseCurrency,
+          description: (exchange as unknown as { description?: string })
+            .description,
+        }}
+        disableNameEdit
       />
     </div>
   );

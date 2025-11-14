@@ -1,8 +1,31 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 :root {
   --background: #ffffff;
   --foreground: #171717;
+}
+
+/* Slight shake animation for delete/manage mode */
+@keyframes shake-slight {
+  0% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(1deg);
+  }
+  50% {
+    transform: rotate(0deg);
+  }
+  75% {
+    transform: rotate(-1deg);
+  }
+  100% {
+    transform: rotate(0deg);
+  }
+}
+
+.animate-shake-slight {
+  animation: shake-slight 0.6s ease-in-out infinite;
 }
 
 @theme inline {
