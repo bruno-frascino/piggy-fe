@@ -2,6 +2,7 @@ interface CoreHeaderProps {
   title?: string;
   subtitle?: string;
   description?: string;
+  showNav?: boolean;
 }
 
 export default function CoreHeader({

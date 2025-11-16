@@ -8,7 +8,6 @@ import AddExchangeDialog, {
   NewExchangePayload,
 } from '@/components/AddExchangeDialog';
 import HoldingsTable from '@/components/HoldingsTable';
-import CoreHeader from '@/components/CoreHeader';
 import { Line } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -178,7 +177,7 @@ export default function DashboardView() {
   return (
     <div className='min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4'>
       <div className='max-w-6xl xl:max-w-7xl 2xl:max-w-screen-2xl 3xl:max-w-[1800px] mx-auto space-y-6'>
-        <CoreHeader />
+        {/* Removed CoreHeader from dashboard; TopNav provides global header */}
 
         <Card>
           <div className='relative mb-3'>
