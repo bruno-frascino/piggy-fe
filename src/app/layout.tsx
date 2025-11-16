@@ -10,6 +10,7 @@ import 'primeicons/primeicons.css';
 
 // Custom styles for component fixes
 import '../styles/password-fix.css';
+import TopNavGate from '@/components/TopNavGate';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -38,6 +39,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
+        <TopNavGate />
         <Providers>{children}</Providers>
       </body>
     </html>
