@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { Dialog } from 'primereact/dialog';
 import { InputText } from 'primereact/inputtext';
 import { InputNumber } from 'primereact/inputnumber';
+import { InputTextarea } from 'primereact/inputtextarea';
 import { Button } from 'primereact/button';
 import type { HoldingPosition } from '@/lib/mock-holdings';
 
@@ -13,6 +14,7 @@ export type LocalHolding = Omit<
 > & {
   stopLoss?: number;
   currentPrice?: number;
+  buyComments?: string;
 };
 
 export default function AddHoldingsDialog({
@@ -38,6 +40,7 @@ export default function AddHoldingsDialog({
     symbol: '',
     name: '',
     industry: '',
+    buyComments: '',
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [currentTouched, setCurrentTouched] = useState(false);
@@ -55,6 +58,7 @@ export default function AddHoldingsDialog({
       buyFee: 0,
       stopLoss: undefined,
       currentPrice: 0,
+      buyComments: '',
       ...initial,
     };
     setForm(base);
@@ -106,6 +110,7 @@ export default function AddHoldingsDialog({
       stopLoss: form.stopLoss,
       industry: form.industry ?? '',
       currentPrice: form.currentPrice ?? form.buyPrice!,
+      buyComments: form.buyComments?.trim() || undefined,
     };
     onSubmit(value);
   };
@@ -283,6 +288,21 @@ export default function AddHoldingsDialog({
               <p className='text-xs text-red-600 mt-1'>{errors.currentPrice}</p>
             )}
           </div>
+        </div>
+
+        {/* Row 5: Buy Comments */}
+        <div>
+          <label className='block text-sm font-medium mb-1'>Buy Comments</label>
+          <InputTextarea
+            autoResize
+            value={form.buyComments ?? ''}
+            onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
+              setForm(f => ({ ...f, buyComments: e.target.value }))
+            }
+            rows={3}
+            className='w-full'
+            placeholder='Optional notes for this purchase'
+          />
         </div>
 
         <div className='flex justify-end gap-2 pt-2'>
