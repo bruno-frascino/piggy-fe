@@ -8,6 +8,10 @@ import { Button } from 'primereact/button';
 import AddHoldingsDialog, {
   LocalHolding,
 } from '@/components/AddHoldingsDialog';
+import ClosePositionDialog, {
+  ClosePositionPayload,
+} from '@/components/ClosePositionDialog';
+import { addClosedTrade } from '@/lib/closed-trades-store';
 import type { ExchangeKey } from '@/lib/mock-portfolio';
 import { getHoldingsForExchange } from '@/lib/mock-holdings';
 
@@ -68,6 +72,9 @@ export default function HoldingsTable({
   const [dialogInitial, setDialogInitial] = useState<
     Partial<LocalHolding> | undefined
   >(undefined);
+  const [showCloseDialog, setShowCloseDialog] = useState(false);
+  const [closeIdx, setCloseIdx] = useState<number | null>(null);
+  const [closeInitial, setCloseInitial] = useState<LocalHolding | null>(null);
 
   // Dialog state is managed inside AddHoldingsDialog
 
@@ -168,21 +175,6 @@ export default function HoldingsTable({
 
   const currency = 'USD'; // could be dynamic per exchange/profile later
 
-  const footer = (
-    <div className='flex flex-wrap items-center gap-4 text-sm px-2 py-2'>
-      <span className='font-medium'>Totals</span>
-      <span>• Open positions: {totals.count}</span>
-      <span>• Total Open: {formatCurrency(totals.totalOpen, currency)}</span>
-      <span>
-        • Total Current: {formatCurrency(totals.totalCurrent, currency)}
-      </span>
-      <span>
-        • Current Return: {formatCurrency(totals.currentReturnAbs, currency)} (
-        {formatPct(totals.currentReturnPct)})
-      </span>
-    </div>
-  );
-
   return (
     <Card>
       <div className='flex items-center justify-between mb-3'>
@@ -217,7 +209,7 @@ export default function HoldingsTable({
           scrollHeight='400px'
           rowHover
           stripedRows
-          footer={footer}
+          className='holdings-table'
         >
           <Column
             header='Symbol'
@@ -237,6 +229,7 @@ export default function HoldingsTable({
                     stopLoss: r.stopLoss,
                     industry: r.industry,
                     currentPrice: r.currentPrice ?? r.buyPrice,
+                    buyComments: r.buyComments,
                   });
                   setShowDialog(true);
                 }}
@@ -247,8 +240,25 @@ export default function HoldingsTable({
             frozen
             alignFrozen='left'
             style={{ minWidth: '130px', width: '130px' }}
+            footer={
+              <span className='font-bold text-gray-700 tracking-wide'>
+                TOTALS
+              </span>
+            }
           />
-          <Column field='name' header='Name' style={{ minWidth: '200px' }} />
+          <Column
+            field='name'
+            header='Name'
+            style={{ minWidth: '200px' }}
+            footer={
+              <span>
+                <span className='text-gray-600 font-medium'>Positions:</span>{' '}
+                <span className='font-semibold text-gray-900'>
+                  {totals.count}
+                </span>
+              </span>
+            }
+          />
           <Column
             header='Date'
             body={(r: HoldingRow) => formatDate(r.openDate)}
@@ -273,6 +283,13 @@ export default function HoldingsTable({
             header='Open'
             body={(r: HoldingRow) => formatCurrency(r.openPosition, currency)}
             style={{ minWidth: '140px' }}
+            footer={
+              <span>
+                <span className='font-semibold text-gray-900'>
+                  {formatCurrency(totals.totalOpen, currency)}
+                </span>
+              </span>
+            }
           />
           <Column
             header='Price'
@@ -283,10 +300,37 @@ export default function HoldingsTable({
           />
           <Column
             header='Position'
-            body={(r: HoldingRow) =>
-              formatCurrency(r.currentPosition, currency)
-            }
+            body={(r: HoldingRow) => (
+              <button
+                className='text-blue-600 hover:underline'
+                title='Close position'
+                onClick={() => {
+                  setCloseIdx(r.originalIndex);
+                  setCloseInitial({
+                    symbol: r.symbol,
+                    name: r.name,
+                    openDate: r.openDate,
+                    units: r.units,
+                    buyPrice: r.buyPrice,
+                    buyFee: r.buyFee,
+                    stopLoss: r.stopLoss,
+                    industry: r.industry,
+                    currentPrice: r.currentPrice ?? r.buyPrice,
+                  });
+                  setShowCloseDialog(true);
+                }}
+              >
+                {formatCurrency(r.currentPosition, currency)}
+              </button>
+            )}
             style={{ minWidth: '150px' }}
+            footer={
+              <span>
+                <span className='font-semibold text-gray-900'>
+                  {formatCurrency(totals.totalCurrent, currency)}
+                </span>
+              </span>
+            }
           />
           <Column
             header='Return'
@@ -296,6 +340,15 @@ export default function HoldingsTable({
               </span>
             )}
             style={{ minWidth: '130px' }}
+            footer={
+              <span>
+                <span
+                  className={`font-semibold ${returnClass(totals.currentReturnAbs)}`}
+                >
+                  {formatCurrency(totals.currentReturnAbs, currency)}
+                </span>
+              </span>
+            }
           />
           <Column
             header='Return %'
@@ -305,6 +358,11 @@ export default function HoldingsTable({
               </span>
             )}
             style={{ minWidth: '150px' }}
+            footer={
+              <span className={returnClass(totals.currentReturnPct)}>
+                {formatPct(totals.currentReturnPct)}
+              </span>
+            }
           />
           {anyStopLoss && (
             <>
@@ -369,6 +427,57 @@ export default function HoldingsTable({
             setHoldings(prev => [...prev, newPos]);
           }
           setShowDialog(false);
+        }}
+      />
+
+      <ClosePositionDialog
+        visible={showCloseDialog}
+        initial={closeInitial}
+        onHide={() => setShowCloseDialog(false)}
+        onSubmit={(payload: ClosePositionPayload) => {
+          if (closeIdx === null || closeInitial === null) return;
+          // Persist closed trade entry
+          const periodDays = (() => {
+            const start = new Date(closeInitial.openDate).getTime();
+            const end = new Date(payload.closeDate).getTime();
+            if (isNaN(start) || isNaN(end)) return 0;
+            return Math.max(
+              0,
+              Math.round((end - start) / (1000 * 60 * 60 * 24))
+            );
+          })();
+          addClosedTrade({
+            id: `${closeInitial.symbol}-${closeInitial.openDate}-${payload.closeDate}-${Math.random().toString(36).slice(2, 8)}`,
+            symbol: closeInitial.symbol,
+            name: closeInitial.name,
+            openDate: closeInitial.openDate,
+            closeDate: payload.closeDate,
+            unitsClosed: payload.closeUnits,
+            buyPrice: closeInitial.buyPrice,
+            buyFee: closeInitial.buyFee,
+            sellPrice: payload.sellPrice,
+            sellFee: payload.sellFee,
+            periodDays,
+            buyComments: closeInitial.buyComments,
+            sellComments: payload.comments,
+            baseCurrency: 'USD',
+          });
+          // Update local holdings (remove or reduce)
+          setHoldings(prev => {
+            return prev.flatMap((h, i) => {
+              if (i !== closeIdx) return [h];
+              const remaining = Number(
+                (h.units - payload.closeUnits).toFixed(3)
+              );
+              if (remaining <= 0) {
+                return [];
+              }
+              return [{ ...h, units: remaining }];
+            });
+          });
+          setShowCloseDialog(false);
+          setCloseIdx(null);
+          setCloseInitial(null);
         }}
       />
     </Card>
