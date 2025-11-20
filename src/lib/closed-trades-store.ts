@@ -5,6 +5,7 @@ export interface ClosedTrade {
   id: string; // unique (symbol + openDate + closeDate + random suffix)
   symbol: string;
   name?: string;
+  exchange?: string; // e.g., 'Binance'
   openDate: string; // ISO
   closeDate: string; // ISO
   unitsClosed: number;
