@@ -450,6 +450,7 @@ export default function HoldingsTable({
             id: `${closeInitial.symbol}-${closeInitial.openDate}-${payload.closeDate}-${Math.random().toString(36).slice(2, 8)}`,
             symbol: closeInitial.symbol,
             name: closeInitial.name,
+            exchange: selectedExchange,
             openDate: closeInitial.openDate,
             closeDate: payload.closeDate,
             unitsClosed: payload.closeUnits,
