@@ -178,7 +178,7 @@ export default function HoldingsTable({
   return (
     <Card>
       <div className='flex items-center justify-between mb-3'>
-        <h3 className='text-lg font-semibold text-gray-800'>
+        <h3 className='text-xl font-semibold text-gray-900'>
           Holdings — {selectedExchange}
         </h3>
         <div>
