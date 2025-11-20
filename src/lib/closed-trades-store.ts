@@ -57,3 +57,13 @@ export function clearClosedTrades() {
   cache = [];
   save(cache);
 }
+
+export function updateClosedTrade(id: string, partial: Partial<ClosedTrade>) {
+  cache = getClosedTrades().map(t => (t.id === id ? { ...t, ...partial } : t));
+  save(cache);
+}
+
+export function deleteClosedTrade(id: string) {
+  cache = getClosedTrades().filter(t => t.id !== id);
+  save(cache);
+}

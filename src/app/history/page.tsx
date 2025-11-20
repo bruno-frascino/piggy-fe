@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import CoreHeader from '@/components/CoreHeader';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Card } from 'primereact/card';
@@ -10,9 +9,11 @@ import { Dropdown } from 'primereact/dropdown';
 import { InputText } from 'primereact/inputtext';
 import {
   getClosedTrades,
-  clearClosedTrades,
   ClosedTrade,
+  updateClosedTrade,
+  deleteClosedTrade,
 } from '@/lib/closed-trades-store';
+import EditClosedTradeDialog from '@/components/EditClosedTradeDialog';
 
 function formatCurrency(n: number, currency: string = 'USD') {
   return new Intl.NumberFormat(undefined, {
@@ -42,6 +43,8 @@ export default function HistoryPage() {
   const [exchangeFilter, setExchangeFilter] = useState<string>('All');
   const [startDate, setStartDate] = useState<string>(defaultStart);
   const [endDate, setEndDate] = useState<string>(defaultEnd);
+  const [showDialog, setShowDialog] = useState(false);
+  const [active, setActive] = useState<ClosedTrade | null>(null);
 
   useEffect(() => {
     setRows(getClosedTrades());
@@ -84,24 +87,12 @@ export default function HistoryPage() {
   return (
     <div className='min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4'>
       <div className='max-w-6xl xl:max-w-7xl 2xl:max-w-screen-2xl 3xl:max-w-[1800px] mx-auto space-y-6'>
-        <CoreHeader title='📜 Closed Positions History' />
+        {/* <CoreHeader title='📈 Closed Positions History' /> */}
         <Card>
           <div className='flex items-center justify-between mb-3'>
             <h3 className='text-lg font-semibold text-gray-800'>
               Closed Positions
             </h3>
-            {rows.length > 0 && (
-              <Button
-                label='Clear History'
-                icon='pi pi-times'
-                severity='danger'
-                outlined
-                onClick={() => {
-                  clearClosedTrades();
-                  setRows([]);
-                }}
-              />
-            )}
           </div>
           {filtered.length === 0 ? (
             <div className='p-4 text-center text-blue-600'>
@@ -161,7 +152,18 @@ export default function HistoryPage() {
               >
                 <Column
                   header='Symbol'
-                  field='symbol'
+                  body={(r: ClosedTrade) => (
+                    <button
+                      className='text-blue-600 font-semibold hover:underline'
+                      onClick={() => {
+                        setActive(r);
+                        setShowDialog(true);
+                      }}
+                      title='View / Edit Closed Position'
+                    >
+                      {r.symbol}
+                    </button>
+                  )}
                   style={{ minWidth: '120px' }}
                 />
                 <Column
@@ -277,6 +279,37 @@ export default function HistoryPage() {
                   style={{ minWidth: '180px' }}
                 />
               </DataTable>
+              {showDialog && active && (
+                <EditClosedTradeDialog
+                  trade={active}
+                  onHide={() => {
+                    setShowDialog(false);
+                    setActive(null);
+                  }}
+                  onSave={(updated: ClosedTrade) => {
+                    const periodDays = (() => {
+                      const start = new Date(updated.openDate).getTime();
+                      const end = new Date(updated.closeDate).getTime();
+                      if (isNaN(start) || isNaN(end)) return updated.periodDays;
+                      return Math.max(
+                        0,
+                        Math.round((end - start) / (1000 * 60 * 60 * 24))
+                      );
+                    })();
+                    updateClosedTrade(updated.id, { ...updated, periodDays });
+                    setRows(getClosedTrades());
+                    setShowDialog(false);
+                    setActive(null);
+                  }}
+                  onDelete={(id: string) => {
+                    // Confirmation now handled inside EditClosedTradeDialog via PrimeReact ConfirmDialog
+                    deleteClosedTrade(id);
+                    setRows(getClosedTrades());
+                    setShowDialog(false);
+                    setActive(null);
+                  }}
+                />
+              )}
             </>
           )}
         </Card>
