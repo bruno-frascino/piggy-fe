@@ -26,6 +26,10 @@ export const metadata: Metadata = {
   title: 'Hamm Reserve - Personal Finance Manager',
   description: 'Personal finance management application',
   manifest: '/manifest.json',
+};
+
+// Next.js recommends declaring themeColor inside a separate viewport export.
+export const viewport = {
   themeColor: '#000000',
 };
 

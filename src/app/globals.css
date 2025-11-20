@@ -55,34 +55,28 @@ body {
 
 /* Top navigation styled with Prime tokens for better theming */
 .topnav {
-  /* Fallback: slightly stronger light blue */
-  background: #eaf2ff;
-  /* Subtle gradient using a stronger primary tint for contrast */
-  background: linear-gradient(
-    180deg,
-    color-mix(in oklab, var(--primary-color) 12%, #ffffff) 0%,
-    color-mix(in oklab, var(--primary-color) 18%, #ffffff) 100%
-  );
-  color: var(--text-color);
-  border-bottom: 1px solid
-    color-mix(in oklab, var(--primary-color) 35%, var(--surface-border));
+  /* Requested fixed background color */
+  background: #4d5198; /* #75abf5; */
+  color: #ffffff;
+  /* Slightly darker border for separation */
+  border-bottom: 1px solid #5f99f2;
   backdrop-filter: saturate(140%) blur(6px);
 }
 .topnav .nav-link {
-  color: var(--text-color-secondary);
+  color: rgba(255, 255, 255, 0.9);
   text-decoration: none;
 }
 .topnav .nav-link:hover {
-  color: var(--text-color);
+  color: #ffffff;
 }
 .topnav .nav-link.active {
-  color: var(--primary-color);
+  color: #ffffff;
   text-decoration: underline;
   text-underline-offset: 4px;
   text-decoration-thickness: 2px;
 }
 .topnav .user-badge {
-  background: rgba(255, 255, 255, 0.55);
-  border: 1px solid var(--surface-border);
-  color: var(--text-color);
+  background: rgba(255, 255, 255, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  color: #ffffff;
 }
