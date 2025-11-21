@@ -179,9 +179,9 @@ export default function DashboardView() {
       <div className='max-w-6xl xl:max-w-7xl 2xl:max-w-screen-2xl 3xl:max-w-[1800px] mx-auto space-y-6'>
         {/* Removed CoreHeader from dashboard; TopNav provides global header */}
         <Card>
-          <div className='relative mb-3'>
+          <div className='flex items-start justify-between mb-4 pb-2 border-b border-gray-200'>
             <h3 className='text-xl font-semibold text-gray-900'>Exchanges</h3>
-            <div className='absolute top-0 right-0 flex flex-col gap-2'>
+            <div className='flex flex-col gap-2 pt-1'>
               {!manageMode && (
                 <Button
                   icon='pi pi-plus'

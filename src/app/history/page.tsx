@@ -89,8 +89,8 @@ export default function HistoryPage() {
       <div className='max-w-6xl xl:max-w-7xl 2xl:max-w-screen-2xl 3xl:max-w-[1800px] mx-auto space-y-6'>
         {/* <CoreHeader title='📈 Closed Positions History' /> */}
         <Card>
-          <div className='flex items-center justify-between mb-3'>
-            <h3 className='text-lg font-semibold text-gray-800'>
+          <div className='pb-2 mb-4 border-b border-gray-200'>
+            <h3 className='text-xl font-semibold text-gray-900'>
               Closed Positions
             </h3>
           </div>
