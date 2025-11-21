@@ -165,11 +165,28 @@ export default function HistoryPage() {
                     </button>
                   )}
                   style={{ minWidth: '120px' }}
+                  frozen
+                  alignFrozen='left'
+                  footer={
+                    <span className='font-bold text-gray-700 tracking-wide'>
+                      TOTALS
+                    </span>
+                  }
                 />
                 <Column
                   header='Name'
                   field='name'
                   style={{ minWidth: '180px' }}
+                  footer={
+                    <span>
+                      <span className='text-gray-600 font-medium'>
+                        Positions:
+                      </span>{' '}
+                      <span className='font-semibold text-gray-900'>
+                        {filtered.length}
+                      </span>
+                    </span>
+                  }
                 />
                 <Column
                   header='Open Date'
@@ -185,6 +202,8 @@ export default function HistoryPage() {
                   header='Period'
                   body={(r: ClosedTrade) => `${r.periodDays}d`}
                   style={{ minWidth: '90px' }}
+                  frozen
+                  alignFrozen='left'
                 />
                 <Column
                   header='Units Closed'
@@ -195,11 +214,15 @@ export default function HistoryPage() {
                   header='Buy Price'
                   body={(r: ClosedTrade) => formatCurrency(r.buyPrice)}
                   style={{ minWidth: '120px' }}
+                  frozen
+                  alignFrozen='left'
                 />
                 <Column
                   header='Sell Price'
                   body={(r: ClosedTrade) => formatCurrency(r.sellPrice)}
                   style={{ minWidth: '120px' }}
+                  frozen
+                  alignFrozen='left'
                 />
                 <Column
                   header='Buy Fee'
@@ -217,6 +240,11 @@ export default function HistoryPage() {
                     formatCurrency(r.unitsClosed * r.buyPrice + r.buyFee)
                   }
                   style={{ minWidth: '150px' }}
+                  footer={
+                    <span className='font-semibold text-gray-900'>
+                      {formatCurrency(totals.open)}
+                    </span>
+                  }
                 />
                 <Column
                   header='Close Position'
@@ -224,6 +252,11 @@ export default function HistoryPage() {
                     formatCurrency(r.unitsClosed * r.sellPrice - r.sellFee)
                   }
                   style={{ minWidth: '150px' }}
+                  footer={
+                    <span className='font-semibold text-gray-900'>
+                      {formatCurrency(totals.close)}
+                    </span>
+                  }
                 />
                 <Column
                   header='P/L'
@@ -239,6 +272,13 @@ export default function HistoryPage() {
                     );
                   }}
                   style={{ minWidth: '130px' }}
+                  frozen
+                  alignFrozen='left'
+                  footer={
+                    <span className={returnClass(totals.pl)}>
+                      {formatCurrency(totals.pl)}
+                    </span>
+                  }
                 />
                 <Column
                   header='P/L %'
@@ -251,6 +291,13 @@ export default function HistoryPage() {
                     );
                   }}
                   style={{ minWidth: '130px' }}
+                  frozen
+                  alignFrozen='left'
+                  footer={
+                    <span className={returnClass(plPct)}>
+                      {formatPct(plPct)}
+                    </span>
+                  }
                 />
                 <Column
                   header='Buy Comments'
@@ -260,22 +307,6 @@ export default function HistoryPage() {
                 <Column
                   header='Sell Comments'
                   body={(r: ClosedTrade) => r.sellComments || ''}
-                  style={{ minWidth: '180px' }}
-                />
-                <Column
-                  header=''
-                  footer={
-                    <div className='flex flex-col text-xs text-gray-700'>
-                      <span>Total Open: {formatCurrency(totals.open)}</span>
-                      <span>Total Close: {formatCurrency(totals.close)}</span>
-                      <span className={returnClass(totals.pl)}>
-                        Total P/L: {formatCurrency(totals.pl)}
-                      </span>
-                      <span className={returnClass(plPct)}>
-                        Total P/L %: {formatPct(plPct)}
-                      </span>
-                    </div>
-                  }
                   style={{ minWidth: '180px' }}
                 />
               </DataTable>
