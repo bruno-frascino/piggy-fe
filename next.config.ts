@@ -18,6 +18,7 @@ const nextConfig: NextConfig = {
     // Ignore build errors during development
     ignoreBuildErrors: process.env.NODE_ENV === 'development',
   },
+  turbopack: {},
 };
 
 export default withPWA(nextConfig);
