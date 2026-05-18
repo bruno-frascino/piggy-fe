@@ -199,7 +199,7 @@ class ApiClient {
     if (USE_MOCK_API) {
       return await MockAuthService.signup(name, email, password);
     }
-    const response = await this.client.post('/auth/signup', {
+    const response = await this.client.post('/auth/register', {
       name,
       email,
       password,

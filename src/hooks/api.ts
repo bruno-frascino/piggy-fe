@@ -116,10 +116,10 @@ export const useLogin = () => {
     mutationFn: ({ email, password }: { email: string; password: string }) =>
       apiClient.login(email, password),
     onSuccess: data => {
-      // Store auth token
-      if (data.token) {
-        localStorage.setItem('authToken', data.token);
-      }
+      // Store auth tokens — backend returns { success, data: { user, accessToken, refreshToken } }
+      const { accessToken, refreshToken } = data.data ?? {};
+      if (accessToken) localStorage.setItem('authToken', accessToken);
+      if (refreshToken) localStorage.setItem('refreshToken', refreshToken);
       // Invalidate all queries to refetch with new auth
       queryClient.invalidateQueries();
     },
@@ -141,9 +141,11 @@ export const useSignup = () => {
       password: string;
     }) => apiClient.signup(name, email, password),
     onSuccess: data => {
-      // Optionally auto-login after signup if token is returned
-      if (data.token) {
-        localStorage.setItem('authToken', data.token);
+      // Backend returns { success, data: { user, accessToken, refreshToken } } on register
+      const { accessToken, refreshToken } = data.data ?? {};
+      if (accessToken) {
+        localStorage.setItem('authToken', accessToken);
+        if (refreshToken) localStorage.setItem('refreshToken', refreshToken);
         queryClient.invalidateQueries();
       }
     },
