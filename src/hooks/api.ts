@@ -174,3 +174,26 @@ export const useResetPassword = () => {
     },
   });
 };
+
+// Exchange hooks
+export const useExchanges = () => {
+  return useQuery({
+    queryKey: ['exchanges'],
+    queryFn: () => apiClient.getAvailableExchanges(),
+  });
+};
+
+export const useUserPortfolio = () => {
+  return useQuery({
+    queryKey: ['user-portfolio'],
+    queryFn: () => apiClient.getUserPortfolio(),
+  });
+};
+
+export const useHoldings = (exchangeName: string) => {
+  return useQuery({
+    queryKey: ['holdings', exchangeName],
+    queryFn: () => apiClient.getHoldings(exchangeName),
+    enabled: !!exchangeName,
+  });
+};

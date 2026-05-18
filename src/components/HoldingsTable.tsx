@@ -12,8 +12,8 @@ import ClosePositionDialog, {
   ClosePositionPayload,
 } from '@/components/ClosePositionDialog';
 import { addClosedTrade } from '@/lib/closed-trades-store';
-import type { ExchangeKey } from '@/lib/mock-portfolio';
-import { getHoldingsForExchange } from '@/lib/mock-holdings';
+import type { ExchangeKey } from '@/lib/types';
+import { useHoldings } from '@/hooks/api';
 
 type HoldingRow = LocalHolding & {
   openDateTs: number; // numeric timestamp for reliable sorting
@@ -58,13 +58,14 @@ export default function HoldingsTable({
 }: {
   selectedExchange: ExchangeKey;
 }) {
+  const { data: remoteHoldings } = useHoldings(selectedExchange);
   // Local holdings state so we can add positions
-  const [holdings, setHoldings] = useState<LocalHolding[]>(() =>
-    getHoldingsForExchange(selectedExchange)
-  );
+  const [holdings, setHoldings] = useState<LocalHolding[]>([]);
   useEffect(() => {
-    setHoldings(getHoldingsForExchange(selectedExchange));
-  }, [selectedExchange]);
+    if (remoteHoldings) {
+      setHoldings(remoteHoldings);
+    }
+  }, [remoteHoldings]);
 
   const [showDialog, setShowDialog] = useState(false);
   const [mode, setMode] = useState<'add' | 'edit'>('add');

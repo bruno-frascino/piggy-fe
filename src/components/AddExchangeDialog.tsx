@@ -6,7 +6,7 @@ import { InputText } from 'primereact/inputtext';
 import { Dropdown } from 'primereact/dropdown';
 import { InputTextarea } from 'primereact/inputtextarea';
 import { Button } from 'primereact/button';
-import type { ExchangeKey } from '@/lib/mock-portfolio';
+import type { AvailableExchange, ExchangeKey } from '@/lib/types';
 
 export type ExchangeType = 'crypto' | 'stocks' | 'mixed';
 
@@ -33,6 +33,7 @@ export default function AddExchangeDialog({
   visible,
   onHide,
   onSubmit,
+  availableExchanges = [],
   existingNames = [],
   mode = 'add',
   initial,
@@ -41,6 +42,7 @@ export default function AddExchangeDialog({
   visible: boolean;
   onHide: () => void;
   onSubmit: (value: NewExchangePayload) => void;
+  availableExchanges?: AvailableExchange[];
   existingNames?: string[];
   mode?: 'add' | 'edit';
   initial?: Partial<NewExchangePayload> & { name: ExchangeKey };
@@ -53,6 +55,17 @@ export default function AddExchangeDialog({
     description: '',
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const availableExchangeOptions = availableExchanges
+    .filter(
+      exchange =>
+        !existingNames.some(
+          current => current.toLowerCase() === exchange.code.toLowerCase()
+        )
+    )
+    .map(exchange => ({
+      label: `${exchange.code} - ${exchange.name}`,
+      value: exchange.code,
+    }));
 
   // Prefill when editing
   useEffect(() => {
@@ -137,18 +150,29 @@ export default function AddExchangeDialog({
       <div className='space-y-4'>
         <div>
           <label className='block text-sm font-medium mb-1'>Name *</label>
-          <InputText
-            value={form.name}
-            onChange={e =>
-              setForm(f => ({
-                ...f,
-                name: disableNameEdit ? f.name : e.target.value,
-              }))
-            }
-            placeholder='e.g. MyBroker'
-            className='w-full'
-            disabled={mode === 'edit' && disableNameEdit}
-          />
+          {mode === 'add' && availableExchangeOptions.length > 0 ? (
+            <Dropdown
+              value={form.name}
+              options={availableExchangeOptions}
+              onChange={e => setForm(f => ({ ...f, name: e.value }))}
+              placeholder='Select an exchange'
+              className='w-full'
+              filter
+            />
+          ) : (
+            <InputText
+              value={form.name}
+              onChange={e =>
+                setForm(f => ({
+                  ...f,
+                  name: disableNameEdit ? f.name : e.target.value,
+                }))
+              }
+              placeholder='e.g. MyBroker'
+              className='w-full'
+              disabled={mode === 'edit' && disableNameEdit}
+            />
+          )}
           {errors.name && (
             <p className='text-xs text-red-600 mt-1'>{errors.name}</p>
           )}

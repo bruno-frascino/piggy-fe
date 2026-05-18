@@ -6,7 +6,7 @@ import { InputText } from 'primereact/inputtext';
 import { InputNumber } from 'primereact/inputnumber';
 import { InputTextarea } from 'primereact/inputtextarea';
 import { Button } from 'primereact/button';
-import type { HoldingPosition } from '@/lib/mock-holdings';
+import type { HoldingPosition } from '@/lib/types';
 
 export type LocalHolding = Omit<
   HoldingPosition,

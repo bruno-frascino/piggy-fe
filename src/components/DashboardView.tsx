@@ -2,7 +2,8 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { Card } from 'primereact/card';
-import { exchanges, summarize, ExchangeKey } from '@/lib/mock-portfolio';
+import type { ExchangeKey, ExchangePortfolio, EquityPoint } from '@/lib/types';
+import { useExchanges, useUserPortfolio } from '@/hooks/api';
 import { Button } from 'primereact/button';
 import AddExchangeDialog, {
   NewExchangePayload,
@@ -48,6 +49,14 @@ export interface ExchangeDefinition {
   description?: string;
 }
 
+function summarize(series: EquityPoint[]) {
+  if (series.length < 1) return { totalEquity: 0, totalPL: 0, dayPL: 0 };
+  const first = series[0].equity;
+  const last = series[series.length - 1].equity;
+  const prev = series.length > 1 ? series[series.length - 2].equity : last;
+  return { totalEquity: last, totalPL: last - first, dayPL: last - prev };
+}
+
 // Form + dialog logic extracted to AddExchangeDialog component.
 
 export default function DashboardView() {
@@ -55,27 +64,28 @@ export default function DashboardView() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  // Initialize from query or localStorage
-  const initialSelected = useMemo<ExchangeKey>(() => {
-    const fromQuery = searchParams?.get('exchange') as ExchangeKey | null;
-    if (fromQuery && exchanges.some(e => e.name === fromQuery))
-      return fromQuery;
-    if (typeof window !== 'undefined') {
-      const fromStorage = localStorage.getItem(
-        'selectedExchange'
-      ) as ExchangeKey | null;
-      if (fromStorage && exchanges.some(e => e.name === fromStorage))
-        return fromStorage;
-    }
-    return 'Binance';
-  }, [searchParams]);
+  const {
+    data: remotePortfolio,
+    isLoading: isPortfolioLoading,
+    isFetched: isPortfolioFetched,
+  } = useUserPortfolio();
+  const { data: availableExchanges } = useExchanges();
+  const [exchangeList, setExchangeList] = useState<ExchangePortfolio[]>([]);
+  const [seededFromPortfolio, setSeededFromPortfolio] = useState(false);
 
-  const [selected, setSelected] = useState<ExchangeKey>(initialSelected);
-  const [exchangeList, setExchangeList] = useState(exchanges.map(e => e));
+  // Seed list from API exactly once
+  useEffect(() => {
+    if (seededFromPortfolio || !isPortfolioFetched) return;
+    setExchangeList(remotePortfolio ?? []);
+    setSeededFromPortfolio(true);
+  }, [seededFromPortfolio, isPortfolioFetched, remotePortfolio]);
+
+  const [selected, setSelected] = useState<ExchangeKey>('');
   const [manageMode, setManageMode] = useState(false);
   const longPressHandlers = useLongPress(() => setManageMode(true), {
     delay: 500,
   });
+  const numberFormatter = useMemo(() => new Intl.NumberFormat('en-US'), []);
 
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
@@ -119,8 +129,31 @@ export default function DashboardView() {
     }
   };
 
+  // Once the list is available, establish the initial selection.
+  useEffect(() => {
+    if (!exchangeList.length || selected) return;
+    const fromQuery = searchParams?.get('exchange') as ExchangeKey | null;
+    if (fromQuery && exchangeList.some(e => e.name === fromQuery)) {
+      setSelected(fromQuery);
+      return;
+    }
+    try {
+      const fromStorage = localStorage.getItem(
+        'selectedExchange'
+      ) as ExchangeKey | null;
+      if (fromStorage && exchangeList.some(e => e.name === fromStorage)) {
+        setSelected(fromStorage);
+        return;
+      }
+    } catch {
+      // no-op
+    }
+    setSelected(exchangeList[0].name);
+  }, [exchangeList, selected, searchParams]);
+
   // Keep URL and localStorage in sync
   useEffect(() => {
+    if (!selected) return;
     try {
       if (typeof window !== 'undefined') {
         localStorage.setItem('selectedExchange', selected);
@@ -137,18 +170,25 @@ export default function DashboardView() {
   }, [selected, router, pathname, searchParams]);
 
   const exchange = useMemo(
-    () => exchangeList.find(e => e.name === selected) ?? exchangeList[0],
+    () =>
+      exchangeList.find(e => e.name === selected) ?? exchangeList[0] ?? null,
     [selected, exchangeList]
   );
-  const stats = useMemo(() => summarize(exchange.equitySeries), [exchange]);
+  const stats = useMemo(
+    () =>
+      exchange
+        ? summarize(exchange.equitySeries)
+        : { totalEquity: 0, totalPL: 0, dayPL: 0 },
+    [exchange]
+  );
 
   const data = useMemo(
     () => ({
-      labels: exchange.equitySeries.map(p => p.date),
+      labels: exchange?.equitySeries.map(p => p.date) ?? [],
       datasets: [
         {
           label: `${selected} Equity`,
-          data: exchange.equitySeries.map(p => p.equity),
+          data: exchange?.equitySeries.map(p => p.equity) ?? [],
           borderColor: 'rgb(59,130,246)',
           backgroundColor: 'rgba(59,130,246,0.15)',
           tension: 0.25,
@@ -173,6 +213,24 @@ export default function DashboardView() {
     }),
     []
   );
+
+  if (!seededFromPortfolio && isPortfolioLoading) {
+    return (
+      <div className='min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4 flex items-center justify-center'>
+        <span className='text-gray-500'>Loading exchanges…</span>
+      </div>
+    );
+  }
+
+  if (seededFromPortfolio && !exchangeList.length) {
+    return (
+      <div className='min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4 flex items-center justify-center'>
+        <span className='text-gray-500'>
+          No exchanges in your portfolio yet.
+        </span>
+      </div>
+    );
+  }
 
   return (
     <div className='min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4'>
@@ -254,7 +312,7 @@ export default function DashboardView() {
           <Card className='text-center'>
             <h3 className='text-sm text-gray-600'>Total Equity</h3>
             <p className='text-2xl font-semibold text-gray-900'>
-              ${stats.totalEquity.toLocaleString()}
+              ${numberFormatter.format(stats.totalEquity)}
             </p>
           </Card>
           <Card className='text-center'>
@@ -263,7 +321,7 @@ export default function DashboardView() {
               className={`text-2xl font-semibold ${stats.totalPL >= 0 ? 'text-green-600' : 'text-red-600'}`}
             >
               {stats.totalPL >= 0 ? '+' : ''}$
-              {Math.abs(stats.totalPL).toLocaleString()}
+              {numberFormatter.format(Math.abs(stats.totalPL))}
             </p>
           </Card>
           <Card className='text-center'>
@@ -272,7 +330,7 @@ export default function DashboardView() {
               className={`text-2xl font-semibold ${stats.dayPL >= 0 ? 'text-green-600' : 'text-red-600'}`}
             >
               {stats.dayPL >= 0 ? '+' : ''}$
-              {Math.abs(stats.dayPL).toLocaleString()}
+              {numberFormatter.format(Math.abs(stats.dayPL))}
             </p>
           </Card>
         </div>
@@ -290,6 +348,7 @@ export default function DashboardView() {
         visible={showAddDialog}
         onHide={() => setShowAddDialog(false)}
         onSubmit={handleAddExchange}
+        availableExchanges={availableExchanges}
         existingNames={exchangeList.map(e => e.name)}
         mode='add'
       />
@@ -301,14 +360,9 @@ export default function DashboardView() {
         mode='edit'
         initial={{
           name: exchange.name,
-          // The following fields may not exist on mock exchanges; dialog will handle defaults
-          type: (
-            exchange as unknown as { type?: 'crypto' | 'stocks' | 'mixed' }
-          ).type,
-          baseCurrency: (exchange as unknown as { baseCurrency?: string })
-            .baseCurrency,
-          description: (exchange as unknown as { description?: string })
-            .description,
+          type: exchange.type,
+          baseCurrency: exchange.baseCurrency,
+          description: exchange.description,
         }}
         disableNameEdit
       />
