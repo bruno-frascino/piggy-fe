@@ -97,6 +97,9 @@ function ResetPasswordForm() {
                 onChange={e => setPassword(e.target.value)}
                 placeholder='Enter new password'
                 className='w-full'
+                inputClassName='w-full'
+                panelClassName='w-full'
+                appendTo='self'
                 promptLabel='Choose a password'
                 weakLabel='Too simple'
                 mediumLabel='Average complexity'

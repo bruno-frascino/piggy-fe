@@ -54,15 +54,7 @@ export default function SignupPage() {
 
     try {
       await signupMutation.mutateAsync({ name, email, password });
-
-      setSuccess(
-        'Account created successfully! Please check your email to verify your account.'
-      );
-
-      // Redirect to login after 3 seconds
-      setTimeout(() => {
-        router.push('/auth/login');
-      }, 3000);
+      setSuccess('Account created successfully!');
     } catch (err: unknown) {
       const error = err as { response?: { data?: { message?: string } } };
       setError(
@@ -77,136 +69,157 @@ export default function SignupPage() {
         {/* Logo/Header */}
         <CoreHeader />
 
-        <Card className='shadow-lg'>
-          <form onSubmit={handleSubmit} className='space-y-6' noValidate>
-            {/* Header */}
-            <div className='text-center mb-6'>
-              <h2 className='text-2xl font-bold text-gray-900 mb-2'>
-                Create Account
-              </h2>
-              <p className='text-gray-600'>
-                Join Truffles to start managing your money better
-              </p>
-            </div>
-
-            {/* Error Message */}
-            {error && (
-              <Message severity='error' text={error} className='w-full' />
-            )}
-
-            {/* Success Message */}
-            {success && (
-              <Message severity='success' text={success} className='w-full' />
-            )}
-
-            {/* Name Field */}
-            <div className='space-y-2'>
-              <label
-                htmlFor='name'
-                className='block text-sm font-medium text-gray-700'
-              >
-                Full Name
-              </label>
-              <InputText
-                id='name'
-                type='text'
-                value={name}
-                onChange={e => setName(e.target.value)}
-                placeholder='Enter your full name'
+        {success ? (
+          <Card className='shadow-lg'>
+            <div className='text-center space-y-6 py-4'>
+              <div className='flex justify-center'>
+                <span className='text-6xl'>🎉</span>
+              </div>
+              <div>
+                <h2 className='text-2xl font-bold text-gray-900 mb-2'>
+                  You&apos;re all set!
+                </h2>
+                <p className='text-gray-600'>
+                  Your account has been created. Sign in to get started.
+                </p>
+              </div>
+              <Button
+                label='Go to Sign in'
                 className='w-full'
-                required
+                onClick={() => router.push('/auth/login')}
               />
             </div>
+          </Card>
+        ) : (
+          <Card className='shadow-lg'>
+            <form onSubmit={handleSubmit} className='space-y-6' noValidate>
+              {/* Header */}
+              <div className='text-center mb-6'>
+                <h2 className='text-2xl font-bold text-gray-900 mb-2'>
+                  Create Account
+                </h2>
+                <p className='text-gray-600'>
+                  Join Truffles to start managing your money better
+                </p>
+              </div>
 
-            {/* Email Field */}
-            <div className='space-y-2'>
-              <label
-                htmlFor='email'
-                className='block text-sm font-medium text-gray-700'
-              >
-                Email Address
-              </label>
-              <InputText
-                id='email'
-                type='email'
-                value={email}
-                onChange={e => setEmail(e.target.value)}
-                placeholder='Enter your email address'
-                className='w-full'
-                required
-              />
-            </div>
+              {/* Error Message */}
+              {error && (
+                <Message severity='error' text={error} className='w-full' />
+              )}
 
-            {/* Password Field */}
-            <div className='space-y-2'>
-              <label
-                htmlFor='password'
-                className='block text-sm font-medium text-gray-700'
-              >
-                Password
-              </label>
-              <Password
-                id='password'
-                value={password}
-                onChange={e => setPassword(e.target.value)}
-                placeholder='Create a password'
-                className='w-full'
-                promptLabel='Choose a password'
-                weakLabel='Too simple'
-                mediumLabel='Average complexity'
-                strongLabel='Complex password'
-                toggleMask
-                required
-              />
-            </div>
-
-            {/* Confirm Password Field */}
-            <div className='space-y-2'>
-              <label
-                htmlFor='confirmPassword'
-                className='block text-sm font-medium text-gray-700'
-              >
-                Confirm Password
-              </label>
-              <Password
-                id='confirmPassword'
-                value={confirmPassword}
-                onChange={e => setConfirmPassword(e.target.value)}
-                placeholder='Confirm your password'
-                className='w-full'
-                feedback={false}
-                toggleMask
-                required
-              />
-            </div>
-
-            {/* Submit Button */}
-            <Button
-              type='submit'
-              label={
-                signupMutation.isPending
-                  ? 'Creating Account...'
-                  : 'Create Account'
-              }
-              className='w-full p-3 text-lg'
-              loading={signupMutation.isPending}
-              disabled={signupMutation.isPending || !!success}
-            />
-
-            {/* Login Link */}
-            <div className='text-center pt-4 border-t border-gray-200'>
-              <p className='text-sm text-gray-600'>
-                Already have an account?{' '}
-                <Link
-                  href='/auth/login'
-                  className='text-blue-600 hover:text-blue-800 font-medium hover:underline'
+              {/* Name Field */}
+              <div className='space-y-2'>
+                <label
+                  htmlFor='name'
+                  className='block text-sm font-medium text-gray-700'
                 >
-                  Sign in
-                </Link>
-              </p>
-            </div>
-          </form>
-        </Card>
+                  Full Name
+                </label>
+                <InputText
+                  id='name'
+                  type='text'
+                  value={name}
+                  onChange={e => setName(e.target.value)}
+                  placeholder='Enter your full name'
+                  className='w-full'
+                  required
+                />
+              </div>
+
+              {/* Email Field */}
+              <div className='space-y-2'>
+                <label
+                  htmlFor='email'
+                  className='block text-sm font-medium text-gray-700'
+                >
+                  Email Address
+                </label>
+                <InputText
+                  id='email'
+                  type='email'
+                  value={email}
+                  onChange={e => setEmail(e.target.value)}
+                  placeholder='Enter your email address'
+                  className='w-full'
+                  required
+                />
+              </div>
+
+              {/* Password Field */}
+              <div className='space-y-2'>
+                <label
+                  htmlFor='password'
+                  className='block text-sm font-medium text-gray-700'
+                >
+                  Password
+                </label>
+                <Password
+                  id='password'
+                  value={password}
+                  onChange={e => setPassword(e.target.value)}
+                  placeholder='Create a password'
+                  className='w-full'
+                  inputClassName='w-full'
+                  panelClassName='w-full'
+                  appendTo='self'
+                  promptLabel='Choose a password'
+                  weakLabel='Too simple'
+                  mediumLabel='Average complexity'
+                  strongLabel='Complex password'
+                  toggleMask
+                  required
+                />
+              </div>
+
+              {/* Confirm Password Field */}
+              <div className='space-y-2'>
+                <label
+                  htmlFor='confirmPassword'
+                  className='block text-sm font-medium text-gray-700'
+                >
+                  Confirm Password
+                </label>
+                <Password
+                  id='confirmPassword'
+                  value={confirmPassword}
+                  onChange={e => setConfirmPassword(e.target.value)}
+                  placeholder='Confirm your password'
+                  className='w-full'
+                  feedback={false}
+                  toggleMask
+                  required
+                />
+              </div>
+
+              {/* Submit Button */}
+              <Button
+                type='submit'
+                label={
+                  signupMutation.isPending
+                    ? 'Creating Account...'
+                    : 'Create Account'
+                }
+                className='w-full p-3 text-lg'
+                loading={signupMutation.isPending}
+                disabled={signupMutation.isPending || !!success}
+              />
+
+              {/* Login Link */}
+              <div className='text-center pt-4 border-t border-gray-200'>
+                <p className='text-sm text-gray-600'>
+                  Already have an account?{' '}
+                  <Link
+                    href='/auth/login'
+                    className='text-blue-600 hover:text-blue-800 font-medium hover:underline'
+                  >
+                    Sign in
+                  </Link>
+                </p>
+              </div>
+            </form>
+          </Card>
+        )}
 
         {/* Footer */}
         <div className='text-center mt-8 text-sm text-gray-500'>
