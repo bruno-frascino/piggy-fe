@@ -23,7 +23,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'Hamm Reserve - Personal Finance Manager',
+  title: 'Truffles - Portfolio Tracker',
   description: 'Personal finance management application',
   manifest: '/manifest.json',
 };

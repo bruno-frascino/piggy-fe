@@ -6,7 +6,7 @@ interface CoreHeaderProps {
 }
 
 export default function CoreHeader({
-  title = '🐷 Hamm Reserve',
+  title = '🍄 Truffles',
   subtitle,
   description,
 }: CoreHeaderProps) {
