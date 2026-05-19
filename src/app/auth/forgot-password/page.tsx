@@ -27,7 +27,7 @@ export default function ForgotPasswordPage() {
     }
 
     if (!email.includes('@')) {
-      setError('Please enter a valid email address');
+      setError('Please enter a valid email address (e.g. name@example.com)');
       return;
     }
 
@@ -53,7 +53,7 @@ export default function ForgotPasswordPage() {
         <CoreHeader />
 
         <Card className='shadow-lg'>
-          <form onSubmit={handleSubmit} className='space-y-6'>
+          <form onSubmit={handleSubmit} className='space-y-6' noValidate>
             {/* Header */}
             <div className='text-center mb-6'>
               <h2 className='text-2xl font-bold text-gray-900 mb-2'>
@@ -138,7 +138,7 @@ export default function ForgotPasswordPage() {
 
         {/* Footer */}
         <div className='text-center mt-8 text-sm text-gray-500'>
-          <p>© 2025 Hamm Reserve. All rights reserved.</p>
+          <p>© 2026 Truffles. All rights reserved.</p>
         </div>
       </div>
     </div>

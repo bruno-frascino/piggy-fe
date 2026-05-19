@@ -23,8 +23,18 @@ export default function LoginPage() {
     e.preventDefault();
     setError('');
 
-    if (!email || !password) {
-      setError('Please fill in all fields');
+    if (!email.trim()) {
+      setError('Email address is required');
+      return;
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setError('Please enter a valid email address');
+      return;
+    }
+
+    if (!password) {
+      setError('Password is required');
       return;
     }
 
@@ -47,7 +57,7 @@ export default function LoginPage() {
 
         {/* Login Card */}
         <Card className='shadow-lg'>
-          <form onSubmit={handleSubmit} className='space-y-6'>
+          <form onSubmit={handleSubmit} className='space-y-6' noValidate>
             {/* Error Message */}
             {error && (
               <Message severity='error' text={error} className='w-full' />
@@ -133,7 +143,7 @@ export default function LoginPage() {
 
         {/* Footer */}
         <div className='text-center mt-8 text-sm text-gray-500'>
-          <p>© 2025 Hamm Reserve. All rights reserved.</p>
+          <p>© 2026 Truffles. All rights reserved.</p>
         </div>
       </div>
     </div>

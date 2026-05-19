@@ -176,9 +176,11 @@ class ApiClient {
     this.client.interceptors.response.use(
       response => response,
       error => {
-        if (error.response?.status === 401) {
-          // Handle unauthorized - redirect to login
+        const isAuthEndpoint = error.config?.url?.startsWith('/auth/');
+        if (error.response?.status === 401 && !isAuthEndpoint) {
+          // Session expired or token invalid — redirect to login
           localStorage.removeItem('authToken');
+          localStorage.removeItem('refreshToken');
           window.location.href = '/auth/login';
         }
         return Promise.reject(error);

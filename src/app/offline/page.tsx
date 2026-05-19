@@ -1,5 +1,5 @@
 export const metadata = {
-  title: 'Offline | Hamm Reserve',
+  title: 'Offline | Truffles',
 };
 
 import OfflineActions from './ClientActions';

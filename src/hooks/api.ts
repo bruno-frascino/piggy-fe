@@ -167,12 +167,9 @@ export const useResetPassword = () => {
   return useMutation({
     mutationFn: ({ token, password }: { token: string; password: string }) =>
       apiClient.resetPassword(token, password),
-    onSuccess: data => {
-      // Auto-login after password reset if token is returned
-      if (data.token) {
-        localStorage.setItem('authToken', data.token);
-        queryClient.invalidateQueries();
-      }
+    onSuccess: () => {
+      // Reset password returns only { success, message } — no token
+      // Redirect is handled by the page component after success
     },
   });
 };
