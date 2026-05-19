@@ -28,7 +28,7 @@ export default function TopNav() {
 
         {/* Center: Pig icon only */}
         <div className='flex justify-center'>
-          <Link href='/' className='select-none' aria-label='Hamm Reserve Home'>
+          <Link href='/' className='select-none' aria-label='Truffles Home'>
             <span aria-hidden className='text-3xl md:text-4xl'>
               🐷
             </span>
