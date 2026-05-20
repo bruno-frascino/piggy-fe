@@ -47,7 +47,7 @@ export default function ForgotPasswordPage() {
   };
 
   return (
-    <div className='min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4'>
+    <div className='min-h-screen bg-[--tr-bg] flex items-center justify-center p-4'>
       <div className='w-full max-w-md'>
         {/* Logo/Header */}
         <CoreHeader />
@@ -137,7 +137,10 @@ export default function ForgotPasswordPage() {
         </Card>
 
         {/* Footer */}
-        <div className='text-center mt-8 text-sm text-gray-500'>
+        <div
+          className='text-center mt-8 text-sm'
+          style={{ color: 'var(--tr-text-3)' }}
+        >
           <p>© 2026 Truffles. All rights reserved.</p>
         </div>
       </div>

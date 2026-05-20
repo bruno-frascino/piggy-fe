@@ -342,21 +342,41 @@ class ApiClient {
       return exchanges;
     }
 
-    const endpoints = ['/portfolio/current', '/portfolio'];
+    const response = await this.client.get('/positions', {
+      params: { status: 'OPEN', limit: 100 },
+    });
 
-    for (let i = 0; i < endpoints.length; i += 1) {
-      try {
-        const response = await this.client.get(endpoints[i]);
-        const rows = unwrapPortfolioRows(response.data);
-        return rows.map(mapToExchangePortfolio);
-      } catch (error) {
-        if (i === endpoints.length - 1) {
-          throw error;
-        }
+    const positions = unwrapArray<unknown>(response.data);
+    const exchangeMap = new Map<string, { types: Set<string> }>();
+
+    for (const pos of positions) {
+      if (!isRecord(pos)) continue;
+      const asset = isRecord(pos.asset) ? pos.asset : null;
+      if (!asset) continue;
+      const exch = isRecord(asset.exchange) ? asset.exchange : null;
+      if (!exch) continue;
+
+      const code =
+        (typeof exch.code === 'string' && exch.code) ||
+        (typeof exch.name === 'string' && exch.name) ||
+        null;
+      if (!code) continue;
+
+      if (!exchangeMap.has(code)) {
+        exchangeMap.set(code, { types: new Set() });
+      }
+      if (typeof asset.assetType === 'string') {
+        exchangeMap.get(code)!.types.add(asset.assetType);
       }
     }
 
-    return [];
+    return Array.from(exchangeMap.entries()).map(([code, meta]) => {
+      const hasCrypto = meta.types.has('CRYPTO');
+      const hasStocks = meta.types.has('EQUITY') || meta.types.has('ETF');
+      const type: ExchangePortfolio['type'] =
+        hasCrypto && hasStocks ? 'mixed' : hasCrypto ? 'crypto' : 'stocks';
+      return { name: code, equitySeries: [], type };
+    });
   }
 
   // Holdings methods

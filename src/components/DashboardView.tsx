@@ -216,29 +216,27 @@ export default function DashboardView() {
 
   if (!seededFromPortfolio && isPortfolioLoading) {
     return (
-      <div className='min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4 flex items-center justify-center'>
-        <span className='text-gray-500'>Loading exchanges…</span>
-      </div>
-    );
-  }
-
-  if (seededFromPortfolio && !exchangeList.length) {
-    return (
-      <div className='min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4 flex items-center justify-center'>
-        <span className='text-gray-500'>
-          No exchanges in your portfolio yet.
-        </span>
+      <div className='min-h-screen bg-[--tr-bg] flex items-center justify-center'>
+        <div className='flex flex-col items-center gap-3 text-slate-400'>
+          <i className='pi pi-spin pi-spinner text-4xl text-blue-400' />
+          <span className='text-sm font-medium'>Loading portfolio…</span>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className='min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4'>
+    <div className='min-h-screen bg-[--tr-bg] p-4'>
       <div className='max-w-6xl xl:max-w-7xl 2xl:max-w-screen-2xl 3xl:max-w-[1800px] mx-auto space-y-6'>
         {/* Removed CoreHeader from dashboard; TopNav provides global header */}
         <Card>
           <div className='flex items-start justify-between mb-4 pb-2 border-b border-gray-200'>
-            <h3 className='text-xl font-semibold text-gray-900'>Exchanges</h3>
+            <h3
+              className='text-xl font-semibold'
+              style={{ color: 'var(--tr-text)' }}
+            >
+              Exchanges
+            </h3>
             <div className='flex flex-col gap-2 pt-1'>
               {!manageMode && (
                 <Button
@@ -270,6 +268,18 @@ export default function DashboardView() {
               )}
             </div>
           </div>
+          {exchangeList.length === 0 && (
+            <div className='flex flex-col items-center justify-center py-8 gap-3 text-center'>
+              <span className='text-4xl' aria-hidden>
+                📊
+              </span>
+              <p className='text-slate-500 text-sm max-w-xs'>
+                Your portfolio is empty. Click{' '}
+                <strong className='text-slate-700'>+</strong> to add your first
+                exchange and start tracking your investments.
+              </p>
+            </div>
+          )}
           <div className='flex flex-wrap items-center gap-3 pr-16'>
             {exchangeList.map(e => {
               const isSelected = selected === e.name;
@@ -310,24 +320,50 @@ export default function DashboardView() {
 
         <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
           <Card className='text-center'>
-            <h3 className='text-sm text-gray-600'>Total Equity</h3>
-            <p className='text-2xl font-semibold text-gray-900'>
+            <h3
+              className='text-sm font-medium mb-1'
+              style={{ color: 'var(--tr-text-2)' }}
+            >
+              Total Equity
+            </h3>
+            <p
+              className='text-2xl font-bold'
+              style={{ color: 'var(--tr-text)' }}
+            >
               ${numberFormatter.format(stats.totalEquity)}
             </p>
           </Card>
           <Card className='text-center'>
-            <h3 className='text-sm text-gray-600'>Total P/L</h3>
+            <h3
+              className='text-sm font-medium mb-1'
+              style={{ color: 'var(--tr-text-2)' }}
+            >
+              Total P/L
+            </h3>
             <p
-              className={`text-2xl font-semibold ${stats.totalPL >= 0 ? 'text-green-600' : 'text-red-600'}`}
+              className='text-2xl font-bold'
+              style={{
+                color:
+                  stats.totalPL >= 0 ? 'var(--tr-success)' : 'var(--tr-danger)',
+              }}
             >
               {stats.totalPL >= 0 ? '+' : ''}$
               {numberFormatter.format(Math.abs(stats.totalPL))}
             </p>
           </Card>
           <Card className='text-center'>
-            <h3 className='text-sm text-gray-600'>Day P/L</h3>
+            <h3
+              className='text-sm font-medium mb-1'
+              style={{ color: 'var(--tr-text-2)' }}
+            >
+              Day P/L
+            </h3>
             <p
-              className={`text-2xl font-semibold ${stats.dayPL >= 0 ? 'text-green-600' : 'text-red-600'}`}
+              className='text-2xl font-bold'
+              style={{
+                color:
+                  stats.dayPL >= 0 ? 'var(--tr-success)' : 'var(--tr-danger)',
+              }}
             >
               {stats.dayPL >= 0 ? '+' : ''}$
               {numberFormatter.format(Math.abs(stats.dayPL))}
@@ -358,12 +394,16 @@ export default function DashboardView() {
         onSubmit={handleEditExchange}
         existingNames={exchangeList.map(e => e.name)}
         mode='edit'
-        initial={{
-          name: exchange.name,
-          type: exchange.type,
-          baseCurrency: exchange.baseCurrency,
-          description: exchange.description,
-        }}
+        initial={
+          exchange
+            ? {
+                name: exchange.name,
+                type: exchange.type,
+                baseCurrency: exchange.baseCurrency,
+                description: exchange.description,
+              }
+            : undefined
+        }
         disableNameEdit
       />
     </div>

@@ -1,8 +1,71 @@
 @import 'tailwindcss';
 
+/* ==========================================================================
+   TRUFFLES — Design Token Palette
+   Inspired by N26 / Coinbase / Trading 212 fintech aesthetic.
+   All colours are explicitly light-mode values. Dark-mode is deliberately
+   NOT implemented — the app uses the lara-light-blue PrimeReact theme which
+   only ships a light variant. `color-scheme: light` below locks the browser
+   to light rendering regardless of the OS preference.
+   ==========================================================================
+
+   Canvas / surfaces
+   ──────────────────────────────────────────────────────────────────────
+   --tr-bg          #F0F4FF   Warm blue-tinted canvas  (all pages)
+   --tr-surface     #FFFFFF   Cards, dialogs, nav bar
+   --tr-surface-2   #F8FAFF   Slightly elevated surface (inner panels)
+   --tr-border      #DDE3F0   Dividers, card outlines
+
+   Typography  (high contrast on every surface above)
+   ──────────────────────────────────────────────────────────────────────
+   --tr-text        #1A2B4B   Deep navy — 12:1 on white, elegant
+   --tr-text-2      #52698A   Blue-grey secondary — 5.9:1 on white
+   --tr-text-3      #9AAAC0   Muted / placeholders
+
+   Brand  (matches PrimeReact lara-light-blue primary ~blue-600)
+   ──────────────────────────────────────────────────────────────────────
+   --tr-brand       #2563EB   Primary actions, links, active nav
+   --tr-brand-h     #1D4ED8   Hover state
+   --tr-brand-bg    #EEF3FF   Subtle brand tint (e.g. table footer)
+
+   Semantic
+   ──────────────────────────────────────────────────────────────────────
+   --tr-success     #0CAF60   Positive P/L, success toasts
+   --tr-danger      #E5343A   Errors, destructive actions
+   ──────────────────────────────────────────────────────────────────────
+*/
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /*
+   * Lock the browser to light mode.
+   * This prevents macOS/Windows dark-mode from making the canvas black
+   * and inverting system UI elements (scrollbars, form controls, etc.)
+   * while the app hasn't implemented a full dark-mode theme.
+   */
+  color-scheme: light;
+
+  /* Canvas / surfaces */
+  --tr-bg: #f0f4ff;
+  --tr-surface: #ffffff;
+  --tr-surface-2: #f8faff;
+  --tr-border: #dde3f0;
+
+  /* Typography */
+  --tr-text: #1a2b4b;
+  --tr-text-2: #52698a;
+  --tr-text-3: #9aaac0;
+
+  /* Brand */
+  --tr-brand: #2563eb;
+  --tr-brand-h: #1d4ed8;
+  --tr-brand-bg: #eef3ff;
+
+  /* Semantic */
+  --tr-success: #0caf60;
+  --tr-danger: #e5343a;
+
+  /* Legacy aliases (kept for Tailwind @theme resolution) */
+  --background: var(--tr-surface);
+  --foreground: var(--tr-text);
 }
 
 /* Slight shake animation for delete/manage mode */
@@ -35,48 +98,49 @@
   --font-mono: var(--font-geist-mono);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--tr-bg);
+  color: var(--tr-text);
+  font-family: var(--font-geist-sans, Arial, Helvetica, sans-serif);
 }
 
-/* Holdings table footer background (pale light blue) */
+/* Holdings table footer background */
 .holdings-table tfoot > tr > td {
-  background-color: #eff6ff; /* Tailwind blue-50 */
+  background-color: var(--tr-brand-bg);
 }
 
-/* Top navigation styled with Prime tokens for better theming */
+/* Top navigation — uses design tokens */
 .topnav {
-  /* Requested fixed background color */
-  background: #4d5198; /* #75abf5; */
-  color: #ffffff;
-  /* Slightly darker border for separation */
-  border-bottom: 1px solid #5f99f2;
-  backdrop-filter: saturate(140%) blur(6px);
+  background: var(--tr-surface);
+  color: var(--tr-text);
+  border-bottom: 1px solid var(--tr-border);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
 }
 .topnav .nav-link {
-  color: rgba(255, 255, 255, 0.9);
+  color: var(--tr-text-2);
   text-decoration: none;
+  font-weight: 500;
+  transition: color 0.15s;
 }
 .topnav .nav-link:hover {
-  color: #ffffff;
+  color: var(--tr-brand);
 }
 .topnav .nav-link.active {
-  color: #ffffff;
+  color: var(--tr-brand);
   text-decoration: underline;
-  text-underline-offset: 4px;
+  text-underline-offset: 5px;
   text-decoration-thickness: 2px;
 }
 .topnav .user-badge {
-  background: rgba(255, 255, 255, 0.35);
-  border: 1px solid rgba(255, 255, 255, 0.55);
-  color: #ffffff;
+  background: var(--tr-brand);
+  border: none;
+  color: var(--tr-surface);
+  font-weight: 600;
+}
+.topnav .signout-btn {
+  color: var(--tr-text-2);
+  transition: color 0.15s;
+}
+.topnav .signout-btn:hover {
+  color: var(--tr-danger);
 }

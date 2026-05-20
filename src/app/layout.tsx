@@ -30,7 +30,7 @@ export const metadata: Metadata = {
 
 // Next.js recommends declaring themeColor inside a separate viewport export.
 export const viewport = {
-  themeColor: '#000000',
+  themeColor: '#2563eb',
 };
 
 export default function RootLayout({
@@ -39,7 +39,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang='en'>
+    <html lang='en' style={{ colorScheme: 'light' }}>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >

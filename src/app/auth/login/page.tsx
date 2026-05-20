@@ -50,7 +50,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className='min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-4'>
+    <div className='min-h-screen flex items-center justify-center bg-[--tr-bg] p-4'>
       <div className='w-full max-w-md'>
         {/* Logo/Header */}
         <CoreHeader description='Welcome back! Please sign in to your account.' />
@@ -142,7 +142,10 @@ export default function LoginPage() {
         </Card>
 
         {/* Footer */}
-        <div className='text-center mt-8 text-sm text-gray-500'>
+        <div
+          className='text-center mt-8 text-sm'
+          style={{ color: 'var(--tr-text-3)' }}
+        >
           <p>© 2026 Truffles. All rights reserved.</p>
         </div>
       </div>

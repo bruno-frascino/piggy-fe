@@ -60,9 +60,17 @@ function ExchangeTable({ exchange, trades, onEdit }: ExchangeTableProps) {
 
   return (
     <Card>
-      <div className='pb-2 mb-4 border-b border-gray-200 flex items-center justify-between'>
-        <h3 className='text-xl font-semibold text-gray-900'>{exchange}</h3>
-        <span className='text-sm text-gray-500'>
+      <div
+        className='pb-2 mb-4 border-b flex items-center justify-between'
+        style={{ borderColor: 'var(--tr-border)' }}
+      >
+        <h3
+          className='text-xl font-semibold'
+          style={{ color: 'var(--tr-text)' }}
+        >
+          {exchange}
+        </h3>
+        <span className='text-sm' style={{ color: 'var(--tr-text-2)' }}>
           {trades.length} position{trades.length !== 1 ? 's' : ''}
         </span>
       </div>
@@ -253,12 +261,17 @@ export default function HistoryPage() {
   const exchanges = Array.from(byExchange.keys());
 
   return (
-    <div className='min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4'>
+    <div className='min-h-screen bg-[--tr-bg] p-4'>
       <div className='max-w-6xl xl:max-w-7xl 2xl:max-w-screen-2xl 3xl:max-w-[1800px] mx-auto space-y-6'>
         <Card>
           <div className='flex flex-wrap gap-3 items-end'>
             <div>
-              <label className='block text-sm text-gray-600 mb-1'>From</label>
+              <label
+                className='block text-sm font-medium mb-1'
+                style={{ color: 'var(--tr-text-2)' }}
+              >
+                From
+              </label>
               <InputText
                 type='date'
                 value={startDate}
@@ -266,7 +279,12 @@ export default function HistoryPage() {
               />
             </div>
             <div>
-              <label className='block text-sm text-gray-600 mb-1'>To</label>
+              <label
+                className='block text-sm font-medium mb-1'
+                style={{ color: 'var(--tr-text-2)' }}
+              >
+                To
+              </label>
               <InputText
                 type='date'
                 value={endDate}
