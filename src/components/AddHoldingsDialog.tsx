@@ -1,12 +1,16 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Dialog } from 'primereact/dialog';
 import { InputText } from 'primereact/inputtext';
 import { InputNumber } from 'primereact/inputnumber';
+import { Calendar } from 'primereact/calendar';
 import { InputTextarea } from 'primereact/inputtextarea';
 import { Button } from 'primereact/button';
+import { AutoComplete } from 'primereact/autocomplete';
 import type { HoldingPosition } from '@/lib/types';
+import type { StockSearchResult } from '@/lib/types';
+import { apiClient } from '@/lib/api-client';
 
 export type LocalHolding = Omit<
   HoldingPosition,
@@ -23,12 +27,14 @@ export default function AddHoldingsDialog({
   initial,
   onHide,
   onSubmit,
+  onExchangeDetected,
 }: {
   visible: boolean;
   mode?: 'add' | 'edit';
   initial?: Partial<LocalHolding>;
   onHide: () => void;
   onSubmit: (value: LocalHolding) => void;
+  onExchangeDetected?: (exchange: string) => void;
 }) {
   const [form, setForm] = useState<Partial<LocalHolding>>({
     openDate: new Date().toISOString().slice(0, 10),
@@ -44,6 +50,11 @@ export default function AddHoldingsDialog({
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [currentTouched, setCurrentTouched] = useState(false);
+  const [symbolSuggestions, setSymbolSuggestions] = useState<
+    StockSearchResult[]
+  >([]);
+  const [manualSymbol, setManualSymbol] = useState(false);
+  const searchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Load initial values when dialog opens or mode changes
   useEffect(() => {
@@ -64,6 +75,8 @@ export default function AddHoldingsDialog({
     setForm(base);
     setErrors({});
     setCurrentTouched(false);
+    setSymbolSuggestions([]);
+    setManualSymbol(false);
   }, [visible, mode, initial]);
 
   // Keep current price synced to buy price until user changes it
@@ -72,6 +85,30 @@ export default function AddHoldingsDialog({
       setForm(f => ({ ...f, currentPrice: f.buyPrice }));
     }
   }, [form.buyPrice, currentTouched]);
+
+  const searchSymbol = async (event: { query: string }) => {
+    if (searchTimerRef.current) clearTimeout(searchTimerRef.current);
+    const q = event.query.trim();
+    if (!q) {
+      setSymbolSuggestions([]);
+      return;
+    }
+    searchTimerRef.current = setTimeout(async () => {
+      try {
+        const results = await apiClient.searchStocks(q, 10);
+        setSymbolSuggestions(results);
+      } catch {
+        setSymbolSuggestions([]);
+      }
+    }, 300);
+  };
+
+  const handleSymbolSelect = (result: StockSearchResult) => {
+    setForm(f => ({ ...f, symbol: result.symbol, name: result.name }));
+    if (mode === 'add') {
+      onExchangeDetected?.(result.exchange);
+    }
+  };
 
   const handleSubmit = () => {
     const e: Record<string, string> = {};
@@ -128,14 +165,79 @@ export default function AddHoldingsDialog({
         <div className='grid grid-cols-12 gap-3'>
           <div className='col-span-12 md:col-span-3'>
             <label className='block text-sm font-medium mb-1'>Symbol *</label>
-            <InputText
-              value={(form.symbol ?? '').toUpperCase()}
-              onChange={e =>
-                setForm(f => ({ ...f, symbol: e.target.value.toUpperCase() }))
-              }
-              placeholder='e.g. AAPL'
-              className='w-full uppercase'
-            />
+            {mode === 'add' ? (
+              <>
+                {manualSymbol ? (
+                  <InputText
+                    value={(form.symbol ?? '').toUpperCase()}
+                    onChange={e =>
+                      setForm(f => ({
+                        ...f,
+                        symbol: e.target.value.toUpperCase(),
+                      }))
+                    }
+                    placeholder='e.g. AAPL'
+                    className='w-full uppercase'
+                  />
+                ) : (
+                  <AutoComplete
+                    value={form.symbol ?? ''}
+                    suggestions={symbolSuggestions}
+                    completeMethod={searchSymbol}
+                    field='symbol'
+                    itemTemplate={(item: StockSearchResult) => (
+                      <div className='flex flex-col py-1'>
+                        <div>
+                          <span className='font-semibold'>{item.symbol}</span>
+                          <span className='text-xs ml-2 text-gray-400'>
+                            {item.exchange}
+                          </span>
+                        </div>
+                        <span className='text-sm text-gray-500'>
+                          {item.name}
+                        </span>
+                      </div>
+                    )}
+                    onChange={e => {
+                      const v = e.value as unknown;
+                      if (typeof v === 'string') {
+                        setForm(f => ({ ...f, symbol: v.toUpperCase() }));
+                      }
+                    }}
+                    onSelect={e =>
+                      handleSymbolSelect(e.value as StockSearchResult)
+                    }
+                    placeholder='Search symbol…'
+                    className='w-full'
+                    inputClassName='w-full uppercase'
+                    delay={0}
+                    appendTo='self'
+                    scrollHeight='240px'
+                  />
+                )}
+                <button
+                  type='button'
+                  className='text-xs text-blue-500 hover:underline mt-1 block'
+                  onClick={() => {
+                    setManualSymbol(m => !m);
+                    setSymbolSuggestions([]);
+                  }}
+                >
+                  {manualSymbol
+                    ? '← Search symbol'
+                    : "Can't find it? Enter manually"}
+                </button>
+              </>
+            ) : (
+              <InputText
+                value={(form.symbol ?? '').toUpperCase()}
+                onChange={e =>
+                  setForm(f => ({ ...f, symbol: e.target.value.toUpperCase() }))
+                }
+                placeholder='e.g. AAPL'
+                className='w-full uppercase'
+              />
+            )}
             {errors.symbol && (
               <p className='text-xs text-red-600 mt-1'>{errors.symbol}</p>
             )}
@@ -160,11 +262,29 @@ export default function AddHoldingsDialog({
             <label className='block text-sm font-medium mb-1'>
               Open Date *
             </label>
-            <InputText
-              value={form.openDate ?? ''}
-              onChange={e => setForm(f => ({ ...f, openDate: e.target.value }))}
+            <Calendar
+              value={(() => {
+                const parts = (form.openDate ?? '').split('-').map(Number);
+                return parts.length === 3 && parts[0] > 0
+                  ? new Date(parts[0], parts[1] - 1, parts[2])
+                  : null;
+              })()}
+              onChange={e => {
+                const d = e.value as Date | null;
+                if (d) {
+                  const y = d.getFullYear();
+                  const mo = String(d.getMonth() + 1).padStart(2, '0');
+                  const dy = String(d.getDate()).padStart(2, '0');
+                  setForm(f => ({ ...f, openDate: `${y}-${mo}-${dy}` }));
+                } else {
+                  setForm(f => ({ ...f, openDate: '' }));
+                }
+              }}
+              dateFormat='yy-mm-dd'
+              showIcon
               placeholder='YYYY-MM-DD'
               className='w-full'
+              inputClassName='w-full'
             />
             {errors.openDate && (
               <p className='text-xs text-red-600 mt-1'>{errors.openDate}</p>

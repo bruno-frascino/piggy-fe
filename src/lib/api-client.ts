@@ -7,6 +7,7 @@ import type {
   EquityPoint,
   ExchangePortfolio,
   HoldingPosition,
+  StockSearchResult,
 } from './types';
 
 // API client for your backend using Axios
@@ -74,6 +75,7 @@ function mapToAvailableExchange(row: unknown): AvailableExchange {
       typeof row.countryName === 'string' ? row.countryName : undefined,
     countryCode:
       typeof row.countryCode === 'string' ? row.countryCode : undefined,
+    currency: typeof row.currency === 'string' ? row.currency : undefined,
     symbolSuffix:
       typeof row.symbolSuffix === 'string' ? row.symbolSuffix : undefined,
     delay: typeof row.delay === 'string' ? row.delay : undefined,
@@ -147,8 +149,56 @@ function unwrapPortfolioRows(payload: unknown): unknown[] {
   return [];
 }
 
+function mapPositionToHolding(pos: unknown): HoldingPosition | null {
+  if (!isRecord(pos)) return null;
+  const asset = isRecord(pos.asset) ? pos.asset : null;
+  if (!asset) return null;
+
+  const symbol = typeof asset.symbol === 'string' ? asset.symbol : null;
+  if (!symbol) return null;
+
+  const rawDate = pos.openDate;
+  const openDate =
+    typeof rawDate === 'string'
+      ? rawDate.slice(0, 10)
+      : rawDate instanceof Date
+        ? (rawDate as Date).toISOString().slice(0, 10)
+        : null;
+  if (!openDate) return null;
+
+  const entryPrice = Number(pos.entryPrice) || 0;
+  const quantity = Number(pos.quantity) || 0;
+  const buyFees = Number(pos.buyFees) || 0;
+  const stopLoss = pos.stopLossPrice != null ? Number(pos.stopLossPrice) : 0;
+  const unrealizedPnL =
+    pos.unrealizedPnL != null ? Number(pos.unrealizedPnL) : null;
+  const currentPrice =
+    unrealizedPnL !== null && quantity > 0
+      ? entryPrice + unrealizedPnL / quantity
+      : entryPrice;
+
+  return {
+    symbol,
+    name: typeof asset.name === 'string' ? asset.name : symbol,
+    openDate,
+    units: quantity,
+    buyPrice: entryPrice,
+    buyFee: buyFees,
+    stopLoss,
+    industry:
+      typeof asset.sector === 'string'
+        ? asset.sector
+        : typeof asset.industry === 'string'
+          ? asset.industry
+          : '',
+    currentPrice,
+  };
+}
+
 class ApiClient {
   private client: AxiosInstance;
+  private isRefreshing = false;
+  private refreshQueue: Array<(token: string) => void> = [];
 
   constructor(baseURL: string) {
     this.client = axios.create({
@@ -172,17 +222,67 @@ class ApiClient {
       error => Promise.reject(error)
     );
 
-    // Response interceptor for handling errors globally
+    // Response interceptor — silently refresh the access token on 401
     this.client.interceptors.response.use(
       response => response,
-      error => {
-        const isAuthEndpoint = error.config?.url?.startsWith('/auth/');
-        if (error.response?.status === 401 && !isAuthEndpoint) {
-          // Session expired or token invalid — redirect to login
-          localStorage.removeItem('authToken');
-          localStorage.removeItem('refreshToken');
-          window.location.href = '/auth/login';
+      async error => {
+        const originalRequest = error.config as typeof error.config & {
+          _retry?: boolean;
+        };
+        const isAuthEndpoint = originalRequest?.url?.startsWith('/auth/');
+
+        if (
+          error.response?.status === 401 &&
+          !isAuthEndpoint &&
+          !originalRequest._retry
+        ) {
+          const storedRefresh = localStorage.getItem('refreshToken');
+
+          if (!storedRefresh) {
+            localStorage.removeItem('authToken');
+            window.location.href = '/auth/login';
+            return Promise.reject(error);
+          }
+
+          // If a refresh is already in flight, queue this request
+          if (this.isRefreshing) {
+            return new Promise<string>(resolve => {
+              this.refreshQueue.push(resolve);
+            }).then(newToken => {
+              originalRequest.headers.Authorization = `Bearer ${newToken}`;
+              return this.client(originalRequest);
+            });
+          }
+
+          originalRequest._retry = true;
+          this.isRefreshing = true;
+
+          try {
+            const { data } = await axios.post(`${baseURL}/auth/refresh`, {
+              refreshToken: storedRefresh,
+            });
+            const { accessToken, refreshToken: newRefresh } = data.data ?? {};
+
+            localStorage.setItem('authToken', accessToken);
+            if (newRefresh) localStorage.setItem('refreshToken', newRefresh);
+
+            this.client.defaults.headers.common.Authorization = `Bearer ${accessToken}`;
+            this.refreshQueue.forEach(resolve => resolve(accessToken));
+            this.refreshQueue = [];
+
+            originalRequest.headers.Authorization = `Bearer ${accessToken}`;
+            return this.client(originalRequest);
+          } catch {
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('refreshToken');
+            this.refreshQueue = [];
+            window.location.href = '/auth/login';
+            return Promise.reject(error);
+          } finally {
+            this.isRefreshing = false;
+          }
         }
+
         return Promise.reject(error);
       }
     );
@@ -347,7 +447,10 @@ class ApiClient {
     });
 
     const positions = unwrapArray<unknown>(response.data);
-    const exchangeMap = new Map<string, { types: Set<string> }>();
+    const exchangeMap = new Map<
+      string,
+      { types: Set<string>; currency: string }
+    >();
 
     for (const pos of positions) {
       if (!isRecord(pos)) continue;
@@ -363,7 +466,9 @@ class ApiClient {
       if (!code) continue;
 
       if (!exchangeMap.has(code)) {
-        exchangeMap.set(code, { types: new Set() });
+        const currency =
+          typeof exch.currency === 'string' ? exch.currency : 'USD';
+        exchangeMap.set(code, { types: new Set(), currency });
       }
       if (typeof asset.assetType === 'string') {
         exchangeMap.get(code)!.types.add(asset.assetType);
@@ -375,8 +480,38 @@ class ApiClient {
       const hasStocks = meta.types.has('EQUITY') || meta.types.has('ETF');
       const type: ExchangePortfolio['type'] =
         hasCrypto && hasStocks ? 'mixed' : hasCrypto ? 'crypto' : 'stocks';
-      return { name: code, equitySeries: [], type };
+      return {
+        name: code,
+        equitySeries: [],
+        type,
+        baseCurrency: meta.currency,
+      };
     });
+  }
+
+  // Stock symbol search
+  async searchStocks(q: string, limit = 10): Promise<StockSearchResult[]> {
+    if (USE_MOCK_API) {
+      await new Promise(resolve => setTimeout(resolve, 200));
+      const sym = q.trim().toUpperCase();
+      return [
+        {
+          symbol: sym,
+          name: `${sym} Corp`,
+          exchange: 'NASDAQ',
+          type: 'Equity',
+          countryCode: 'US',
+        },
+      ];
+    }
+    const response = await this.client.get('/stocks/search', {
+      params: { q: q.trim(), limit },
+    });
+    const payload = response.data;
+    if (isRecord(payload) && Array.isArray(payload.data)) {
+      return payload.data as StockSearchResult[];
+    }
+    return [];
   }
 
   // Holdings methods
@@ -385,10 +520,12 @@ class ApiClient {
       await new Promise(resolve => setTimeout(resolve, 300));
       return getHoldingsForExchange(exchangeName);
     }
-    const response = await this.client.get<HoldingPosition[]>(
-      `/exchanges/${encodeURIComponent(exchangeName)}/holdings`
-    );
-    return response.data;
+    const response = await this.client.get('/positions', {
+      params: { status: 'OPEN', exchangeCode: exchangeName, limit: 100 },
+    });
+    return unwrapArray<unknown>(response.data)
+      .map(mapPositionToHolding)
+      .filter((h): h is HoldingPosition => h !== null);
   }
 }
 

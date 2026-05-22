@@ -55,8 +55,12 @@ const returnClass = (v: number) => (v >= 0 ? 'text-green-600' : 'text-red-600');
 
 export default function HoldingsTable({
   selectedExchange,
+  onExchangeDetected,
+  baseCurrency,
 }: {
   selectedExchange: ExchangeKey;
+  onExchangeDetected?: (exchange: string) => void;
+  baseCurrency?: string;
 }) {
   const { data: remoteHoldings } = useHoldings(selectedExchange);
   // Local holdings state so we can add positions
@@ -174,7 +178,7 @@ export default function HoldingsTable({
     [holdings]
   );
 
-  const currency = 'USD'; // could be dynamic per exchange/profile later
+  const currency = baseCurrency ?? 'USD';
 
   return (
     <Card>
@@ -418,6 +422,7 @@ export default function HoldingsTable({
         mode={mode}
         initial={dialogInitial}
         onHide={() => setShowDialog(false)}
+        onExchangeDetected={onExchangeDetected}
         onSubmit={(newPos: LocalHolding) => {
           if (mode === 'edit' && editIdx !== null) {
             setHoldings(prev =>

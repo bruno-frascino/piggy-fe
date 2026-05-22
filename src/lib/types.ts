@@ -17,6 +17,7 @@ export interface AvailableExchange {
   id: string;
   code: string;
   name: string;
+  currency?: string;
   countryName?: string;
   countryCode?: string;
   symbolSuffix?: string;
@@ -34,4 +35,12 @@ export interface HoldingPosition {
   stopLoss: number;
   industry: string;
   currentPrice: number;
+}
+
+export interface StockSearchResult {
+  symbol: string;
+  name: string;
+  exchange: string;
+  type: string;
+  countryCode: string | null;
 }

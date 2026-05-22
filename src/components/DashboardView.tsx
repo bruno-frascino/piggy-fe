@@ -3,10 +3,10 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Card } from 'primereact/card';
 import type { ExchangeKey, ExchangePortfolio, EquityPoint } from '@/lib/types';
-import { useExchanges, useUserPortfolio } from '@/hooks/api';
+import { useUserPortfolio } from '@/hooks/api';
 import { Button } from 'primereact/button';
 import AddExchangeDialog, {
-  NewExchangePayload,
+  type NewExchangePayload,
 } from '@/components/AddExchangeDialog';
 import HoldingsTable from '@/components/HoldingsTable';
 import { Line } from 'react-chartjs-2';
@@ -69,7 +69,6 @@ export default function DashboardView() {
     isLoading: isPortfolioLoading,
     isFetched: isPortfolioFetched,
   } = useUserPortfolio();
-  const { data: availableExchanges } = useExchanges();
   const [exchangeList, setExchangeList] = useState<ExchangePortfolio[]>([]);
   const [seededFromPortfolio, setSeededFromPortfolio] = useState(false);
 
@@ -87,21 +86,7 @@ export default function DashboardView() {
   });
   const numberFormatter = useMemo(() => new Intl.NumberFormat('en-US'), []);
 
-  const [showAddDialog, setShowAddDialog] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
-
-  const handleAddExchange = (payload: NewExchangePayload) => {
-    const newEx = {
-      name: payload.name,
-      equitySeries: [],
-      type: payload.type,
-      baseCurrency: payload.baseCurrency,
-      description: payload.description,
-    };
-    setExchangeList(prev => [...prev, newEx]);
-    setSelected(newEx.name);
-    setShowAddDialog(false);
-  };
 
   const handleEditExchange = (payload: NewExchangePayload) => {
     setExchangeList(prev =>
@@ -127,6 +112,14 @@ export default function DashboardView() {
     if (selected === name && updated.length) {
       setSelected(updated[0].name);
     }
+  };
+
+  const handleExchangeDetected = (exchangeName: string) => {
+    setExchangeList(prev => {
+      if (prev.some(e => e.name === exchangeName)) return prev;
+      return [...prev, { name: exchangeName, equitySeries: [] }];
+    });
+    setSelected(exchangeName);
   };
 
   // Once the list is available, establish the initial selection.
@@ -238,15 +231,6 @@ export default function DashboardView() {
               Exchanges
             </h3>
             <div className='flex flex-col gap-2 pt-1'>
-              {!manageMode && (
-                <Button
-                  icon='pi pi-plus'
-                  rounded
-                  severity='success'
-                  aria-label='Add Exchange'
-                  onClick={() => setShowAddDialog(true)}
-                />
-              )}
               {manageMode && (
                 <Button
                   icon='pi pi-pencil'
@@ -378,16 +362,12 @@ export default function DashboardView() {
         </Card>
 
         {/* Holdings */}
-        <HoldingsTable selectedExchange={selected} />
+        <HoldingsTable
+          selectedExchange={selected}
+          onExchangeDetected={handleExchangeDetected}
+          baseCurrency={exchange?.baseCurrency}
+        />
       </div>
-      <AddExchangeDialog
-        visible={showAddDialog}
-        onHide={() => setShowAddDialog(false)}
-        onSubmit={handleAddExchange}
-        availableExchanges={availableExchanges}
-        existingNames={exchangeList.map(e => e.name)}
-        mode='add'
-      />
       <AddExchangeDialog
         visible={showEditDialog}
         onHide={() => setShowEditDialog(false)}
