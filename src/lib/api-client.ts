@@ -2,6 +2,7 @@ import axios, { AxiosInstance } from 'axios';
 import { MockAuthService, mockBalance, mockTransactions } from './mock-api';
 import { exchanges } from './mock-portfolio';
 import { getHoldingsForExchange } from './mock-holdings';
+import type { ClosedTrade } from './closed-trades-store';
 import type {
   AvailableExchange,
   EquityPoint,
@@ -178,6 +179,7 @@ function mapPositionToHolding(pos: unknown): HoldingPosition | null {
       : entryPrice;
 
   return {
+    id: typeof pos.id === 'string' ? pos.id : undefined,
     symbol,
     name: typeof asset.name === 'string' ? asset.name : symbol,
     openDate,
@@ -192,6 +194,49 @@ function mapPositionToHolding(pos: unknown): HoldingPosition | null {
           ? asset.industry
           : '',
     currentPrice,
+  };
+}
+
+function mapPositionToClosedTrade(pos: unknown): ClosedTrade | null {
+  if (!isRecord(pos)) return null;
+  const asset = isRecord(pos.asset) ? pos.asset : null;
+  if (!asset) return null;
+  const symbol = typeof asset.symbol === 'string' ? asset.symbol : null;
+  if (!symbol) return null;
+  const exch = isRecord(asset.exchange) ? asset.exchange : null;
+
+  const toDateStr = (v: unknown): string => {
+    if (typeof v === 'string') return v.slice(0, 10);
+    if (v instanceof Date) return v.toISOString().slice(0, 10);
+    return '';
+  };
+
+  const openDate = toDateStr(pos.openDate);
+  const closeDate = toDateStr(pos.closeDate);
+  if (!openDate || !closeDate) return null;
+
+  const start = new Date(openDate).getTime();
+  const end = new Date(closeDate).getTime();
+  const periodDays =
+    isNaN(start) || isNaN(end)
+      ? 0
+      : Math.max(0, Math.round((end - start) / 86400000));
+
+  return {
+    id: typeof pos.id === 'string' ? pos.id : `${symbol}-${openDate}`,
+    symbol,
+    name: typeof asset.name === 'string' ? asset.name : symbol,
+    exchange: typeof exch?.code === 'string' ? exch.code : undefined,
+    openDate,
+    closeDate,
+    unitsClosed: Number(pos.quantity) || 0,
+    buyPrice: Number(pos.entryPrice) || 0,
+    buyFee: Number(pos.buyFees) || 0,
+    sellPrice: Number(pos.exitPrice) || 0,
+    sellFee: Number(pos.sellFees) || 0,
+    periodDays,
+    sellComments: typeof pos.notes === 'string' ? pos.notes : undefined,
+    baseCurrency: typeof exch?.currency === 'string' ? exch.currency : 'USD',
   };
 }
 
@@ -526,6 +571,38 @@ class ApiClient {
     return unwrapArray<unknown>(response.data)
       .map(mapPositionToHolding)
       .filter((h): h is HoldingPosition => h !== null);
+  }
+
+  async getClosedPositions(): Promise<ClosedTrade[]> {
+    const response = await this.client.get('/positions', {
+      params: { status: 'CLOSED', limit: 100 },
+    });
+    return unwrapArray<unknown>(response.data)
+      .map(mapPositionToClosedTrade)
+      .filter((t): t is ClosedTrade => t !== null);
+  }
+
+  async closePosition(
+    id: string,
+    closeDate: string,
+    exitPrice: number,
+    quantity?: number,
+    fees?: number,
+    notes?: string
+  ) {
+    const response = await this.client.post(`/positions/${id}/close`, {
+      closeDate,
+      exitPrice,
+      ...(quantity !== undefined && { quantity }),
+      ...(fees !== undefined && { fees }),
+      ...(notes ? { notes } : {}),
+    });
+    return response.data;
+  }
+
+  async deletePosition(id: string) {
+    const response = await this.client.delete(`/positions/${id}`);
+    return response.data;
   }
 }
 

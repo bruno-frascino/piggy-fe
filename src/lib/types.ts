@@ -26,6 +26,7 @@ export interface AvailableExchange {
 }
 
 export interface HoldingPosition {
+  id?: string; // backend position ID (present when loaded from API)
   symbol: string;
   name: string;
   openDate: string; // ISO date string

@@ -196,3 +196,10 @@ export const useHoldings = (exchangeName: string) => {
     enabled: !!exchangeName,
   });
 };
+
+export const useClosedPositions = () => {
+  return useQuery({
+    queryKey: ['closed-positions'],
+    queryFn: () => apiClient.getClosedPositions(),
+  });
+};

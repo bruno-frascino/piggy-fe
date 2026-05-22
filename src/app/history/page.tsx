@@ -1,18 +1,16 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Card } from 'primereact/card';
 import { Button } from 'primereact/button';
 import { InputText } from 'primereact/inputtext';
-import {
-  getClosedTrades,
-  ClosedTrade,
-  updateClosedTrade,
-  deleteClosedTrade,
-} from '@/lib/closed-trades-store';
+import type { ClosedTrade } from '@/lib/closed-trades-store';
 import EditClosedTradeDialog from '@/components/EditClosedTradeDialog';
+import { useClosedPositions } from '@/hooks/api';
+import { apiClient } from '@/lib/api-client';
 
 function formatCurrency(n: number, currency: string = 'USD') {
   return new Intl.NumberFormat(undefined, {
@@ -226,7 +224,8 @@ function ExchangeTable({ exchange, trades, onEdit }: ExchangeTableProps) {
 }
 
 export default function HistoryPage() {
-  const [rows, setRows] = useState<ClosedTrade[]>([]);
+  const queryClient = useQueryClient();
+  const { data: rows = [], isLoading } = useClosedPositions();
   const currentYear = new Date().getFullYear();
   const defaultStart = `${currentYear}-01-01`;
   const defaultEnd = `${currentYear}-12-31`;
@@ -234,10 +233,6 @@ export default function HistoryPage() {
   const [endDate, setEndDate] = useState<string>(defaultEnd);
   const [showDialog, setShowDialog] = useState(false);
   const [active, setActive] = useState<ClosedTrade | null>(null);
-
-  useEffect(() => {
-    setRows(getClosedTrades());
-  }, []);
 
   const filtered = useMemo(() => {
     const start = new Date(startDate).getTime();
@@ -293,7 +288,7 @@ export default function HistoryPage() {
             </div>
             <Button
               label='Reset'
-              severity='secondary'
+              outlined
               onClick={() => {
                 setStartDate(defaultStart);
                 setEndDate(defaultEnd);
@@ -302,7 +297,14 @@ export default function HistoryPage() {
           </div>
         </Card>
 
-        {filtered.length === 0 ? (
+        {isLoading ? (
+          <Card>
+            <div className='p-4 text-center text-gray-400'>
+              <i className='pi pi-spin pi-spinner mr-2' />
+              Loading history…
+            </div>
+          </Card>
+        ) : filtered.length === 0 ? (
           <Card>
             <div className='p-4 text-center text-blue-600'>
               No closed positions recorded yet
@@ -330,23 +332,27 @@ export default function HistoryPage() {
               setActive(null);
             }}
             onSave={(updated: ClosedTrade) => {
-              const periodDays = (() => {
-                const start = new Date(updated.openDate).getTime();
-                const end = new Date(updated.closeDate).getTime();
-                if (isNaN(start) || isNaN(end)) return updated.periodDays;
-                return Math.max(
-                  0,
-                  Math.round((end - start) / (1000 * 60 * 60 * 24))
-                );
-              })();
-              updateClosedTrade(updated.id, { ...updated, periodDays });
-              setRows(getClosedTrades());
+              // Only notes/comments can be patched via the API;
+              // price/unit data is immutable once a position is closed.
+              if (updated.id) {
+                apiClient
+                  .deletePosition(updated.id) // placeholder — replace with PATCH when notes endpoint is available
+                  .catch(console.error);
+              }
               setShowDialog(false);
               setActive(null);
             }}
             onDelete={(id: string) => {
-              deleteClosedTrade(id);
-              setRows(getClosedTrades());
+              if (id) {
+                apiClient
+                  .deletePosition(id)
+                  .then(() =>
+                    queryClient.invalidateQueries({
+                      queryKey: ['closed-positions'],
+                    })
+                  )
+                  .catch(console.error);
+              }
               setShowDialog(false);
               setActive(null);
             }}

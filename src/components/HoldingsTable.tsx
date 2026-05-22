@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { Card } from 'primereact/card';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
@@ -11,9 +12,9 @@ import AddHoldingsDialog, {
 import ClosePositionDialog, {
   ClosePositionPayload,
 } from '@/components/ClosePositionDialog';
-import { addClosedTrade } from '@/lib/closed-trades-store';
 import type { ExchangeKey } from '@/lib/types';
 import { useHoldings } from '@/hooks/api';
+import { apiClient } from '@/lib/api-client';
 
 type HoldingRow = LocalHolding & {
   openDateTs: number; // numeric timestamp for reliable sorting
@@ -62,6 +63,7 @@ export default function HoldingsTable({
   onExchangeDetected?: (exchange: string) => void;
   baseCurrency?: string;
 }) {
+  const queryClient = useQueryClient();
   const { data: remoteHoldings } = useHoldings(selectedExchange);
   // Local holdings state so we can add positions
   const [holdings, setHoldings] = useState<LocalHolding[]>([]);
@@ -184,7 +186,7 @@ export default function HoldingsTable({
     <Card>
       <div className='flex items-center justify-between mb-4 pb-2 border-b border-gray-200'>
         <h3 className='text-xl font-semibold text-gray-900'>
-          Holdings — {selectedExchange}
+          Holdings {selectedExchange}
         </h3>
         <div>
           <Button
@@ -442,49 +444,46 @@ export default function HoldingsTable({
         onHide={() => setShowCloseDialog(false)}
         onSubmit={(payload: ClosePositionPayload) => {
           if (closeIdx === null || closeInitial === null) return;
-          // Persist closed trade entry
-          const periodDays = (() => {
-            const start = new Date(closeInitial.openDate).getTime();
-            const end = new Date(payload.closeDate).getTime();
-            if (isNaN(start) || isNaN(end)) return 0;
-            return Math.max(
-              0,
-              Math.round((end - start) / (1000 * 60 * 60 * 24))
-            );
-          })();
-          addClosedTrade({
-            id: `${closeInitial.symbol}-${closeInitial.openDate}-${payload.closeDate}-${Math.random().toString(36).slice(2, 8)}`,
-            symbol: closeInitial.symbol,
-            name: closeInitial.name,
-            exchange: selectedExchange,
-            openDate: closeInitial.openDate,
-            closeDate: payload.closeDate,
-            unitsClosed: payload.closeUnits,
-            buyPrice: closeInitial.buyPrice,
-            buyFee: closeInitial.buyFee,
-            sellPrice: payload.sellPrice,
-            sellFee: payload.sellFee,
-            periodDays,
-            buyComments: closeInitial.buyComments,
-            sellComments: payload.comments,
-            baseCurrency: 'USD',
-          });
-          // Update local holdings (remove or reduce)
-          setHoldings(prev => {
-            return prev.flatMap((h, i) => {
-              if (i !== closeIdx) return [h];
-              const remaining = Number(
-                (h.units - payload.closeUnits).toFixed(3)
+
+          const doClose = async () => {
+            // If the holding came from the API it has an id — persist via API
+            if (closeInitial.id) {
+              await apiClient.closePosition(
+                closeInitial.id,
+                payload.closeDate,
+                payload.sellPrice,
+                payload.closeUnits < closeInitial.units
+                  ? payload.closeUnits
+                  : undefined,
+                payload.sellFee || undefined,
+                payload.comments || undefined
               );
-              if (remaining <= 0) {
-                return [];
-              }
-              return [{ ...h, units: remaining }];
-            });
-          });
-          setShowCloseDialog(false);
-          setCloseIdx(null);
-          setCloseInitial(null);
+              // Refresh open holdings and closed-positions queries
+              await queryClient.invalidateQueries({
+                queryKey: ['holdings', selectedExchange],
+              });
+              await queryClient.invalidateQueries({
+                queryKey: ['closed-positions'],
+              });
+            }
+
+            // Update local holdings list (remove fully closed, reduce partial)
+            setHoldings(prev =>
+              prev.flatMap((h, i) => {
+                if (i !== closeIdx) return [h];
+                const remaining = Number(
+                  (h.units - payload.closeUnits).toFixed(3)
+                );
+                if (remaining <= 0) return [];
+                return [{ ...h, units: remaining }];
+              })
+            );
+            setShowCloseDialog(false);
+            setCloseIdx(null);
+            setCloseInitial(null);
+          };
+
+          doClose().catch(console.error);
         }}
       />
     </Card>
