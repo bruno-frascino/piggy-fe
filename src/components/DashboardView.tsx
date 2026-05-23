@@ -3,7 +3,11 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Card } from 'primereact/card';
 import type { ExchangeKey, ExchangePortfolio, EquityPoint } from '@/lib/types';
-import { useUserPortfolio } from '@/hooks/api';
+import {
+  useCreatePortfolioSnapshot,
+  usePortfolioHistory,
+  useUserPortfolio,
+} from '@/hooks/api';
 import { Button } from 'primereact/button';
 import AddExchangeDialog, {
   type NewExchangePayload,
@@ -22,6 +26,7 @@ import {
 } from 'chart.js';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { useLongPress } from '@/hooks/useLongPress';
+import { formatDateDDMMYYYY } from '@/lib/date';
 
 ChartJS.register(
   CategoryScale,
@@ -69,15 +74,39 @@ export default function DashboardView() {
     isLoading: isPortfolioLoading,
     isFetched: isPortfolioFetched,
   } = useUserPortfolio();
+  const { data: portfolioHistory = [], isFetched: isHistoryFetched } =
+    usePortfolioHistory();
+  const createSnapshot = useCreatePortfolioSnapshot();
   const [exchangeList, setExchangeList] = useState<ExchangePortfolio[]>([]);
   const [seededFromPortfolio, setSeededFromPortfolio] = useState(false);
 
-  // Seed list from API exactly once
+  // Sync exchange list from API: seed on first fetch, then merge on subsequent
+  // fetches (e.g. after adding a new position to a previously unseen exchange).
   useEffect(() => {
-    if (seededFromPortfolio || !isPortfolioFetched) return;
-    setExchangeList(remotePortfolio ?? []);
-    setSeededFromPortfolio(true);
-  }, [seededFromPortfolio, isPortfolioFetched, remotePortfolio]);
+    if (!isPortfolioFetched) return;
+    const incoming = remotePortfolio ?? [];
+
+    if (!seededFromPortfolio) {
+      setExchangeList(incoming);
+      setSeededFromPortfolio(true);
+      return;
+    }
+
+    // Merge: always update baseCurrency from API (source of truth) and add
+    // new exchanges, but preserve locally-edited type/description values.
+    setExchangeList(prev => {
+      const remoteMap = new Map(incoming.map(e => [e.name, e]));
+      const updated = prev.map(e => {
+        const remote = remoteMap.get(e.name);
+        return remote
+          ? { ...e, baseCurrency: remote.baseCurrency ?? e.baseCurrency }
+          : e;
+      });
+      const existingNames = new Set(prev.map(e => e.name));
+      const newEntries = incoming.filter(e => !existingNames.has(e.name));
+      return [...updated, ...newEntries];
+    });
+  }, [isPortfolioFetched, remotePortfolio, seededFromPortfolio]);
 
   const [selected, setSelected] = useState<ExchangeKey>('');
   const [manageMode, setManageMode] = useState(false);
@@ -87,6 +116,38 @@ export default function DashboardView() {
   const numberFormatter = useMemo(() => new Intl.NumberFormat('en-US'), []);
 
   const [showEditDialog, setShowEditDialog] = useState(false);
+  const [snapshotRequestedForDate, setSnapshotRequestedForDate] = useState<
+    string | null
+  >(null);
+
+  const [liveTotals, setLiveTotals] = useState<{
+    totalEquity: number;
+    totalPL: number;
+    dayPL: number;
+  } | null>(null);
+
+  // Reset live totals whenever the selected exchange changes
+  useEffect(() => {
+    setLiveTotals(null);
+  }, [selected]);
+
+  // Ensure today's portfolio snapshot exists so the chart has a current point.
+  useEffect(() => {
+    if (!isHistoryFetched) return;
+    const today = new Date().toISOString().slice(0, 10);
+    const hasToday = portfolioHistory.some(p => p.date === today);
+    if (hasToday || snapshotRequestedForDate === today) return;
+    if (!exchangeList.length || createSnapshot.isPending) return;
+
+    setSnapshotRequestedForDate(today);
+    createSnapshot.mutate();
+  }, [
+    isHistoryFetched,
+    portfolioHistory,
+    exchangeList.length,
+    createSnapshot,
+    snapshotRequestedForDate,
+  ]);
 
   const handleEditExchange = (payload: NewExchangePayload) => {
     setExchangeList(prev =>
@@ -167,21 +228,26 @@ export default function DashboardView() {
       exchangeList.find(e => e.name === selected) ?? exchangeList[0] ?? null,
     [selected, exchangeList]
   );
+  const chartSeries = useMemo(
+    () => [...portfolioHistory].sort((a, b) => a.date.localeCompare(b.date)),
+    [portfolioHistory]
+  );
   const stats = useMemo(
     () =>
-      exchange
-        ? summarize(exchange.equitySeries)
-        : { totalEquity: 0, totalPL: 0, dayPL: 0 },
-    [exchange]
+      liveTotals ??
+      (chartSeries.length
+        ? summarize(chartSeries)
+        : { totalEquity: 0, totalPL: 0, dayPL: 0 }),
+    [liveTotals, chartSeries]
   );
 
   const data = useMemo(
     () => ({
-      labels: exchange?.equitySeries.map(p => p.date) ?? [],
+      labels: chartSeries.map(p => formatDateDDMMYYYY(p.date)),
       datasets: [
         {
-          label: `${selected} Equity`,
-          data: exchange?.equitySeries.map(p => p.equity) ?? [],
+          label: 'Portfolio Equity',
+          data: chartSeries.map(p => p.equity),
           borderColor: 'rgb(59,130,246)',
           backgroundColor: 'rgba(59,130,246,0.15)',
           tension: 0.25,
@@ -190,7 +256,7 @@ export default function DashboardView() {
         },
       ],
     }),
-    [exchange, selected]
+    [chartSeries]
   );
 
   const options = useMemo(
@@ -366,6 +432,7 @@ export default function DashboardView() {
           selectedExchange={selected}
           onExchangeDetected={handleExchangeDetected}
           baseCurrency={exchange?.baseCurrency}
+          onLiveTotals={setLiveTotals}
         />
       </div>
       <AddExchangeDialog

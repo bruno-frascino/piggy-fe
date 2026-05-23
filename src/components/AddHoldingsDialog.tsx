@@ -42,14 +42,12 @@ export default function AddHoldingsDialog({
     buyPrice: 0,
     buyFee: 0,
     stopLoss: undefined,
-    currentPrice: 0,
     symbol: '',
     name: '',
     industry: '',
     buyComments: '',
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [currentTouched, setCurrentTouched] = useState(false);
   const [symbolSuggestions, setSymbolSuggestions] = useState<
     StockSearchResult[]
   >([]);
@@ -68,23 +66,14 @@ export default function AddHoldingsDialog({
       buyPrice: 0,
       buyFee: 0,
       stopLoss: undefined,
-      currentPrice: 0,
       buyComments: '',
       ...initial,
     };
     setForm(base);
     setErrors({});
-    setCurrentTouched(false);
     setSymbolSuggestions([]);
     setManualSymbol(false);
   }, [visible, mode, initial]);
-
-  // Keep current price synced to buy price until user changes it
-  useEffect(() => {
-    if (!currentTouched) {
-      setForm(f => ({ ...f, currentPrice: f.buyPrice }));
-    }
-  }, [form.buyPrice, currentTouched]);
 
   const searchSymbol = async (event: { query: string }) => {
     if (searchTimerRef.current) clearTimeout(searchTimerRef.current);
@@ -130,6 +119,7 @@ export default function AddHoldingsDialog({
     });
     if (typeof form.units !== 'number' || isNaN(form.units!))
       e.units = 'Enter a number';
+    else if (!Number.isInteger(form.units)) e.units = 'Use a whole number';
     if (typeof form.buyPrice !== 'number' || isNaN(form.buyPrice!))
       e.buyPrice = 'Enter a number';
     if (!/\d{4}-\d{2}-\d{2}/.test(form.openDate ?? ''))
@@ -146,7 +136,8 @@ export default function AddHoldingsDialog({
       buyFee: form.buyFee ?? 0,
       stopLoss: form.stopLoss,
       industry: form.industry ?? '',
-      currentPrice: form.currentPrice ?? form.buyPrice!,
+      // Current price should come from quotes API; use buy price only as fallback.
+      currentPrice: form.buyPrice!,
       buyComments: form.buyComments?.trim() || undefined,
     };
     onSubmit(value);
@@ -280,9 +271,9 @@ export default function AddHoldingsDialog({
                   setForm(f => ({ ...f, openDate: '' }));
                 }
               }}
-              dateFormat='yy-mm-dd'
+              dateFormat='dd/mm/yy'
               showIcon
-              placeholder='YYYY-MM-DD'
+              placeholder='DD/MM/YYYY'
               className='w-full'
               inputClassName='w-full'
             />
@@ -299,8 +290,8 @@ export default function AddHoldingsDialog({
               }
               mode='decimal'
               minFractionDigits={0}
-              maxFractionDigits={3}
-              placeholder='e.g. 10.125'
+              maxFractionDigits={0}
+              placeholder='e.g. 10'
               className='w-full'
               inputClassName='w-full'
             />
@@ -382,35 +373,7 @@ export default function AddHoldingsDialog({
           </div>
         </div>
 
-        {/* Row 4: Current Price */}
-        <div className='grid grid-cols-12 gap-3'>
-          <div className='col-span-12 md:col-span-4'>
-            <label className='block text-sm font-medium mb-1'>
-              Current Price
-            </label>
-            <InputNumber
-              value={form.currentPrice ?? 0}
-              onValueChange={e => {
-                setCurrentTouched(true);
-                setForm(f => ({
-                  ...f,
-                  currentPrice: (e.value ?? 0) as number,
-                }));
-              }}
-              mode='decimal'
-              minFractionDigits={0}
-              maxFractionDigits={3}
-              placeholder='e.g. 189.400'
-              className='w-full'
-              inputClassName='w-full'
-            />
-            {errors.currentPrice && (
-              <p className='text-xs text-red-600 mt-1'>{errors.currentPrice}</p>
-            )}
-          </div>
-        </div>
-
-        {/* Row 5: Buy Comments */}
+        {/* Row 4: Buy Comments */}
         <div>
           <label className='block text-sm font-medium mb-1'>Buy Comments</label>
           <InputTextarea

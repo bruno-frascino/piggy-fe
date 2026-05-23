@@ -8,6 +8,7 @@ import type {
   EquityPoint,
   ExchangePortfolio,
   HoldingPosition,
+  QuoteResult,
   StockSearchResult,
 } from './types';
 
@@ -48,6 +49,45 @@ function normalizeEquitySeries(payload: unknown): EquityPoint[] {
       return { date: rawDate, equity: rawEquity };
     })
     .filter((point): point is EquityPoint => point !== null);
+}
+
+function mapSnapshotToEquityPoint(row: unknown): EquityPoint | null {
+  if (!isRecord(row)) return null;
+
+  const rawDate = row.date;
+  const rawValue = row.totalValue ?? row.equity ?? row.value;
+
+  const date =
+    typeof rawDate === 'string'
+      ? rawDate.slice(0, 10)
+      : rawDate instanceof Date
+        ? rawDate.toISOString().slice(0, 10)
+        : null;
+  if (!date) return null;
+
+  const equity = Number(rawValue);
+  if (!Number.isFinite(equity)) return null;
+
+  return { date, equity };
+}
+
+function aggregateMockPortfolioSeries(): EquityPoint[] {
+  const dateTotals = new Map<string, number>();
+  for (const exchange of exchanges) {
+    for (const point of exchange.equitySeries) {
+      dateTotals.set(
+        point.date,
+        (dateTotals.get(point.date) ?? 0) + point.equity
+      );
+    }
+  }
+
+  return Array.from(dateTotals.entries())
+    .sort((a, b) => a[0].localeCompare(b[0]))
+    .map(([date, equity]) => ({
+      date,
+      equity: Number(equity.toFixed(2)),
+    }));
 }
 
 function mapToAvailableExchange(row: unknown): AvailableExchange {
@@ -194,6 +234,7 @@ function mapPositionToHolding(pos: unknown): HoldingPosition | null {
           ? asset.industry
           : '',
     currentPrice,
+    buyComments: typeof pos.notes === 'string' ? pos.notes : undefined,
   };
 }
 
@@ -534,6 +575,60 @@ class ApiClient {
     });
   }
 
+  async getPortfolioHistory(): Promise<EquityPoint[]> {
+    if (USE_MOCK_API) {
+      await new Promise(resolve => setTimeout(resolve, 250));
+      return aggregateMockPortfolioSeries();
+    }
+
+    const response = await this.client.get('/portfolio/history');
+    return unwrapArray<unknown>(response.data)
+      .map(mapSnapshotToEquityPoint)
+      .filter((p): p is EquityPoint => p !== null);
+  }
+
+  async createPortfolioSnapshot(): Promise<EquityPoint | null> {
+    if (USE_MOCK_API) {
+      // In mock mode the series is generated in-memory.
+      return null;
+    }
+
+    const response = await this.client.post('/portfolio/snapshot');
+    return mapSnapshotToEquityPoint(
+      isRecord(response.data) ? response.data.data : null
+    );
+  }
+
+  async createPosition(payload: {
+    symbol: string;
+    exchangeCode: string;
+    openDate: string;
+    entryPrice: number;
+    quantity: number;
+    buyFees?: number;
+    assetName?: string;
+    industry?: string;
+    notes?: string;
+  }): Promise<void> {
+    const quantity = Math.trunc(payload.quantity);
+    const entryPrice = Number(payload.entryPrice) || 0;
+    const buyFees = Number(payload.buyFees) || 0;
+
+    await this.client.post('/positions', {
+      symbol: payload.symbol.trim().toUpperCase(),
+      exchangeCode: payload.exchangeCode.trim().toUpperCase(),
+      assetName: payload.assetName?.trim() || undefined,
+      industry: payload.industry?.trim() || undefined,
+      openDate: payload.openDate,
+      entryPrice,
+      quantity,
+      buyFees,
+      capitalAllocated: entryPrice * quantity + buyFees,
+      openReason: payload.notes?.trim() || 'Opened from dashboard',
+      notes: payload.notes?.trim() || undefined,
+    });
+  }
+
   // Stock symbol search
   async searchStocks(q: string, limit = 10): Promise<StockSearchResult[]> {
     if (USE_MOCK_API) {
@@ -555,6 +650,17 @@ class ApiClient {
     const payload = response.data;
     if (isRecord(payload) && Array.isArray(payload.data)) {
       return payload.data as StockSearchResult[];
+    }
+    return [];
+  }
+
+  async getQuotes(symbols: string[]): Promise<QuoteResult[]> {
+    if (!symbols.length) return [];
+    const response = await this.client.get('/stocks/quotes', {
+      params: { symbols: symbols.join(',') },
+    });
+    if (isRecord(response.data) && Array.isArray(response.data.data)) {
+      return response.data.data as QuoteResult[];
     }
     return [];
   }
@@ -597,6 +703,24 @@ class ApiClient {
       ...(fees !== undefined && { fees }),
       ...(notes ? { notes } : {}),
     });
+    return response.data;
+  }
+
+  async updateClosedPosition(
+    id: string,
+    data: {
+      closeDate?: string;
+      exitPrice?: number;
+      sellFees?: number;
+      notes?: string;
+      tradeGrade?: string;
+      lessonsLearned?: string;
+    }
+  ) {
+    const response = await this.client.patch(
+      `/positions/${id}/closed-trade`,
+      data
+    );
     return response.data;
   }
 

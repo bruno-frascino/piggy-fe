@@ -7,10 +7,12 @@ import { Column } from 'primereact/column';
 import { Card } from 'primereact/card';
 import { Button } from 'primereact/button';
 import { InputText } from 'primereact/inputtext';
+import { Calendar } from 'primereact/calendar';
 import type { ClosedTrade } from '@/lib/closed-trades-store';
 import EditClosedTradeDialog from '@/components/EditClosedTradeDialog';
 import { useClosedPositions } from '@/hooks/api';
 import { apiClient } from '@/lib/api-client';
+import { formatDateDDMMYYYY } from '@/lib/date';
 
 function formatCurrency(n: number, currency: string = 'USD') {
   return new Intl.NumberFormat(undefined, {
@@ -23,11 +25,6 @@ function formatCurrency(n: number, currency: string = 'USD') {
 function formatPct(v: number) {
   const p = v * 100;
   return `${p >= 0 ? '+' : ''}${p.toFixed(2)}%`;
-}
-
-function formatDate(iso: string) {
-  const d = new Date(iso);
-  return isNaN(d.getTime()) ? iso : d.toLocaleDateString();
 }
 
 const returnClass = (v: number) => (v >= 0 ? 'text-green-600' : 'text-red-600');
@@ -115,12 +112,12 @@ function ExchangeTable({ exchange, trades, onEdit }: ExchangeTableProps) {
         />
         <Column
           header='Open Date'
-          body={(r: ClosedTrade) => formatDate(r.openDate)}
+          body={(r: ClosedTrade) => formatDateDDMMYYYY(r.openDate)}
           style={{ minWidth: '120px' }}
         />
         <Column
           header='Close Date'
-          body={(r: ClosedTrade) => formatDate(r.closeDate)}
+          body={(r: ClosedTrade) => formatDateDDMMYYYY(r.closeDate)}
           style={{ minWidth: '120px' }}
         />
         <Column
@@ -267,10 +264,27 @@ export default function HistoryPage() {
               >
                 From
               </label>
-              <InputText
-                type='date'
-                value={startDate}
-                onChange={e => setStartDate(e.target.value)}
+              <Calendar
+                value={(() => {
+                  const parts = startDate.split('-').map(Number);
+                  return parts.length === 3 && parts[0] > 0
+                    ? new Date(parts[0], parts[1] - 1, parts[2])
+                    : null;
+                })()}
+                onChange={e => {
+                  const d = e.value as Date | null;
+                  if (d) {
+                    const y = d.getFullYear();
+                    const mo = String(d.getMonth() + 1).padStart(2, '0');
+                    const dy = String(d.getDate()).padStart(2, '0');
+                    setStartDate(`${y}-${mo}-${dy}`);
+                  } else {
+                    setStartDate('');
+                  }
+                }}
+                dateFormat='dd/mm/yy'
+                showIcon
+                placeholder='DD/MM/YYYY'
               />
             </div>
             <div>
@@ -280,10 +294,27 @@ export default function HistoryPage() {
               >
                 To
               </label>
-              <InputText
-                type='date'
-                value={endDate}
-                onChange={e => setEndDate(e.target.value)}
+              <Calendar
+                value={(() => {
+                  const parts = endDate.split('-').map(Number);
+                  return parts.length === 3 && parts[0] > 0
+                    ? new Date(parts[0], parts[1] - 1, parts[2])
+                    : null;
+                })()}
+                onChange={e => {
+                  const d = e.value as Date | null;
+                  if (d) {
+                    const y = d.getFullYear();
+                    const mo = String(d.getMonth() + 1).padStart(2, '0');
+                    const dy = String(d.getDate()).padStart(2, '0');
+                    setEndDate(`${y}-${mo}-${dy}`);
+                  } else {
+                    setEndDate('');
+                  }
+                }}
+                dateFormat='dd/mm/yy'
+                showIcon
+                placeholder='DD/MM/YYYY'
               />
             </div>
             <Button
@@ -332,11 +363,19 @@ export default function HistoryPage() {
               setActive(null);
             }}
             onSave={(updated: ClosedTrade) => {
-              // Only notes/comments can be patched via the API;
-              // price/unit data is immutable once a position is closed.
               if (updated.id) {
                 apiClient
-                  .deletePosition(updated.id) // placeholder — replace with PATCH when notes endpoint is available
+                  .updateClosedPosition(updated.id, {
+                    closeDate: updated.closeDate,
+                    exitPrice: updated.sellPrice,
+                    sellFees: updated.sellFee,
+                    notes: updated.sellComments ?? '',
+                  })
+                  .then(() =>
+                    queryClient.invalidateQueries({
+                      queryKey: ['closed-positions'],
+                    })
+                  )
                   .catch(console.error);
               }
               setShowDialog(false);

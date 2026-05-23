@@ -12,13 +12,14 @@ import AddHoldingsDialog, {
 import ClosePositionDialog, {
   ClosePositionPayload,
 } from '@/components/ClosePositionDialog';
-import type { ExchangeKey } from '@/lib/types';
-import { useHoldings } from '@/hooks/api';
+import type { ExchangeKey, QuoteResult } from '@/lib/types';
+import { useHoldings, useQuotes } from '@/hooks/api';
 import { apiClient } from '@/lib/api-client';
 
 type HoldingRow = LocalHolding & {
   openDateTs: number; // numeric timestamp for reliable sorting
-  openPosition: number; // units * buyPrice
+  openPosition: number; // units * buyPrice + buyFee
+  effectivePrice: number; // live quote price when available, fallback to stored
   currentPosition: number; // units * currentPrice
   currentReturnAbs: number; // currentPosition - openPosition
   currentReturnPct: number; // (current - open)/open
@@ -47,31 +48,42 @@ function formatPct(v: number) {
   return `${p >= 0 ? '+' : ''}${p.toFixed(2)}%`;
 }
 
-function formatDate(iso: string) {
-  const d = new Date(iso);
-  return isNaN(d.getTime()) ? iso : d.toLocaleDateString();
-}
-
 const returnClass = (v: number) => (v >= 0 ? 'text-green-600' : 'text-red-600');
 
 export default function HoldingsTable({
   selectedExchange,
   onExchangeDetected,
   baseCurrency,
+  onLiveTotals,
 }: {
   selectedExchange: ExchangeKey;
   onExchangeDetected?: (exchange: string) => void;
   baseCurrency?: string;
+  onLiveTotals?: (t: {
+    totalEquity: number;
+    totalPL: number;
+    dayPL: number;
+  }) => void;
 }) {
   const queryClient = useQueryClient();
   const { data: remoteHoldings } = useHoldings(selectedExchange);
-  // Local holdings state so we can add positions
   const [holdings, setHoldings] = useState<LocalHolding[]>([]);
   useEffect(() => {
     if (remoteHoldings) {
       setHoldings(remoteHoldings);
     }
   }, [remoteHoldings]);
+
+  // Live quotes for all symbols in current holdings
+  const symbols = useMemo(
+    () => [...new Set(holdings.map(h => h.symbol))],
+    [holdings]
+  );
+  const { data: quotesData } = useQuotes(symbols);
+  const quoteMap = useMemo(() => {
+    if (!quotesData) return new Map<string, QuoteResult>();
+    return new Map(quotesData.map(q => [q.symbol, q]));
+  }, [quotesData]);
 
   const [showDialog, setShowDialog] = useState(false);
   const [mode, setMode] = useState<'add' | 'edit'>('add');
@@ -87,13 +99,18 @@ export default function HoldingsTable({
 
   const totals = useMemo(() => {
     const totalOpen = holdings.reduce(
-      (acc, h) => acc + h.units * h.buyPrice,
+      (acc, h) => acc + h.units * h.buyPrice + (h.buyFee ?? 0),
       0
     );
-    const totalCurrent = holdings.reduce(
-      (acc, h) => acc + h.units * (h.currentPrice ?? h.buyPrice),
-      0
-    );
+    const totalCurrent = holdings.reduce((acc, h) => {
+      const livePrice =
+        quoteMap.get(h.symbol)?.price ?? h.currentPrice ?? h.buyPrice;
+      return acc + h.units * livePrice;
+    }, 0);
+    const dayPL = holdings.reduce((acc, h) => {
+      const change = quoteMap.get(h.symbol)?.change ?? 0;
+      return acc + change * h.units;
+    }, 0);
     const count = holdings.length;
     const currentReturnAbs = totalCurrent - totalOpen;
     const currentReturnPct = totalOpen > 0 ? currentReturnAbs / totalOpen : 0;
@@ -103,12 +120,25 @@ export default function HoldingsTable({
       count,
       currentReturnAbs,
       currentReturnPct,
+      dayPL,
     };
-  }, [holdings]);
+  }, [holdings, quoteMap]);
+
+  // Bubble live totals up to parent (DashboardView stats cards)
+  useEffect(() => {
+    onLiveTotals?.({
+      totalEquity: totals.totalCurrent,
+      totalPL: totals.currentReturnAbs,
+      dayPL: totals.dayPL,
+    });
+  }, [totals, onLiveTotals]);
 
   const rows: HoldingRow[] = useMemo(() => {
     const totalOpen =
-      holdings.reduce((acc, h) => acc + h.units * h.buyPrice, 0) || 1; // avoid div/0
+      holdings.reduce(
+        (acc, h) => acc + h.units * h.buyPrice + (h.buyFee ?? 0),
+        0
+      ) || 1;
 
     // Group holdings by symbol preserving first occurrence order for groups.
     interface Group {
@@ -145,9 +175,10 @@ export default function HoldingsTable({
     );
 
     return ordered.map(({ h, i, ts }) => {
-      const openPosition = h.units * h.buyPrice;
-      const currentPrice = h.currentPrice ?? h.buyPrice;
-      const currentPosition = h.units * currentPrice;
+      const openPosition = h.units * h.buyPrice + (h.buyFee ?? 0);
+      const effectivePrice =
+        quoteMap.get(h.symbol)?.price ?? h.currentPrice ?? h.buyPrice;
+      const currentPosition = h.units * effectivePrice;
       const currentReturnAbs = currentPosition - openPosition;
       const currentReturnPct =
         openPosition > 0 ? currentReturnAbs / openPosition : 0;
@@ -161,8 +192,10 @@ export default function HoldingsTable({
       const allocationPct = openPosition / totalOpen;
       return {
         ...h,
+        currentPrice: effectivePrice,
         openDateTs: isNaN(ts) ? 0 : ts,
         openPosition,
+        effectivePrice,
         currentPosition,
         currentReturnAbs,
         currentReturnPct,
@@ -172,7 +205,7 @@ export default function HoldingsTable({
         originalIndex: i,
       };
     });
-  }, [holdings]);
+  }, [holdings, quoteMap]);
 
   const anyStopLoss = useMemo(
     () =>
@@ -180,7 +213,15 @@ export default function HoldingsTable({
     [holdings]
   );
 
-  const currency = baseCurrency ?? 'USD';
+  // Derive display currency: live quote data (Yahoo Finance) is the most reliable source.
+  // Falls back to the exchange baseCurrency prop, then USD.
+  const currency = useMemo(() => {
+    for (const symbol of symbols) {
+      const q = quoteMap.get(symbol);
+      if (q?.currency) return q.currency;
+    }
+    return baseCurrency ?? 'USD';
+  }, [symbols, quoteMap, baseCurrency]);
 
   return (
     <Card>
@@ -248,28 +289,15 @@ export default function HoldingsTable({
             alignFrozen='left'
             style={{ minWidth: '130px', width: '130px' }}
             footer={
-              <span className='font-bold text-gray-700 tracking-wide'>
-                TOTALS
-              </span>
-            }
-          />
-          <Column
-            field='name'
-            header='Name'
-            style={{ minWidth: '200px' }}
-            footer={
               <span>
-                <span className='text-gray-600 font-medium'>Positions:</span>{' '}
-                <span className='font-semibold text-gray-900'>
-                  {totals.count}
+                <span className='font-bold text-gray-700 tracking-wide'>
+                  TOTALS
+                </span>{' '}
+                <span className='text-gray-600 font-medium'>
+                  · Positions: {totals.count}
                 </span>
               </span>
             }
-          />
-          <Column
-            header='Date'
-            body={(r: HoldingRow) => formatDate(r.openDate)}
-            style={{ minWidth: '120px' }}
           />
           <Column
             header='Units'
@@ -279,11 +307,6 @@ export default function HoldingsTable({
           <Column
             header='Buy'
             body={(r: HoldingRow) => formatCurrency(r.buyPrice, currency)}
-            style={{ minWidth: '120px' }}
-          />
-          <Column
-            header='Fee'
-            body={(r: HoldingRow) => formatCurrency(r.buyFee, currency)}
             style={{ minWidth: '120px' }}
           />
           <Column
@@ -300,10 +323,43 @@ export default function HoldingsTable({
           />
           <Column
             header='Price'
-            body={(r: HoldingRow) =>
-              formatCurrency(r.currentPrice ?? r.buyPrice, currency)
-            }
+            body={(r: HoldingRow) => formatCurrency(r.effectivePrice, currency)}
             style={{ minWidth: '130px' }}
+          />
+          <Column
+            header={
+              <span className='inline-flex items-center gap-1'>
+                Day Change
+                <i
+                  className='pi pi-info-circle text-xs text-gray-400'
+                  title='Daily P/L for this row = day price change per unit x units held.'
+                />
+              </span>
+            }
+            body={(r: HoldingRow) => {
+              const q = quoteMap.get(r.symbol);
+              if (!q || q.change === null)
+                return <span className='text-gray-400'>—</span>;
+              const dayAbs = q.change * r.units;
+              const pct = q.changePercent ?? 0;
+              return (
+                <span className={returnClass(dayAbs)}>
+                  {formatCurrency(dayAbs, currency)}{' '}
+                  <span className='text-xs opacity-75'>
+                    ({pct >= 0 ? '+' : ''}
+                    {pct.toFixed(2)}%)
+                  </span>
+                </span>
+              );
+            }}
+            style={{ minWidth: '180px' }}
+            footer={
+              totals.dayPL !== 0 ? (
+                <span className={`font-semibold ${returnClass(totals.dayPL)}`}>
+                  {formatCurrency(totals.dayPL, currency)}
+                </span>
+              ) : null
+            }
           />
           <Column
             header='Position'
@@ -322,7 +378,7 @@ export default function HoldingsTable({
                     buyFee: r.buyFee,
                     stopLoss: r.stopLoss,
                     industry: r.industry,
-                    currentPrice: r.currentPrice ?? r.buyPrice,
+                    currentPrice: r.effectivePrice,
                   });
                   setShowCloseDialog(true);
                 }}
@@ -426,15 +482,37 @@ export default function HoldingsTable({
         onHide={() => setShowDialog(false)}
         onExchangeDetected={onExchangeDetected}
         onSubmit={(newPos: LocalHolding) => {
-          if (mode === 'edit' && editIdx !== null) {
-            setHoldings(prev =>
-              prev.map((h, i) => (i === editIdx ? newPos : h))
-            );
-          } else {
-            // Append new positions so when dates are identical (same day) the earliest added remains on top after ascending sort.
-            setHoldings(prev => [...prev, newPos]);
-          }
-          setShowDialog(false);
+          const submit = async () => {
+            if (mode === 'edit' && editIdx !== null) {
+              setHoldings(prev =>
+                prev.map((h, i) => (i === editIdx ? newPos : h))
+              );
+              setShowDialog(false);
+              return;
+            }
+
+            await apiClient.createPosition({
+              symbol: newPos.symbol,
+              exchangeCode: selectedExchange,
+              assetName: newPos.name,
+              industry: newPos.industry,
+              openDate: newPos.openDate,
+              entryPrice: newPos.buyPrice,
+              quantity: newPos.units,
+              buyFees: newPos.buyFee,
+              notes: newPos.buyComments,
+            });
+
+            await queryClient.invalidateQueries({
+              queryKey: ['holdings', selectedExchange],
+            });
+            await queryClient.invalidateQueries({
+              queryKey: ['user-portfolio'],
+            });
+            setShowDialog(false);
+          };
+
+          submit().catch(console.error);
         }}
       />
 

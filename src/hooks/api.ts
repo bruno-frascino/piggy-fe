@@ -189,6 +189,24 @@ export const useUserPortfolio = () => {
   });
 };
 
+export const usePortfolioHistory = () => {
+  return useQuery({
+    queryKey: ['portfolio-history'],
+    queryFn: () => apiClient.getPortfolioHistory(),
+  });
+};
+
+export const useCreatePortfolioSnapshot = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: () => apiClient.createPortfolioSnapshot(),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['portfolio-history'] });
+    },
+  });
+};
+
 export const useHoldings = (exchangeName: string) => {
   return useQuery({
     queryKey: ['holdings', exchangeName],
@@ -201,5 +219,17 @@ export const useClosedPositions = () => {
   return useQuery({
     queryKey: ['closed-positions'],
     queryFn: () => apiClient.getClosedPositions(),
+  });
+};
+
+export const useQuotes = (symbols: string[]) => {
+  // Stable key: sorted, joined so reference changes don't trigger redundant fetches
+  const key = [...symbols].sort().join(',');
+  return useQuery({
+    queryKey: ['quotes', key],
+    queryFn: () => apiClient.getQuotes(symbols),
+    enabled: symbols.length > 0,
+    refetchInterval: 60_000, // refresh every minute
+    staleTime: 30_000,
   });
 };

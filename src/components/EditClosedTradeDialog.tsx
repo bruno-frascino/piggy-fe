@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Dialog } from 'primereact/dialog';
 import { InputText } from 'primereact/inputtext';
+import { Calendar } from 'primereact/calendar';
 import { InputNumber } from 'primereact/inputnumber';
 import { InputTextarea } from 'primereact/inputtextarea';
 import { Button } from 'primereact/button';
@@ -188,11 +189,29 @@ export default function EditClosedTradeDialog({
             <label className='block text-sm font-medium mb-1'>
               Open Date *
             </label>
-            <InputText
-              value={form.openDate}
-              type='date'
-              onChange={e => setForm(f => ({ ...f, openDate: e.target.value }))}
+            <Calendar
+              value={(() => {
+                const parts = (form.openDate ?? '').split('-').map(Number);
+                return parts.length === 3 && parts[0] > 0
+                  ? new Date(parts[0], parts[1] - 1, parts[2])
+                  : null;
+              })()}
+              onChange={e => {
+                const d = e.value as Date | null;
+                if (d) {
+                  const y = d.getFullYear();
+                  const mo = String(d.getMonth() + 1).padStart(2, '0');
+                  const dy = String(d.getDate()).padStart(2, '0');
+                  setForm(f => ({ ...f, openDate: `${y}-${mo}-${dy}` }));
+                } else {
+                  setForm(f => ({ ...f, openDate: '' }));
+                }
+              }}
+              dateFormat='dd/mm/yy'
+              showIcon
+              placeholder='DD/MM/YYYY'
               className='w-full'
+              inputClassName='w-full'
             />
             {errors.openDate && (
               <p className='text-xs text-red-600 mt-1'>{errors.openDate}</p>
@@ -202,13 +221,29 @@ export default function EditClosedTradeDialog({
             <label className='block text-sm font-medium mb-1'>
               Close Date *
             </label>
-            <InputText
-              value={form.closeDate}
-              type='date'
-              onChange={e =>
-                setForm(f => ({ ...f, closeDate: e.target.value }))
-              }
+            <Calendar
+              value={(() => {
+                const parts = (form.closeDate ?? '').split('-').map(Number);
+                return parts.length === 3 && parts[0] > 0
+                  ? new Date(parts[0], parts[1] - 1, parts[2])
+                  : null;
+              })()}
+              onChange={e => {
+                const d = e.value as Date | null;
+                if (d) {
+                  const y = d.getFullYear();
+                  const mo = String(d.getMonth() + 1).padStart(2, '0');
+                  const dy = String(d.getDate()).padStart(2, '0');
+                  setForm(f => ({ ...f, closeDate: `${y}-${mo}-${dy}` }));
+                } else {
+                  setForm(f => ({ ...f, closeDate: '' }));
+                }
+              }}
+              dateFormat='dd/mm/yy'
+              showIcon
+              placeholder='DD/MM/YYYY'
               className='w-full'
+              inputClassName='w-full'
             />
             {errors.closeDate && (
               <p className='text-xs text-red-600 mt-1'>{errors.closeDate}</p>

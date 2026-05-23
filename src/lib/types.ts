@@ -36,6 +36,7 @@ export interface HoldingPosition {
   stopLoss: number;
   industry: string;
   currentPrice: number;
+  buyComments?: string;
 }
 
 export interface StockSearchResult {
@@ -44,4 +45,12 @@ export interface StockSearchResult {
   exchange: string;
   type: string;
   countryCode: string | null;
+}
+
+export interface QuoteResult {
+  symbol: string;
+  price: number;
+  change: number | null; // day change in base currency
+  changePercent: number | null; // day change as a fraction (e.g. 0.015 = +1.5%)
+  currency: string | null;
 }
