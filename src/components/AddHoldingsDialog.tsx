@@ -18,6 +18,7 @@ export type LocalHolding = Omit<
 > & {
   stopLoss?: number;
   currentPrice?: number;
+  accountName?: string;
   buyComments?: string;
 };
 
@@ -42,6 +43,7 @@ export default function AddHoldingsDialog({
     buyPrice: 0,
     buyFee: 0,
     stopLoss: undefined,
+    accountName: 'Main',
     symbol: '',
     name: '',
     industry: '',
@@ -66,6 +68,7 @@ export default function AddHoldingsDialog({
       buyPrice: 0,
       buyFee: 0,
       stopLoss: undefined,
+      accountName: 'Main',
       buyComments: '',
       ...initial,
     };
@@ -135,6 +138,7 @@ export default function AddHoldingsDialog({
       buyPrice: form.buyPrice!,
       buyFee: form.buyFee ?? 0,
       stopLoss: form.stopLoss,
+      accountName: form.accountName?.trim() || 'Main',
       industry: form.industry ?? '',
       // Current price should come from quotes API; use buy price only as fallback.
       currentPrice: form.buyPrice!,
@@ -310,6 +314,25 @@ export default function AddHoldingsDialog({
             {errors.industry && (
               <p className='text-xs text-red-600 mt-1'>{errors.industry}</p>
             )}
+          </div>
+        </div>
+
+        {/* Row 2b: Trading Account */}
+        <div className='grid grid-cols-12 gap-3'>
+          <div className='col-span-12 md:col-span-4'>
+            <label className='block text-sm font-medium mb-1'>Account</label>
+            <InputText
+              value={form.accountName ?? 'Main'}
+              onChange={e =>
+                setForm(f => ({ ...f, accountName: e.target.value }))
+              }
+              placeholder='Main'
+              className='w-full'
+            />
+            <p className='text-xs text-gray-500 mt-1'>
+              Use different account names to separate holdings on the same
+              exchange.
+            </p>
           </div>
         </div>
 

@@ -193,6 +193,7 @@ function unwrapPortfolioRows(payload: unknown): unknown[] {
 function mapPositionToHolding(pos: unknown): HoldingPosition | null {
   if (!isRecord(pos)) return null;
   const asset = isRecord(pos.asset) ? pos.asset : null;
+  const account = isRecord(pos.account) ? pos.account : null;
   if (!asset) return null;
 
   const symbol = typeof asset.symbol === 'string' ? asset.symbol : null;
@@ -220,6 +221,11 @@ function mapPositionToHolding(pos: unknown): HoldingPosition | null {
 
   return {
     id: typeof pos.id === 'string' ? pos.id : undefined,
+    accountId: typeof account?.id === 'string' ? account.id : undefined,
+    accountName:
+      typeof account?.name === 'string' && account.name
+        ? account.name
+        : undefined,
     symbol,
     name: typeof asset.name === 'string' ? asset.name : symbol,
     openDate,
@@ -602,6 +608,7 @@ class ApiClient {
   async createPosition(payload: {
     symbol: string;
     exchangeCode: string;
+    accountName?: string;
     openDate: string;
     entryPrice: number;
     quantity: number;
@@ -617,6 +624,7 @@ class ApiClient {
     await this.client.post('/positions', {
       symbol: payload.symbol.trim().toUpperCase(),
       exchangeCode: payload.exchangeCode.trim().toUpperCase(),
+      accountName: payload.accountName?.trim() || undefined,
       assetName: payload.assetName?.trim() || undefined,
       industry: payload.industry?.trim() || undefined,
       openDate: payload.openDate,

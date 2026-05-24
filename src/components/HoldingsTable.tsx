@@ -268,6 +268,7 @@ export default function HoldingsTable({
                   setMode('edit');
                   setEditIdx(r.originalIndex);
                   setDialogInitial({
+                    accountName: r.accountName,
                     symbol: r.symbol,
                     name: r.name,
                     openDate: r.openDate,
@@ -494,6 +495,7 @@ export default function HoldingsTable({
             await apiClient.createPosition({
               symbol: newPos.symbol,
               exchangeCode: selectedExchange,
+              accountName: newPos.accountName,
               assetName: newPos.name,
               industry: newPos.industry,
               openDate: newPos.openDate,
