@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { Card } from 'primereact/card';
 import { DataTable } from 'primereact/datatable';
@@ -15,6 +15,11 @@ import ClosePositionDialog, {
 import type { ExchangeKey, QuoteResult } from '@/lib/types';
 import { useHoldings, useQuotes } from '@/hooks/api';
 import { apiClient } from '@/lib/api-client';
+import {
+  enqueueQueuedWrite,
+  syncQueuedWritesNow,
+  type QueuedWriteActionInput,
+} from '@/lib/offline-write-queue';
 import { useToast } from '@/lib/toast-context';
 
 type HoldingRow = LocalHolding & {
@@ -117,9 +122,26 @@ export default function HoldingsTable({
   const [showCloseDialog, setShowCloseDialog] = useState(false);
   const [closeIdx, setCloseIdx] = useState<number | null>(null);
   const [closeInitial, setCloseInitial] = useState<LocalHolding | null>(null);
+  const replayInFlightRef = useRef(false);
 
-  const ensureOnlineForWrite = (action: string) => {
-    if (typeof navigator === 'undefined' || navigator.onLine) {
+  const isOnline = () => {
+    if (typeof navigator === 'undefined') return true;
+    return navigator.onLine;
+  };
+
+  const queueWrite = (action: QueuedWriteActionInput, detail: string) => {
+    const pending = enqueueQueuedWrite(action);
+    setSubmitError('');
+    showToast({
+      severity: 'info',
+      summary: 'Saved Offline',
+      detail: `${detail} Syncs automatically when you are online. Pending: ${pending}`,
+      life: 4500,
+    });
+  };
+
+  const ensureOnlineForImmediateWrite = (action: string) => {
+    if (isOnline()) {
       return true;
     }
 
@@ -133,6 +155,65 @@ export default function HoldingsTable({
     });
     return false;
   };
+
+  const invalidateAfterWrite = useCallback(async () => {
+    await queryClient.invalidateQueries({ queryKey: ['holdings'] });
+    await queryClient.invalidateQueries({ queryKey: ['closed-positions'] });
+    await queryClient.invalidateQueries({ queryKey: ['portfolio-history'] });
+    await queryClient.invalidateQueries({ queryKey: ['user-portfolio'] });
+    if (selectedAccountId) {
+      await queryClient.invalidateQueries({
+        queryKey: ['user-portfolio', selectedAccountId],
+      });
+    }
+  }, [queryClient, selectedAccountId]);
+
+  const syncQueuedWrites = useCallback(async () => {
+    if (replayInFlightRef.current || !isOnline()) {
+      return;
+    }
+
+    replayInFlightRef.current = true;
+    try {
+      const { processed, remaining } = await syncQueuedWritesNow();
+
+      if (processed > 0) {
+        await invalidateAfterWrite();
+        showToast({
+          severity: 'success',
+          summary: 'Synced',
+          detail: `${processed} queued change${processed === 1 ? '' : 's'} synced.`,
+          life: 3500,
+        });
+      }
+
+      if (remaining > 0 && isOnline()) {
+        showToast({
+          severity: 'warn',
+          summary: 'Sync Paused',
+          detail: `${remaining} queued change${remaining === 1 ? '' : 's'} still pending.`,
+          life: 4000,
+        });
+      }
+    } finally {
+      replayInFlightRef.current = false;
+    }
+  }, [invalidateAfterWrite, showToast]);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const onOnline = () => {
+      void syncQueuedWrites();
+    };
+
+    window.addEventListener('online', onOnline);
+    void syncQueuedWrites();
+
+    return () => {
+      window.removeEventListener('online', onOnline);
+    };
+  }, [syncQueuedWrites]);
 
   const showWriteError = (action: string, error: unknown) => {
     const fallback = `Could not ${action}. Please try again.`;
@@ -564,41 +645,44 @@ export default function HoldingsTable({
         onExchangeDetected={onExchangeDetected}
         onSubmit={(newPos: LocalHolding) => {
           const submit = async () => {
-            if (
-              !ensureOnlineForWrite(
-                mode === 'edit' ? 'update this position' : 'add a position'
-              )
-            ) {
-              return;
-            }
-
             if (mode === 'edit' && editIdx !== null) {
               const current = holdings[editIdx];
+              const payload = {
+                symbol: newPos.symbol,
+                exchangeCode:
+                  newPos.exchangeCode?.trim().toUpperCase() ||
+                  current?.exchangeCode?.trim().toUpperCase() ||
+                  selectedExchange?.trim().toUpperCase(),
+                accountId: current?.accountId,
+                accountName: newPos.accountName,
+                openDate: newPos.openDate,
+                entryPrice: newPos.buyPrice,
+                quantity: newPos.units,
+                buyFees: newPos.buyFee,
+                assetName: newPos.name,
+                industry: newPos.industry,
+                stopLossPrice: newPos.stopLoss ?? null,
+                notes: newPos.buyComments,
+              };
+
               if (current?.id) {
-                await apiClient.updatePosition(current.id, {
-                  symbol: newPos.symbol,
-                  exchangeCode:
-                    newPos.exchangeCode?.trim().toUpperCase() ||
-                    current.exchangeCode?.trim().toUpperCase() ||
-                    selectedExchange?.trim().toUpperCase(),
-                  accountId: current.accountId,
-                  accountName: newPos.accountName,
-                  openDate: newPos.openDate,
-                  entryPrice: newPos.buyPrice,
-                  quantity: newPos.units,
-                  buyFees: newPos.buyFee,
-                  assetName: newPos.name,
-                  industry: newPos.industry,
-                  stopLossPrice: newPos.stopLoss ?? null,
-                  notes: newPos.buyComments,
-                });
-                await queryClient.invalidateQueries({ queryKey: ['holdings'] });
-                await queryClient.invalidateQueries({
-                  queryKey: ['user-portfolio', selectedAccountId],
-                });
-                await queryClient.invalidateQueries({
-                  queryKey: ['portfolio-history'],
-                });
+                if (!isOnline()) {
+                  queueWrite(
+                    {
+                      type: 'update-position',
+                      positionId: current.id,
+                      payload,
+                    },
+                    'Position update queued.'
+                  );
+                } else {
+                  await apiClient.updatePosition(current.id, payload);
+                  await invalidateAfterWrite();
+                }
+
+                setHoldings(prev =>
+                  prev.map((h, i) => (i === editIdx ? { ...h, ...newPos } : h))
+                );
               } else {
                 setHoldings(prev =>
                   prev.map((h, i) => (i === editIdx ? newPos : h))
@@ -619,7 +703,7 @@ export default function HoldingsTable({
               return;
             }
 
-            await apiClient.createPosition({
+            const payload = {
               symbol: newPos.symbol,
               exchangeCode: resolvedExchange,
               accountId: selectedAccountId,
@@ -631,17 +715,30 @@ export default function HoldingsTable({
               quantity: newPos.units,
               buyFees: newPos.buyFee,
               notes: newPos.buyComments,
-            });
+            };
 
-            await queryClient.invalidateQueries({
-              queryKey: ['holdings'],
-            });
-            await queryClient.invalidateQueries({
-              queryKey: ['user-portfolio', selectedAccountId],
-            });
-            await queryClient.invalidateQueries({
-              queryKey: ['portfolio-history'],
-            });
+            if (!isOnline()) {
+              queueWrite(
+                {
+                  type: 'create-position',
+                  payload,
+                },
+                'Position queued for creation.'
+              );
+              setHoldings(prev => [
+                ...prev,
+                {
+                  ...newPos,
+                  accountId: selectedAccountId,
+                  accountName: selectedAccountName ?? newPos.accountName,
+                  exchangeCode: resolvedExchange,
+                },
+              ]);
+            } else {
+              await apiClient.createPosition(payload);
+              await invalidateAfterWrite();
+            }
+
             setSubmitError('');
             setShowDialog(false);
           };
@@ -663,32 +760,42 @@ export default function HoldingsTable({
           if (closeIdx === null || closeInitial === null) return;
 
           const doClose = async () => {
-            if (!ensureOnlineForWrite('close this position')) {
-              return;
-            }
+            const isPartialClose = payload.closeUnits < closeInitial.units;
+            const quantity = isPartialClose ? payload.closeUnits : undefined;
+            const closePayload = {
+              closeDate: payload.closeDate,
+              exitPrice: payload.sellPrice,
+              quantity,
+              fees: payload.sellFee || undefined,
+              notes: payload.comments || undefined,
+            };
 
             // If the holding came from the API it has an id — persist via API
             if (closeInitial.id) {
-              await apiClient.closePosition(
-                closeInitial.id,
-                payload.closeDate,
-                payload.sellPrice,
-                payload.closeUnits < closeInitial.units
-                  ? payload.closeUnits
-                  : undefined,
-                payload.sellFee || undefined,
-                payload.comments || undefined
-              );
-              // Refresh open holdings and closed-positions queries
-              await queryClient.invalidateQueries({
-                queryKey: ['holdings'],
-              });
-              await queryClient.invalidateQueries({
-                queryKey: ['closed-positions'],
-              });
-              await queryClient.invalidateQueries({
-                queryKey: ['portfolio-history'],
-              });
+              if (!isOnline()) {
+                queueWrite(
+                  {
+                    type: 'close-position',
+                    positionId: closeInitial.id,
+                    payload: closePayload,
+                  },
+                  'Position close queued.'
+                );
+              } else {
+                if (!ensureOnlineForImmediateWrite('close this position')) {
+                  return;
+                }
+
+                await apiClient.closePosition(
+                  closeInitial.id,
+                  closePayload.closeDate,
+                  closePayload.exitPrice,
+                  closePayload.quantity,
+                  closePayload.fees,
+                  closePayload.notes
+                );
+                await invalidateAfterWrite();
+              }
             }
 
             setSubmitError('');

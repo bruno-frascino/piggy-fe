@@ -3,14 +3,59 @@
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
+import { useEffect, useState } from 'react';
 import { useCurrentUser } from '@/hooks/api';
+import {
+  clearQueuedWrites,
+  getQueuedWritesCount,
+  OFFLINE_WRITE_QUEUE_CHANGED_EVENT,
+  syncQueuedWritesNow,
+} from '@/lib/offline-write-queue';
+import { useToast } from '@/lib/toast-context';
 
 export default function TopNav() {
   const pathname = usePathname();
   const router = useRouter();
   const queryClient = useQueryClient();
+  const { show: showToast } = useToast();
   const { data: currentUser } = useCurrentUser();
+  const [queuedWritesCount, setQueuedWritesCount] = useState(0);
+  const [syncingNow, setSyncingNow] = useState(false);
   const isActive = (href: string) => pathname === href;
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+
+    const refreshQueueCount = () => {
+      setQueuedWritesCount(getQueuedWritesCount());
+    };
+
+    const onVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        refreshQueueCount();
+      }
+    };
+
+    refreshQueueCount();
+
+    window.addEventListener(
+      OFFLINE_WRITE_QUEUE_CHANGED_EVENT,
+      refreshQueueCount
+    );
+    window.addEventListener('online', refreshQueueCount);
+    window.addEventListener('focus', refreshQueueCount);
+    document.addEventListener('visibilitychange', onVisibilityChange);
+
+    return () => {
+      window.removeEventListener(
+        OFFLINE_WRITE_QUEUE_CHANGED_EVENT,
+        refreshQueueCount
+      );
+      window.removeEventListener('online', refreshQueueCount);
+      window.removeEventListener('focus', refreshQueueCount);
+      document.removeEventListener('visibilitychange', onVisibilityChange);
+    };
+  }, []);
 
   const initials = (() => {
     const source = currentUser?.name?.trim() || '';
@@ -24,6 +69,7 @@ export default function TopNav() {
   const handleSignOut = async () => {
     const sensitiveCachePrefixes = ['apis', 'pages', 'pages-rsc', 'next-data'];
 
+    clearQueuedWrites();
     localStorage.removeItem('authToken');
     localStorage.removeItem('refreshToken');
     queryClient.clear();
@@ -40,6 +86,62 @@ export default function TopNav() {
     }
 
     router.replace('/auth/login');
+  };
+
+  const handleSyncNow = async () => {
+    if (syncingNow || queuedWritesCount === 0) return;
+
+    if (typeof navigator !== 'undefined' && !navigator.onLine) {
+      showToast({
+        severity: 'warn',
+        summary: 'Offline',
+        detail: 'Reconnect to sync pending changes.',
+        life: 4000,
+      });
+      return;
+    }
+
+    setSyncingNow(true);
+    try {
+      const { processed, remaining } = await syncQueuedWritesNow();
+
+      if (processed > 0) {
+        await queryClient.invalidateQueries({ queryKey: ['holdings'] });
+        await queryClient.invalidateQueries({ queryKey: ['closed-positions'] });
+        await queryClient.invalidateQueries({
+          queryKey: ['portfolio-history'],
+        });
+        await queryClient.invalidateQueries({ queryKey: ['user-portfolio'] });
+      }
+
+      if (processed > 0) {
+        showToast({
+          severity: 'success',
+          summary: 'Synced',
+          detail: `${processed} pending change${processed === 1 ? '' : 's'} synced.`,
+          life: 3500,
+        });
+      }
+
+      if (remaining > 0) {
+        showToast({
+          severity: 'warn',
+          summary: 'Sync Paused',
+          detail: `${remaining} pending change${remaining === 1 ? '' : 's'} still queued.`,
+          life: 4000,
+        });
+      }
+    } catch {
+      showToast({
+        severity: 'error',
+        summary: 'Sync failed',
+        detail: 'Could not sync queued changes right now.',
+        life: 4500,
+      });
+    } finally {
+      setSyncingNow(false);
+      setQueuedWritesCount(getQueuedWritesCount());
+    }
   };
 
   return (
@@ -72,7 +174,28 @@ export default function TopNav() {
             className={`nav-link px-3 py-2 rounded-lg transition-colors ${isActive('/history') ? 'active font-semibold' : ''}`}
           >
             History
+            {queuedWritesCount > 0 && (
+              <span
+                className='ml-2 inline-flex min-w-5 h-5 px-1 items-center justify-center rounded-full bg-amber-100 text-amber-800 text-xs font-semibold align-middle'
+                title={`${queuedWritesCount} pending sync ${queuedWritesCount === 1 ? 'change' : 'changes'}`}
+                aria-label={`${queuedWritesCount} pending sync ${queuedWritesCount === 1 ? 'change' : 'changes'}`}
+              >
+                {queuedWritesCount}
+              </span>
+            )}
           </Link>
+          {queuedWritesCount > 0 && (
+            <button
+              type='button'
+              onClick={handleSyncNow}
+              disabled={syncingNow}
+              className='nav-link px-3 py-2 rounded-lg transition-colors text-amber-700 disabled:opacity-50'
+              title='Sync pending offline changes now'
+              aria-label='Sync pending offline changes now'
+            >
+              {syncingNow ? 'Syncing...' : 'Sync now'}
+            </button>
+          )}
         </div>
 
         {/* Right: User + Sign out */}
