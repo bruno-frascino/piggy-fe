@@ -29,6 +29,7 @@ export interface HoldingPosition {
   id?: string; // backend position ID (present when loaded from API)
   accountId?: string;
   accountName?: string;
+  exchangeCode?: string;
   symbol: string;
   name: string;
   openDate: string; // ISO date string
@@ -55,4 +56,23 @@ export interface QuoteResult {
   change: number | null; // day change in base currency
   changePercent: number | null; // day change as a fraction (e.g. 0.015 = +1.5%)
   currency: string | null;
+}
+
+export interface TradingAccount {
+  id: string;
+  name: string;
+}
+
+export interface UserProfile {
+  id: string;
+  name: string;
+  email: string;
+  baseCurrency: string;
+}
+
+export interface UpdateUserProfilePayload {
+  name?: string;
+  baseCurrency?: string;
+  currentPassword?: string;
+  newPassword?: string;
 }

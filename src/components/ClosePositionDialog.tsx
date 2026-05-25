@@ -152,7 +152,7 @@ export default function ClosePositionDialog({
               }
               mode='decimal'
               minFractionDigits={0}
-              maxFractionDigits={3}
+              maxFractionDigits={6}
               className='w-full'
               inputClassName='w-full'
             />
@@ -204,7 +204,7 @@ export default function ClosePositionDialog({
               Closing Position
             </label>
             <InputText
-              value={closingPosition.toFixed(3)}
+              value={closingPosition.toFixed(6)}
               readOnly
               className='w-full'
             />

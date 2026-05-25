@@ -15,9 +15,11 @@ import ClosePositionDialog, {
 import type { ExchangeKey, QuoteResult } from '@/lib/types';
 import { useHoldings, useQuotes } from '@/hooks/api';
 import { apiClient } from '@/lib/api-client';
+import { useToast } from '@/lib/toast-context';
 
 type HoldingRow = LocalHolding & {
   openDateTs: number; // numeric timestamp for reliable sorting
+  daysOpen: number; // number of calendar days position has been open
   openPosition: number; // units * buyPrice + buyFee
   effectivePrice: number; // live quote price when available, fallback to stored
   currentPosition: number; // units * currentPrice
@@ -51,12 +53,16 @@ function formatPct(v: number) {
 const returnClass = (v: number) => (v >= 0 ? 'text-green-600' : 'text-red-600');
 
 export default function HoldingsTable({
+  selectedAccountId,
+  selectedAccountName,
   selectedExchange,
   onExchangeDetected,
   baseCurrency,
   onLiveTotals,
 }: {
-  selectedExchange: ExchangeKey;
+  selectedAccountId: string;
+  selectedAccountName?: string;
+  selectedExchange?: ExchangeKey;
   onExchangeDetected?: (exchange: string) => void;
   baseCurrency?: string;
   onLiveTotals?: (t: {
@@ -66,13 +72,30 @@ export default function HoldingsTable({
   }) => void;
 }) {
   const queryClient = useQueryClient();
-  const { data: remoteHoldings } = useHoldings(selectedExchange);
+  const { show: showToast } = useToast();
+  const MS_PER_DAY = 24 * 60 * 60 * 1000;
+  const now = Date.now();
+  const { data: remoteHoldings } = useHoldings(
+    selectedExchange,
+    selectedAccountId
+  );
   const [holdings, setHoldings] = useState<LocalHolding[]>([]);
+  const [submitError, setSubmitError] = useState<string>('');
   useEffect(() => {
     if (remoteHoldings) {
       setHoldings(remoteHoldings);
+
+      if (onExchangeDetected) {
+        const seen = new Set<string>();
+        for (const holding of remoteHoldings) {
+          const exchangeCode = holding.exchangeCode?.trim();
+          if (!exchangeCode || seen.has(exchangeCode)) continue;
+          seen.add(exchangeCode);
+          onExchangeDetected(exchangeCode);
+        }
+      }
     }
-  }, [remoteHoldings]);
+  }, [remoteHoldings, onExchangeDetected]);
 
   // Live quotes for all symbols in current holdings
   const symbols = useMemo(
@@ -94,6 +117,34 @@ export default function HoldingsTable({
   const [showCloseDialog, setShowCloseDialog] = useState(false);
   const [closeIdx, setCloseIdx] = useState<number | null>(null);
   const [closeInitial, setCloseInitial] = useState<LocalHolding | null>(null);
+
+  const ensureOnlineForWrite = (action: string) => {
+    if (typeof navigator === 'undefined' || navigator.onLine) {
+      return true;
+    }
+
+    const message = `You are offline. Reconnect to ${action}.`;
+    setSubmitError(message);
+    showToast({
+      severity: 'warn',
+      summary: 'Offline',
+      detail: message,
+      life: 4000,
+    });
+    return false;
+  };
+
+  const showWriteError = (action: string, error: unknown) => {
+    const fallback = `Could not ${action}. Please try again.`;
+    const detail = error instanceof Error ? error.message : fallback;
+    setSubmitError(detail || fallback);
+    showToast({
+      severity: 'error',
+      summary: 'Action failed',
+      detail: detail || fallback,
+      life: 5000,
+    });
+  };
 
   // Dialog state is managed inside AddHoldingsDialog
 
@@ -190,10 +241,15 @@ export default function HoldingsTable({
           ? (stopLossPosition - openPosition) / openPosition
           : NaN;
       const allocationPct = openPosition / totalOpen;
+      const daysOpen =
+        !isNaN(ts) && ts > 0
+          ? Math.max(0, Math.floor((now - ts) / MS_PER_DAY))
+          : 0;
       return {
         ...h,
         currentPrice: effectivePrice,
         openDateTs: isNaN(ts) ? 0 : ts,
+        daysOpen,
         openPosition,
         effectivePrice,
         currentPosition,
@@ -206,6 +262,14 @@ export default function HoldingsTable({
       };
     });
   }, [holdings, quoteMap]);
+
+  const tableScrollHeight = useMemo(() => {
+    const minPx = 260;
+    const rowPx = 44;
+    const chromePx = 122; // header + paginator/footer spacing inside DataTable scroll area
+    const preferredPx = chromePx + rows.length * rowPx;
+    return `clamp(${minPx}px, ${preferredPx}px, calc(100vh - 260px))`;
+  }, [rows.length]);
 
   const anyStopLoss = useMemo(
     () =>
@@ -227,7 +291,7 @@ export default function HoldingsTable({
     <Card>
       <div className='flex items-center justify-between mb-4 pb-2 border-b border-gray-200'>
         <h3 className='text-xl font-semibold text-gray-900'>
-          Holdings {selectedExchange}
+          Holdings{selectedExchange ? ` ${selectedExchange}` : ''}
         </h3>
         <div>
           <Button
@@ -236,6 +300,7 @@ export default function HoldingsTable({
             severity='success'
             aria-label='Add Position'
             onClick={() => {
+              setSubmitError('');
               setMode('add');
               setEditIdx(null);
               setDialogInitial(undefined);
@@ -244,6 +309,10 @@ export default function HoldingsTable({
           />
         </div>
       </div>
+
+      {submitError && (
+        <div className='mb-3 text-sm text-red-600'>{submitError}</div>
+      )}
 
       {rows.length === 0 ? (
         <div className='p-4 text-center text-blue-600'>
@@ -254,7 +323,7 @@ export default function HoldingsTable({
           value={rows}
           size='small'
           scrollable
-          scrollHeight='400px'
+          scrollHeight={tableScrollHeight}
           rowHover
           stripedRows
           className='holdings-table'
@@ -268,7 +337,9 @@ export default function HoldingsTable({
                   setMode('edit');
                   setEditIdx(r.originalIndex);
                   setDialogInitial({
+                    id: r.id,
                     accountName: r.accountName,
+                    exchangeCode: r.exchangeCode,
                     symbol: r.symbol,
                     name: r.name,
                     openDate: r.openDate,
@@ -371,6 +442,7 @@ export default function HoldingsTable({
                 onClick={() => {
                   setCloseIdx(r.originalIndex);
                   setCloseInitial({
+                    id: r.id,
                     symbol: r.symbol,
                     name: r.name,
                     openDate: r.openDate,
@@ -464,6 +536,11 @@ export default function HoldingsTable({
             </>
           )}
           <Column
+            header='Days Open'
+            body={(r: HoldingRow) => formatNumber(r.daysOpen)}
+            style={{ minWidth: '120px' }}
+          />
+          <Column
             header='Allocation'
             body={(r: HoldingRow) => formatPct(r.allocationPct)}
             style={{ minWidth: '120px' }}
@@ -480,22 +557,73 @@ export default function HoldingsTable({
         visible={showDialog}
         mode={mode}
         initial={dialogInitial}
+        accountName={selectedAccountName}
+        lockAccount
+        exchangeCode={selectedExchange}
         onHide={() => setShowDialog(false)}
         onExchangeDetected={onExchangeDetected}
         onSubmit={(newPos: LocalHolding) => {
           const submit = async () => {
+            if (
+              !ensureOnlineForWrite(
+                mode === 'edit' ? 'update this position' : 'add a position'
+              )
+            ) {
+              return;
+            }
+
             if (mode === 'edit' && editIdx !== null) {
-              setHoldings(prev =>
-                prev.map((h, i) => (i === editIdx ? newPos : h))
-              );
+              const current = holdings[editIdx];
+              if (current?.id) {
+                await apiClient.updatePosition(current.id, {
+                  symbol: newPos.symbol,
+                  exchangeCode:
+                    newPos.exchangeCode?.trim().toUpperCase() ||
+                    current.exchangeCode?.trim().toUpperCase() ||
+                    selectedExchange?.trim().toUpperCase(),
+                  accountId: current.accountId,
+                  accountName: newPos.accountName,
+                  openDate: newPos.openDate,
+                  entryPrice: newPos.buyPrice,
+                  quantity: newPos.units,
+                  buyFees: newPos.buyFee,
+                  assetName: newPos.name,
+                  industry: newPos.industry,
+                  stopLossPrice: newPos.stopLoss ?? null,
+                  notes: newPos.buyComments,
+                });
+                await queryClient.invalidateQueries({ queryKey: ['holdings'] });
+                await queryClient.invalidateQueries({
+                  queryKey: ['user-portfolio', selectedAccountId],
+                });
+                await queryClient.invalidateQueries({
+                  queryKey: ['portfolio-history'],
+                });
+              } else {
+                setHoldings(prev =>
+                  prev.map((h, i) => (i === editIdx ? newPos : h))
+                );
+              }
+              setSubmitError('');
               setShowDialog(false);
+              return;
+            }
+
+            const resolvedExchange =
+              newPos.exchangeCode?.trim().toUpperCase() ||
+              selectedExchange?.trim().toUpperCase();
+            if (!resolvedExchange) {
+              setSubmitError(
+                'Exchange could not be inferred. Pick a stock from search suggestions so exchange is detected.'
+              );
               return;
             }
 
             await apiClient.createPosition({
               symbol: newPos.symbol,
-              exchangeCode: selectedExchange,
-              accountName: newPos.accountName,
+              exchangeCode: resolvedExchange,
+              accountId: selectedAccountId,
+              accountName: selectedAccountName ?? newPos.accountName,
               assetName: newPos.name,
               industry: newPos.industry,
               openDate: newPos.openDate,
@@ -506,15 +634,24 @@ export default function HoldingsTable({
             });
 
             await queryClient.invalidateQueries({
-              queryKey: ['holdings', selectedExchange],
+              queryKey: ['holdings'],
             });
             await queryClient.invalidateQueries({
-              queryKey: ['user-portfolio'],
+              queryKey: ['user-portfolio', selectedAccountId],
             });
+            await queryClient.invalidateQueries({
+              queryKey: ['portfolio-history'],
+            });
+            setSubmitError('');
             setShowDialog(false);
           };
 
-          submit().catch(console.error);
+          submit().catch(error => {
+            showWriteError(
+              mode === 'edit' ? 'update position' : 'add position',
+              error
+            );
+          });
         }}
       />
 
@@ -526,6 +663,10 @@ export default function HoldingsTable({
           if (closeIdx === null || closeInitial === null) return;
 
           const doClose = async () => {
+            if (!ensureOnlineForWrite('close this position')) {
+              return;
+            }
+
             // If the holding came from the API it has an id — persist via API
             if (closeInitial.id) {
               await apiClient.closePosition(
@@ -540,19 +681,24 @@ export default function HoldingsTable({
               );
               // Refresh open holdings and closed-positions queries
               await queryClient.invalidateQueries({
-                queryKey: ['holdings', selectedExchange],
+                queryKey: ['holdings'],
               });
               await queryClient.invalidateQueries({
                 queryKey: ['closed-positions'],
               });
+              await queryClient.invalidateQueries({
+                queryKey: ['portfolio-history'],
+              });
             }
+
+            setSubmitError('');
 
             // Update local holdings list (remove fully closed, reduce partial)
             setHoldings(prev =>
               prev.flatMap((h, i) => {
                 if (i !== closeIdx) return [h];
                 const remaining = Number(
-                  (h.units - payload.closeUnits).toFixed(3)
+                  (h.units - payload.closeUnits).toFixed(6)
                 );
                 if (remaining <= 0) return [];
                 return [{ ...h, units: remaining }];
@@ -563,7 +709,9 @@ export default function HoldingsTable({
             setCloseInitial(null);
           };
 
-          doClose().catch(console.error);
+          doClose().catch(error => {
+            showWriteError('close position', error);
+          });
         }}
       />
     </Card>

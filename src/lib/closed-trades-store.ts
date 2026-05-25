@@ -2,7 +2,8 @@
 // This is intentionally lightweight; replace with real persistence later.
 
 export interface ClosedTrade {
-  id: string; // unique (symbol + openDate + closeDate + random suffix)
+  id: string; // close event id (SELL transaction id)
+  positionId?: string;
   symbol: string;
   name?: string;
   exchange?: string; // e.g., 'Binance'

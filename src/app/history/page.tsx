@@ -365,7 +365,7 @@ export default function HistoryPage() {
             onSave={(updated: ClosedTrade) => {
               if (updated.id) {
                 apiClient
-                  .updateClosedPosition(updated.id, {
+                  .updateCloseEvent(updated.id, {
                     closeDate: updated.closeDate,
                     exitPrice: updated.sellPrice,
                     sellFees: updated.sellFee,
@@ -384,7 +384,7 @@ export default function HistoryPage() {
             onDelete={(id: string) => {
               if (id) {
                 apiClient
-                  .deletePosition(id)
+                  .deleteCloseEvent(id)
                   .then(() =>
                     queryClient.invalidateQueries({
                       queryKey: ['closed-positions'],

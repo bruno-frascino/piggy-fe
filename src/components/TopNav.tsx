@@ -2,16 +2,44 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
+import { useQueryClient } from '@tanstack/react-query';
+import { useCurrentUser } from '@/hooks/api';
 
 export default function TopNav() {
   const pathname = usePathname();
   const router = useRouter();
+  const queryClient = useQueryClient();
+  const { data: currentUser } = useCurrentUser();
   const isActive = (href: string) => pathname === href;
 
-  const handleSignOut = () => {
+  const initials = (() => {
+    const source = currentUser?.name?.trim() || '';
+    if (!source) return 'U';
+    const parts = source.split(/\s+/).filter(Boolean);
+    if (!parts.length) return 'U';
+    if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+    return `${parts[0][0]}${parts[parts.length - 1][0]}`.toUpperCase();
+  })();
+
+  const handleSignOut = async () => {
+    const sensitiveCachePrefixes = ['apis', 'pages', 'pages-rsc', 'next-data'];
+
     localStorage.removeItem('authToken');
     localStorage.removeItem('refreshToken');
-    router.push('/auth/login');
+    queryClient.clear();
+
+    if (typeof window !== 'undefined' && 'caches' in window) {
+      const cacheNames = await caches.keys();
+      await Promise.all(
+        cacheNames
+          .filter(cacheName =>
+            sensitiveCachePrefixes.some(prefix => cacheName.startsWith(prefix))
+          )
+          .map(cacheName => caches.delete(cacheName))
+      );
+    }
+
+    router.replace('/auth/login');
   };
 
   return (
@@ -49,13 +77,14 @@ export default function TopNav() {
 
         {/* Right: User + Sign out */}
         <div className='flex items-center gap-3 shrink-0'>
-          <div
+          <Link
+            href='/account'
             className='h-9 w-9 rounded-full user-badge flex items-center justify-center text-xs font-semibold'
-            title='Signed in'
-            aria-label='User initials'
+            title='Manage account'
+            aria-label='Manage account'
           >
-            BF
-          </div>
+            {initials}
+          </Link>
           <button
             onClick={handleSignOut}
             className='signout-btn flex items-center gap-1 text-sm px-2 py-1 rounded-lg transition-colors'

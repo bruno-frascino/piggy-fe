@@ -43,8 +43,10 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <TopNavGate />
-        <Providers>{children}</Providers>
+        <Providers>
+          <TopNavGate />
+          {children}
+        </Providers>
       </body>
     </html>
   );

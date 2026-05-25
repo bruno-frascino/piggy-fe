@@ -2,16 +2,22 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { Card } from 'primereact/card';
-import type { ExchangeKey, ExchangePortfolio, EquityPoint } from '@/lib/types';
+import type {
+  ExchangeKey,
+  ExchangePortfolio,
+  EquityPoint,
+  TradingAccount,
+} from '@/lib/types';
 import {
+  useCreateAccount,
   useCreatePortfolioSnapshot,
   usePortfolioHistory,
+  useTradingAccounts,
   useUserPortfolio,
 } from '@/hooks/api';
 import { Button } from 'primereact/button';
-import AddExchangeDialog, {
-  type NewExchangePayload,
-} from '@/components/AddExchangeDialog';
+import { InputText } from 'primereact/inputtext';
+import { Dialog } from 'primereact/dialog';
 import HoldingsTable from '@/components/HoldingsTable';
 import { Line } from 'react-chartjs-2';
 import {
@@ -25,7 +31,6 @@ import {
   Filler,
 } from 'chart.js';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { useLongPress } from '@/hooks/useLongPress';
 import { formatDateDDMMYYYY } from '@/lib/date';
 
 ChartJS.register(
@@ -62,20 +67,32 @@ function summarize(series: EquityPoint[]) {
   return { totalEquity: last, totalPL: last - first, dayPL: last - prev };
 }
 
-// Form + dialog logic extracted to AddExchangeDialog component.
-
 export default function DashboardView() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
+  const { data: accountList = [], isLoading: isAccountsLoading } =
+    useTradingAccounts();
+  const createAccount = useCreateAccount();
+  const [selectedAccountId, setSelectedAccountId] = useState<string>('');
+  const [newAccountName, setNewAccountName] = useState('');
+  const [accountCreateError, setAccountCreateError] = useState('');
+  const [showAccountDialog, setShowAccountDialog] = useState(false);
+  const [selected, setSelected] = useState<ExchangeKey>('');
+
+  const selectedAccount = useMemo<TradingAccount | null>(
+    () => accountList.find(a => a.id === selectedAccountId) ?? null,
+    [accountList, selectedAccountId]
+  );
+
   const {
     data: remotePortfolio,
     isLoading: isPortfolioLoading,
     isFetched: isPortfolioFetched,
-  } = useUserPortfolio();
+  } = useUserPortfolio(selectedAccountId);
   const { data: portfolioHistory = [], isFetched: isHistoryFetched } =
-    usePortfolioHistory();
+    usePortfolioHistory(selectedAccountId, selected);
   const createSnapshot = useCreatePortfolioSnapshot();
   const [exchangeList, setExchangeList] = useState<ExchangePortfolio[]>([]);
   const [seededFromPortfolio, setSeededFromPortfolio] = useState(false);
@@ -108,15 +125,9 @@ export default function DashboardView() {
     });
   }, [isPortfolioFetched, remotePortfolio, seededFromPortfolio]);
 
-  const [selected, setSelected] = useState<ExchangeKey>('');
-  const [manageMode, setManageMode] = useState(false);
-  const longPressHandlers = useLongPress(() => setManageMode(true), {
-    delay: 500,
-  });
   const numberFormatter = useMemo(() => new Intl.NumberFormat('en-US'), []);
 
-  const [showEditDialog, setShowEditDialog] = useState(false);
-  const [snapshotRequestedForDate, setSnapshotRequestedForDate] = useState<
+  const [snapshotRequestedForKey, setSnapshotRequestedForKey] = useState<
     string | null
   >(null);
 
@@ -131,49 +142,108 @@ export default function DashboardView() {
     setLiveTotals(null);
   }, [selected]);
 
-  // Ensure today's portfolio snapshot exists so the chart has a current point.
-  useEffect(() => {
-    if (!isHistoryFetched) return;
-    const today = new Date().toISOString().slice(0, 10);
-    const hasToday = portfolioHistory.some(p => p.date === today);
-    if (hasToday || snapshotRequestedForDate === today) return;
-    if (!exchangeList.length || createSnapshot.isPending) return;
+  const handleCreateAccount = async () => {
+    const name = newAccountName.trim() || 'Main';
+    setAccountCreateError('');
 
-    setSnapshotRequestedForDate(today);
-    createSnapshot.mutate();
-  }, [
-    isHistoryFetched,
-    portfolioHistory,
-    exchangeList.length,
-    createSnapshot,
-    snapshotRequestedForDate,
-  ]);
+    // Mirror backend validation: trimmed string length must be 1..80.
+    if (name.length > 80) {
+      setAccountCreateError('Account name must be 80 characters or less.');
+      return;
+    }
 
-  const handleEditExchange = (payload: NewExchangePayload) => {
-    setExchangeList(prev =>
-      prev.map(e =>
-        e.name === selected
-          ? {
-              ...e,
-              // Preserve existing name to avoid breaking holdings mapping
-              type: payload.type,
-              baseCurrency: payload.baseCurrency,
-              description: payload.description,
-            }
-          : e
-      )
-    );
-    setShowEditDialog(false);
-  };
+    try {
+      const created = await createAccount.mutateAsync({ name });
+      setNewAccountName('');
+      setShowAccountDialog(false);
+      if (created?.id) {
+        setSelectedAccountId(created.id);
+      }
+    } catch (err: unknown) {
+      const e = err as {
+        message?: string;
+        response?: {
+          status?: number;
+          data?: {
+            message?: string;
+            error?: string;
+            details?: Array<{ msg?: string }>;
+          };
+        };
+      };
 
-  const handleDeleteExchange = (name: ExchangeKey) => {
-    if (exchangeList.length <= 1) return; // do not delete the last one
-    const updated = exchangeList.filter(e => e.name !== name);
-    setExchangeList(updated);
-    if (selected === name && updated.length) {
-      setSelected(updated[0].name);
+      const detailsMsg = e.response?.data?.details?.[0]?.msg;
+      const apiMsg = e.response?.data?.message ?? e.response?.data?.error;
+      const networkMsg =
+        !e.response && e.message
+          ? 'Cannot reach API server. Make sure piggy-api is running.'
+          : undefined;
+
+      setAccountCreateError(
+        detailsMsg ||
+          apiMsg ||
+          networkMsg ||
+          'Could not create account. Please try again.'
+      );
     }
   };
+
+  useEffect(() => {
+    if (!accountList.length) {
+      setSelectedAccountId('');
+      return;
+    }
+    if (
+      selectedAccountId &&
+      accountList.some(account => account.id === selectedAccountId)
+    ) {
+      return;
+    }
+
+    const fromQuery = searchParams?.get('accountId');
+    if (fromQuery && accountList.some(account => account.id === fromQuery)) {
+      setSelectedAccountId(fromQuery);
+      return;
+    }
+
+    try {
+      const fromStorage = localStorage.getItem('selectedAccountId');
+      if (
+        fromStorage &&
+        accountList.some(account => account.id === fromStorage)
+      ) {
+        setSelectedAccountId(fromStorage);
+        return;
+      }
+    } catch {
+      // no-op
+    }
+
+    setSelectedAccountId(accountList[0].id);
+  }, [accountList, selectedAccountId, searchParams]);
+
+  useEffect(() => {
+    setSelected('');
+    setExchangeList([]);
+    setSeededFromPortfolio(false);
+    setSnapshotRequestedForKey(null);
+  }, [selectedAccountId]);
+
+  useEffect(() => {
+    if (!selectedAccountId) return;
+    try {
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('selectedAccountId', selectedAccountId);
+      }
+      const params = new URLSearchParams(searchParams?.toString());
+      params.set('accountId', selectedAccountId);
+      if (searchParams?.get('accountId') !== selectedAccountId) {
+        router.replace(`${pathname}?${params.toString()}`);
+      }
+    } catch {
+      // no-op
+    }
+  }, [selectedAccountId, router, pathname, searchParams]);
 
   const handleExchangeDetected = (exchangeName: string) => {
     setExchangeList(prev => {
@@ -182,6 +252,36 @@ export default function DashboardView() {
     });
     setSelected(exchangeName);
   };
+
+  // Ensure today's snapshot exists for selected account+exchange chart context.
+  useEffect(() => {
+    if (!isHistoryFetched || !selectedAccountId || !selected) return;
+
+    const today = new Date().toISOString().slice(0, 10);
+    const key = `${selectedAccountId}:${selected}:${today}`;
+    const hasToday = portfolioHistory.some(point => point.date === today);
+
+    if (
+      hasToday ||
+      snapshotRequestedForKey === key ||
+      createSnapshot.isPending
+    ) {
+      return;
+    }
+
+    setSnapshotRequestedForKey(key);
+    createSnapshot.mutate({
+      accountId: selectedAccountId,
+      exchangeCode: selected,
+    });
+  }, [
+    isHistoryFetched,
+    selectedAccountId,
+    selected,
+    portfolioHistory,
+    snapshotRequestedForKey,
+    createSnapshot,
+  ]);
 
   // Once the list is available, establish the initial selection.
   useEffect(() => {
@@ -232,6 +332,11 @@ export default function DashboardView() {
     () => [...portfolioHistory].sort((a, b) => a.date.localeCompare(b.date)),
     [portfolioHistory]
   );
+  const lastSnapshotDate = useMemo(
+    () =>
+      chartSeries.length > 0 ? chartSeries[chartSeries.length - 1].date : null,
+    [chartSeries]
+  );
   const stats = useMemo(
     () =>
       liveTotals ??
@@ -273,7 +378,7 @@ export default function DashboardView() {
     []
   );
 
-  if (!seededFromPortfolio && isPortfolioLoading) {
+  if (isAccountsLoading || (!seededFromPortfolio && isPortfolioLoading)) {
     return (
       <div className='min-h-screen bg-[--tr-bg] flex items-center justify-center'>
         <div className='flex flex-col items-center gap-3 text-slate-400'>
@@ -289,34 +394,115 @@ export default function DashboardView() {
       <div className='max-w-6xl xl:max-w-7xl 2xl:max-w-screen-2xl 3xl:max-w-[1800px] mx-auto space-y-6'>
         {/* Removed CoreHeader from dashboard; TopNav provides global header */}
         <Card>
+          <div className='flex flex-col gap-3 mb-4 pb-2 border-b border-gray-200 sm:flex-row sm:items-center sm:justify-between'>
+            <h3
+              className='text-xl font-semibold'
+              style={{ color: 'var(--tr-text)' }}
+            >
+              Accounts
+            </h3>
+            <Button
+              type='button'
+              icon='pi pi-plus'
+              rounded
+              severity='success'
+              aria-label='Add Account'
+              onClick={() => {
+                setAccountCreateError('');
+                setShowAccountDialog(true);
+              }}
+            />
+          </div>
+
+          {accountList.length === 0 && (
+            <div className='text-sm text-gray-500'>
+              No account yet. Create one to start managing holdings.
+            </div>
+          )}
+
+          {accountList.length > 0 && (
+            <div className='flex flex-wrap items-center gap-3'>
+              {accountList.map(account => {
+                const isSelected = selectedAccountId === account.id;
+                return (
+                  <button
+                    key={account.id}
+                    onClick={() => setSelectedAccountId(account.id)}
+                    className={`px-3 py-1 rounded-full border transition select-none ${
+                      isSelected
+                        ? 'bg-blue-600 text-white border-blue-600'
+                        : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                    }`}
+                    aria-pressed={isSelected}
+                  >
+                    {account.name}
+                  </button>
+                );
+              })}
+            </div>
+          )}
+        </Card>
+
+        <Dialog
+          header='Add Account'
+          visible={showAccountDialog}
+          style={{ width: '520px', maxWidth: '95vw' }}
+          modal
+          onHide={() => {
+            setShowAccountDialog(false);
+            setAccountCreateError('');
+          }}
+        >
+          <form
+            className='space-y-3'
+            onSubmit={e => {
+              e.preventDefault();
+              handleCreateAccount();
+            }}
+          >
+            <p className='text-sm text-gray-500'>
+              Create a portfolio account. If left empty, the default name is
+              Main.
+            </p>
+            {accountCreateError && (
+              <div className='text-sm text-red-600'>{accountCreateError}</div>
+            )}
+            <InputText
+              value={newAccountName}
+              onChange={e => setNewAccountName(e.target.value)}
+              placeholder='Account name (optional, default: Main)'
+              className='w-full'
+              autoFocus
+            />
+            <div className='flex justify-end gap-2 pt-2'>
+              <Button
+                type='button'
+                label='Cancel'
+                severity='secondary'
+                onClick={() => {
+                  setShowAccountDialog(false);
+                  setAccountCreateError('');
+                }}
+              />
+              <Button
+                type='submit'
+                label='Create Account'
+                icon='pi pi-plus'
+                disabled={createAccount.isPending}
+                loading={createAccount.isPending}
+              />
+            </div>
+          </form>
+        </Dialog>
+
+        <Card>
           <div className='flex items-start justify-between mb-4 pb-2 border-b border-gray-200'>
             <h3
               className='text-xl font-semibold'
               style={{ color: 'var(--tr-text)' }}
             >
-              Exchanges
+              Exchanges {selectedAccount ? `· ${selectedAccount.name}` : ''}
             </h3>
-            <div className='flex flex-col gap-2 pt-1'>
-              {manageMode && (
-                <Button
-                  icon='pi pi-pencil'
-                  rounded
-                  aria-label='Edit Selected Exchange'
-                  disabled={!selected}
-                  onClick={() => setShowEditDialog(true)}
-                  style={{ backgroundColor: '#2563EB', borderColor: '#2563EB' }}
-                />
-              )}
-              {manageMode && (
-                <Button
-                  icon='pi pi-undo'
-                  rounded
-                  severity='secondary'
-                  aria-label='Return'
-                  onClick={() => setManageMode(false)}
-                />
-              )}
-            </div>
           </div>
           {exchangeList.length === 0 && (
             <div className='flex flex-col items-center justify-center py-8 gap-3 text-center'>
@@ -324,9 +510,8 @@ export default function DashboardView() {
                 📊
               </span>
               <p className='text-slate-500 text-sm max-w-xs'>
-                Your portfolio is empty. Click{' '}
-                <strong className='text-slate-700'>+</strong> to add your first
-                exchange and start tracking your investments.
+                No exchanges yet for this account. Create your first position
+                and the exchange will be inferred from the selected stock.
               </p>
             </div>
           )}
@@ -336,32 +521,16 @@ export default function DashboardView() {
               return (
                 <div key={e.name} className='relative inline-block'>
                   <button
-                    onClick={() => {
-                      if (!manageMode) setSelected(e.name);
-                    }}
+                    onClick={() => setSelected(e.name)}
                     className={`px-3 py-1 rounded-full border transition select-none ${
                       isSelected
                         ? 'bg-blue-600 text-white border-blue-600'
                         : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
-                    } ${manageMode ? 'animate-shake-slight' : ''}`}
+                    }`}
                     aria-pressed={isSelected}
-                    {...longPressHandlers}
                   >
                     {e.name}
                   </button>
-                  {manageMode && (
-                    <button
-                      aria-label={`Delete ${e.name}`}
-                      title={`Delete ${e.name}`}
-                      className='absolute -top-1 -right-1 h-5 w-5 rounded-full bg-red-500 text-white flex items-center justify-center text-[10px] shadow'
-                      onClick={ev => {
-                        ev.stopPropagation();
-                        handleDeleteExchange(e.name);
-                      }}
-                    >
-                      ×
-                    </button>
-                  )}
                 </div>
               );
             })}
@@ -422,37 +591,44 @@ export default function DashboardView() {
         </div>
 
         <Card>
+          <div className='flex items-center justify-between mb-3'>
+            <h3 className='text-base font-semibold text-gray-800'>
+              Equity History
+            </h3>
+            <span className='text-xs text-gray-500'>
+              Last snapshot:{' '}
+              {createSnapshot.isPending
+                ? 'Updating...'
+                : lastSnapshotDate
+                  ? formatDateDDMMYYYY(lastSnapshotDate)
+                  : 'No snapshot yet'}
+            </span>
+          </div>
           <div className='h-72 md:h-96'>
             <Line data={data} options={options} />
           </div>
         </Card>
 
         {/* Holdings */}
-        <HoldingsTable
-          selectedExchange={selected}
-          onExchangeDetected={handleExchangeDetected}
-          baseCurrency={exchange?.baseCurrency}
-          onLiveTotals={setLiveTotals}
-        />
+        {selectedAccountId ? (
+          <HoldingsTable
+            selectedAccountId={selectedAccountId}
+            selectedAccountName={selectedAccount?.name}
+            selectedExchange={selected || undefined}
+            onExchangeDetected={handleExchangeDetected}
+            baseCurrency={exchange?.baseCurrency}
+            onLiveTotals={setLiveTotals}
+          />
+        ) : (
+          <Card>
+            <div className='text-sm text-gray-500'>
+              {selectedAccountId
+                ? 'Select an exchange to load holdings.'
+                : 'Select an account to load holdings.'}
+            </div>
+          </Card>
+        )}
       </div>
-      <AddExchangeDialog
-        visible={showEditDialog}
-        onHide={() => setShowEditDialog(false)}
-        onSubmit={handleEditExchange}
-        existingNames={exchangeList.map(e => e.name)}
-        mode='edit'
-        initial={
-          exchange
-            ? {
-                name: exchange.name,
-                type: exchange.type,
-                baseCurrency: exchange.baseCurrency,
-                description: exchange.description,
-              }
-            : undefined
-        }
-        disableNameEdit
-      />
     </div>
   );
 }

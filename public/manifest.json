@@ -2,10 +2,9 @@
   "name": "Truffles",
   "short_name": "Truffles",
   "description": "Personal finance management application",
-  "theme_color": "#000000",
+  "theme_color": "#2563eb",
   "background_color": "#ffffff",
   "display": "standalone",
-  "orientation": "portrait",
   "scope": "/",
   "start_url": "/",
   "icons": [

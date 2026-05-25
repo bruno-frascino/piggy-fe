@@ -1,5 +1,10 @@
 import type { NextConfig } from 'next';
 import withPWAInit from '@ducanh2912/next-pwa';
+import { runtimeCaching as defaultRuntimeCaching } from '@ducanh2912/next-pwa';
+
+const runtimeCaching = defaultRuntimeCaching.filter(
+  entry => entry.options?.cacheName !== 'apis'
+);
 
 const withPWA = withPWAInit({
   dest: 'public',
@@ -10,6 +15,7 @@ const withPWA = withPWAInit({
   workboxOptions: {
     disableDevLogs: true,
     navigateFallback: '/offline',
+    runtimeCaching,
   },
 });
 

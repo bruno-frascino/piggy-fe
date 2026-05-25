@@ -91,8 +91,16 @@ export const useCreateCategory = () => {
 export const useAccounts = () => {
   return useQuery({
     queryKey: ['accounts'],
-    queryFn: apiClient.getAccounts,
+    queryFn: () => apiClient.getTradingAccounts(),
     staleTime: 10 * 60 * 1000, // 10 minutes - accounts don't change often
+  });
+};
+
+export const useTradingAccounts = () => {
+  return useQuery({
+    queryKey: ['trading-accounts'],
+    queryFn: () => apiClient.getTradingAccounts(),
+    staleTime: 10 * 60 * 1000,
   });
 };
 
@@ -100,9 +108,10 @@ export const useCreateAccount = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: apiClient.createAccount,
+    mutationFn: (account: { name: string }) => apiClient.createAccount(account),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['accounts'] });
+      queryClient.invalidateQueries({ queryKey: ['trading-accounts'] });
       queryClient.invalidateQueries({ queryKey: ['balance'] }); // Balance might change
     },
   });
@@ -174,6 +183,24 @@ export const useResetPassword = () => {
   });
 };
 
+export const useCurrentUser = () => {
+  return useQuery({
+    queryKey: ['current-user'],
+    queryFn: () => apiClient.getCurrentUser(),
+  });
+};
+
+export const useUpdateCurrentUser = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: apiClient.updateCurrentUser.bind(apiClient),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['current-user'] });
+    },
+  });
+};
+
 // Exchange hooks
 export const useExchanges = () => {
   return useQuery({
@@ -182,17 +209,26 @@ export const useExchanges = () => {
   });
 };
 
-export const useUserPortfolio = () => {
+export const useUserPortfolio = (accountId?: string) => {
   return useQuery({
-    queryKey: ['user-portfolio'],
-    queryFn: () => apiClient.getUserPortfolio(),
+    queryKey: ['user-portfolio', accountId ?? 'all'],
+    queryFn: () => apiClient.getUserPortfolio(accountId),
+    enabled: !!accountId,
   });
 };
 
-export const usePortfolioHistory = () => {
+export const usePortfolioHistory = (
+  accountId?: string,
+  exchangeCode?: string
+) => {
   return useQuery({
-    queryKey: ['portfolio-history'],
-    queryFn: () => apiClient.getPortfolioHistory(),
+    queryKey: [
+      'portfolio-history',
+      accountId ?? 'none',
+      exchangeCode ?? 'none',
+    ],
+    queryFn: () => apiClient.getPortfolioHistory(accountId, exchangeCode),
+    enabled: !!accountId && !!exchangeCode,
   });
 };
 
@@ -200,18 +236,24 @@ export const useCreatePortfolioSnapshot = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: () => apiClient.createPortfolioSnapshot(),
+    mutationFn: ({
+      accountId,
+      exchangeCode,
+    }: {
+      accountId: string;
+      exchangeCode: string;
+    }) => apiClient.createPortfolioSnapshot(accountId, exchangeCode),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['portfolio-history'] });
     },
   });
 };
 
-export const useHoldings = (exchangeName: string) => {
+export const useHoldings = (exchangeName?: string, accountId?: string) => {
   return useQuery({
-    queryKey: ['holdings', exchangeName],
-    queryFn: () => apiClient.getHoldings(exchangeName),
-    enabled: !!exchangeName,
+    queryKey: ['holdings', exchangeName ?? 'all', accountId ?? 'all'],
+    queryFn: () => apiClient.getHoldings(exchangeName, accountId),
+    enabled: !!accountId,
   });
 };
 

@@ -10,6 +10,9 @@ import type {
   HoldingPosition,
   QuoteResult,
   StockSearchResult,
+  TradingAccount,
+  UpdateUserProfilePayload,
+  UserProfile,
 } from './types';
 
 // API client for your backend using Axios
@@ -49,6 +52,37 @@ function normalizeEquitySeries(payload: unknown): EquityPoint[] {
       return { date: rawDate, equity: rawEquity };
     })
     .filter((point): point is EquityPoint => point !== null);
+}
+
+function mapToTradingAccount(row: unknown): TradingAccount | null {
+  if (!isRecord(row)) return null;
+
+  const id = typeof row.id === 'string' ? row.id : null;
+  const name = typeof row.name === 'string' ? row.name : null;
+
+  if (!id || !name) return null;
+  return { id, name };
+}
+
+function mapToUserProfile(row: unknown): UserProfile | null {
+  if (!isRecord(row)) return null;
+
+  const id = typeof row.id === 'string' ? row.id : null;
+  const email = typeof row.email === 'string' ? row.email : null;
+  const name = typeof row.name === 'string' ? row.name : null;
+  const baseCurrency =
+    typeof row.baseCurrency === 'string' && row.baseCurrency
+      ? row.baseCurrency
+      : 'USD';
+
+  if (!id || !email || !name) return null;
+
+  return {
+    id,
+    email,
+    name,
+    baseCurrency,
+  };
 }
 
 function mapSnapshotToEquityPoint(row: unknown): EquityPoint | null {
@@ -194,6 +228,7 @@ function mapPositionToHolding(pos: unknown): HoldingPosition | null {
   if (!isRecord(pos)) return null;
   const asset = isRecord(pos.asset) ? pos.asset : null;
   const account = isRecord(pos.account) ? pos.account : null;
+  const exchange = asset && isRecord(asset.exchange) ? asset.exchange : null;
   if (!asset) return null;
 
   const symbol = typeof asset.symbol === 'string' ? asset.symbol : null;
@@ -211,12 +246,27 @@ function mapPositionToHolding(pos: unknown): HoldingPosition | null {
   const entryPrice = Number(pos.entryPrice) || 0;
   const quantity = Number(pos.quantity) || 0;
   const buyFees = Number(pos.buyFees) || 0;
+  const transactions = Array.isArray(pos.transactions) ? pos.transactions : [];
+  const buyQty = transactions.reduce((sum, tx) => {
+    if (!isRecord(tx) || tx.type !== 'BUY') return sum;
+    return sum + (Number(tx.quantity) || 0);
+  }, 0);
+  const sellQty = transactions.reduce((sum, tx) => {
+    if (!isRecord(tx) || tx.type !== 'SELL') return sum;
+    return sum + (Number(tx.quantity) || 0);
+  }, 0);
+  const baseQty = buyQty > 0 ? buyQty : quantity;
+  const remainingQty =
+    baseQty > 0 ? Math.max(0, baseQty - sellQty) : Math.max(0, quantity);
+  const effectiveQty = sellQty > 0 ? remainingQty : quantity;
+  const effectiveBuyFee =
+    baseQty > 0 ? buyFees * (effectiveQty / baseQty) : buyFees;
   const stopLoss = pos.stopLossPrice != null ? Number(pos.stopLossPrice) : 0;
   const unrealizedPnL =
     pos.unrealizedPnL != null ? Number(pos.unrealizedPnL) : null;
   const currentPrice =
-    unrealizedPnL !== null && quantity > 0
-      ? entryPrice + unrealizedPnL / quantity
+    unrealizedPnL !== null && effectiveQty > 0
+      ? entryPrice + unrealizedPnL / effectiveQty
       : entryPrice;
 
   return {
@@ -226,12 +276,18 @@ function mapPositionToHolding(pos: unknown): HoldingPosition | null {
       typeof account?.name === 'string' && account.name
         ? account.name
         : undefined,
+    exchangeCode:
+      typeof exchange?.code === 'string' && exchange.code
+        ? exchange.code
+        : typeof exchange?.name === 'string' && exchange.name
+          ? exchange.name
+          : undefined,
     symbol,
     name: typeof asset.name === 'string' ? asset.name : symbol,
     openDate,
-    units: quantity,
+    units: effectiveQty,
     buyPrice: entryPrice,
-    buyFee: buyFees,
+    buyFee: Number(effectiveBuyFee.toFixed(6)),
     stopLoss,
     industry:
       typeof asset.sector === 'string'
@@ -244,23 +300,46 @@ function mapPositionToHolding(pos: unknown): HoldingPosition | null {
   };
 }
 
-function mapPositionToClosedTrade(pos: unknown): ClosedTrade | null {
-  if (!isRecord(pos)) return null;
-  const asset = isRecord(pos.asset) ? pos.asset : null;
+function toDateStr(v: unknown): string {
+  if (typeof v === 'string') return v.slice(0, 10);
+  if (v instanceof Date) return v.toISOString().slice(0, 10);
+  return '';
+}
+
+function mapCloseEventToClosedTrade(event: unknown): ClosedTrade | null {
+  if (!isRecord(event)) return null;
+
+  const eventId = typeof event.id === 'string' ? event.id : null;
+  if (!eventId) return null;
+
+  const position = isRecord(event.position) ? event.position : null;
+  if (!position) return null;
+
+  const asset = isRecord(position.asset) ? position.asset : null;
   if (!asset) return null;
-  const symbol = typeof asset.symbol === 'string' ? asset.symbol : null;
-  if (!symbol) return null;
   const exch = isRecord(asset.exchange) ? asset.exchange : null;
 
-  const toDateStr = (v: unknown): string => {
-    if (typeof v === 'string') return v.slice(0, 10);
-    if (v instanceof Date) return v.toISOString().slice(0, 10);
-    return '';
-  };
+  const symbol = typeof asset.symbol === 'string' ? asset.symbol : null;
+  if (!symbol) return null;
 
-  const openDate = toDateStr(pos.openDate);
-  const closeDate = toDateStr(pos.closeDate);
+  const openDate = toDateStr(position.openDate);
+  const closeDate = toDateStr(event.date);
   if (!openDate || !closeDate) return null;
+
+  const soldQty = Number(event.quantity) || 0;
+  if (!Number.isFinite(soldQty) || soldQty <= 0) return null;
+
+  const transactions = Array.isArray(position.transactions)
+    ? position.transactions
+    : [];
+  const buyQty = transactions.reduce((sum, tx) => {
+    if (!isRecord(tx) || tx.type !== 'BUY') return sum;
+    return sum + (Number(tx.quantity) || 0);
+  }, 0);
+
+  const totalBuyFees = Number(position.buyFees) || 0;
+  const proratedBuyFee =
+    buyQty > 0 ? totalBuyFees * (soldQty / buyQty) : totalBuyFees;
 
   const start = new Date(openDate).getTime();
   const end = new Date(closeDate).getTime();
@@ -270,19 +349,27 @@ function mapPositionToClosedTrade(pos: unknown): ClosedTrade | null {
       : Math.max(0, Math.round((end - start) / 86400000));
 
   return {
-    id: typeof pos.id === 'string' ? pos.id : `${symbol}-${openDate}`,
+    id: eventId,
+    positionId: typeof position.id === 'string' ? position.id : undefined,
     symbol,
     name: typeof asset.name === 'string' ? asset.name : symbol,
     exchange: typeof exch?.code === 'string' ? exch.code : undefined,
     openDate,
     closeDate,
-    unitsClosed: Number(pos.quantity) || 0,
-    buyPrice: Number(pos.entryPrice) || 0,
-    buyFee: Number(pos.buyFees) || 0,
-    sellPrice: Number(pos.exitPrice) || 0,
-    sellFee: Number(pos.sellFees) || 0,
+    unitsClosed: Number(soldQty.toFixed(6)),
+    buyPrice: Number(position.entryPrice) || 0,
+    buyFee: Number(proratedBuyFee.toFixed(6)),
+    sellPrice: Number(event.price) || 0,
+    sellFee: Number(event.fees) || 0,
     periodDays,
-    sellComments: typeof pos.notes === 'string' ? pos.notes : undefined,
+    buyComments:
+      typeof position.openReason === 'string' ? position.openReason : undefined,
+    sellComments:
+      typeof event.notes === 'string'
+        ? event.notes
+        : typeof position.notes === 'string'
+          ? position.notes
+          : undefined,
     baseCurrency: typeof exch?.currency === 'string' ? exch.currency : 'USD',
   };
 }
@@ -493,18 +580,63 @@ class ApiClient {
   }
 
   // Account methods
-  async getAccounts() {
-    const response = await this.client.get('/accounts');
-    return response.data;
+  async getAccounts(): Promise<TradingAccount[]> {
+    return this.getTradingAccounts();
   }
 
   async createAccount(account: {
     name: string;
-    type: string;
-    balance: number;
-  }) {
-    const response = await this.client.post('/accounts', account);
-    return response.data;
+  }): Promise<TradingAccount | null> {
+    const response = await this.client.post('/accounts', {
+      name: account.name,
+    });
+    const payload = isRecord(response.data)
+      ? response.data.data
+      : response.data;
+    return mapToTradingAccount(payload);
+  }
+
+  async getTradingAccounts(): Promise<TradingAccount[]> {
+    const response = await this.client.get('/accounts');
+    return unwrapArray<unknown>(response.data)
+      .map(mapToTradingAccount)
+      .filter((a): a is TradingAccount => a !== null);
+  }
+
+  async getCurrentUser(): Promise<UserProfile | null> {
+    if (USE_MOCK_API) {
+      const mockUser = {
+        id: 'mock-user-1',
+        name: 'Mock User',
+        email: 'mock@example.com',
+        baseCurrency: 'USD',
+      };
+      return mockUser;
+    }
+
+    const response = await this.client.get('/users/me');
+    const payload = isRecord(response.data)
+      ? response.data.data
+      : response.data;
+    return mapToUserProfile(payload);
+  }
+
+  async updateCurrentUser(
+    payload: UpdateUserProfilePayload
+  ): Promise<UserProfile | null> {
+    if (USE_MOCK_API) {
+      const next = {
+        id: 'mock-user-1',
+        name: payload.name ?? 'Mock User',
+        email: 'mock@example.com',
+        baseCurrency: payload.baseCurrency?.toUpperCase() ?? 'USD',
+      };
+      return next;
+    }
+
+    const response = await this.client.patch('/users/me', payload);
+    const data = isRecord(response.data) ? response.data.data : response.data;
+    return mapToUserProfile(data);
   }
 
   // Exchange catalog methods (available exchanges)
@@ -528,20 +660,29 @@ class ApiClient {
   }
 
   // User portfolio methods (exchanges the user actually has)
-  async getUserPortfolio(): Promise<ExchangePortfolio[]> {
+  async getUserPortfolio(accountId?: string): Promise<ExchangePortfolio[]> {
     if (USE_MOCK_API) {
       await new Promise(resolve => setTimeout(resolve, 300));
       return exchanges;
     }
 
     const response = await this.client.get('/positions', {
-      params: { status: 'OPEN', limit: 100 },
+      params: {
+        status: 'OPEN',
+        limit: 100,
+        ...(accountId ? { accountId } : {}),
+      },
     });
 
     const positions = unwrapArray<unknown>(response.data);
     const exchangeMap = new Map<
       string,
-      { types: Set<string>; currency: string }
+      {
+        types: Set<string>;
+        currency: string;
+        points: Map<string, number>;
+        totalCurrent: number;
+      }
     >();
 
     for (const pos of positions) {
@@ -560,11 +701,39 @@ class ApiClient {
       if (!exchangeMap.has(code)) {
         const currency =
           typeof exch.currency === 'string' ? exch.currency : 'USD';
-        exchangeMap.set(code, { types: new Set(), currency });
+        exchangeMap.set(code, {
+          types: new Set(),
+          currency,
+          points: new Map<string, number>(),
+          totalCurrent: 0,
+        });
       }
+
+      const entry = exchangeMap.get(code)!;
+
       if (typeof asset.assetType === 'string') {
-        exchangeMap.get(code)!.types.add(asset.assetType);
+        entry.types.add(asset.assetType);
       }
+
+      const rawOpenDate = pos.openDate;
+      const openDate =
+        typeof rawOpenDate === 'string'
+          ? rawOpenDate.slice(0, 10)
+          : rawOpenDate instanceof Date
+            ? rawOpenDate.toISOString().slice(0, 10)
+            : null;
+
+      const invested = Number(pos.capitalAllocated) || 0;
+      const unrealized = Number(pos.unrealizedPnL) || 0;
+      const currentValue = invested + unrealized;
+
+      if (openDate) {
+        entry.points.set(
+          openDate,
+          (entry.points.get(openDate) ?? 0) + invested
+        );
+      }
+      entry.totalCurrent += currentValue;
     }
 
     return Array.from(exchangeMap.entries()).map(([code, meta]) => {
@@ -572,34 +741,80 @@ class ApiClient {
       const hasStocks = meta.types.has('EQUITY') || meta.types.has('ETF');
       const type: ExchangePortfolio['type'] =
         hasCrypto && hasStocks ? 'mixed' : hasCrypto ? 'crypto' : 'stocks';
+
+      const sortedDates = Array.from(meta.points.keys()).sort((a, b) =>
+        a.localeCompare(b)
+      );
+      let running = 0;
+      const equitySeries: EquityPoint[] = sortedDates.map(date => {
+        running += meta.points.get(date) ?? 0;
+        return {
+          date,
+          equity: Number(running.toFixed(2)),
+        };
+      });
+
+      const today = new Date().toISOString().slice(0, 10);
+      const currentPoint = {
+        date: today,
+        equity: Number(meta.totalCurrent.toFixed(2)),
+      };
+      if (
+        equitySeries.length &&
+        equitySeries[equitySeries.length - 1].date === today
+      ) {
+        equitySeries[equitySeries.length - 1] = currentPoint;
+      } else {
+        equitySeries.push(currentPoint);
+      }
+
       return {
         name: code,
-        equitySeries: [],
+        equitySeries,
         type,
         baseCurrency: meta.currency,
       };
     });
   }
 
-  async getPortfolioHistory(): Promise<EquityPoint[]> {
+  async getPortfolioHistory(
+    accountId?: string,
+    exchangeCode?: string
+  ): Promise<EquityPoint[]> {
     if (USE_MOCK_API) {
       await new Promise(resolve => setTimeout(resolve, 250));
       return aggregateMockPortfolioSeries();
     }
 
-    const response = await this.client.get('/portfolio/history');
+    if (!accountId || !exchangeCode) {
+      return [];
+    }
+
+    const response = await this.client.get('/portfolio/history', {
+      params: { accountId, exchangeCode },
+    });
     return unwrapArray<unknown>(response.data)
       .map(mapSnapshotToEquityPoint)
       .filter((p): p is EquityPoint => p !== null);
   }
 
-  async createPortfolioSnapshot(): Promise<EquityPoint | null> {
+  async createPortfolioSnapshot(
+    accountId?: string,
+    exchangeCode?: string
+  ): Promise<EquityPoint | null> {
     if (USE_MOCK_API) {
       // In mock mode the series is generated in-memory.
       return null;
     }
 
-    const response = await this.client.post('/portfolio/snapshot');
+    if (!accountId || !exchangeCode) {
+      return null;
+    }
+
+    const response = await this.client.post('/portfolio/snapshot', {
+      accountId,
+      exchangeCode,
+    });
     return mapSnapshotToEquityPoint(
       isRecord(response.data) ? response.data.data : null
     );
@@ -608,6 +823,7 @@ class ApiClient {
   async createPosition(payload: {
     symbol: string;
     exchangeCode: string;
+    accountId?: string;
     accountName?: string;
     openDate: string;
     entryPrice: number;
@@ -617,13 +833,14 @@ class ApiClient {
     industry?: string;
     notes?: string;
   }): Promise<void> {
-    const quantity = Math.trunc(payload.quantity);
+    const quantity = Number(payload.quantity) || 0;
     const entryPrice = Number(payload.entryPrice) || 0;
     const buyFees = Number(payload.buyFees) || 0;
 
     await this.client.post('/positions', {
       symbol: payload.symbol.trim().toUpperCase(),
       exchangeCode: payload.exchangeCode.trim().toUpperCase(),
+      accountId: payload.accountId,
       accountName: payload.accountName?.trim() || undefined,
       assetName: payload.assetName?.trim() || undefined,
       industry: payload.industry?.trim() || undefined,
@@ -635,6 +852,44 @@ class ApiClient {
       openReason: payload.notes?.trim() || 'Opened from dashboard',
       notes: payload.notes?.trim() || undefined,
     });
+  }
+
+  async updatePosition(
+    id: string,
+    payload: {
+      symbol?: string;
+      exchangeCode?: string;
+      accountId?: string;
+      accountName?: string;
+      openDate?: string;
+      entryPrice?: number;
+      quantity?: number;
+      buyFees?: number;
+      assetName?: string;
+      industry?: string;
+      stopLossPrice?: number | null;
+      takeProfitPrice?: number | null;
+      notes?: string;
+    }
+  ) {
+    const response = await this.client.patch(`/positions/${id}`, {
+      ...payload,
+      symbol: payload.symbol?.trim().toUpperCase(),
+      exchangeCode: payload.exchangeCode?.trim().toUpperCase(),
+      accountName: payload.accountName?.trim() || undefined,
+      assetName: payload.assetName?.trim() || undefined,
+      industry: payload.industry?.trim() || undefined,
+      notes: payload.notes?.trim() || undefined,
+      quantity:
+        payload.quantity !== undefined ? Number(payload.quantity) : undefined,
+      entryPrice:
+        payload.entryPrice !== undefined
+          ? Number(payload.entryPrice)
+          : undefined,
+      buyFees:
+        payload.buyFees !== undefined ? Number(payload.buyFees) : undefined,
+    });
+    return response.data;
   }
 
   // Stock symbol search
@@ -674,13 +929,27 @@ class ApiClient {
   }
 
   // Holdings methods
-  async getHoldings(exchangeName: string): Promise<HoldingPosition[]> {
+  async getHoldings(
+    exchangeName?: string,
+    accountId?: string
+  ): Promise<HoldingPosition[]> {
     if (USE_MOCK_API) {
       await new Promise(resolve => setTimeout(resolve, 300));
-      return getHoldingsForExchange(exchangeName);
+      if (exchangeName) {
+        return getHoldingsForExchange(exchangeName);
+      }
+
+      return exchanges.flatMap(exchange =>
+        getHoldingsForExchange(exchange.name)
+      );
     }
     const response = await this.client.get('/positions', {
-      params: { status: 'OPEN', exchangeCode: exchangeName, limit: 100 },
+      params: {
+        status: 'OPEN,PARTIAL',
+        limit: 100,
+        ...(exchangeName ? { exchangeCode: exchangeName } : {}),
+        ...(accountId ? { accountId } : {}),
+      },
     });
     return unwrapArray<unknown>(response.data)
       .map(mapPositionToHolding)
@@ -688,12 +957,31 @@ class ApiClient {
   }
 
   async getClosedPositions(): Promise<ClosedTrade[]> {
-    const response = await this.client.get('/positions', {
-      params: { status: 'CLOSED', limit: 100 },
-    });
+    const response = await this.client.get('/positions/close-events');
     return unwrapArray<unknown>(response.data)
-      .map(mapPositionToClosedTrade)
+      .map(mapCloseEventToClosedTrade)
       .filter((t): t is ClosedTrade => t !== null);
+  }
+
+  async updateCloseEvent(
+    id: string,
+    data: {
+      closeDate?: string;
+      exitPrice?: number;
+      sellFees?: number;
+      notes?: string;
+    }
+  ) {
+    const response = await this.client.patch(
+      `/positions/close-events/${id}`,
+      data
+    );
+    return response.data;
+  }
+
+  async deleteCloseEvent(id: string) {
+    const response = await this.client.delete(`/positions/close-events/${id}`);
+    return response.data;
   }
 
   async closePosition(

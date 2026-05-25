@@ -19,6 +19,7 @@ export type LocalHolding = Omit<
   stopLoss?: number;
   currentPrice?: number;
   accountName?: string;
+  exchangeCode?: string;
   buyComments?: string;
 };
 
@@ -26,6 +27,9 @@ export default function AddHoldingsDialog({
   visible,
   mode = 'add',
   initial,
+  accountName,
+  lockAccount = false,
+  exchangeCode,
   onHide,
   onSubmit,
   onExchangeDetected,
@@ -33,6 +37,9 @@ export default function AddHoldingsDialog({
   visible: boolean;
   mode?: 'add' | 'edit';
   initial?: Partial<LocalHolding>;
+  accountName?: string;
+  lockAccount?: boolean;
+  exchangeCode?: string;
   onHide: () => void;
   onSubmit: (value: LocalHolding) => void;
   onExchangeDetected?: (exchange: string) => void;
@@ -43,7 +50,8 @@ export default function AddHoldingsDialog({
     buyPrice: 0,
     buyFee: 0,
     stopLoss: undefined,
-    accountName: 'Main',
+    accountName: accountName ?? 'Main',
+    exchangeCode: exchangeCode ?? '',
     symbol: '',
     name: '',
     industry: '',
@@ -53,6 +61,8 @@ export default function AddHoldingsDialog({
   const [symbolSuggestions, setSymbolSuggestions] = useState<
     StockSearchResult[]
   >([]);
+  const [allAccountNames, setAllAccountNames] = useState<string[]>([]);
+  const [accountSuggestions, setAccountSuggestions] = useState<string[]>([]);
   const [manualSymbol, setManualSymbol] = useState(false);
   const searchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -68,15 +78,44 @@ export default function AddHoldingsDialog({
       buyPrice: 0,
       buyFee: 0,
       stopLoss: undefined,
-      accountName: 'Main',
+      accountName: accountName ?? 'Main',
+      exchangeCode: exchangeCode ?? '',
       buyComments: '',
       ...initial,
     };
     setForm(base);
     setErrors({});
     setSymbolSuggestions([]);
+    setAllAccountNames([]);
+    setAccountSuggestions([]);
     setManualSymbol(false);
-  }, [visible, mode, initial]);
+  }, [visible, mode, initial, accountName]);
+
+  useEffect(() => {
+    if (!visible) return;
+    let cancelled = false;
+
+    const loadAccounts = async () => {
+      try {
+        const accounts = await apiClient.getTradingAccounts();
+        const names = Array.from(new Set(accounts.map(a => a.name))).sort();
+        if (!cancelled) {
+          setAllAccountNames(names);
+          setAccountSuggestions(names);
+        }
+      } catch {
+        if (!cancelled) {
+          setAllAccountNames([]);
+          setAccountSuggestions([]);
+        }
+      }
+    };
+
+    loadAccounts();
+    return () => {
+      cancelled = true;
+    };
+  }, [visible, exchangeCode]);
 
   const searchSymbol = async (event: { query: string }) => {
     if (searchTimerRef.current) clearTimeout(searchTimerRef.current);
@@ -96,10 +135,26 @@ export default function AddHoldingsDialog({
   };
 
   const handleSymbolSelect = (result: StockSearchResult) => {
-    setForm(f => ({ ...f, symbol: result.symbol, name: result.name }));
+    setForm(f => ({
+      ...f,
+      symbol: result.symbol,
+      name: result.name,
+      exchangeCode: result.exchange,
+    }));
     if (mode === 'add') {
       onExchangeDetected?.(result.exchange);
     }
+  };
+
+  const searchAccount = (event: { query: string }) => {
+    const q = event.query.trim().toLowerCase();
+    if (!q) {
+      setAccountSuggestions(allAccountNames);
+      return;
+    }
+    setAccountSuggestions(
+      allAccountNames.filter(name => name.toLowerCase().includes(q))
+    );
   };
 
   const handleSubmit = () => {
@@ -122,11 +177,18 @@ export default function AddHoldingsDialog({
     });
     if (typeof form.units !== 'number' || isNaN(form.units!))
       e.units = 'Enter a number';
-    else if (!Number.isInteger(form.units)) e.units = 'Use a whole number';
+    else if (form.units <= 0) e.units = 'Enter units greater than 0';
     if (typeof form.buyPrice !== 'number' || isNaN(form.buyPrice!))
       e.buyPrice = 'Enter a number';
     if (!/\d{4}-\d{2}-\d{2}/.test(form.openDate ?? ''))
       e.openDate = 'Use YYYY-MM-DD';
+
+    const resolvedExchange =
+      form.exchangeCode?.trim() || exchangeCode?.trim() || '';
+    if (!resolvedExchange) {
+      e.symbol = 'Select a symbol from search so exchange can be detected';
+    }
+
     setErrors(e);
     if (Object.keys(e).length) return;
 
@@ -139,6 +201,11 @@ export default function AddHoldingsDialog({
       buyFee: form.buyFee ?? 0,
       stopLoss: form.stopLoss,
       accountName: form.accountName?.trim() || 'Main',
+      exchangeCode: (
+        form.exchangeCode?.trim() ||
+        exchangeCode?.trim() ||
+        ''
+      ).toUpperCase(),
       industry: form.industry ?? '',
       // Current price should come from quotes API; use buy price only as fallback.
       currentPrice: form.buyPrice!,
@@ -222,6 +289,12 @@ export default function AddHoldingsDialog({
                     ? '← Search symbol'
                     : "Can't find it? Enter manually"}
                 </button>
+                {(form.exchangeCode || exchangeCode) && (
+                  <p className='text-xs text-gray-500 mt-1'>
+                    Exchange:{' '}
+                    {(form.exchangeCode || exchangeCode || '').toUpperCase()}
+                  </p>
+                )}
               </>
             ) : (
               <InputText
@@ -294,8 +367,8 @@ export default function AddHoldingsDialog({
               }
               mode='decimal'
               minFractionDigits={0}
-              maxFractionDigits={0}
-              placeholder='e.g. 10'
+              maxFractionDigits={6}
+              placeholder='e.g. 10.5'
               className='w-full'
               inputClassName='w-full'
             />
@@ -321,14 +394,28 @@ export default function AddHoldingsDialog({
         <div className='grid grid-cols-12 gap-3'>
           <div className='col-span-12 md:col-span-4'>
             <label className='block text-sm font-medium mb-1'>Account</label>
-            <InputText
-              value={form.accountName ?? 'Main'}
-              onChange={e =>
-                setForm(f => ({ ...f, accountName: e.target.value }))
-              }
-              placeholder='Main'
-              className='w-full'
-            />
+            {lockAccount ? (
+              <InputText
+                value={form.accountName ?? 'Main'}
+                disabled
+                className='w-full'
+              />
+            ) : (
+              <AutoComplete
+                value={form.accountName ?? 'Main'}
+                suggestions={accountSuggestions}
+                completeMethod={searchAccount}
+                onChange={e =>
+                  setForm(f => ({ ...f, accountName: String(e.value ?? '') }))
+                }
+                dropdown
+                forceSelection={false}
+                placeholder='Main'
+                className='w-full'
+                inputClassName='w-full'
+                appendTo='self'
+              />
+            )}
             <p className='text-xs text-gray-500 mt-1'>
               Use different account names to separate holdings on the same
               exchange.
