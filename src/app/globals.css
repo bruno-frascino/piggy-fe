@@ -109,6 +109,12 @@ body {
   background-color: var(--tr-brand-bg);
 }
 
+/* Improve readability by increasing row height in holdings/history tables */
+.holdings-table .p-datatable-tbody > tr > td {
+  padding-top: 0.8rem;
+  padding-bottom: 0.8rem;
+}
+
 /* Top navigation — uses design tokens */
 .topnav {
   background: var(--tr-surface);

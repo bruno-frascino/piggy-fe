@@ -33,6 +33,7 @@ export default function AddHoldingsDialog({
   onHide,
   onSubmit,
   onExchangeDetected,
+  onDelete,
 }: {
   visible: boolean;
   mode?: 'add' | 'edit';
@@ -43,6 +44,7 @@ export default function AddHoldingsDialog({
   onHide: () => void;
   onSubmit: (value: LocalHolding) => void;
   onExchangeDetected?: (exchange: string) => void;
+  onDelete?: () => void;
 }) {
   const [form, setForm] = useState<Partial<LocalHolding>>({
     openDate: new Date().toISOString().slice(0, 10),
@@ -499,6 +501,15 @@ export default function AddHoldingsDialog({
         </div>
 
         <div className='flex justify-end gap-2 pt-2'>
+          {mode === 'edit' && onDelete && (
+            <Button
+              label='Delete Position'
+              icon='pi pi-trash'
+              severity='danger'
+              outlined
+              onClick={onDelete}
+            />
+          )}
           <Button label='Cancel' severity='secondary' onClick={onHide} />
           <Button
             label={mode === 'edit' ? 'Save Changes' : 'Add Position'}

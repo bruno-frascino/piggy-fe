@@ -5,6 +5,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import { useCurrentUser } from '@/hooks/api';
+import { apiClient } from '@/lib/api-client';
 import {
   clearQueuedWrites,
   getQueuedWritesCount,
@@ -68,6 +69,11 @@ export default function TopNav() {
 
   const handleSignOut = async () => {
     const sensitiveCachePrefixes = ['apis', 'pages', 'pages-rsc', 'next-data'];
+    const refreshToken = localStorage.getItem('refreshToken');
+
+    if (refreshToken) {
+      await apiClient.logout(refreshToken).catch(() => undefined);
+    }
 
     clearQueuedWrites();
     localStorage.removeItem('authToken');

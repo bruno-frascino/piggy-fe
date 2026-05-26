@@ -20,6 +20,7 @@ import {
   syncQueuedWritesNow,
   type QueuedWriteActionInput,
 } from '@/lib/offline-write-queue';
+import { calculateGainLossPerWeek } from '@/lib/performance-metrics';
 import { useToast } from '@/lib/toast-context';
 
 type HoldingRow = LocalHolding & {
@@ -30,6 +31,7 @@ type HoldingRow = LocalHolding & {
   currentPosition: number; // units * currentPrice
   currentReturnAbs: number; // currentPosition - openPosition
   currentReturnPct: number; // (current - open)/open
+  gainLossPerWeek: number | null; // current gain/loss normalized per week open
   stopLossPosition: number; // units * stopLoss
   stopLossReturnPct: number; // (stopLossPos - open)/open
   allocationPct: number; // openPosition / totalOpen
@@ -227,6 +229,40 @@ export default function HoldingsTable({
     });
   };
 
+  const handleDeletePosition = async () => {
+    if (editIdx === null) return;
+    const current = holdings[editIdx];
+    if (!current?.id) return;
+
+    if (typeof window !== 'undefined') {
+      const confirmed = window.confirm(
+        `Delete position ${current.symbol}? This cannot be undone.`
+      );
+      if (!confirmed) return;
+    }
+
+    if (!ensureOnlineForImmediateWrite('delete this position')) {
+      return;
+    }
+
+    try {
+      await apiClient.deletePosition(current.id);
+      await invalidateAfterWrite();
+      setHoldings(prev => prev.filter((_, index) => index !== editIdx));
+      setShowDialog(false);
+      setEditIdx(null);
+      setDialogInitial(undefined);
+      showToast({
+        severity: 'success',
+        summary: 'Deleted',
+        detail: `Position ${current.symbol} deleted.`,
+        life: 3500,
+      });
+    } catch (error) {
+      showWriteError('delete position', error);
+    }
+  };
+
   // Dialog state is managed inside AddHoldingsDialog
 
   const totals = useMemo(() => {
@@ -326,6 +362,10 @@ export default function HoldingsTable({
         !isNaN(ts) && ts > 0
           ? Math.max(0, Math.floor((now - ts) / MS_PER_DAY))
           : 0;
+      const gainLossPerWeek = calculateGainLossPerWeek(
+        currentReturnAbs,
+        daysOpen
+      );
       return {
         ...h,
         currentPrice: effectivePrice,
@@ -336,6 +376,7 @@ export default function HoldingsTable({
         currentPosition,
         currentReturnAbs,
         currentReturnPct,
+        gainLossPerWeek,
         stopLossPosition: hasStop ? stopLossPosition : NaN,
         stopLossReturnPct: hasStop ? stopLossReturnPct : NaN,
         allocationPct,
@@ -581,6 +622,19 @@ export default function HoldingsTable({
               </span>
             }
           />
+          <Column
+            header='Gain/Loss per Week'
+            body={(r: HoldingRow) =>
+              r.gainLossPerWeek === null ? (
+                <span className='text-gray-400'>—</span>
+              ) : (
+                <span className={returnClass(r.gainLossPerWeek)}>
+                  {formatCurrency(r.gainLossPerWeek, currency)}
+                </span>
+              )
+            }
+            style={{ minWidth: '190px' }}
+          />
           {anyStopLoss && (
             <>
               <Column
@@ -643,6 +697,7 @@ export default function HoldingsTable({
         exchangeCode={selectedExchange}
         onHide={() => setShowDialog(false)}
         onExchangeDetected={onExchangeDetected}
+        onDelete={mode === 'edit' ? handleDeletePosition : undefined}
         onSubmit={(newPos: LocalHolding) => {
           const submit = async () => {
             if (mode === 'edit' && editIdx !== null) {

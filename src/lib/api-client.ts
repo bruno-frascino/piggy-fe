@@ -1,10 +1,9 @@
 import axios, { AxiosInstance } from 'axios';
-import { MockAuthService, mockBalance, mockTransactions } from './mock-api';
+import { MockAuthService } from './mock-api';
 import { exchanges } from './mock-portfolio';
 import { getHoldingsForExchange } from './mock-holdings';
 import type { ClosedTrade } from './closed-trades-store';
 import type {
-  AvailableExchange,
   EquityPoint,
   ExchangePortfolio,
   HoldingPosition,
@@ -122,40 +121,6 @@ function aggregateMockPortfolioSeries(): EquityPoint[] {
       date,
       equity: Number(equity.toFixed(2)),
     }));
-}
-
-function mapToAvailableExchange(row: unknown): AvailableExchange {
-  if (!isRecord(row)) {
-    return {
-      id: 'unknown',
-      code: 'UNKNOWN',
-      name: 'Unknown Exchange',
-    };
-  }
-
-  const count = isRecord(row._count) ? row._count.stocks : undefined;
-
-  return {
-    id:
-      typeof row.id === 'string'
-        ? row.id
-        : String(row.code ?? row.name ?? 'unknown'),
-    code:
-      typeof row.code === 'string' ? row.code : String(row.name ?? 'UNKNOWN'),
-    name:
-      typeof row.name === 'string'
-        ? row.name
-        : String(row.code ?? 'Unknown Exchange'),
-    countryName:
-      typeof row.countryName === 'string' ? row.countryName : undefined,
-    countryCode:
-      typeof row.countryCode === 'string' ? row.countryCode : undefined,
-    currency: typeof row.currency === 'string' ? row.currency : undefined,
-    symbolSuffix:
-      typeof row.symbolSuffix === 'string' ? row.symbolSuffix : undefined,
-    delay: typeof row.delay === 'string' ? row.delay : undefined,
-    stocksCount: typeof count === 'number' ? count : undefined,
-  };
 }
 
 function mapToExchangePortfolio(row: unknown): ExchangePortfolio {
@@ -476,6 +441,15 @@ class ApiClient {
     return response.data;
   }
 
+  async logout(refreshToken: string) {
+    if (USE_MOCK_API) {
+      return { success: true };
+    }
+
+    const response = await this.client.post('/auth/logout', { refreshToken });
+    return response.data;
+  }
+
   async signup(name: string, email: string, password: string) {
     if (USE_MOCK_API) {
       return await MockAuthService.signup(name, email, password);
@@ -504,78 +478,6 @@ class ApiClient {
       token,
       password,
     });
-    return response.data;
-  }
-
-  // Balance methods
-  async getBalance() {
-    if (USE_MOCK_API) {
-      // Simulate network delay
-      await new Promise(resolve => setTimeout(resolve, 300));
-      return mockBalance;
-    }
-    const response = await this.client.get<{
-      total: number;
-      thisMonth: number;
-      expenses: number;
-      savings: number;
-    }>('/balance');
-    return response.data;
-  }
-
-  // Transaction methods
-  async getTransactions() {
-    if (USE_MOCK_API) {
-      // Simulate network delay
-      await new Promise(resolve => setTimeout(resolve, 400));
-      return mockTransactions;
-    }
-    const response = await this.client.get('/transactions');
-    return response.data;
-  }
-
-  async createTransaction(transaction: {
-    amount: number;
-    description: string;
-    categoryId: string;
-    accountId: string;
-    date: string;
-  }) {
-    const response = await this.client.post('/transactions', transaction);
-    return response.data;
-  }
-
-  async updateTransaction(
-    id: string,
-    transaction: Partial<{
-      amount: number;
-      description: string;
-      categoryId: string;
-      accountId: string;
-      date: string;
-    }>
-  ) {
-    const response = await this.client.put(`/transactions/${id}`, transaction);
-    return response.data;
-  }
-
-  async deleteTransaction(id: string) {
-    const response = await this.client.delete(`/transactions/${id}`);
-    return response.data;
-  }
-
-  // Category methods
-  async getCategories() {
-    const response = await this.client.get('/categories');
-    return response.data;
-  }
-
-  async createCategory(category: {
-    name: string;
-    icon?: string;
-    color?: string;
-  }) {
-    const response = await this.client.post('/categories', category);
     return response.data;
   }
 
@@ -637,26 +539,6 @@ class ApiClient {
     const response = await this.client.patch('/users/me', payload);
     const data = isRecord(response.data) ? response.data.data : response.data;
     return mapToUserProfile(data);
-  }
-
-  // Exchange catalog methods (available exchanges)
-  async getAvailableExchanges(): Promise<AvailableExchange[]> {
-    if (USE_MOCK_API) {
-      await new Promise(resolve => setTimeout(resolve, 300));
-      return exchanges.map((exchange, index) => ({
-        id: String(index + 1),
-        code: exchange.name.toUpperCase(),
-        name: exchange.name,
-      }));
-    }
-
-    const response = await this.client.get('/exchanges');
-    return unwrapArray<unknown>(response.data).map(mapToAvailableExchange);
-  }
-
-  // Backward-compatible alias for callers still using the old name.
-  async getExchanges(): Promise<AvailableExchange[]> {
-    return this.getAvailableExchanges();
   }
 
   // User portfolio methods (exchanges the user actually has)
@@ -999,24 +881,6 @@ class ApiClient {
       ...(fees !== undefined && { fees }),
       ...(notes ? { notes } : {}),
     });
-    return response.data;
-  }
-
-  async updateClosedPosition(
-    id: string,
-    data: {
-      closeDate?: string;
-      exitPrice?: number;
-      sellFees?: number;
-      notes?: string;
-      tradeGrade?: string;
-      lessonsLearned?: string;
-    }
-  ) {
-    const response = await this.client.patch(
-      `/positions/${id}/closed-trade`,
-      data
-    );
     return response.data;
   }
 
