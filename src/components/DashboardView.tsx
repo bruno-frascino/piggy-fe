@@ -31,7 +31,12 @@ import {
   Filler,
 } from 'chart.js';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
-import { formatDateDDMMYYYY } from '@/lib/date';
+import {
+  formatDateDDMMYYYY,
+  computeChartCutoffDate,
+  toLocalDateString,
+  type ChartTimeframe,
+} from '@/lib/date';
 
 ChartJS.register(
   CategoryScale,
@@ -136,6 +141,7 @@ export default function DashboardView() {
     totalPL: number;
     dayPL: number;
   } | null>(null);
+  const [timeframe, setTimeframe] = useState<ChartTimeframe>('ALL');
 
   // Reset live totals whenever the selected exchange changes
   useEffect(() => {
@@ -332,6 +338,12 @@ export default function DashboardView() {
     () => [...portfolioHistory].sort((a, b) => a.date.localeCompare(b.date)),
     [portfolioHistory]
   );
+  const filteredChartSeries = useMemo(() => {
+    if (timeframe === 'ALL') return chartSeries;
+    const cutoff = computeChartCutoffDate(timeframe, new Date());
+    const cutoffStr = toLocalDateString(cutoff);
+    return chartSeries.filter(p => p.date >= cutoffStr);
+  }, [chartSeries, timeframe]);
   const lastSnapshotDate = useMemo(
     () =>
       chartSeries.length > 0 ? chartSeries[chartSeries.length - 1].date : null,
@@ -348,11 +360,11 @@ export default function DashboardView() {
 
   const data = useMemo(
     () => ({
-      labels: chartSeries.map(p => formatDateDDMMYYYY(p.date)),
+      labels: filteredChartSeries.map(p => formatDateDDMMYYYY(p.date)),
       datasets: [
         {
           label: 'Portfolio Equity',
-          data: chartSeries.map(p => p.equity),
+          data: filteredChartSeries.map(p => p.equity),
           borderColor: 'rgb(59,130,246)',
           backgroundColor: 'rgba(59,130,246,0.15)',
           tension: 0.25,
@@ -361,7 +373,7 @@ export default function DashboardView() {
         },
       ],
     }),
-    [chartSeries]
+    [filteredChartSeries]
   );
 
   const options = useMemo(
@@ -603,6 +615,23 @@ export default function DashboardView() {
                   ? formatDateDDMMYYYY(lastSnapshotDate)
                   : 'No snapshot yet'}
             </span>
+          </div>
+          <div className='flex flex-wrap gap-1 mb-3'>
+            {(['W', 'M', '3M', '6M', 'YTD', 'Y', '5Y', 'ALL'] as const).map(
+              tf => (
+                <button
+                  key={tf}
+                  onClick={() => setTimeframe(tf)}
+                  className={`px-2 py-0.5 text-xs rounded border transition select-none ${
+                    timeframe === tf
+                      ? 'bg-blue-600 text-white border-blue-600'
+                      : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'
+                  }`}
+                >
+                  {tf}
+                </button>
+              )
+            )}
           </div>
           <div className='h-72 md:h-96'>
             <Line data={data} options={options} />

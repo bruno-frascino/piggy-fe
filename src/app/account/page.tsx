@@ -3,17 +3,31 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Card } from 'primereact/card';
 import { InputText } from 'primereact/inputtext';
+import { Dropdown } from 'primereact/dropdown';
 import { Password } from 'primereact/password';
 import { Button } from 'primereact/button';
 import { Message } from 'primereact/message';
 import { useCurrentUser, useUpdateCurrentUser } from '@/hooks/api';
+
+const POPULAR_CURRENCY_OPTIONS = [
+  { label: 'USD - US Dollar', value: 'USD' },
+  { label: 'EUR - Euro', value: 'EUR' },
+  { label: 'JPY - Japanese Yen', value: 'JPY' },
+  { label: 'GBP - British Pound', value: 'GBP' },
+  { label: 'CNY - Chinese Yuan', value: 'CNY' },
+  { label: 'AUD - Australian Dollar', value: 'AUD' },
+  { label: 'CAD - Canadian Dollar', value: 'CAD' },
+  { label: 'CHF - Swiss Franc', value: 'CHF' },
+  { label: 'INR - Indian Rupee', value: 'INR' },
+  { label: 'BRL - Brazilian Real', value: 'BRL' },
+];
 
 export default function AccountPage() {
   const { data: user, isLoading } = useCurrentUser();
   const updateUser = useUpdateCurrentUser();
 
   const [name, setName] = useState('');
-  const [baseCurrency, setBaseCurrency] = useState('USD');
+  const [baseCurrency, setBaseCurrency] = useState('AUD');
 
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
@@ -27,7 +41,7 @@ export default function AccountPage() {
   useEffect(() => {
     if (!user) return;
     setName(user.name ?? '');
-    setBaseCurrency((user.baseCurrency ?? 'USD').toUpperCase());
+    setBaseCurrency((user.baseCurrency ?? 'AUD').toUpperCase());
   }, [user]);
 
   const profileDirty = useMemo(() => {
@@ -35,7 +49,7 @@ export default function AccountPage() {
     return (
       name.trim() !== (user.name ?? '').trim() ||
       baseCurrency.trim().toUpperCase() !==
-        (user.baseCurrency ?? 'USD').trim().toUpperCase()
+        (user.baseCurrency ?? 'AUD').trim().toUpperCase()
     );
   }, [user, name, baseCurrency]);
 
@@ -173,16 +187,17 @@ export default function AccountPage() {
                 <label className='block text-sm font-medium text-gray-700'>
                   Base Currency
                 </label>
-                <InputText
+                <Dropdown
                   value={baseCurrency}
-                  onChange={e =>
-                    setBaseCurrency(e.target.value.toUpperCase().slice(0, 3))
-                  }
+                  options={POPULAR_CURRENCY_OPTIONS}
+                  onChange={e => setBaseCurrency(String(e.value ?? ''))}
+                  optionLabel='label'
+                  optionValue='value'
                   className='w-full'
-                  placeholder='USD'
+                  placeholder='Select base currency'
                 />
                 <p className='text-xs text-gray-500'>
-                  Use a 3-letter code like USD, AUD, BRL.
+                  Choose from 10 popular currencies.
                 </p>
               </div>
 

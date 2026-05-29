@@ -14,3 +14,18 @@ export function calculateGainLossPerWeek(
 
   return gainLoss / (daysOpen / DAYS_PER_WEEK);
 }
+
+export function calculateReturnPctPerWeek(
+  returnPct: number,
+  daysOpen: number
+): number | null {
+  if (
+    !Number.isFinite(returnPct) ||
+    !Number.isFinite(daysOpen) ||
+    daysOpen <= 0
+  ) {
+    return null;
+  }
+
+  return returnPct / (daysOpen / DAYS_PER_WEEK);
+}

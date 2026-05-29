@@ -20,7 +20,10 @@ import {
   syncQueuedWritesNow,
   type QueuedWriteActionInput,
 } from '@/lib/offline-write-queue';
-import { calculateGainLossPerWeek } from '@/lib/performance-metrics';
+import {
+  calculateGainLossPerWeek,
+  calculateReturnPctPerWeek,
+} from '@/lib/performance-metrics';
 import { useToast } from '@/lib/toast-context';
 
 type HoldingRow = LocalHolding & {
@@ -32,6 +35,7 @@ type HoldingRow = LocalHolding & {
   currentReturnAbs: number; // currentPosition - openPosition
   currentReturnPct: number; // (current - open)/open
   gainLossPerWeek: number | null; // current gain/loss normalized per week open
+  returnPctPerWeek: number | null; // current return % normalized per week open
   stopLossPosition: number; // units * stopLoss
   stopLossReturnPct: number; // (stopLossPos - open)/open
   allocationPct: number; // openPosition / totalOpen
@@ -366,6 +370,10 @@ export default function HoldingsTable({
         currentReturnAbs,
         daysOpen
       );
+      const returnPctPerWeek = calculateReturnPctPerWeek(
+        currentReturnPct,
+        daysOpen
+      );
       return {
         ...h,
         currentPrice: effectivePrice,
@@ -377,6 +385,7 @@ export default function HoldingsTable({
         currentReturnAbs,
         currentReturnPct,
         gainLossPerWeek,
+        returnPctPerWeek,
         stopLossPosition: hasStop ? stopLossPosition : NaN,
         stopLossReturnPct: hasStop ? stopLossReturnPct : NaN,
         allocationPct,
@@ -634,6 +643,19 @@ export default function HoldingsTable({
               )
             }
             style={{ minWidth: '190px' }}
+          />
+          <Column
+            header='Return % per Week'
+            body={(r: HoldingRow) =>
+              r.returnPctPerWeek === null ? (
+                <span className='text-gray-400'>—</span>
+              ) : (
+                <span className={returnClass(r.returnPctPerWeek)}>
+                  {formatPct(r.returnPctPerWeek)}
+                </span>
+              )
+            }
+            style={{ minWidth: '180px' }}
           />
           {anyStopLoss && (
             <>

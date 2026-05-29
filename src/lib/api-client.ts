@@ -511,7 +511,7 @@ class ApiClient {
         id: 'mock-user-1',
         name: 'Mock User',
         email: 'mock@example.com',
-        baseCurrency: 'USD',
+        baseCurrency: 'AUD',
       };
       return mockUser;
     }
@@ -531,7 +531,7 @@ class ApiClient {
         id: 'mock-user-1',
         name: payload.name ?? 'Mock User',
         email: 'mock@example.com',
-        baseCurrency: payload.baseCurrency?.toUpperCase() ?? 'USD',
+        baseCurrency: payload.baseCurrency?.toUpperCase() ?? 'AUD',
       };
       return next;
     }
