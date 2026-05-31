@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { computeChartCutoffDate } from './date';
+import {
+  computeChartCutoffDate,
+  formatDateDDMMYYYY,
+  toLocalDateString,
+} from './date';
 
 function localDateStr(d: Date): string {
   const yyyy = d.getFullYear();
@@ -7,6 +11,17 @@ function localDateStr(d: Date): string {
   const dd = String(d.getDate()).padStart(2, '0');
   return `${yyyy}-${mm}-${dd}`;
 }
+
+describe('date formatting helpers', () => {
+  it('formats date to dd/mm/yyyy', () => {
+    expect(formatDateDDMMYYYY('2026-05-27T12:00:00.000Z')).toBe('27/05/2026');
+  });
+
+  it('formats local date string to yyyy-mm-dd', () => {
+    const value = toLocalDateString(new Date(2026, 4, 27, 12, 0, 0));
+    expect(value).toBe('2026-05-27');
+  });
+});
 
 describe('computeChartCutoffDate', () => {
   // Construct in local time so getDate()/getMonth()/getFullYear() are predictable

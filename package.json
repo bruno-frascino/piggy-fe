@@ -9,6 +9,7 @@
     "start": "next start",
     "test": "vitest",
     "test:watch": "vitest --watch",
+    "test:coverage": "vitest --coverage --run",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write ."
@@ -37,6 +38,7 @@
     "@typescript-eslint/eslint-plugin": "^8.41.0",
     "@typescript-eslint/parser": "^8.41.0",
     "@vitejs/plugin-react": "^6.0.1",
+    "@vitest/coverage-v8": "4.1.5",
     "eslint": "9",
     "eslint-config-next": "16.2.6",
     "eslint-config-prettier": "^10.1.8",
