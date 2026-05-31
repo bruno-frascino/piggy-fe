@@ -6,7 +6,6 @@ import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Card } from 'primereact/card';
 import { Button } from 'primereact/button';
-import { InputText } from 'primereact/inputtext';
 import { Calendar } from 'primereact/calendar';
 import type { ClosedTrade } from '@/lib/closed-trades-store';
 import EditClosedTradeDialog from '@/components/EditClosedTradeDialog';
@@ -381,15 +380,21 @@ export default function HistoryPage() {
               setShowDialog(false);
               setActive(null);
             }}
-            onDelete={(id: string) => {
-              if (id) {
+            onDeletePosition={(positionId: string) => {
+              if (positionId) {
                 apiClient
-                  .deleteCloseEvent(id)
-                  .then(() =>
-                    queryClient.invalidateQueries({
+                  .deletePosition(positionId)
+                  .then(async () => {
+                    await queryClient.invalidateQueries({
                       queryKey: ['closed-positions'],
-                    })
-                  )
+                    });
+                    await queryClient.invalidateQueries({
+                      queryKey: ['holdings'],
+                    });
+                    await queryClient.invalidateQueries({
+                      queryKey: ['user-portfolio'],
+                    });
+                  })
                   .catch(console.error);
               }
               setShowDialog(false);

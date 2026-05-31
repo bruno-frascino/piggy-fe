@@ -14,14 +14,14 @@ interface Props {
   trade: ClosedTrade;
   onHide: () => void;
   onSave: (updated: ClosedTrade) => void;
-  onDelete: (id: string) => void;
+  onDeletePosition: (positionId: string) => void;
 }
 
 export default function EditClosedTradeDialog({
   trade,
   onHide,
   onSave,
-  onDelete,
+  onDeletePosition,
 }: Props) {
   const [form, setForm] = useState<ClosedTrade>(trade);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -68,14 +68,17 @@ export default function EditClosedTradeDialog({
   };
 
   const handleDelete = () => {
+    if (!form.positionId) return;
+
     confirmDialog({
-      message: 'Are you sure you want to delete this closed position?',
+      message:
+        'Are you sure you want to delete this position and all its close events?',
       header: 'Confirm Delete',
       icon: 'pi pi-exclamation-triangle',
       acceptLabel: 'Delete',
       rejectLabel: 'Cancel',
       acceptClassName: 'p-button-danger',
-      accept: () => onDelete(form.id),
+      accept: () => onDeletePosition(form.positionId!),
     });
   };
 
@@ -373,10 +376,16 @@ export default function EditClosedTradeDialog({
 
         <div className='flex justify-between pt-2'>
           <Button
-            label='Delete'
+            label='Delete Position'
             severity='danger'
             icon='pi pi-trash'
             onClick={handleDelete}
+            disabled={!form.positionId}
+            title={
+              form.positionId
+                ? 'Delete this position'
+                : 'Cannot delete: missing position id'
+            }
           />
           <div className='flex gap-2'>
             <Button label='Cancel' severity='secondary' onClick={onHide} />
