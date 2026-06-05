@@ -227,6 +227,7 @@ export default function AddHoldingsDialog({
       header={mode === 'edit' ? 'Edit Position' : 'Add Position'}
       visible={visible}
       style={{ width: '800px', maxWidth: '95vw' }}
+      contentStyle={{ maxHeight: 'calc(85vh - 6rem)', overflowY: 'auto' }}
       modal
       onHide={onHide}
     >
@@ -542,23 +543,31 @@ export default function AddHoldingsDialog({
           />
         </div>
 
-        <div className='flex justify-end gap-2 pt-2'>
-          {mode === 'edit' && onDelete && (
+        <div className='flex items-center justify-between pt-3 border-t border-gray-100 mt-2'>
+          <div>
+            {mode === 'edit' && onDelete && (
+              <Button
+                label='Delete'
+                icon='pi pi-trash'
+                severity='danger'
+                outlined
+                onClick={onDelete}
+              />
+            )}
+          </div>
+          <div className='flex gap-2'>
             <Button
-              label='Delete Position'
-              icon='pi pi-trash'
-              severity='danger'
+              label='Cancel'
+              severity='secondary'
               outlined
-              onClick={onDelete}
+              onClick={onHide}
             />
-          )}
-          <Button label='Cancel' severity='secondary' onClick={onHide} />
-          <Button
-            label={mode === 'edit' ? 'Save Changes' : 'Add Position'}
-            icon={mode === 'edit' ? 'pi pi-save' : 'pi pi-check'}
-            severity='info'
-            onClick={handleSubmit}
-          />
+            <Button
+              label={mode === 'edit' ? 'Save' : 'Add Position'}
+              icon={mode === 'edit' ? 'pi pi-check' : 'pi pi-plus'}
+              onClick={handleSubmit}
+            />
+          </div>
         </div>
       </div>
     </Dialog>

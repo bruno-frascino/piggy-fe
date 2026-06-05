@@ -90,6 +90,7 @@ export default function ClosePositionDialog({
       header={`Close Position — ${initial.symbol}`}
       visible={visible}
       style={{ width: '720px', maxWidth: '95vw' }}
+      contentStyle={{ maxHeight: 'calc(85vh - 6rem)', overflowY: 'auto' }}
       modal
       onHide={onHide}
     >
@@ -226,8 +227,13 @@ export default function ClosePositionDialog({
           </div>
         </div>
 
-        <div className='flex justify-end gap-2 pt-2'>
-          <Button label='Cancel' severity='secondary' onClick={onHide} />
+        <div className='flex justify-end gap-2 pt-3 border-t border-gray-100 mt-2'>
+          <Button
+            label='Cancel'
+            severity='secondary'
+            outlined
+            onClick={onHide}
+          />
           <Button
             label='Close Position'
             icon='pi pi-check'

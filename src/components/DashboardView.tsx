@@ -114,6 +114,16 @@ export default function DashboardView() {
     [accountList, showClosedAccounts]
   );
 
+  const activeAccounts = useMemo(
+    () => visibleAccounts.filter(a => (a.status ?? 'ACTIVE') !== 'CLOSED'),
+    [visibleAccounts]
+  );
+
+  const closedAccounts = useMemo(
+    () => visibleAccounts.filter(a => (a.status ?? 'ACTIVE') === 'CLOSED'),
+    [visibleAccounts]
+  );
+
   const selectedAccount = useMemo<TradingAccount | null>(
     () => accountList.find(a => a.id === selectedAccountId) ?? null,
     [accountList, selectedAccountId]
@@ -454,12 +464,22 @@ export default function DashboardView() {
     () => [...portfolioHistory].sort((a, b) => a.date.localeCompare(b.date)),
     [portfolioHistory]
   );
+
+  // Replace (or append) today's point with the live equity so the chart's
+  // rightmost value always matches the stat cards.
+  const liveChartSeries = useMemo(() => {
+    if (!liveTotals) return chartSeries;
+    const today = toLocalDateString(new Date());
+    const withoutToday = chartSeries.filter(p => p.date !== today);
+    return [...withoutToday, { date: today, equity: liveTotals.totalEquity }];
+  }, [chartSeries, liveTotals]);
+
   const filteredChartSeries = useMemo(() => {
-    if (timeframe === 'ALL') return chartSeries;
+    if (timeframe === 'ALL') return liveChartSeries;
     const cutoff = computeChartCutoffDate(timeframe, new Date());
     const cutoffStr = toLocalDateString(cutoff);
-    return chartSeries.filter(p => p.date >= cutoffStr);
-  }, [chartSeries, timeframe]);
+    return liveChartSeries.filter(p => p.date >= cutoffStr);
+  }, [liveChartSeries, timeframe]);
   const lastSnapshotDate = useMemo(
     () =>
       chartSeries.length > 0 ? chartSeries[chartSeries.length - 1].date : null,
@@ -485,7 +505,8 @@ export default function DashboardView() {
           backgroundColor: 'rgba(59,130,246,0.15)',
           tension: 0.25,
           fill: true,
-          pointRadius: 0,
+          pointRadius: filteredChartSeries.length <= 1 ? 5 : 0,
+          pointHoverRadius: 5,
         },
       ],
     }),
@@ -522,7 +543,7 @@ export default function DashboardView() {
       <div className='max-w-6xl xl:max-w-7xl 2xl:max-w-screen-2xl 3xl:max-w-[1800px] mx-auto space-y-6'>
         {/* Removed CoreHeader from dashboard; TopNav provides global header */}
         <Card>
-          <div className='flex flex-col gap-3 mb-4 pb-2 border-b border-gray-200 sm:flex-row sm:items-center sm:justify-between'>
+          <div className='flex flex-row items-center justify-between mb-4 pb-2 border-b border-gray-200'>
             <h3
               className='text-xl font-semibold'
               style={{ color: 'var(--tr-text)' }}
@@ -562,11 +583,10 @@ export default function DashboardView() {
             </button>
           </div>
 
-          {visibleAccounts.length > 0 && (
+          {activeAccounts.length > 0 && (
             <div className='flex flex-wrap items-center gap-3'>
-              {visibleAccounts.map(account => {
+              {activeAccounts.map(account => {
                 const isSelected = selectedAccountId === account.id;
-                const isClosed = (account.status ?? 'ACTIVE') === 'CLOSED';
                 return (
                   <div
                     key={account.id}
@@ -585,99 +605,120 @@ export default function DashboardView() {
                       aria-pressed={isSelected}
                     >
                       {account.name}
-                      {isClosed ? ' (Closed)' : ''}
                     </button>
-                    {isClosed ? (
-                      <>
-                        <button
-                          type='button'
-                          onClick={() => {
-                            void handleReopenAccount(account);
-                          }}
-                          className={`px-2 py-1 border-l ${
-                            isSelected
-                              ? 'border-blue-500/50 text-white/85 hover:text-white'
-                              : 'border-gray-300 text-gray-500 hover:text-green-600'
-                          }`}
-                          title='Reopen account'
-                          aria-label={`Reopen account ${account.name}`}
-                          disabled={reopenAccount.isPending}
-                        >
-                          <i className='pi pi-refresh text-xs' />
-                        </button>
-                        <button
-                          type='button'
-                          onClick={() =>
-                            handleAccountActionRequest('delete', account)
-                          }
-                          className={`px-2 py-1 border-l ${
-                            isSelected
-                              ? 'border-blue-500/50 text-white/85 hover:text-white'
-                              : 'border-gray-300 text-gray-500 hover:text-red-600'
-                          }`}
-                          title='Delete account permanently'
-                          aria-label={`Delete account ${account.name}`}
-                          disabled={deleteAccount.isPending}
-                        >
-                          <i className='pi pi-trash text-xs' />
-                        </button>
-                      </>
-                    ) : (
-                      <>
-                        <button
-                          type='button'
-                          onClick={() => {
-                            setRenameError('');
-                            setRenameDialog({ account, newName: account.name });
-                          }}
-                          className={`px-2 py-1 border-l ${
-                            isSelected
-                              ? 'border-blue-500/50 text-white/85 hover:text-white'
-                              : 'border-gray-300 text-gray-500 hover:text-blue-600'
-                          }`}
-                          title='Rename account'
-                          aria-label={`Rename account ${account.name}`}
-                        >
-                          <i className='pi pi-pencil text-xs' />
-                        </button>
-                        <button
-                          type='button'
-                          onClick={() =>
-                            handleAccountActionRequest('close', account)
-                          }
-                          className={`px-2 py-1 border-l ${
-                            isSelected
-                              ? 'border-blue-500/50 text-white/85 hover:text-white'
-                              : 'border-gray-300 text-gray-500 hover:text-amber-600'
-                          }`}
-                          title='Close account'
-                          aria-label={`Close account ${account.name}`}
-                          disabled={closeAccount.isPending}
-                        >
-                          <i className='pi pi-lock text-xs' />
-                        </button>
-                        <button
-                          type='button'
-                          onClick={() =>
-                            handleAccountActionRequest('delete', account)
-                          }
-                          className={`px-2 py-1 border-l ${
-                            isSelected
-                              ? 'border-blue-500/50 text-white/85 hover:text-white'
-                              : 'border-gray-300 text-gray-500 hover:text-red-600'
-                          }`}
-                          title='Delete account permanently'
-                          aria-label={`Delete account ${account.name}`}
-                          disabled={deleteAccount.isPending}
-                        >
-                          <i className='pi pi-trash text-xs' />
-                        </button>
-                      </>
-                    )}
+                    <button
+                      type='button'
+                      onClick={() => {
+                        setRenameError('');
+                        setRenameDialog({ account, newName: account.name });
+                      }}
+                      className={`px-2 py-1 border-l ${
+                        isSelected
+                          ? 'border-blue-500/50 text-white/85 hover:text-white'
+                          : 'border-gray-300 text-gray-500 hover:text-blue-600'
+                      }`}
+                      title='Rename account'
+                      aria-label={`Rename account ${account.name}`}
+                    >
+                      <i className='pi pi-pencil text-xs' />
+                    </button>
+                    <button
+                      type='button'
+                      onClick={() =>
+                        handleAccountActionRequest('close', account)
+                      }
+                      className={`px-2 py-1 border-l ${
+                        isSelected
+                          ? 'border-blue-500/50 text-white/85 hover:text-white'
+                          : 'border-gray-300 text-gray-500 hover:text-amber-600'
+                      }`}
+                      title='Close account'
+                      aria-label={`Close account ${account.name}`}
+                      disabled={closeAccount.isPending}
+                    >
+                      <i className='pi pi-lock text-xs' />
+                    </button>
+                    <button
+                      type='button'
+                      onClick={() =>
+                        handleAccountActionRequest('delete', account)
+                      }
+                      className={`px-2 py-1 border-l ${
+                        isSelected
+                          ? 'border-blue-500/50 text-white/85 hover:text-white'
+                          : 'border-gray-300 text-gray-500 hover:text-red-600'
+                      }`}
+                      title='Delete account permanently'
+                      aria-label={`Delete account ${account.name}`}
+                      disabled={deleteAccount.isPending}
+                    >
+                      <i className='pi pi-trash text-xs' />
+                    </button>
                   </div>
                 );
               })}
             </div>
+          )}
+
+          {showClosedAccounts && closedAccounts.length > 0 && (
+            <>
+              <div className='flex items-center gap-2 mt-4 mb-2'>
+                <span className='text-xs font-semibold text-gray-400 uppercase tracking-wider'>
+                  Closed
+                </span>
+                <div className='flex-1 border-t border-dashed border-gray-200' />
+              </div>
+              <div className='flex flex-wrap items-center gap-3'>
+                {closedAccounts.map(account => {
+                  const isSelected = selectedAccountId === account.id;
+                  return (
+                    <div
+                      key={account.id}
+                      className={`inline-flex items-center rounded-full border border-dashed transition select-none opacity-60 ${
+                        isSelected
+                          ? 'bg-gray-200 text-gray-600 border-gray-400'
+                          : 'bg-gray-50 text-gray-500 border-gray-300 hover:opacity-80'
+                      }`}
+                    >
+                      <button
+                        onClick={() => {
+                          setAccountActionError('');
+                          setSelectedAccountId(account.id);
+                        }}
+                        className='px-3 py-1 line-through'
+                        aria-pressed={isSelected}
+                      >
+                        {account.name}
+                      </button>
+                      <button
+                        type='button'
+                        onClick={() => {
+                          void handleReopenAccount(account);
+                        }}
+                        className='px-2 py-1 border-l border-gray-300 text-gray-400 hover:text-green-600 hover:opacity-100'
+                        title='Reopen account'
+                        aria-label={`Reopen account ${account.name}`}
+                        disabled={reopenAccount.isPending}
+                      >
+                        <i className='pi pi-refresh text-xs' />
+                      </button>
+                      <button
+                        type='button'
+                        onClick={() =>
+                          handleAccountActionRequest('delete', account)
+                        }
+                        className='px-2 py-1 border-l border-gray-300 text-gray-400 hover:text-red-600 hover:opacity-100'
+                        title='Delete account permanently'
+                        aria-label={`Delete account ${account.name}`}
+                        disabled={deleteAccount.isPending}
+                      >
+                        <i className='pi pi-trash text-xs' />
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
+            </>
           )}
         </Card>
 
@@ -739,6 +780,7 @@ export default function DashboardView() {
                 type='button'
                 label='Cancel'
                 severity='secondary'
+                outlined
                 onClick={() => {
                   setRenameDialog(null);
                   setRenameError('');
@@ -792,6 +834,7 @@ export default function DashboardView() {
                 type='button'
                 label='Cancel'
                 severity='secondary'
+                outlined
                 onClick={() => {
                   setShowAccountDialog(false);
                   setAccountCreateError('');
@@ -918,21 +961,21 @@ export default function DashboardView() {
             </span>
           </div>
           <div className='flex flex-wrap gap-1 mb-3'>
-            {(['W', 'M', '3M', '6M', 'YTD', 'Y', '5Y', 'ALL'] as const).map(
-              tf => (
-                <button
-                  key={tf}
-                  onClick={() => setTimeframe(tf)}
-                  className={`px-2 py-0.5 text-xs rounded border transition select-none ${
-                    timeframe === tf
-                      ? 'bg-blue-600 text-white border-blue-600'
-                      : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'
-                  }`}
-                >
-                  {tf}
-                </button>
-              )
-            )}
+            {(
+              ['D', 'W', 'M', '3M', '6M', 'YTD', 'Y', '5Y', 'ALL'] as const
+            ).map(tf => (
+              <button
+                key={tf}
+                onClick={() => setTimeframe(tf)}
+                className={`px-2 py-0.5 text-xs rounded border transition select-none ${
+                  timeframe === tf
+                    ? 'bg-blue-600 text-white border-blue-600'
+                    : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'
+                }`}
+              >
+                {tf}
+              </button>
+            ))}
           </div>
           <div className='h-72 md:h-96'>
             <Line data={data} options={options} />

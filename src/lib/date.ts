@@ -17,6 +17,7 @@ export function toLocalDateString(d: Date): string {
 }
 
 export type ChartTimeframe =
+  | 'D'
   | 'W'
   | 'M'
   | '3M'
@@ -35,6 +36,8 @@ export function computeChartCutoffDate(
   now: Date
 ): Date {
   switch (timeframe) {
+    case 'D':
+      return new Date(now.getTime() - 1 * 86_400_000);
     case 'W':
       return new Date(now.getTime() - 7 * 86_400_000);
     case 'M':

@@ -499,270 +499,446 @@ export default function HoldingsTable({
           There are no open positions yet
         </div>
       ) : (
-        <DataTable
-          value={rows}
-          size='small'
-          scrollable
-          scrollHeight={tableScrollHeight}
-          rowHover
-          stripedRows
-          className='holdings-table'
-        >
-          <Column
-            header='Symbol'
-            body={(r: HoldingRow) => (
-              <button
-                className='font-semibold text-blue-600 hover:underline'
-                onClick={() => {
-                  setMode('edit');
-                  setEditIdx(r.originalIndex);
-                  setDialogInitial({
-                    id: r.id,
-                    accountName: r.accountName,
-                    exchangeCode: r.exchangeCode,
-                    symbol: r.symbol,
-                    name: r.name,
-                    openDate: r.openDate,
-                    units: r.units,
-                    buyPrice: r.buyPrice,
-                    buyFee: r.buyFee,
-                    stopLoss: r.stopLoss,
-                    industry: r.industry,
-                    currentPrice: r.currentPrice ?? r.buyPrice,
-                    buyComments: r.buyComments,
-                    maxDrawdownPercent: r.maxDrawdownPercent,
-                  });
-                  setShowDialog(true);
-                }}
-              >
-                {r.symbol}
-              </button>
-            )}
-            frozen
-            alignFrozen='left'
-            style={{ minWidth: '130px', width: '130px' }}
-            footer={
-              <span>
-                <span className='font-bold text-gray-700 tracking-wide'>
-                  TOTALS
-                </span>{' '}
-                <span className='text-gray-600 font-medium'>
-                  · Positions: {totals.count}
+        <>
+          {/* Mobile portrait: compact 4-column table */}
+          <div className='block md:hidden holdings-portrait-cards'>
+            {/* Header */}
+            <div className='grid grid-cols-4 gap-x-1 pb-1 border-b border-gray-200'>
+              <div className='text-[10px] font-semibold text-gray-400 uppercase tracking-wide'>
+                Symbol
+              </div>
+              <div className='text-[10px] font-semibold text-gray-400 uppercase tracking-wide text-right'>
+                Position
+              </div>
+              <div className='text-[10px] font-semibold text-gray-400 uppercase tracking-wide text-right'>
+                Day
+              </div>
+              <div className='text-[10px] font-semibold text-gray-400 uppercase tracking-wide text-right'>
+                Return
+              </div>
+            </div>
+            {/* Rows */}
+            <div className='divide-y divide-gray-100'>
+              {rows.map((r, cardIdx) => {
+                const q = quoteMap.get(r.symbol);
+                const dayAbs = q?.change != null ? q.change * r.units : null;
+                const dayPct = q?.changePercent ?? null;
+                return (
+                  <div
+                    key={`${r.symbol}-${r.openDate}-${cardIdx}`}
+                    className='grid grid-cols-4 gap-x-1 py-2 items-center min-w-0'
+                  >
+                    {/* Col 1: Symbol + Units */}
+                    <div className='min-w-0'>
+                      <button
+                        className='font-semibold text-blue-600 text-xs hover:underline block truncate max-w-full'
+                        onClick={() => {
+                          setMode('edit');
+                          setEditIdx(r.originalIndex);
+                          setDialogInitial({
+                            id: r.id,
+                            accountName: r.accountName,
+                            exchangeCode: r.exchangeCode,
+                            symbol: r.symbol,
+                            name: r.name,
+                            openDate: r.openDate,
+                            units: r.units,
+                            buyPrice: r.buyPrice,
+                            buyFee: r.buyFee,
+                            stopLoss: r.stopLoss,
+                            industry: r.industry,
+                            currentPrice: r.currentPrice ?? r.buyPrice,
+                            buyComments: r.buyComments,
+                            maxDrawdownPercent: r.maxDrawdownPercent,
+                          });
+                          setShowDialog(true);
+                        }}
+                      >
+                        {r.symbol}
+                      </button>
+                      <span className='text-gray-400 block text-[10px]'>
+                        {formatNumber(r.units)}
+                      </span>
+                    </div>
+                    {/* Col 2: Current Position */}
+                    <div className='text-right min-w-0'>
+                      <button
+                        className='text-blue-600 hover:underline text-xs block w-full text-right truncate'
+                        title='Close position'
+                        onClick={() => {
+                          setCloseIdx(r.originalIndex);
+                          setCloseInitial({
+                            id: r.id,
+                            symbol: r.symbol,
+                            name: r.name,
+                            openDate: r.openDate,
+                            units: r.units,
+                            buyPrice: r.buyPrice,
+                            buyFee: r.buyFee,
+                            stopLoss: r.stopLoss,
+                            industry: r.industry,
+                            currentPrice: r.effectivePrice,
+                          });
+                          setShowCloseDialog(true);
+                        }}
+                      >
+                        {formatCurrency(r.currentPosition, currency)}
+                      </button>
+                    </div>
+                    {/* Col 3: Day Change */}
+                    <div className='text-right min-w-0'>
+                      {dayAbs !== null ? (
+                        <span className={`text-xs ${returnClass(dayAbs)}`}>
+                          <span className='block truncate'>
+                            {formatCurrency(dayAbs, currency)}
+                          </span>
+                          {dayPct !== null && (
+                            <span className='text-[10px] opacity-75'>
+                              ({dayPct >= 0 ? '+' : ''}
+                              {dayPct.toFixed(2)}%)
+                            </span>
+                          )}
+                        </span>
+                      ) : (
+                        <span className='text-gray-400 text-xs'>—</span>
+                      )}
+                    </div>
+                    {/* Col 4: Total Return */}
+                    <div className='text-right min-w-0'>
+                      <span
+                        className={`text-xs ${returnClass(r.currentReturnAbs)}`}
+                      >
+                        <span className='block truncate'>
+                          {formatCurrency(r.currentReturnAbs, currency)}
+                        </span>
+                        <span className='text-[10px] opacity-75'>
+                          {formatPct(r.currentReturnPct)}
+                        </span>
+                      </span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+            {/* Totals row */}
+            <div
+              className='grid grid-cols-4 gap-x-1 mt-2 rounded-lg px-2 py-2 items-center'
+              style={{ backgroundColor: 'var(--tr-brand-bg)' }}
+            >
+              <div className='min-w-0'>
+                <span className='font-bold text-gray-700 text-[10px] uppercase tracking-wide block'>
+                  Totals
                 </span>
-              </span>
-            }
-          />
-          <Column
-            header='Units'
-            body={(r: HoldingRow) => formatNumber(r.units)}
-            style={{ minWidth: '110px' }}
-          />
-          <Column
-            header='Buy'
-            body={(r: HoldingRow) => formatCurrency(r.buyPrice, currency)}
-            style={{ minWidth: '120px' }}
-          />
-          <Column
-            header='Open'
-            body={(r: HoldingRow) => formatCurrency(r.openPosition, currency)}
-            style={{ minWidth: '140px' }}
-            footer={
-              <span>
-                <span className='font-semibold text-gray-900'>
-                  {formatCurrency(totals.totalOpen, currency)}
+                <span className='text-gray-400 text-[10px]'>
+                  {totals.count} pos
                 </span>
-              </span>
-            }
-          />
-          <Column
-            header='Price'
-            body={(r: HoldingRow) => formatCurrency(r.effectivePrice, currency)}
-            style={{ minWidth: '130px' }}
-          />
-          <Column
-            header={
-              <span className='inline-flex items-center gap-1'>
-                Day Change
-                <i
-                  className='pi pi-info-circle text-xs text-gray-400'
-                  title='Daily P/L for this row = day price change per unit x units held.'
-                />
-              </span>
-            }
-            body={(r: HoldingRow) => {
-              const q = quoteMap.get(r.symbol);
-              if (!q || q.change === null)
-                return <span className='text-gray-400'>—</span>;
-              const dayAbs = q.change * r.units;
-              const pct = q.changePercent ?? 0;
-              return (
-                <span className={returnClass(dayAbs)}>
-                  {formatCurrency(dayAbs, currency)}{' '}
-                  <span className='text-xs opacity-75'>
-                    ({pct >= 0 ? '+' : ''}
-                    {pct.toFixed(2)}%)
-                  </span>
-                </span>
-              );
-            }}
-            style={{ minWidth: '180px' }}
-            footer={
-              totals.dayPL !== 0 ? (
-                <span className={`font-semibold ${returnClass(totals.dayPL)}`}>
-                  {formatCurrency(totals.dayPL, currency)}
-                </span>
-              ) : null
-            }
-          />
-          <Column
-            header='Position'
-            body={(r: HoldingRow) => (
-              <button
-                className='text-blue-600 hover:underline'
-                title='Close position'
-                onClick={() => {
-                  setCloseIdx(r.originalIndex);
-                  setCloseInitial({
-                    id: r.id,
-                    symbol: r.symbol,
-                    name: r.name,
-                    openDate: r.openDate,
-                    units: r.units,
-                    buyPrice: r.buyPrice,
-                    buyFee: r.buyFee,
-                    stopLoss: r.stopLoss,
-                    industry: r.industry,
-                    currentPrice: r.effectivePrice,
-                  });
-                  setShowCloseDialog(true);
-                }}
-              >
-                {formatCurrency(r.currentPosition, currency)}
-              </button>
-            )}
-            style={{ minWidth: '150px' }}
-            footer={
-              <span>
-                <span className='font-semibold text-gray-900'>
+              </div>
+              <div className='text-right min-w-0'>
+                <span className='font-semibold text-gray-900 text-xs block truncate'>
                   {formatCurrency(totals.totalCurrent, currency)}
                 </span>
-              </span>
-            }
-          />
-          <Column
-            header='Return'
-            body={(r: HoldingRow) => (
-              <span className={returnClass(r.currentReturnAbs)}>
-                {formatCurrency(r.currentReturnAbs, currency)}
-              </span>
-            )}
-            style={{ minWidth: '130px' }}
-            footer={
-              <span>
-                <span
-                  className={`font-semibold ${returnClass(totals.currentReturnAbs)}`}
-                >
-                  {formatCurrency(totals.currentReturnAbs, currency)}
-                </span>
-              </span>
-            }
-          />
-          <Column
-            header='Return %'
-            body={(r: HoldingRow) => (
-              <span className={returnClass(r.currentReturnPct)}>
-                {formatPct(r.currentReturnPct)}
-              </span>
-            )}
-            style={{ minWidth: '150px' }}
-            footer={
-              <span className={returnClass(totals.currentReturnPct)}>
-                {formatPct(totals.currentReturnPct)}
-              </span>
-            }
-          />
-          <Column
-            header='Max Drawdown %'
-            body={(r: HoldingRow) => (
-              <span className='inline-flex items-center gap-1'>
-                {r.maxDrawdownPercent != null && r.maxDrawdownPercent > 0 ? (
-                  <>
-                    <span className='text-red-600'>
-                      -{r.maxDrawdownPercent.toFixed(2)}%
-                    </span>
-                    <button
-                      title='Reset max drawdown'
-                      className='text-gray-300 hover:text-gray-500 leading-none'
-                      onClick={() => handleResetMaxDrawdown(r)}
-                    >
-                      <i className='pi pi-times text-xs' />
-                    </button>
-                  </>
+              </div>
+              <div className='text-right min-w-0'>
+                {totals.dayPL !== 0 ? (
+                  <span
+                    className={`text-xs font-semibold ${returnClass(totals.dayPL)} block truncate`}
+                  >
+                    {formatCurrency(totals.dayPL, currency)}
+                  </span>
                 ) : (
-                  <span className='text-gray-400'>—</span>
+                  <span className='text-gray-400 text-xs'>—</span>
                 )}
-                <button
-                  title='Recalculate from price history'
-                  className='text-gray-300 hover:text-blue-500 leading-none'
-                  onClick={() => handleRecalculateDrawdown(r)}
+              </div>
+              <div className='text-right min-w-0'>
+                <span
+                  className={`text-xs font-semibold ${returnClass(totals.currentReturnAbs)}`}
                 >
-                  <i className='pi pi-history text-xs' />
-                </button>
-              </span>
-            )}
-            style={{ minWidth: '170px' }}
-          />
-          {anyStopLoss && (
-            <>
+                  <span className='block truncate'>
+                    {formatCurrency(totals.currentReturnAbs, currency)}
+                  </span>
+                  <span className='text-[10px] opacity-75'>
+                    {formatPct(totals.currentReturnPct)}
+                  </span>
+                </span>
+              </div>
+            </div>
+          </div>
+
+          {/* Tablet/desktop or mobile landscape: full scrollable table */}
+          <div className='hidden md:block holdings-landscape-table'>
+            <DataTable
+              value={rows}
+              size='small'
+              scrollable
+              scrollHeight={tableScrollHeight}
+              rowHover
+              stripedRows
+              className='holdings-table'
+            >
               <Column
-                header='Stop Loss'
-                body={(r: HoldingRow) =>
-                  typeof r.stopLoss === 'number' && !isNaN(r.stopLoss)
-                    ? formatCurrency(r.stopLoss, currency)
-                    : ''
+                header='Symbol'
+                body={(r: HoldingRow) => (
+                  <button
+                    className='font-semibold text-blue-600 hover:underline'
+                    onClick={() => {
+                      setMode('edit');
+                      setEditIdx(r.originalIndex);
+                      setDialogInitial({
+                        id: r.id,
+                        accountName: r.accountName,
+                        exchangeCode: r.exchangeCode,
+                        symbol: r.symbol,
+                        name: r.name,
+                        openDate: r.openDate,
+                        units: r.units,
+                        buyPrice: r.buyPrice,
+                        buyFee: r.buyFee,
+                        stopLoss: r.stopLoss,
+                        industry: r.industry,
+                        currentPrice: r.currentPrice ?? r.buyPrice,
+                        buyComments: r.buyComments,
+                        maxDrawdownPercent: r.maxDrawdownPercent,
+                      });
+                      setShowDialog(true);
+                    }}
+                  >
+                    {r.symbol}
+                  </button>
+                )}
+                frozen
+                alignFrozen='left'
+                style={{ minWidth: '130px', width: '130px' }}
+                footer={
+                  <span>
+                    <span className='font-bold text-gray-700 tracking-wide'>
+                      TOTALS
+                    </span>{' '}
+                    <span className='text-gray-600 font-medium'>
+                      · Positions: {totals.count}
+                    </span>
+                  </span>
                 }
+              />
+              <Column
+                header='Units'
+                body={(r: HoldingRow) => formatNumber(r.units)}
+                style={{ minWidth: '110px' }}
+              />
+              <Column
+                header='Buy'
+                body={(r: HoldingRow) => formatCurrency(r.buyPrice, currency)}
                 style={{ minWidth: '120px' }}
               />
               <Column
-                header='SL Return'
+                header='Open'
                 body={(r: HoldingRow) =>
-                  isNaN(r.stopLossPosition)
-                    ? ''
-                    : formatCurrency(r.stopLossPosition, currency)
+                  formatCurrency(r.openPosition, currency)
+                }
+                style={{ minWidth: '140px' }}
+                footer={
+                  <span>
+                    <span className='font-semibold text-gray-900'>
+                      {formatCurrency(totals.totalOpen, currency)}
+                    </span>
+                  </span>
+                }
+              />
+              <Column
+                header='Price'
+                body={(r: HoldingRow) =>
+                  formatCurrency(r.effectivePrice, currency)
                 }
                 style={{ minWidth: '130px' }}
               />
               <Column
-                header='SL Return %'
-                body={(r: HoldingRow) =>
-                  isNaN(r.stopLossReturnPct) ? (
-                    ''
-                  ) : (
-                    <span className={returnClass(r.stopLossReturnPct)}>
-                      {formatPct(r.stopLossReturnPct)}
-                    </span>
-                  )
+                header={
+                  <span className='inline-flex items-center gap-1'>
+                    Day Change
+                    <i
+                      className='pi pi-info-circle text-xs text-gray-400'
+                      title='Daily P/L for this row = day price change per unit x units held.'
+                    />
+                  </span>
                 }
-                style={{ minWidth: '130px' }}
+                body={(r: HoldingRow) => {
+                  const q = quoteMap.get(r.symbol);
+                  if (!q || q.change === null)
+                    return <span className='text-gray-400'>—</span>;
+                  const dayAbs = q.change * r.units;
+                  const pct = q.changePercent ?? 0;
+                  return (
+                    <span className={returnClass(dayAbs)}>
+                      {formatCurrency(dayAbs, currency)}{' '}
+                      <span className='text-xs opacity-75'>
+                        ({pct >= 0 ? '+' : ''}
+                        {pct.toFixed(2)}%)
+                      </span>
+                    </span>
+                  );
+                }}
+                style={{ minWidth: '180px' }}
+                footer={
+                  totals.dayPL !== 0 ? (
+                    <span
+                      className={`font-semibold ${returnClass(totals.dayPL)}`}
+                    >
+                      {formatCurrency(totals.dayPL, currency)}
+                    </span>
+                  ) : null
+                }
               />
-            </>
-          )}
-          <Column
-            header='Days Open'
-            body={(r: HoldingRow) => formatNumber(r.daysOpen)}
-            style={{ minWidth: '120px' }}
-          />
-          <Column
-            header='Allocation'
-            body={(r: HoldingRow) => formatPct(r.allocationPct)}
-            style={{ minWidth: '120px' }}
-          />
-          <Column
-            field='industry'
-            header='Industry'
-            style={{ minWidth: '180px' }}
-          />
-        </DataTable>
+              <Column
+                header='Position'
+                body={(r: HoldingRow) => (
+                  <button
+                    className='text-blue-600 hover:underline'
+                    title='Close position'
+                    onClick={() => {
+                      setCloseIdx(r.originalIndex);
+                      setCloseInitial({
+                        id: r.id,
+                        symbol: r.symbol,
+                        name: r.name,
+                        openDate: r.openDate,
+                        units: r.units,
+                        buyPrice: r.buyPrice,
+                        buyFee: r.buyFee,
+                        stopLoss: r.stopLoss,
+                        industry: r.industry,
+                        currentPrice: r.effectivePrice,
+                      });
+                      setShowCloseDialog(true);
+                    }}
+                  >
+                    {formatCurrency(r.currentPosition, currency)}
+                  </button>
+                )}
+                style={{ minWidth: '150px' }}
+                footer={
+                  <span>
+                    <span className='font-semibold text-gray-900'>
+                      {formatCurrency(totals.totalCurrent, currency)}
+                    </span>
+                  </span>
+                }
+              />
+              <Column
+                header='Return'
+                body={(r: HoldingRow) => (
+                  <span className={returnClass(r.currentReturnAbs)}>
+                    {formatCurrency(r.currentReturnAbs, currency)}
+                  </span>
+                )}
+                style={{ minWidth: '130px' }}
+                footer={
+                  <span>
+                    <span
+                      className={`font-semibold ${returnClass(totals.currentReturnAbs)}`}
+                    >
+                      {formatCurrency(totals.currentReturnAbs, currency)}
+                    </span>
+                  </span>
+                }
+              />
+              <Column
+                header='Return %'
+                body={(r: HoldingRow) => (
+                  <span className={returnClass(r.currentReturnPct)}>
+                    {formatPct(r.currentReturnPct)}
+                  </span>
+                )}
+                style={{ minWidth: '150px' }}
+                footer={
+                  <span className={returnClass(totals.currentReturnPct)}>
+                    {formatPct(totals.currentReturnPct)}
+                  </span>
+                }
+              />
+              <Column
+                header='Max Drawdown %'
+                body={(r: HoldingRow) => (
+                  <span className='inline-flex items-center gap-1'>
+                    {r.maxDrawdownPercent != null &&
+                    r.maxDrawdownPercent > 0 ? (
+                      <>
+                        <span className='text-red-600'>
+                          -{r.maxDrawdownPercent.toFixed(2)}%
+                        </span>
+                        <button
+                          title='Reset max drawdown'
+                          className='text-gray-300 hover:text-gray-500 leading-none'
+                          onClick={() => handleResetMaxDrawdown(r)}
+                        >
+                          <i className='pi pi-times text-xs' />
+                        </button>
+                      </>
+                    ) : (
+                      <span className='text-gray-400'>—</span>
+                    )}
+                    <button
+                      title='Recalculate from price history'
+                      className='text-gray-300 hover:text-blue-500 leading-none'
+                      onClick={() => handleRecalculateDrawdown(r)}
+                    >
+                      <i className='pi pi-history text-xs' />
+                    </button>
+                  </span>
+                )}
+                style={{ minWidth: '170px' }}
+              />
+              {anyStopLoss && (
+                <>
+                  <Column
+                    header='Stop Loss'
+                    body={(r: HoldingRow) =>
+                      typeof r.stopLoss === 'number' && !isNaN(r.stopLoss)
+                        ? formatCurrency(r.stopLoss, currency)
+                        : ''
+                    }
+                    style={{ minWidth: '120px' }}
+                  />
+                  <Column
+                    header='SL Return'
+                    body={(r: HoldingRow) =>
+                      isNaN(r.stopLossPosition)
+                        ? ''
+                        : formatCurrency(r.stopLossPosition, currency)
+                    }
+                    style={{ minWidth: '130px' }}
+                  />
+                  <Column
+                    header='SL Return %'
+                    body={(r: HoldingRow) =>
+                      isNaN(r.stopLossReturnPct) ? (
+                        ''
+                      ) : (
+                        <span className={returnClass(r.stopLossReturnPct)}>
+                          {formatPct(r.stopLossReturnPct)}
+                        </span>
+                      )
+                    }
+                    style={{ minWidth: '130px' }}
+                  />
+                </>
+              )}
+              <Column
+                header='Days Open'
+                body={(r: HoldingRow) => formatNumber(r.daysOpen)}
+                style={{ minWidth: '120px' }}
+              />
+              <Column
+                header='Allocation'
+                body={(r: HoldingRow) => formatPct(r.allocationPct)}
+                style={{ minWidth: '120px' }}
+              />
+              <Column
+                field='industry'
+                header='Industry'
+                style={{ minWidth: '180px' }}
+              />
+            </DataTable>
+          </div>
+        </>
       )}
 
       <AddHoldingsDialog
