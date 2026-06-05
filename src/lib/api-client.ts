@@ -58,9 +58,14 @@ function mapToTradingAccount(row: unknown): TradingAccount | null {
 
   const id = typeof row.id === 'string' ? row.id : null;
   const name = typeof row.name === 'string' ? row.name : null;
+  const status = row.status === 'CLOSED' ? 'CLOSED' : 'ACTIVE';
+  const closedAt =
+    typeof row.closedAt === 'string' || row.closedAt === null
+      ? row.closedAt
+      : null;
 
   if (!id || !name) return null;
-  return { id, name };
+  return { id, name, status, closedAt };
 }
 
 function mapToUserProfile(row: unknown): UserProfile | null {
@@ -233,6 +238,8 @@ function mapPositionToHolding(pos: unknown): HoldingPosition | null {
     unrealizedPnL !== null && effectiveQty > 0
       ? entryPrice + unrealizedPnL / effectiveQty
       : entryPrice;
+  const maxDrawdownPercent =
+    pos.maxDrawdownPercent != null ? Number(pos.maxDrawdownPercent) : undefined;
 
   return {
     id: typeof pos.id === 'string' ? pos.id : undefined,
@@ -262,6 +269,7 @@ function mapPositionToHolding(pos: unknown): HoldingPosition | null {
           : '',
     currentPrice,
     buyComments: typeof pos.notes === 'string' ? pos.notes : undefined,
+    maxDrawdownPercent,
   };
 }
 
@@ -483,7 +491,7 @@ class ApiClient {
 
   // Account methods
   async getAccounts(): Promise<TradingAccount[]> {
-    return this.getTradingAccounts();
+    return this.getTradingAccounts(false);
   }
 
   async createAccount(account: {
@@ -498,8 +506,59 @@ class ApiClient {
     return mapToTradingAccount(payload);
   }
 
-  async getTradingAccounts(): Promise<TradingAccount[]> {
-    const response = await this.client.get('/accounts');
+  async deleteAccount(accountId: string) {
+    if (USE_MOCK_API) {
+      return { success: true };
+    }
+
+    const response = await this.client.delete(`/accounts/${accountId}`);
+    return response.data;
+  }
+
+  async closeAccount(accountId: string) {
+    if (USE_MOCK_API) {
+      return { success: true };
+    }
+
+    const response = await this.client.post(`/accounts/${accountId}/close`);
+    return response.data;
+  }
+
+  async reopenAccount(accountId: string) {
+    if (USE_MOCK_API) {
+      return { success: true };
+    }
+
+    const response = await this.client.post(`/accounts/${accountId}/reopen`);
+    return response.data;
+  }
+
+  async updateAccount(
+    accountId: string,
+    data: { name: string }
+  ): Promise<TradingAccount | null> {
+    if (USE_MOCK_API) {
+      return {
+        id: accountId,
+        name: data.name,
+        status: 'ACTIVE',
+        closedAt: null,
+      };
+    }
+
+    const response = await this.client.patch(`/accounts/${accountId}`, data);
+    const payload = isRecord(response.data)
+      ? response.data.data
+      : response.data;
+    return mapToTradingAccount(payload);
+  }
+
+  async getTradingAccounts(includeClosed = false): Promise<TradingAccount[]> {
+    const response = await this.client.get('/accounts', {
+      params: {
+        includeClosed: includeClosed ? 'true' : 'false',
+      },
+    });
     return unwrapArray<unknown>(response.data)
       .map(mapToTradingAccount)
       .filter((a): a is TradingAccount => a !== null);
@@ -752,6 +811,8 @@ class ApiClient {
       stopLossPrice?: number | null;
       takeProfitPrice?: number | null;
       notes?: string;
+      currentPrice?: number;
+      maxDrawdownPercent?: number | null;
     }
   ) {
     const response = await this.client.patch(`/positions/${id}`, {
@@ -770,11 +831,36 @@ class ApiClient {
           : undefined,
       buyFees:
         payload.buyFees !== undefined ? Number(payload.buyFees) : undefined,
+      currentPrice:
+        payload.currentPrice !== undefined
+          ? Number(payload.currentPrice)
+          : undefined,
+      maxDrawdownPercent:
+        payload.maxDrawdownPercent !== undefined
+          ? payload.maxDrawdownPercent === null
+            ? null
+            : Number(payload.maxDrawdownPercent)
+          : undefined,
     });
     return response.data;
   }
 
   // Stock symbol search
+  async recalculateDrawdown(
+    id: string
+  ): Promise<{ maxDrawdownPercent: number | null; message: string }> {
+    if (USE_MOCK_API) {
+      return {
+        maxDrawdownPercent: null,
+        message: 'Not implemented in mock mode',
+      };
+    }
+    const response = await this.client.post(
+      `/positions/${id}/recalculate-drawdown`
+    );
+    return response.data;
+  }
+
   async searchStocks(q: string, limit = 10): Promise<StockSearchResult[]> {
     if (USE_MOCK_API) {
       await new Promise(resolve => setTimeout(resolve, 200));

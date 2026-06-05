@@ -2,10 +2,10 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiClient } from '@/lib/api-client';
 
 // Account hooks
-export const useTradingAccounts = () => {
+export const useTradingAccounts = (includeClosed = false) => {
   return useQuery({
-    queryKey: ['trading-accounts'],
-    queryFn: () => apiClient.getTradingAccounts(),
+    queryKey: ['trading-accounts', includeClosed ? 'all' : 'active'],
+    queryFn: () => apiClient.getTradingAccounts(includeClosed),
     staleTime: 10 * 60 * 1000,
   });
 };
@@ -15,6 +15,58 @@ export const useCreateAccount = () => {
 
   return useMutation({
     mutationFn: (account: { name: string }) => apiClient.createAccount(account),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['trading-accounts'] });
+    },
+  });
+};
+
+export const useDeleteAccount = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (accountId: string) => apiClient.deleteAccount(accountId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['trading-accounts'] });
+      queryClient.invalidateQueries({ queryKey: ['user-portfolio'] });
+      queryClient.invalidateQueries({ queryKey: ['portfolio-history'] });
+      queryClient.invalidateQueries({ queryKey: ['holdings'] });
+      queryClient.invalidateQueries({ queryKey: ['closed-positions'] });
+    },
+  });
+};
+
+export const useCloseAccount = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (accountId: string) => apiClient.closeAccount(accountId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['trading-accounts'] });
+      queryClient.invalidateQueries({ queryKey: ['user-portfolio'] });
+      queryClient.invalidateQueries({ queryKey: ['portfolio-history'] });
+      queryClient.invalidateQueries({ queryKey: ['holdings'] });
+    },
+  });
+};
+
+export const useReopenAccount = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (accountId: string) => apiClient.reopenAccount(accountId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['trading-accounts'] });
+    },
+  });
+};
+
+export const useUpdateAccount = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ accountId, name }: { accountId: string; name: string }) =>
+      apiClient.updateAccount(accountId, { name }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['trading-accounts'] });
     },

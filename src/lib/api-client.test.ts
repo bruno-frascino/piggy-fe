@@ -112,20 +112,55 @@ describe('api-client', () => {
         ],
       },
     });
+    axiosClientMock.get.mockResolvedValueOnce({
+      data: {
+        data: [{ id: 'a1', name: 'Main', status: 'CLOSED' }],
+      },
+    });
     axiosClientMock.post.mockResolvedValueOnce({
       data: {
         data: { id: 'a2', name: 'Growth' },
       },
     });
+    axiosClientMock.delete.mockResolvedValueOnce({ data: { success: true } });
+    axiosClientMock.post
+      .mockResolvedValueOnce({ data: { success: true } })
+      .mockResolvedValueOnce({ data: { success: true } });
 
     const accounts = await apiClient.getTradingAccounts();
+    const allAccounts = await apiClient.getTradingAccounts(true);
     const created = await apiClient.createAccount({ name: 'Growth' });
+    const deleted = await apiClient.deleteAccount('a2');
+    const closed = await apiClient.closeAccount('a2');
+    const reopened = await apiClient.reopenAccount('a2');
 
-    expect(accounts).toEqual([{ id: 'a1', name: 'Main' }]);
-    expect(created).toEqual({ id: 'a2', name: 'Growth' });
+    expect(accounts).toEqual([
+      { id: 'a1', name: 'Main', status: 'ACTIVE', closedAt: null },
+    ]);
+    expect(allAccounts).toEqual([
+      { id: 'a1', name: 'Main', status: 'CLOSED', closedAt: null },
+    ]);
+    expect(created).toEqual({
+      id: 'a2',
+      name: 'Growth',
+      status: 'ACTIVE',
+      closedAt: null,
+    });
+    expect(deleted).toEqual({ success: true });
+    expect(closed).toEqual({ success: true });
+    expect(reopened).toEqual({ success: true });
+    expect(axiosClientMock.get).toHaveBeenNthCalledWith(1, '/accounts', {
+      params: { includeClosed: 'false' },
+    });
+    expect(axiosClientMock.get).toHaveBeenNthCalledWith(2, '/accounts', {
+      params: { includeClosed: 'true' },
+    });
     expect(axiosClientMock.post).toHaveBeenCalledWith('/accounts', {
       name: 'Growth',
     });
+    expect(axiosClientMock.post).toHaveBeenCalledWith('/accounts/a2/close');
+    expect(axiosClientMock.post).toHaveBeenCalledWith('/accounts/a2/reopen');
+    expect(axiosClientMock.delete).toHaveBeenCalledWith('/accounts/a2');
   });
 
   it('normalizes user profile payloads', async () => {

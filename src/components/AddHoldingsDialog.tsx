@@ -14,13 +14,15 @@ import { apiClient } from '@/lib/api-client';
 
 export type LocalHolding = Omit<
   HoldingPosition,
-  'stopLoss' | 'currentPrice'
+  'stopLoss' | 'currentPrice' | 'maxDrawdownPercent'
 > & {
   stopLoss?: number;
   currentPrice?: number;
   accountName?: string;
   exchangeCode?: string;
   buyComments?: string;
+  /** null = explicitly cleared; undefined = not changed (edit) or not set (add) */
+  maxDrawdownPercent?: number | null;
 };
 
 export default function AddHoldingsDialog({
@@ -83,6 +85,7 @@ export default function AddHoldingsDialog({
       accountName: accountName ?? 'Main',
       exchangeCode: exchangeCode ?? '',
       buyComments: '',
+      maxDrawdownPercent: undefined,
       ...initial,
     };
     setForm(base);
@@ -212,6 +215,9 @@ export default function AddHoldingsDialog({
       // Current price should come from quotes API; use buy price only as fallback.
       currentPrice: form.buyPrice!,
       buyComments: form.buyComments?.trim() || undefined,
+      // undefined = not changed; null = explicit reset; number = override
+      maxDrawdownPercent:
+        mode === 'edit' ? (form.maxDrawdownPercent ?? null) : undefined,
     };
     onSubmit(value);
   };
@@ -225,7 +231,40 @@ export default function AddHoldingsDialog({
       onHide={onHide}
     >
       <div className='space-y-4'>
-        {/* Row 1: Symbol, Name */}
+        {/* Row 1: Trading Account */}
+        <div className='grid grid-cols-12 gap-3'>
+          <div className='col-span-12 md:col-span-4'>
+            <label className='block text-sm font-medium mb-1'>Account</label>
+            {lockAccount ? (
+              <InputText
+                value={form.accountName ?? 'Main'}
+                disabled
+                className='w-full'
+              />
+            ) : (
+              <AutoComplete
+                value={form.accountName ?? 'Main'}
+                suggestions={accountSuggestions}
+                completeMethod={searchAccount}
+                onChange={e =>
+                  setForm(f => ({ ...f, accountName: String(e.value ?? '') }))
+                }
+                dropdown
+                forceSelection={false}
+                placeholder='Main'
+                className='w-full'
+                inputClassName='w-full'
+                appendTo='self'
+              />
+            )}
+            <p className='text-xs text-gray-500 mt-1'>
+              Use different account names to separate holdings on the same
+              exchange.
+            </p>
+          </div>
+        </div>
+
+        {/* Row 2: Symbol, Name */}
         <div className='grid grid-cols-12 gap-3'>
           <div className='col-span-12 md:col-span-3'>
             <label className='block text-sm font-medium mb-1'>Symbol *</label>
@@ -326,7 +365,7 @@ export default function AddHoldingsDialog({
           </div>
         </div>
 
-        {/* Row 2: Open Date, Units, Industry */}
+        {/* Row 3: Open Date, Units, Industry */}
         <div className='grid grid-cols-12 gap-3'>
           <div className='col-span-12 md:col-span-4'>
             <label className='block text-sm font-medium mb-1'>
@@ -392,40 +431,7 @@ export default function AddHoldingsDialog({
           </div>
         </div>
 
-        {/* Row 2b: Trading Account */}
-        <div className='grid grid-cols-12 gap-3'>
-          <div className='col-span-12 md:col-span-4'>
-            <label className='block text-sm font-medium mb-1'>Account</label>
-            {lockAccount ? (
-              <InputText
-                value={form.accountName ?? 'Main'}
-                disabled
-                className='w-full'
-              />
-            ) : (
-              <AutoComplete
-                value={form.accountName ?? 'Main'}
-                suggestions={accountSuggestions}
-                completeMethod={searchAccount}
-                onChange={e =>
-                  setForm(f => ({ ...f, accountName: String(e.value ?? '') }))
-                }
-                dropdown
-                forceSelection={false}
-                placeholder='Main'
-                className='w-full'
-                inputClassName='w-full'
-                appendTo='self'
-              />
-            )}
-            <p className='text-xs text-gray-500 mt-1'>
-              Use different account names to separate holdings on the same
-              exchange.
-            </p>
-          </div>
-        </div>
-
-        {/* Row 3: Buy Price, Buy Fee, Stop Loss */}
+        {/* Row 4: Buy Price, Buy Fee, Stop Loss */}
         <div className='grid grid-cols-12 gap-3'>
           <div className='col-span-12 md:col-span-4'>
             <label className='block text-sm font-medium mb-1'>
@@ -485,7 +491,43 @@ export default function AddHoldingsDialog({
           </div>
         </div>
 
-        {/* Row 4: Buy Comments */}
+        {/* Row 5 (edit only): Max Drawdown % */}
+        {mode === 'edit' && (
+          <div className='grid grid-cols-12 gap-3'>
+            <div className='col-span-12 md:col-span-4'>
+              <label className='block text-sm font-medium mb-1'>
+                Max Drawdown %
+              </label>
+              <InputNumber
+                value={
+                  form.maxDrawdownPercent != null
+                    ? form.maxDrawdownPercent
+                    : null
+                }
+                onValueChange={e =>
+                  setForm(f => ({
+                    ...f,
+                    maxDrawdownPercent:
+                      e.value != null ? (e.value as number) : null,
+                  }))
+                }
+                mode='decimal'
+                minFractionDigits={2}
+                maxFractionDigits={4}
+                min={0}
+                placeholder='auto-calculated'
+                className='w-full'
+                inputClassName='w-full'
+                showButtons={false}
+              />
+              <p className='text-xs text-gray-500 mt-1'>
+                Leave blank to auto-calculate from price history.
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* Row 6: Buy Comments */}
         <div>
           <label className='block text-sm font-medium mb-1'>Buy Comments</label>
           <InputTextarea

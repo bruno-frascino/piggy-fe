@@ -20,10 +20,6 @@ import {
   syncQueuedWritesNow,
   type QueuedWriteActionInput,
 } from '@/lib/offline-write-queue';
-import {
-  calculateGainLossPerWeek,
-  calculateReturnPctPerWeek,
-} from '@/lib/performance-metrics';
 import { useToast } from '@/lib/toast-context';
 
 type HoldingRow = LocalHolding & {
@@ -34,8 +30,7 @@ type HoldingRow = LocalHolding & {
   currentPosition: number; // units * currentPrice
   currentReturnAbs: number; // currentPosition - openPosition
   currentReturnPct: number; // (current - open)/open
-  gainLossPerWeek: number | null; // current gain/loss normalized per week open
-  returnPctPerWeek: number | null; // current return % normalized per week open
+  priceDrawdownPct: number; // (effectivePrice - buyPrice) / buyPrice — used for max drawdown tracking
   stopLossPosition: number; // units * stopLoss
   stopLossReturnPct: number; // (stopLossPos - open)/open
   allocationPct: number; // openPosition / totalOpen
@@ -366,14 +361,11 @@ export default function HoldingsTable({
         !isNaN(ts) && ts > 0
           ? Math.max(0, Math.floor((now - ts) / MS_PER_DAY))
           : 0;
-      const gainLossPerWeek = calculateGainLossPerWeek(
-        currentReturnAbs,
-        daysOpen
-      );
-      const returnPctPerWeek = calculateReturnPctPerWeek(
-        currentReturnPct,
-        daysOpen
-      );
+      // Price-only drawdown from entry — only valid when a live quote exists
+      const priceDrawdownPct =
+        effectivePrice > 0 && h.buyPrice > 0
+          ? ((effectivePrice - h.buyPrice) / h.buyPrice) * 100
+          : 0;
       return {
         ...h,
         currentPrice: effectivePrice,
@@ -384,8 +376,7 @@ export default function HoldingsTable({
         currentPosition,
         currentReturnAbs,
         currentReturnPct,
-        gainLossPerWeek,
-        returnPctPerWeek,
+        priceDrawdownPct,
         stopLossPosition: hasStop ? stopLossPosition : NaN,
         stopLossReturnPct: hasStop ? stopLossReturnPct : NaN,
         allocationPct,
@@ -393,6 +384,64 @@ export default function HoldingsTable({
       };
     });
   }, [holdings, quoteMap]);
+
+  // Auto-update max drawdown when live quotes arrive.
+  // Uses `rows` (not raw holdings) so effectivePrice is consistent with what the table shows.
+  // Only fires when a real live quote exists — fallback prices (stored/entry) are skipped.
+  const lastMaxDrawdownUpdateRef = useRef<Map<string, number>>(new Map());
+  useEffect(() => {
+    if (!isOnline() || rows.length === 0) return;
+
+    const nowMs = Date.now();
+    const updates: Array<{ id: string; currentPrice: number }> = [];
+
+    for (const row of rows) {
+      if (!row.id) continue;
+      // Skip if no live quote — effectivePrice would just be the stored/entry price
+      if (!quoteMap.has(row.symbol)) continue;
+
+      // priceDrawdownPct is negative when current price < entry price
+      if (row.priceDrawdownPct >= 0) continue;
+
+      const absDrawdownPct = Math.abs(row.priceDrawdownPct);
+      const existingMaxDrawdown = row.maxDrawdownPercent || 0;
+
+      if (absDrawdownPct > existingMaxDrawdown + 0.01) {
+        const lastUpdate = lastMaxDrawdownUpdateRef.current.get(row.id);
+        // Rate limit: only update once per 5 minutes per position
+        if (!lastUpdate || nowMs - lastUpdate > 5 * 60 * 1000) {
+          updates.push({ id: row.id, currentPrice: row.effectivePrice });
+          lastMaxDrawdownUpdateRef.current.set(row.id, nowMs);
+        }
+      }
+    }
+
+    if (updates.length > 0) {
+      void Promise.all(
+        updates.map(({ id, currentPrice }) =>
+          apiClient.updatePosition(id, { currentPrice }).catch(() => {})
+        )
+      ).then(() => {
+        void queryClient.invalidateQueries({ queryKey: ['holdings'] });
+      });
+    }
+  }, [rows, quoteMap, queryClient]);
+
+  const handleResetMaxDrawdown = (row: HoldingRow) => {
+    if (!row.id || !isOnline()) return;
+    void apiClient
+      .updatePosition(row.id, { maxDrawdownPercent: null })
+      .then(() => queryClient.invalidateQueries({ queryKey: ['holdings'] }))
+      .catch(() => {});
+  };
+
+  const handleRecalculateDrawdown = (row: HoldingRow) => {
+    if (!row.id || !isOnline()) return;
+    void apiClient
+      .recalculateDrawdown(row.id)
+      .then(() => queryClient.invalidateQueries({ queryKey: ['holdings'] }))
+      .catch(() => {});
+  };
 
   const tableScrollHeight = useMemo(() => {
     const minPx = 260;
@@ -481,6 +530,7 @@ export default function HoldingsTable({
                     industry: r.industry,
                     currentPrice: r.currentPrice ?? r.buyPrice,
                     buyComments: r.buyComments,
+                    maxDrawdownPercent: r.maxDrawdownPercent,
                   });
                   setShowDialog(true);
                 }}
@@ -632,30 +682,35 @@ export default function HoldingsTable({
             }
           />
           <Column
-            header='Gain/Loss per Week'
-            body={(r: HoldingRow) =>
-              r.gainLossPerWeek === null ? (
-                <span className='text-gray-400'>—</span>
-              ) : (
-                <span className={returnClass(r.gainLossPerWeek)}>
-                  {formatCurrency(r.gainLossPerWeek, currency)}
-                </span>
-              )
-            }
-            style={{ minWidth: '190px' }}
-          />
-          <Column
-            header='Return % per Week'
-            body={(r: HoldingRow) =>
-              r.returnPctPerWeek === null ? (
-                <span className='text-gray-400'>—</span>
-              ) : (
-                <span className={returnClass(r.returnPctPerWeek)}>
-                  {formatPct(r.returnPctPerWeek)}
-                </span>
-              )
-            }
-            style={{ minWidth: '180px' }}
+            header='Max Drawdown %'
+            body={(r: HoldingRow) => (
+              <span className='inline-flex items-center gap-1'>
+                {r.maxDrawdownPercent != null && r.maxDrawdownPercent > 0 ? (
+                  <>
+                    <span className='text-red-600'>
+                      -{r.maxDrawdownPercent.toFixed(2)}%
+                    </span>
+                    <button
+                      title='Reset max drawdown'
+                      className='text-gray-300 hover:text-gray-500 leading-none'
+                      onClick={() => handleResetMaxDrawdown(r)}
+                    >
+                      <i className='pi pi-times text-xs' />
+                    </button>
+                  </>
+                ) : (
+                  <span className='text-gray-400'>—</span>
+                )}
+                <button
+                  title='Recalculate from price history'
+                  className='text-gray-300 hover:text-blue-500 leading-none'
+                  onClick={() => handleRecalculateDrawdown(r)}
+                >
+                  <i className='pi pi-history text-xs' />
+                </button>
+              </span>
+            )}
+            style={{ minWidth: '170px' }}
           />
           {anyStopLoss && (
             <>
@@ -740,6 +795,8 @@ export default function HoldingsTable({
                 industry: newPos.industry,
                 stopLossPrice: newPos.stopLoss ?? null,
                 notes: newPos.buyComments,
+                // undefined means not touched; null resets; number overrides
+                maxDrawdownPercent: newPos.maxDrawdownPercent,
               };
 
               if (current?.id) {

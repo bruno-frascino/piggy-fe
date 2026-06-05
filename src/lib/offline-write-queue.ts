@@ -32,6 +32,7 @@ type UpdatePositionPayload = {
   stopLossPrice?: number | null;
   takeProfitPrice?: number | null;
   notes?: string;
+  currentPrice?: number;
 };
 
 type ClosePositionPayload = {

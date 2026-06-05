@@ -10,6 +10,10 @@ import type {
 } from '@/lib/types';
 import {
   useCreateAccount,
+  useCloseAccount,
+  useDeleteAccount,
+  useReopenAccount,
+  useUpdateAccount,
   useCreatePortfolioSnapshot,
   usePortfolioHistory,
   useTradingAccounts,
@@ -19,6 +23,7 @@ import { Button } from 'primereact/button';
 import { InputText } from 'primereact/inputtext';
 import { Dialog } from 'primereact/dialog';
 import HoldingsTable from '@/components/HoldingsTable';
+import AccountActionDialog from '@/components/AccountActionDialog';
 import { Line } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -78,13 +83,36 @@ export default function DashboardView() {
   const searchParams = useSearchParams();
 
   const { data: accountList = [], isLoading: isAccountsLoading } =
-    useTradingAccounts();
+    useTradingAccounts(true);
   const createAccount = useCreateAccount();
+  const closeAccount = useCloseAccount();
+  const deleteAccount = useDeleteAccount();
+  const reopenAccount = useReopenAccount();
+  const updateAccount = useUpdateAccount();
   const [selectedAccountId, setSelectedAccountId] = useState<string>('');
   const [newAccountName, setNewAccountName] = useState('');
   const [accountCreateError, setAccountCreateError] = useState('');
+  const [accountActionError, setAccountActionError] = useState('');
   const [showAccountDialog, setShowAccountDialog] = useState(false);
+  const [showClosedAccounts, setShowClosedAccounts] = useState(false);
+  const [accountActionDialog, setAccountActionDialog] = useState<{
+    action: 'close' | 'delete';
+    account: TradingAccount;
+  } | null>(null);
+  const [renameDialog, setRenameDialog] = useState<{
+    account: TradingAccount;
+    newName: string;
+  } | null>(null);
+  const [renameError, setRenameError] = useState('');
   const [selected, setSelected] = useState<ExchangeKey>('');
+
+  const visibleAccounts = useMemo(
+    () =>
+      showClosedAccounts
+        ? accountList
+        : accountList.filter(a => (a.status ?? 'ACTIVE') !== 'CLOSED'),
+    [accountList, showClosedAccounts]
+  );
 
   const selectedAccount = useMemo<TradingAccount | null>(
     () => accountList.find(a => a.id === selectedAccountId) ?? null,
@@ -148,6 +176,29 @@ export default function DashboardView() {
     setLiveTotals(null);
   }, [selected]);
 
+  // Extract a user-friendly message from an API error response.
+  // 5xx (server) errors are never surfaced verbatim — a generic fallback is used.
+  const extractApiError = (err: unknown, fallback: string): string => {
+    const e = err as {
+      message?: string;
+      response?: {
+        status?: number;
+        data?: {
+          message?: string;
+          error?: string;
+          details?: Array<{ msg?: string }>;
+        };
+      };
+    };
+    const status = e.response?.status ?? 0;
+    if (status >= 500) return fallback;
+    if (!e.response && e.message)
+      return 'Cannot reach the server. Please check your connection.';
+    const detailsMsg = e.response?.data?.details?.[0]?.msg;
+    const apiMsg = e.response?.data?.message ?? e.response?.data?.error;
+    return detailsMsg || apiMsg || fallback;
+  };
+
   const handleCreateAccount = async () => {
     const name = newAccountName.trim() || 'Main';
     setAccountCreateError('');
@@ -166,48 +217,113 @@ export default function DashboardView() {
         setSelectedAccountId(created.id);
       }
     } catch (err: unknown) {
-      const e = err as {
-        message?: string;
-        response?: {
-          status?: number;
-          data?: {
-            message?: string;
-            error?: string;
-            details?: Array<{ msg?: string }>;
-          };
-        };
-      };
-
-      const detailsMsg = e.response?.data?.details?.[0]?.msg;
-      const apiMsg = e.response?.data?.message ?? e.response?.data?.error;
-      const networkMsg =
-        !e.response && e.message
-          ? 'Cannot reach API server. Make sure piggy-api is running.'
-          : undefined;
-
       setAccountCreateError(
-        detailsMsg ||
-          apiMsg ||
-          networkMsg ||
-          'Could not create account. Please try again.'
+        extractApiError(err, 'Could not create account. Please try again.')
+      );
+    }
+  };
+
+  const handleAccountActionRequest = (
+    action: 'close' | 'delete',
+    account: TradingAccount
+  ) => {
+    setAccountActionError('');
+    setAccountActionDialog({ action, account });
+  };
+
+  const handleConfirmAccountAction = async () => {
+    if (!accountActionDialog) return;
+
+    const { action, account } = accountActionDialog;
+    setAccountActionError('');
+
+    try {
+      if (action === 'delete') {
+        await deleteAccount.mutateAsync(account.id);
+
+        if (selectedAccountId === account.id) {
+          const remaining = accountList.filter(a => a.id !== account.id);
+          setSelectedAccountId(remaining[0]?.id ?? '');
+        }
+      } else {
+        await closeAccount.mutateAsync(account.id);
+
+        if (selectedAccountId === account.id && !showClosedAccounts) {
+          const remainingActive = accountList.filter(
+            a => a.id !== account.id && (a.status ?? 'ACTIVE') !== 'CLOSED'
+          );
+          setSelectedAccountId(remainingActive[0]?.id ?? '');
+        }
+      }
+
+      setAccountActionDialog(null);
+    } catch (err: unknown) {
+      setAccountActionError(
+        extractApiError(
+          err,
+          action === 'delete'
+            ? 'Could not delete account. Please try again.'
+            : 'Could not close account. Please try again.'
+        )
+      );
+    }
+  };
+
+  const handleReopenAccount = async (account: TradingAccount) => {
+    setAccountActionError('');
+    try {
+      await reopenAccount.mutateAsync(account.id);
+      setSelectedAccountId(account.id);
+    } catch (err: unknown) {
+      setAccountActionError(
+        extractApiError(err, 'Could not reopen account. Please try again.')
+      );
+    }
+  };
+
+  const handleRenameAccount = async () => {
+    if (!renameDialog) return;
+    const trimmedName = renameDialog.newName.trim();
+    if (!trimmedName) {
+      setRenameError('Account name cannot be empty.');
+      return;
+    }
+    if (trimmedName.length > 80) {
+      setRenameError('Account name must be 80 characters or less.');
+      return;
+    }
+
+    setRenameError('');
+    try {
+      await updateAccount.mutateAsync({
+        accountId: renameDialog.account.id,
+        name: trimmedName,
+      });
+      setRenameDialog(null);
+    } catch (err: unknown) {
+      setRenameError(
+        extractApiError(err, 'Could not rename account. Please try again.')
       );
     }
   };
 
   useEffect(() => {
-    if (!accountList.length) {
+    if (!visibleAccounts.length) {
       setSelectedAccountId('');
       return;
     }
     if (
       selectedAccountId &&
-      accountList.some(account => account.id === selectedAccountId)
+      visibleAccounts.some(account => account.id === selectedAccountId)
     ) {
       return;
     }
 
     const fromQuery = searchParams?.get('accountId');
-    if (fromQuery && accountList.some(account => account.id === fromQuery)) {
+    if (
+      fromQuery &&
+      visibleAccounts.some(account => account.id === fromQuery)
+    ) {
       setSelectedAccountId(fromQuery);
       return;
     }
@@ -216,7 +332,7 @@ export default function DashboardView() {
       const fromStorage = localStorage.getItem('selectedAccountId');
       if (
         fromStorage &&
-        accountList.some(account => account.id === fromStorage)
+        visibleAccounts.some(account => account.id === fromStorage)
       ) {
         setSelectedAccountId(fromStorage);
         return;
@@ -225,8 +341,8 @@ export default function DashboardView() {
       // no-op
     }
 
-    setSelectedAccountId(accountList[0].id);
-  }, [accountList, selectedAccountId, searchParams]);
+    setSelectedAccountId(visibleAccounts[0].id);
+  }, [visibleAccounts, selectedAccountId, searchParams]);
 
   useEffect(() => {
     setSelected('');
@@ -426,34 +542,219 @@ export default function DashboardView() {
             />
           </div>
 
-          {accountList.length === 0 && (
+          {visibleAccounts.length === 0 && (
             <div className='text-sm text-gray-500'>
-              No account yet. Create one to start managing holdings.
+              {showClosedAccounts
+                ? 'No accounts available. Create one to start managing holdings.'
+                : 'No active account. Toggle Show Closed to reopen one, or create a new account.'}
             </div>
           )}
 
-          {accountList.length > 0 && (
+          <div className='mb-3'>
+            <button
+              type='button'
+              onClick={() => setShowClosedAccounts(v => !v)}
+              className='text-sm text-blue-600 hover:underline'
+            >
+              {showClosedAccounts
+                ? 'Hide Closed Accounts'
+                : 'Show Closed Accounts'}
+            </button>
+          </div>
+
+          {visibleAccounts.length > 0 && (
             <div className='flex flex-wrap items-center gap-3'>
-              {accountList.map(account => {
+              {visibleAccounts.map(account => {
                 const isSelected = selectedAccountId === account.id;
+                const isClosed = (account.status ?? 'ACTIVE') === 'CLOSED';
                 return (
-                  <button
+                  <div
                     key={account.id}
-                    onClick={() => setSelectedAccountId(account.id)}
-                    className={`px-3 py-1 rounded-full border transition select-none ${
+                    className={`inline-flex items-center rounded-full border transition select-none ${
                       isSelected
                         ? 'bg-blue-600 text-white border-blue-600'
                         : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
                     }`}
-                    aria-pressed={isSelected}
                   >
-                    {account.name}
-                  </button>
+                    <button
+                      onClick={() => {
+                        setAccountActionError('');
+                        setSelectedAccountId(account.id);
+                      }}
+                      className='px-3 py-1'
+                      aria-pressed={isSelected}
+                    >
+                      {account.name}
+                      {isClosed ? ' (Closed)' : ''}
+                    </button>
+                    {isClosed ? (
+                      <>
+                        <button
+                          type='button'
+                          onClick={() => {
+                            void handleReopenAccount(account);
+                          }}
+                          className={`px-2 py-1 border-l ${
+                            isSelected
+                              ? 'border-blue-500/50 text-white/85 hover:text-white'
+                              : 'border-gray-300 text-gray-500 hover:text-green-600'
+                          }`}
+                          title='Reopen account'
+                          aria-label={`Reopen account ${account.name}`}
+                          disabled={reopenAccount.isPending}
+                        >
+                          <i className='pi pi-refresh text-xs' />
+                        </button>
+                        <button
+                          type='button'
+                          onClick={() =>
+                            handleAccountActionRequest('delete', account)
+                          }
+                          className={`px-2 py-1 border-l ${
+                            isSelected
+                              ? 'border-blue-500/50 text-white/85 hover:text-white'
+                              : 'border-gray-300 text-gray-500 hover:text-red-600'
+                          }`}
+                          title='Delete account permanently'
+                          aria-label={`Delete account ${account.name}`}
+                          disabled={deleteAccount.isPending}
+                        >
+                          <i className='pi pi-trash text-xs' />
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        <button
+                          type='button'
+                          onClick={() => {
+                            setRenameError('');
+                            setRenameDialog({ account, newName: account.name });
+                          }}
+                          className={`px-2 py-1 border-l ${
+                            isSelected
+                              ? 'border-blue-500/50 text-white/85 hover:text-white'
+                              : 'border-gray-300 text-gray-500 hover:text-blue-600'
+                          }`}
+                          title='Rename account'
+                          aria-label={`Rename account ${account.name}`}
+                        >
+                          <i className='pi pi-pencil text-xs' />
+                        </button>
+                        <button
+                          type='button'
+                          onClick={() =>
+                            handleAccountActionRequest('close', account)
+                          }
+                          className={`px-2 py-1 border-l ${
+                            isSelected
+                              ? 'border-blue-500/50 text-white/85 hover:text-white'
+                              : 'border-gray-300 text-gray-500 hover:text-amber-600'
+                          }`}
+                          title='Close account'
+                          aria-label={`Close account ${account.name}`}
+                          disabled={closeAccount.isPending}
+                        >
+                          <i className='pi pi-lock text-xs' />
+                        </button>
+                        <button
+                          type='button'
+                          onClick={() =>
+                            handleAccountActionRequest('delete', account)
+                          }
+                          className={`px-2 py-1 border-l ${
+                            isSelected
+                              ? 'border-blue-500/50 text-white/85 hover:text-white'
+                              : 'border-gray-300 text-gray-500 hover:text-red-600'
+                          }`}
+                          title='Delete account permanently'
+                          aria-label={`Delete account ${account.name}`}
+                          disabled={deleteAccount.isPending}
+                        >
+                          <i className='pi pi-trash text-xs' />
+                        </button>
+                      </>
+                    )}
+                  </div>
                 );
               })}
             </div>
           )}
         </Card>
+
+        <AccountActionDialog
+          visible={accountActionDialog !== null}
+          action={accountActionDialog?.action ?? 'close'}
+          accountName={accountActionDialog?.account.name ?? ''}
+          loading={closeAccount.isPending || deleteAccount.isPending}
+          error={accountActionError}
+          onCancel={() => setAccountActionDialog(null)}
+          onConfirm={() => {
+            void handleConfirmAccountAction();
+          }}
+        />
+
+        <Dialog
+          header={`Rename ${renameDialog?.account.name ?? 'Account'}`}
+          visible={renameDialog !== null}
+          style={{ width: '520px', maxWidth: '95vw' }}
+          modal
+          closable={!updateAccount.isPending}
+          closeOnEscape={!updateAccount.isPending}
+          onHide={() => {
+            if (!updateAccount.isPending) {
+              setRenameDialog(null);
+              setRenameError('');
+            }
+          }}
+        >
+          <form
+            className='space-y-3'
+            onSubmit={e => {
+              e.preventDefault();
+              void handleRenameAccount();
+            }}
+          >
+            <p className='text-sm text-gray-500'>
+              Enter a new name for this account.
+            </p>
+            {renameError && (
+              <div className='text-sm text-red-600'>{renameError}</div>
+            )}
+            <InputText
+              value={renameDialog?.newName ?? ''}
+              onChange={e =>
+                setRenameDialog(
+                  renameDialog
+                    ? { ...renameDialog, newName: e.target.value }
+                    : null
+                )
+              }
+              placeholder='Account name'
+              className='w-full'
+              autoFocus
+              disabled={updateAccount.isPending}
+            />
+            <div className='flex justify-end gap-2 pt-2'>
+              <Button
+                type='button'
+                label='Cancel'
+                severity='secondary'
+                onClick={() => {
+                  setRenameDialog(null);
+                  setRenameError('');
+                }}
+                disabled={updateAccount.isPending}
+              />
+              <Button
+                type='submit'
+                label='Rename'
+                icon='pi pi-check'
+                disabled={updateAccount.isPending}
+                loading={updateAccount.isPending}
+              />
+            </div>
+          </form>
+        </Dialog>
 
         <Dialog
           header='Add Account'

@@ -40,6 +40,7 @@ export interface HoldingPosition {
   industry: string;
   currentPrice: number;
   buyComments?: string;
+  maxDrawdownPercent?: number; // Maximum percentage drop from entry price
 }
 
 export interface StockSearchResult {
@@ -61,6 +62,8 @@ export interface QuoteResult {
 export interface TradingAccount {
   id: string;
   name: string;
+  status?: 'ACTIVE' | 'CLOSED';
+  closedAt?: string | null;
 }
 
 export interface UserProfile {
