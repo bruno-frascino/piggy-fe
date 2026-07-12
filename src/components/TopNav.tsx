@@ -1,6 +1,7 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
@@ -159,10 +160,14 @@ export default function TopNav() {
           className='flex items-center gap-2 select-none shrink-0'
           aria-label='Truffles Home'
         >
-          <span aria-hidden className='text-2xl'>
-            🍄
-          </span>
-          <span className='font-bold text-slate-800 text-lg tracking-tight hidden sm:inline'>
+          <Image
+            src='/icons/launchericon-144x144.png'
+            alt=''
+            aria-hidden
+            width={64}
+            height={64}
+          />
+          <span className='font-bold text-slate-800 text-xl tracking-tight hidden sm:inline'>
             Truffles
           </span>
         </Link>

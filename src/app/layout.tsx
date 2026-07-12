@@ -26,6 +26,14 @@ export const metadata: Metadata = {
   title: 'Truffles - Portfolio Tracker',
   description: 'Personal finance management application',
   manifest: '/manifest.json',
+  icons: {
+    apple: [
+      { url: '/icons/ios/apple-touch-icon-120x120.png', sizes: '120x120' },
+      { url: '/icons/ios/apple-touch-icon-152x152.png', sizes: '152x152' },
+      { url: '/icons/ios/apple-touch-icon-167x167.png', sizes: '167x167' },
+      { url: '/icons/ios/apple-touch-icon-180x180.png', sizes: '180x180' },
+    ],
+  },
 };
 
 // Next.js recommends declaring themeColor inside a separate viewport export.
