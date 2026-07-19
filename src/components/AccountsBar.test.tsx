@@ -37,26 +37,37 @@ function renderBar(overrides: Partial<Parameters<typeof AccountsBar>[0]> = {}) {
 }
 
 describe('AccountsBar', () => {
-  it('renders a chip per active account with a single actions trigger', () => {
+  it('shows only the currently selected account, not every account', () => {
     renderBar();
 
+    expect(screen.getByText('Account 1')).toBeInTheDocument();
+    expect(screen.queryByText('Account 2')).not.toBeInTheDocument();
     expect(
-      screen.getByRole('button', { name: 'Account 1' })
+      screen.getByRole('button', { name: 'Switch account' })
     ).toBeInTheDocument();
     expect(
-      screen.getAllByRole('button', { name: /Actions for account/ })
-    ).toHaveLength(2);
+      screen.getByRole('button', { name: 'Actions for account Account 1' })
+    ).toBeInTheDocument();
   });
 
-  it('selects an account when its chip is clicked', () => {
+  it('hides the switch-account button when there is only one active account', () => {
+    renderBar({ activeAccounts: [activeAccounts[0]] });
+
+    expect(
+      screen.queryByRole('button', { name: 'Switch account' })
+    ).not.toBeInTheDocument();
+  });
+
+  it('switches accounts via the dropdown menu', () => {
     const props = renderBar();
 
-    fireEvent.click(screen.getByRole('button', { name: 'Account 2' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Switch account' }));
+    fireEvent.click(screen.getByText('Account 2'));
 
     expect(props.onSelectAccount).toHaveBeenCalledWith('acc-2');
   });
 
-  it('opens the kebab menu with Rename/Close/Delete for an active account', () => {
+  it('opens the kebab menu with Rename/Close/Delete for the selected account', () => {
     const props = renderBar();
 
     fireEvent.click(
@@ -76,6 +87,15 @@ describe('AccountsBar', () => {
     );
     fireEvent.click(screen.getByText('Delete permanently'));
     expect(props.onDeleteAccount).toHaveBeenCalledWith(activeAccounts[0]);
+  });
+
+  it('shows a placeholder and no actions trigger when there is no selected account', () => {
+    renderBar({ activeAccounts: [], selectedAccountId: '' });
+
+    expect(screen.getByText('No active account')).toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: /Actions for account/ })
+    ).not.toBeInTheDocument();
   });
 
   it('triggers onAddAccount from the add button', () => {

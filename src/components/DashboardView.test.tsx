@@ -58,6 +58,7 @@ import DashboardView from './DashboardView';
 afterEach(() => {
   cleanup();
   vi.clearAllMocks();
+  localStorage.clear();
   useTradingAccountsMock.mockReturnValue({
     data: mockAccounts,
     isLoading: false,
@@ -70,21 +71,37 @@ useTradingAccountsMock.mockReturnValue({
 });
 
 describe('DashboardView accounts', () => {
-  it('renders each account as a single chip with one actions trigger, no inline rename/lock/trash buttons', () => {
+  it('shows only the selected account in the bar, with a switcher and a single actions trigger', () => {
     render(<DashboardView />);
 
+    expect(screen.getByText('Account 1')).toBeInTheDocument();
+    expect(screen.queryByText('Account 2')).not.toBeInTheDocument();
     expect(
-      screen.getByRole('button', { name: 'Account 1' })
+      screen.getByRole('button', { name: 'Switch account' })
     ).toBeInTheDocument();
     expect(
-      screen.getAllByRole('button', { name: /Actions for account/ })
-    ).toHaveLength(2);
+      screen.getByRole('button', { name: 'Actions for account Account 1' })
+    ).toBeInTheDocument();
     expect(
       screen.queryByRole('button', { name: /Rename account/ })
     ).not.toBeInTheDocument();
     expect(screen.queryByTitle('Close account')).not.toBeInTheDocument();
     expect(screen.queryByTitle('Delete account permanently')).not
       .toBeInTheDocument;
+  });
+
+  it('switches accounts via the dropdown', () => {
+    render(<DashboardView />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'Switch account' }));
+    fireEvent.click(screen.getByText('Account 2'));
+
+    expect(
+      screen.getByRole('button', { name: 'Actions for account Account 2' })
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'Actions for account Account 1' })
+    ).not.toBeInTheDocument();
   });
 
   it('opens the actions menu and triggers rename', () => {

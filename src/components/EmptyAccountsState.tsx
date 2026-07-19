@@ -11,9 +11,6 @@ export default function EmptyAccountsState({
 }: EmptyAccountsStateProps) {
   return (
     <div className='max-w-sm w-full mx-auto text-center space-y-4'>
-      <span className='text-5xl' aria-hidden>
-        🐷
-      </span>
       <h1
         className='text-2xl font-semibold'
         style={{ color: 'var(--tr-text)' }}

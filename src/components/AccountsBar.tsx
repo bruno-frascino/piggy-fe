@@ -1,7 +1,6 @@
 'use client';
 
 import { useRef, useState } from 'react';
-import type { MouseEvent as ReactMouseEvent } from 'react';
 import { Button } from 'primereact/button';
 import { Dialog } from 'primereact/dialog';
 import { Menu } from 'primereact/menu';
@@ -35,31 +34,35 @@ export default function AccountsBar({
   reopenPending = false,
   deletePending = false,
 }: AccountsBarProps) {
-  const menuRef = useRef<Menu>(null);
-  const [menuAccount, setMenuAccount] = useState<TradingAccount | null>(null);
+  const switcherRef = useRef<Menu>(null);
+  const actionMenuRef = useRef<Menu>(null);
   const [manageDialogVisible, setManageDialogVisible] = useState(false);
 
-  const openMenu = (event: ReactMouseEvent, account: TradingAccount) => {
-    setMenuAccount(account);
-    menuRef.current?.toggle(event);
-  };
+  const selectedAccount =
+    activeAccounts.find(account => account.id === selectedAccountId) ?? null;
 
-  const menuItems: MenuItem[] = menuAccount
+  const switcherItems: MenuItem[] = activeAccounts.map(account => ({
+    label: account.name,
+    icon: account.id === selectedAccountId ? 'pi pi-check' : undefined,
+    command: () => onSelectAccount(account.id),
+  }));
+
+  const actionMenuItems: MenuItem[] = selectedAccount
     ? [
         {
           label: 'Rename',
           icon: 'pi pi-pencil',
-          command: () => onRenameAccount(menuAccount),
+          command: () => onRenameAccount(selectedAccount),
         },
         {
           label: 'Close',
           icon: 'pi pi-lock',
-          command: () => onCloseAccount(menuAccount),
+          command: () => onCloseAccount(selectedAccount),
         },
         {
           label: 'Delete permanently',
           icon: 'pi pi-trash',
-          command: () => onDeleteAccount(menuAccount),
+          command: () => onDeleteAccount(selectedAccount),
         },
       ]
     : [];
@@ -67,42 +70,40 @@ export default function AccountsBar({
   return (
     <div className='sticky top-16 z-30 bg-white border-b border-gray-200 shadow-sm'>
       <div className='max-w-6xl xl:max-w-7xl 2xl:max-w-screen-2xl 3xl:max-w-[1800px] mx-auto px-4 py-2 flex items-center gap-2'>
-        <div className='flex items-center gap-2 flex-wrap flex-1 min-w-0'>
-          {activeAccounts.map(account => {
-            const isSelected = selectedAccountId === account.id;
-            return (
-              <div
-                key={account.id}
-                className={`inline-flex items-center rounded-full border transition select-none shrink-0 ${
-                  isSelected
-                    ? 'bg-blue-600 text-white border-blue-600'
-                    : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
-                }`}
-              >
-                <button
-                  onClick={() => onSelectAccount(account.id)}
-                  className='min-h-11 px-4 flex items-center'
-                  aria-pressed={isSelected}
-                >
-                  {account.name}
-                </button>
+        <div className='flex items-center flex-1 min-w-0'>
+          {selectedAccount ? (
+            <div className='inline-flex items-center rounded-full border bg-blue-600 text-white border-blue-600 transition select-none shrink-0 max-w-full'>
+              <span className='min-h-11 pl-4 pr-2 flex items-center font-medium truncate'>
+                {selectedAccount.name}
+              </span>
+              {activeAccounts.length > 1 && (
                 <button
                   type='button'
-                  onClick={e => openMenu(e, account)}
-                  className={`min-h-11 min-w-11 flex items-center justify-center border-l ${
-                    isSelected
-                      ? 'border-blue-500/50 text-white/85 hover:text-white'
-                      : 'border-gray-300 text-gray-500 hover:text-blue-600'
-                  }`}
-                  title='Account actions'
+                  onClick={e => switcherRef.current?.toggle(e)}
+                  className='min-h-11 min-w-11 flex items-center justify-center border-l border-blue-500/50 text-white/85 hover:text-white'
                   aria-haspopup='true'
-                  aria-label={`Actions for account ${account.name}`}
+                  aria-label='Switch account'
+                  title='Switch account'
                 >
-                  <i className='pi pi-ellipsis-v text-xs' />
+                  <i className='pi pi-chevron-down text-xs' />
                 </button>
-              </div>
-            );
-          })}
+              )}
+              <button
+                type='button'
+                onClick={e => actionMenuRef.current?.toggle(e)}
+                className='min-h-11 min-w-11 flex items-center justify-center border-l border-blue-500/50 text-white/85 hover:text-white'
+                title='Account actions'
+                aria-haspopup='true'
+                aria-label={`Actions for account ${selectedAccount.name}`}
+              >
+                <i className='pi pi-ellipsis-v text-xs' />
+              </button>
+            </div>
+          ) : (
+            <span className='text-sm text-gray-500 px-2'>
+              No active account
+            </span>
+          )}
         </div>
 
         <Button
@@ -127,12 +128,8 @@ export default function AccountsBar({
           </button>
         )}
 
-        <Menu
-          model={menuItems}
-          popup
-          ref={menuRef}
-          onHide={() => setMenuAccount(null)}
-        />
+        <Menu model={switcherItems} popup ref={switcherRef} />
+        <Menu model={actionMenuItems} popup ref={actionMenuRef} />
       </div>
 
       <Dialog
