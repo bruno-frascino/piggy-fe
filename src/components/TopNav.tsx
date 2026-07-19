@@ -166,6 +166,7 @@ export default function TopNav() {
             aria-hidden
             width={64}
             height={64}
+            priority
           />
           <span className='font-bold text-slate-800 text-xl tracking-tight hidden sm:inline'>
             Truffles

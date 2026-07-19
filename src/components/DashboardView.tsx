@@ -24,6 +24,8 @@ import { InputText } from 'primereact/inputtext';
 import { Dialog } from 'primereact/dialog';
 import HoldingsTable from '@/components/HoldingsTable';
 import AccountActionDialog from '@/components/AccountActionDialog';
+import AccountsBar from '@/components/AccountsBar';
+import EmptyAccountsState from '@/components/EmptyAccountsState';
 import { Line } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -94,7 +96,6 @@ export default function DashboardView() {
   const [accountCreateError, setAccountCreateError] = useState('');
   const [accountActionError, setAccountActionError] = useState('');
   const [showAccountDialog, setShowAccountDialog] = useState(false);
-  const [showClosedAccounts, setShowClosedAccounts] = useState(false);
   const [accountActionDialog, setAccountActionDialog] = useState<{
     action: 'close' | 'delete';
     account: TradingAccount;
@@ -106,22 +107,14 @@ export default function DashboardView() {
   const [renameError, setRenameError] = useState('');
   const [selected, setSelected] = useState<ExchangeKey>('');
 
-  const visibleAccounts = useMemo(
-    () =>
-      showClosedAccounts
-        ? accountList
-        : accountList.filter(a => (a.status ?? 'ACTIVE') !== 'CLOSED'),
-    [accountList, showClosedAccounts]
-  );
-
   const activeAccounts = useMemo(
-    () => visibleAccounts.filter(a => (a.status ?? 'ACTIVE') !== 'CLOSED'),
-    [visibleAccounts]
+    () => accountList.filter(a => (a.status ?? 'ACTIVE') !== 'CLOSED'),
+    [accountList]
   );
 
   const closedAccounts = useMemo(
-    () => visibleAccounts.filter(a => (a.status ?? 'ACTIVE') === 'CLOSED'),
-    [visibleAccounts]
+    () => accountList.filter(a => (a.status ?? 'ACTIVE') === 'CLOSED'),
+    [accountList]
   );
 
   const selectedAccount = useMemo<TradingAccount | null>(
@@ -258,7 +251,7 @@ export default function DashboardView() {
       } else {
         await closeAccount.mutateAsync(account.id);
 
-        if (selectedAccountId === account.id && !showClosedAccounts) {
+        if (selectedAccountId === account.id) {
           const remainingActive = accountList.filter(
             a => a.id !== account.id && (a.status ?? 'ACTIVE') !== 'CLOSED'
           );
@@ -318,22 +311,19 @@ export default function DashboardView() {
   };
 
   useEffect(() => {
-    if (!visibleAccounts.length) {
+    if (!activeAccounts.length) {
       setSelectedAccountId('');
       return;
     }
     if (
       selectedAccountId &&
-      visibleAccounts.some(account => account.id === selectedAccountId)
+      activeAccounts.some(account => account.id === selectedAccountId)
     ) {
       return;
     }
 
     const fromQuery = searchParams?.get('accountId');
-    if (
-      fromQuery &&
-      visibleAccounts.some(account => account.id === fromQuery)
-    ) {
+    if (fromQuery && activeAccounts.some(account => account.id === fromQuery)) {
       setSelectedAccountId(fromQuery);
       return;
     }
@@ -342,7 +332,7 @@ export default function DashboardView() {
       const fromStorage = localStorage.getItem('selectedAccountId');
       if (
         fromStorage &&
-        visibleAccounts.some(account => account.id === fromStorage)
+        activeAccounts.some(account => account.id === fromStorage)
       ) {
         setSelectedAccountId(fromStorage);
         return;
@@ -351,8 +341,8 @@ export default function DashboardView() {
       // no-op
     }
 
-    setSelectedAccountId(visibleAccounts[0].id);
-  }, [visibleAccounts, selectedAccountId, searchParams]);
+    setSelectedAccountId(activeAccounts[0].id);
+  }, [activeAccounts, selectedAccountId, searchParams]);
 
   useEffect(() => {
     setSelected('');
@@ -527,7 +517,20 @@ export default function DashboardView() {
     []
   );
 
-  if (isAccountsLoading || (!seededFromPortfolio && isPortfolioLoading)) {
+  if (isAccountsLoading) {
+    return (
+      <div className='min-h-screen bg-[--tr-bg] flex items-center justify-center'>
+        <div className='flex flex-col items-center gap-3 text-slate-400'>
+          <i className='pi pi-spin pi-spinner text-4xl text-blue-400' />
+          <span className='text-sm font-medium'>Loading portfolio…</span>
+        </div>
+      </div>
+    );
+  }
+
+  const hasAnyAccount = accountList.length > 0;
+
+  if (hasAnyAccount && !seededFromPortfolio && isPortfolioLoading) {
     return (
       <div className='min-h-screen bg-[--tr-bg] flex items-center justify-center'>
         <div className='flex flex-col items-center gap-3 text-slate-400'>
@@ -539,469 +542,346 @@ export default function DashboardView() {
   }
 
   return (
-    <div className='min-h-screen bg-[--tr-bg] p-4'>
-      <div className='max-w-6xl xl:max-w-7xl 2xl:max-w-screen-2xl 3xl:max-w-[1800px] mx-auto space-y-6'>
-        {/* Removed CoreHeader from dashboard; TopNav provides global header */}
-        <Card>
-          <div className='flex flex-row items-center justify-between mb-4 pb-2 border-b border-gray-200'>
-            <h3
-              className='text-xl font-semibold'
-              style={{ color: 'var(--tr-text)' }}
-            >
-              Accounts
-            </h3>
+    <div className='min-h-screen bg-[--tr-bg]'>
+      {hasAnyAccount && (
+        <AccountsBar
+          activeAccounts={activeAccounts}
+          closedAccounts={closedAccounts}
+          selectedAccountId={selectedAccountId}
+          onSelectAccount={id => {
+            setAccountActionError('');
+            setSelectedAccountId(id);
+          }}
+          onAddAccount={() => {
+            setAccountCreateError('');
+            setShowAccountDialog(true);
+          }}
+          onRenameAccount={account => {
+            setRenameError('');
+            setRenameDialog({ account, newName: account.name });
+          }}
+          onCloseAccount={account =>
+            handleAccountActionRequest('close', account)
+          }
+          onDeleteAccount={account =>
+            handleAccountActionRequest('delete', account)
+          }
+          onReopenAccount={handleReopenAccount}
+          reopenPending={reopenAccount.isPending}
+          deletePending={deleteAccount.isPending}
+        />
+      )}
+
+      <AccountActionDialog
+        visible={accountActionDialog !== null}
+        action={accountActionDialog?.action ?? 'close'}
+        accountName={accountActionDialog?.account.name ?? ''}
+        loading={closeAccount.isPending || deleteAccount.isPending}
+        error={accountActionError}
+        onCancel={() => setAccountActionDialog(null)}
+        onConfirm={() => {
+          void handleConfirmAccountAction();
+        }}
+      />
+
+      <Dialog
+        header={`Rename ${renameDialog?.account.name ?? 'Account'}`}
+        visible={renameDialog !== null}
+        style={{ width: '520px', maxWidth: '95vw' }}
+        modal
+        closable={!updateAccount.isPending}
+        closeOnEscape={!updateAccount.isPending}
+        onHide={() => {
+          if (!updateAccount.isPending) {
+            setRenameDialog(null);
+            setRenameError('');
+          }
+        }}
+      >
+        <form
+          className='space-y-3'
+          onSubmit={e => {
+            e.preventDefault();
+            void handleRenameAccount();
+          }}
+        >
+          <p className='text-sm text-gray-500'>
+            Enter a new name for this account.
+          </p>
+          {renameError && (
+            <div className='text-sm text-red-600'>{renameError}</div>
+          )}
+          <InputText
+            value={renameDialog?.newName ?? ''}
+            onChange={e =>
+              setRenameDialog(
+                renameDialog
+                  ? { ...renameDialog, newName: e.target.value }
+                  : null
+              )
+            }
+            placeholder='Account name'
+            className='w-full'
+            autoFocus
+            disabled={updateAccount.isPending}
+          />
+          <div className='flex justify-end gap-2 pt-2'>
             <Button
               type='button'
-              icon='pi pi-plus'
-              rounded
-              severity='success'
-              aria-label='Add Account'
+              label='Cancel'
+              severity='secondary'
+              outlined
               onClick={() => {
-                setAccountCreateError('');
-                setShowAccountDialog(true);
+                setRenameDialog(null);
+                setRenameError('');
               }}
-            />
-          </div>
-
-          {visibleAccounts.length === 0 && (
-            <div className='text-sm text-gray-500'>
-              {showClosedAccounts
-                ? 'No accounts available. Create one to start managing holdings.'
-                : 'No active account. Toggle Show Closed to reopen one, or create a new account.'}
-            </div>
-          )}
-
-          <div className='mb-3'>
-            <button
-              type='button'
-              onClick={() => setShowClosedAccounts(v => !v)}
-              className='text-sm text-blue-600 hover:underline'
-            >
-              {showClosedAccounts
-                ? 'Hide Closed Accounts'
-                : 'Show Closed Accounts'}
-            </button>
-          </div>
-
-          {activeAccounts.length > 0 && (
-            <div className='flex flex-wrap items-center gap-3'>
-              {activeAccounts.map(account => {
-                const isSelected = selectedAccountId === account.id;
-                return (
-                  <div
-                    key={account.id}
-                    className={`inline-flex items-center rounded-full border transition select-none ${
-                      isSelected
-                        ? 'bg-blue-600 text-white border-blue-600'
-                        : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
-                    }`}
-                  >
-                    <button
-                      onClick={() => {
-                        setAccountActionError('');
-                        setSelectedAccountId(account.id);
-                      }}
-                      className='px-3 py-1'
-                      aria-pressed={isSelected}
-                    >
-                      {account.name}
-                    </button>
-                    <button
-                      type='button'
-                      onClick={() => {
-                        setRenameError('');
-                        setRenameDialog({ account, newName: account.name });
-                      }}
-                      className={`px-2 py-1 border-l ${
-                        isSelected
-                          ? 'border-blue-500/50 text-white/85 hover:text-white'
-                          : 'border-gray-300 text-gray-500 hover:text-blue-600'
-                      }`}
-                      title='Rename account'
-                      aria-label={`Rename account ${account.name}`}
-                    >
-                      <i className='pi pi-pencil text-xs' />
-                    </button>
-                    <button
-                      type='button'
-                      onClick={() =>
-                        handleAccountActionRequest('close', account)
-                      }
-                      className={`px-2 py-1 border-l ${
-                        isSelected
-                          ? 'border-blue-500/50 text-white/85 hover:text-white'
-                          : 'border-gray-300 text-gray-500 hover:text-amber-600'
-                      }`}
-                      title='Close account'
-                      aria-label={`Close account ${account.name}`}
-                      disabled={closeAccount.isPending}
-                    >
-                      <i className='pi pi-lock text-xs' />
-                    </button>
-                    <button
-                      type='button'
-                      onClick={() =>
-                        handleAccountActionRequest('delete', account)
-                      }
-                      className={`px-2 py-1 border-l ${
-                        isSelected
-                          ? 'border-blue-500/50 text-white/85 hover:text-white'
-                          : 'border-gray-300 text-gray-500 hover:text-red-600'
-                      }`}
-                      title='Delete account permanently'
-                      aria-label={`Delete account ${account.name}`}
-                      disabled={deleteAccount.isPending}
-                    >
-                      <i className='pi pi-trash text-xs' />
-                    </button>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-
-          {showClosedAccounts && closedAccounts.length > 0 && (
-            <>
-              <div className='flex items-center gap-2 mt-4 mb-2'>
-                <span className='text-xs font-semibold text-gray-400 uppercase tracking-wider'>
-                  Closed
-                </span>
-                <div className='flex-1 border-t border-dashed border-gray-200' />
-              </div>
-              <div className='flex flex-wrap items-center gap-3'>
-                {closedAccounts.map(account => {
-                  const isSelected = selectedAccountId === account.id;
-                  return (
-                    <div
-                      key={account.id}
-                      className={`inline-flex items-center rounded-full border border-dashed transition select-none opacity-60 ${
-                        isSelected
-                          ? 'bg-gray-200 text-gray-600 border-gray-400'
-                          : 'bg-gray-50 text-gray-500 border-gray-300 hover:opacity-80'
-                      }`}
-                    >
-                      <button
-                        onClick={() => {
-                          setAccountActionError('');
-                          setSelectedAccountId(account.id);
-                        }}
-                        className='px-3 py-1 line-through'
-                        aria-pressed={isSelected}
-                      >
-                        {account.name}
-                      </button>
-                      <button
-                        type='button'
-                        onClick={() => {
-                          void handleReopenAccount(account);
-                        }}
-                        className='px-2 py-1 border-l border-gray-300 text-gray-400 hover:text-green-600 hover:opacity-100'
-                        title='Reopen account'
-                        aria-label={`Reopen account ${account.name}`}
-                        disabled={reopenAccount.isPending}
-                      >
-                        <i className='pi pi-refresh text-xs' />
-                      </button>
-                      <button
-                        type='button'
-                        onClick={() =>
-                          handleAccountActionRequest('delete', account)
-                        }
-                        className='px-2 py-1 border-l border-gray-300 text-gray-400 hover:text-red-600 hover:opacity-100'
-                        title='Delete account permanently'
-                        aria-label={`Delete account ${account.name}`}
-                        disabled={deleteAccount.isPending}
-                      >
-                        <i className='pi pi-trash text-xs' />
-                      </button>
-                    </div>
-                  );
-                })}
-              </div>
-            </>
-          )}
-        </Card>
-
-        <AccountActionDialog
-          visible={accountActionDialog !== null}
-          action={accountActionDialog?.action ?? 'close'}
-          accountName={accountActionDialog?.account.name ?? ''}
-          loading={closeAccount.isPending || deleteAccount.isPending}
-          error={accountActionError}
-          onCancel={() => setAccountActionDialog(null)}
-          onConfirm={() => {
-            void handleConfirmAccountAction();
-          }}
-        />
-
-        <Dialog
-          header={`Rename ${renameDialog?.account.name ?? 'Account'}`}
-          visible={renameDialog !== null}
-          style={{ width: '520px', maxWidth: '95vw' }}
-          modal
-          closable={!updateAccount.isPending}
-          closeOnEscape={!updateAccount.isPending}
-          onHide={() => {
-            if (!updateAccount.isPending) {
-              setRenameDialog(null);
-              setRenameError('');
-            }
-          }}
-        >
-          <form
-            className='space-y-3'
-            onSubmit={e => {
-              e.preventDefault();
-              void handleRenameAccount();
-            }}
-          >
-            <p className='text-sm text-gray-500'>
-              Enter a new name for this account.
-            </p>
-            {renameError && (
-              <div className='text-sm text-red-600'>{renameError}</div>
-            )}
-            <InputText
-              value={renameDialog?.newName ?? ''}
-              onChange={e =>
-                setRenameDialog(
-                  renameDialog
-                    ? { ...renameDialog, newName: e.target.value }
-                    : null
-                )
-              }
-              placeholder='Account name'
-              className='w-full'
-              autoFocus
               disabled={updateAccount.isPending}
             />
-            <div className='flex justify-end gap-2 pt-2'>
-              <Button
-                type='button'
-                label='Cancel'
-                severity='secondary'
-                outlined
-                onClick={() => {
-                  setRenameDialog(null);
-                  setRenameError('');
-                }}
-                disabled={updateAccount.isPending}
-              />
-              <Button
-                type='submit'
-                label='Rename'
-                icon='pi pi-check'
-                disabled={updateAccount.isPending}
-                loading={updateAccount.isPending}
-              />
-            </div>
-          </form>
-        </Dialog>
+            <Button
+              type='submit'
+              label='Rename'
+              icon='pi pi-check'
+              disabled={updateAccount.isPending}
+              loading={updateAccount.isPending}
+            />
+          </div>
+        </form>
+      </Dialog>
 
-        <Dialog
-          header='Add Account'
-          visible={showAccountDialog}
-          style={{ width: '520px', maxWidth: '95vw' }}
-          modal
-          onHide={() => {
-            setShowAccountDialog(false);
-            setAccountCreateError('');
+      <Dialog
+        header='Add Account'
+        visible={showAccountDialog}
+        style={{ width: '520px', maxWidth: '95vw' }}
+        modal
+        onHide={() => {
+          setShowAccountDialog(false);
+          setAccountCreateError('');
+        }}
+      >
+        <form
+          className='space-y-3'
+          onSubmit={e => {
+            e.preventDefault();
+            handleCreateAccount();
           }}
         >
-          <form
-            className='space-y-3'
-            onSubmit={e => {
-              e.preventDefault();
-              handleCreateAccount();
-            }}
-          >
-            <p className='text-sm text-gray-500'>
-              Create a portfolio account. If left empty, the default name is
-              Main.
-            </p>
-            {accountCreateError && (
-              <div className='text-sm text-red-600'>{accountCreateError}</div>
-            )}
-            <InputText
-              value={newAccountName}
-              onChange={e => setNewAccountName(e.target.value)}
-              placeholder='Account name (optional, default: Main)'
-              className='w-full'
-              autoFocus
-            />
-            <div className='flex justify-end gap-2 pt-2'>
-              <Button
-                type='button'
-                label='Cancel'
-                severity='secondary'
-                outlined
-                onClick={() => {
-                  setShowAccountDialog(false);
-                  setAccountCreateError('');
-                }}
-              />
-              <Button
-                type='submit'
-                label='Create Account'
-                icon='pi pi-plus'
-                disabled={createAccount.isPending}
-                loading={createAccount.isPending}
-              />
-            </div>
-          </form>
-        </Dialog>
-
-        <Card>
-          <div className='flex items-start justify-between mb-4 pb-2 border-b border-gray-200'>
-            <h3
-              className='text-xl font-semibold'
-              style={{ color: 'var(--tr-text)' }}
-            >
-              Exchanges {selectedAccount ? `· ${selectedAccount.name}` : ''}
-            </h3>
-          </div>
-          {exchangeList.length === 0 && (
-            <div className='flex flex-col items-center justify-center py-8 gap-3 text-center'>
-              <span className='text-4xl' aria-hidden>
-                📊
-              </span>
-              <p className='text-slate-500 text-sm max-w-xs'>
-                No exchanges yet for this account. Create your first position
-                and the exchange will be inferred from the selected stock.
-              </p>
-            </div>
+          <p className='text-sm text-gray-500'>
+            Create a portfolio account. If left empty, the default name is Main.
+          </p>
+          {accountCreateError && (
+            <div className='text-sm text-red-600'>{accountCreateError}</div>
           )}
-          <div className='flex flex-wrap items-center gap-3 pr-16'>
-            {exchangeList.map(e => {
-              const isSelected = selected === e.name;
-              return (
-                <div key={e.name} className='relative inline-block'>
-                  <button
-                    onClick={() => setSelected(e.name)}
-                    className={`px-3 py-1 rounded-full border transition select-none ${
-                      isSelected
-                        ? 'bg-blue-600 text-white border-blue-600'
-                        : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
-                    }`}
-                    aria-pressed={isSelected}
-                  >
-                    {e.name}
-                  </button>
-                </div>
-              );
-            })}
-          </div>
-        </Card>
-
-        <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
-          <Card className='text-center'>
-            <h3
-              className='text-sm font-medium mb-1'
-              style={{ color: 'var(--tr-text-2)' }}
-            >
-              Total Equity
-            </h3>
-            <p
-              className='text-2xl font-bold'
-              style={{ color: 'var(--tr-text)' }}
-            >
-              ${numberFormatter.format(stats.totalEquity)}
-            </p>
-          </Card>
-          <Card className='text-center'>
-            <h3
-              className='text-sm font-medium mb-1'
-              style={{ color: 'var(--tr-text-2)' }}
-            >
-              Total P/L
-            </h3>
-            <p
-              className='text-2xl font-bold'
-              style={{
-                color:
-                  stats.totalPL >= 0 ? 'var(--tr-success)' : 'var(--tr-danger)',
-              }}
-            >
-              {stats.totalPL >= 0 ? '+' : ''}$
-              {numberFormatter.format(Math.abs(stats.totalPL))}
-            </p>
-          </Card>
-          <Card className='text-center'>
-            <h3
-              className='text-sm font-medium mb-1'
-              style={{ color: 'var(--tr-text-2)' }}
-            >
-              Day P/L
-            </h3>
-            <p
-              className='text-2xl font-bold'
-              style={{
-                color:
-                  stats.dayPL >= 0 ? 'var(--tr-success)' : 'var(--tr-danger)',
-              }}
-            >
-              {stats.dayPL >= 0 ? '+' : ''}$
-              {numberFormatter.format(Math.abs(stats.dayPL))}
-            </p>
-          </Card>
-        </div>
-
-        <Card>
-          <div className='flex items-center justify-between mb-3'>
-            <h3 className='text-base font-semibold text-gray-800'>
-              Equity History
-            </h3>
-            <span className='text-xs text-gray-500'>
-              Last snapshot:{' '}
-              {createSnapshot.isPending
-                ? 'Updating...'
-                : lastSnapshotDate
-                  ? formatDateDDMMYYYY(lastSnapshotDate)
-                  : 'No snapshot yet'}
-            </span>
-          </div>
-          <div className='flex flex-wrap gap-1 mb-3'>
-            {(
-              ['D', 'W', 'M', '3M', '6M', 'YTD', 'Y', '5Y', 'ALL'] as const
-            ).map(tf => (
-              <button
-                key={tf}
-                onClick={() => setTimeframe(tf)}
-                className={`px-2 py-0.5 text-xs rounded border transition select-none ${
-                  timeframe === tf
-                    ? 'bg-blue-600 text-white border-blue-600'
-                    : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'
-                }`}
-              >
-                {tf}
-              </button>
-            ))}
-          </div>
-          <div className='h-72 md:h-96'>
-            <Line data={data} options={options} />
-          </div>
-        </Card>
-
-        {/* Holdings */}
-        {selectedAccountId ? (
-          <HoldingsTable
-            selectedAccountId={selectedAccountId}
-            selectedAccountName={selectedAccount?.name}
-            selectedExchange={selected || undefined}
-            onExchangeDetected={handleExchangeDetected}
-            baseCurrency={exchange?.baseCurrency}
-            onLiveTotals={setLiveTotals}
+          <InputText
+            value={newAccountName}
+            onChange={e => setNewAccountName(e.target.value)}
+            placeholder='Account name (optional, default: Main)'
+            className='w-full'
+            autoFocus
           />
-        ) : (
-          <Card>
-            <div className='text-sm text-gray-500'>
-              {selectedAccountId
-                ? 'Select an exchange to load holdings.'
-                : 'Select an account to load holdings.'}
-            </div>
-          </Card>
-        )}
-      </div>
+          <div className='flex justify-end gap-2 pt-2'>
+            <Button
+              type='button'
+              label='Cancel'
+              severity='secondary'
+              outlined
+              onClick={() => {
+                setShowAccountDialog(false);
+                setAccountCreateError('');
+              }}
+            />
+            <Button
+              type='submit'
+              label='Create Account'
+              icon='pi pi-plus'
+              disabled={createAccount.isPending}
+              loading={createAccount.isPending}
+            />
+          </div>
+        </form>
+      </Dialog>
+
+      {hasAnyAccount ? (
+        <div className='p-4'>
+          <div className='max-w-6xl xl:max-w-7xl 2xl:max-w-screen-2xl 3xl:max-w-[1800px] mx-auto space-y-6'>
+            {selectedAccountId ? (
+              <>
+                <Card>
+                  <div className='flex items-start justify-between mb-4 pb-2 border-b border-gray-200'>
+                    <h3
+                      className='text-xl font-semibold'
+                      style={{ color: 'var(--tr-text)' }}
+                    >
+                      Exchanges{' '}
+                      {selectedAccount ? `· ${selectedAccount.name}` : ''}
+                    </h3>
+                  </div>
+                  {exchangeList.length === 0 && (
+                    <div className='flex flex-col items-center justify-center py-8 gap-3 text-center'>
+                      <span className='text-4xl' aria-hidden>
+                        📊
+                      </span>
+                      <p className='text-slate-500 text-sm max-w-xs'>
+                        No exchanges yet for this account. Create your first
+                        position and the exchange will be inferred from the
+                        selected stock.
+                      </p>
+                    </div>
+                  )}
+                  <div className='flex flex-wrap items-center gap-3 pr-16'>
+                    {exchangeList.map(e => {
+                      const isSelected = selected === e.name;
+                      return (
+                        <div key={e.name} className='relative inline-block'>
+                          <button
+                            onClick={() => setSelected(e.name)}
+                            className={`px-3 py-1 rounded-full border transition select-none ${
+                              isSelected
+                                ? 'bg-blue-600 text-white border-blue-600'
+                                : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                            }`}
+                            aria-pressed={isSelected}
+                          >
+                            {e.name}
+                          </button>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </Card>
+
+                <div className='grid grid-cols-1 sm:grid-cols-3 gap-4'>
+                  <Card className='text-center'>
+                    <h3
+                      className='text-sm font-medium mb-1'
+                      style={{ color: 'var(--tr-text-2)' }}
+                    >
+                      Total Equity
+                    </h3>
+                    <p
+                      className='text-2xl font-bold'
+                      style={{ color: 'var(--tr-text)' }}
+                    >
+                      ${numberFormatter.format(stats.totalEquity)}
+                    </p>
+                  </Card>
+                  <Card className='text-center'>
+                    <h3
+                      className='text-sm font-medium mb-1'
+                      style={{ color: 'var(--tr-text-2)' }}
+                    >
+                      Total P/L
+                    </h3>
+                    <p
+                      className='text-2xl font-bold'
+                      style={{
+                        color:
+                          stats.totalPL >= 0
+                            ? 'var(--tr-success)'
+                            : 'var(--tr-danger)',
+                      }}
+                    >
+                      {stats.totalPL >= 0 ? '+' : ''}$
+                      {numberFormatter.format(Math.abs(stats.totalPL))}
+                    </p>
+                  </Card>
+                  <Card className='text-center'>
+                    <h3
+                      className='text-sm font-medium mb-1'
+                      style={{ color: 'var(--tr-text-2)' }}
+                    >
+                      Day P/L
+                    </h3>
+                    <p
+                      className='text-2xl font-bold'
+                      style={{
+                        color:
+                          stats.dayPL >= 0
+                            ? 'var(--tr-success)'
+                            : 'var(--tr-danger)',
+                      }}
+                    >
+                      {stats.dayPL >= 0 ? '+' : ''}$
+                      {numberFormatter.format(Math.abs(stats.dayPL))}
+                    </p>
+                  </Card>
+                </div>
+
+                <Card>
+                  <div className='flex items-center justify-between mb-3'>
+                    <h3 className='text-base font-semibold text-gray-800'>
+                      Equity History
+                    </h3>
+                    <span className='text-xs text-gray-500'>
+                      Last snapshot:{' '}
+                      {createSnapshot.isPending
+                        ? 'Updating...'
+                        : lastSnapshotDate
+                          ? formatDateDDMMYYYY(lastSnapshotDate)
+                          : 'No snapshot yet'}
+                    </span>
+                  </div>
+                  <div className='flex flex-wrap gap-1 mb-3'>
+                    {(
+                      [
+                        'D',
+                        'W',
+                        'M',
+                        '3M',
+                        '6M',
+                        'YTD',
+                        'Y',
+                        '5Y',
+                        'ALL',
+                      ] as const
+                    ).map(tf => (
+                      <button
+                        key={tf}
+                        onClick={() => setTimeframe(tf)}
+                        className={`min-h-10 px-3 inline-flex items-center justify-center text-xs rounded border transition select-none ${
+                          timeframe === tf
+                            ? 'bg-blue-600 text-white border-blue-600'
+                            : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'
+                        }`}
+                      >
+                        {tf}
+                      </button>
+                    ))}
+                  </div>
+                  <div className='h-72 sm:h-80 md:h-96'>
+                    <Line data={data} options={options} />
+                  </div>
+                </Card>
+
+                {/* Holdings */}
+                <HoldingsTable
+                  selectedAccountId={selectedAccountId}
+                  selectedAccountName={selectedAccount?.name}
+                  selectedExchange={selected || undefined}
+                  onExchangeDetected={handleExchangeDetected}
+                  baseCurrency={exchange?.baseCurrency}
+                  onLiveTotals={setLiveTotals}
+                />
+              </>
+            ) : (
+              <Card>
+                <div className='text-sm text-gray-500'>
+                  No active account selected. Reopen a closed account from the
+                  manage menu, or create a new one.
+                </div>
+              </Card>
+            )}
+          </div>
+        </div>
+      ) : (
+        <div className='min-h-[70vh] flex items-center justify-center p-4'>
+          <EmptyAccountsState
+            onCreateAccount={() => {
+              setAccountCreateError('');
+              setShowAccountDialog(true);
+            }}
+          />
+        </div>
+      )}
     </div>
   );
 }

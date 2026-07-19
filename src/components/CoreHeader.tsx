@@ -21,6 +21,7 @@ export default function CoreHeader({
         width={144}
         height={144}
         className='mx-auto mb-2'
+        priority
       />
       <h1
         className='text-4xl font-bold mb-2'

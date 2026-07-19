@@ -471,7 +471,9 @@ export default function HoldingsTable({
     <Card>
       <div className='flex items-center justify-between mb-4 pb-2 border-b border-gray-200'>
         <h3 className='text-xl font-semibold text-gray-900'>
-          Holdings{selectedExchange ? ` ${selectedExchange}` : ''}
+          Holdings
+          {selectedAccountName ? ` · ${selectedAccountName}` : ''}
+          {selectedExchange ? ` · ${selectedExchange}` : ''}
         </h3>
         <div>
           <Button
@@ -479,6 +481,7 @@ export default function HoldingsTable({
             rounded
             severity='success'
             aria-label='Add Position'
+            className='!w-11 !h-11'
             onClick={() => {
               setSubmitError('');
               setMode('add');
