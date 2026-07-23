@@ -7,6 +7,7 @@ import { Column } from 'primereact/column';
 import { Card } from 'primereact/card';
 import { Button } from 'primereact/button';
 import { Calendar } from 'primereact/calendar';
+import { Dropdown } from 'primereact/dropdown';
 import type { ClosedTrade } from '@/lib/closed-trades-store';
 import EditClosedTradeDialog from '@/components/EditClosedTradeDialog';
 import { useClosedPositions } from '@/hooks/api';
@@ -44,13 +45,20 @@ function calcTotals(trades: ClosedTrade[]) {
 
 interface ExchangeTableProps {
   exchange: string;
+  accountName?: string;
   trades: ClosedTrade[];
   onEdit: (trade: ClosedTrade) => void;
 }
 
-function ExchangeTable({ exchange, trades, onEdit }: ExchangeTableProps) {
+function ExchangeTable({
+  exchange,
+  accountName,
+  trades,
+  onEdit,
+}: ExchangeTableProps) {
   const totals = calcTotals(trades);
   const plPct = totals.open > 0 ? totals.pl / totals.open : 0;
+  const groupCurrency = trades[0]?.baseCurrency ?? 'USD';
 
   return (
     <Card>
@@ -63,6 +71,14 @@ function ExchangeTable({ exchange, trades, onEdit }: ExchangeTableProps) {
           style={{ color: 'var(--tr-text)' }}
         >
           {exchange}
+          {accountName && (
+            <span
+              className='ml-2 text-sm font-normal'
+              style={{ color: 'var(--tr-text-2)' }}
+            >
+              ({accountName})
+            </span>
+          )}
         </h3>
         <span className='text-sm' style={{ color: 'var(--tr-text-2)' }}>
           {trades.length} position{trades.length !== 1 ? 's' : ''}
@@ -131,45 +147,59 @@ function ExchangeTable({ exchange, trades, onEdit }: ExchangeTableProps) {
         />
         <Column
           header='Buy Price'
-          body={(r: ClosedTrade) => formatCurrency(r.buyPrice)}
+          body={(r: ClosedTrade) =>
+            formatCurrency(r.buyPrice, r.baseCurrency ?? groupCurrency)
+          }
           style={{ minWidth: '120px' }}
         />
         <Column
           header='Sell Price'
-          body={(r: ClosedTrade) => formatCurrency(r.sellPrice)}
+          body={(r: ClosedTrade) =>
+            formatCurrency(r.sellPrice, r.baseCurrency ?? groupCurrency)
+          }
           style={{ minWidth: '120px' }}
         />
         <Column
           header='Buy Fee'
-          body={(r: ClosedTrade) => formatCurrency(r.buyFee)}
+          body={(r: ClosedTrade) =>
+            formatCurrency(r.buyFee, r.baseCurrency ?? groupCurrency)
+          }
           style={{ minWidth: '110px' }}
         />
         <Column
           header='Sell Fee'
-          body={(r: ClosedTrade) => formatCurrency(r.sellFee)}
+          body={(r: ClosedTrade) =>
+            formatCurrency(r.sellFee, r.baseCurrency ?? groupCurrency)
+          }
           style={{ minWidth: '110px' }}
         />
         <Column
           header='Open Position'
           body={(r: ClosedTrade) =>
-            formatCurrency(r.unitsClosed * r.buyPrice + r.buyFee)
+            formatCurrency(
+              r.unitsClosed * r.buyPrice + r.buyFee,
+              r.baseCurrency ?? groupCurrency
+            )
           }
           style={{ minWidth: '150px' }}
           footer={
             <span className='font-semibold text-gray-900'>
-              {formatCurrency(totals.open)}
+              {formatCurrency(totals.open, groupCurrency)}
             </span>
           }
         />
         <Column
           header='Close Position'
           body={(r: ClosedTrade) =>
-            formatCurrency(r.unitsClosed * r.sellPrice - r.sellFee)
+            formatCurrency(
+              r.unitsClosed * r.sellPrice - r.sellFee,
+              r.baseCurrency ?? groupCurrency
+            )
           }
           style={{ minWidth: '150px' }}
           footer={
             <span className='font-semibold text-gray-900'>
-              {formatCurrency(totals.close)}
+              {formatCurrency(totals.close, groupCurrency)}
             </span>
           }
         />
@@ -181,13 +211,15 @@ function ExchangeTable({ exchange, trades, onEdit }: ExchangeTableProps) {
               r.sellFee -
               (r.unitsClosed * r.buyPrice + r.buyFee);
             return (
-              <span className={returnClass(pl)}>{formatCurrency(pl)}</span>
+              <span className={returnClass(pl)}>
+                {formatCurrency(pl, r.baseCurrency ?? groupCurrency)}
+              </span>
             );
           }}
           style={{ minWidth: '130px' }}
           footer={
             <span className={returnClass(totals.pl)}>
-              {formatCurrency(totals.pl)}
+              {formatCurrency(totals.pl, groupCurrency)}
             </span>
           }
         />
@@ -203,6 +235,19 @@ function ExchangeTable({ exchange, trades, onEdit }: ExchangeTableProps) {
           footer={
             <span className={returnClass(plPct)}>{formatPct(plPct)}</span>
           }
+        />
+        <Column
+          header='Max Drawdown %'
+          body={(r: ClosedTrade) =>
+            r.maxDrawdownPercent != null && r.maxDrawdownPercent > 0 ? (
+              <span className='text-red-600'>
+                -{r.maxDrawdownPercent.toFixed(2)}%
+              </span>
+            ) : (
+              <span className='text-gray-400'>—</span>
+            )
+          }
+          style={{ minWidth: '150px' }}
         />
         <Column
           header='Buy Comments'
@@ -227,29 +272,70 @@ export default function HistoryPage() {
   const defaultEnd = `${currentYear}-12-31`;
   const [startDate, setStartDate] = useState<string>(defaultStart);
   const [endDate, setEndDate] = useState<string>(defaultEnd);
+  const [accountFilter, setAccountFilter] = useState<string | null>(null);
+  const [exchangeFilter, setExchangeFilter] = useState<string | null>(null);
   const [showDialog, setShowDialog] = useState(false);
   const [active, setActive] = useState<ClosedTrade | null>(null);
+
+  const accountOptions = useMemo(() => {
+    const names = new Set<string>();
+    rows.forEach(r => {
+      if (r.accountName) names.add(r.accountName);
+    });
+    return [
+      { label: 'All accounts', value: null },
+      ...Array.from(names)
+        .sort()
+        .map(name => ({ label: name, value: name })),
+    ];
+  }, [rows]);
+
+  const exchangeOptions = useMemo(() => {
+    const names = new Set<string>();
+    rows.forEach(r => names.add(r.exchange ?? 'Unknown'));
+    return [
+      { label: 'All exchanges', value: null },
+      ...Array.from(names)
+        .sort()
+        .map(name => ({ label: name, value: name })),
+    ];
+  }, [rows]);
 
   const filtered = useMemo(() => {
     const start = new Date(startDate).getTime();
     const end = new Date(endDate).getTime();
     return rows.filter(r => {
       const t = new Date(r.closeDate).getTime();
-      return (isNaN(start) || t >= start) && (isNaN(end) || t <= end);
+      const inRange = (isNaN(start) || t >= start) && (isNaN(end) || t <= end);
+      const matchesAccount =
+        !accountFilter || (r.accountName ?? undefined) === accountFilter;
+      const matchesExchange =
+        !exchangeFilter || (r.exchange ?? 'Unknown') === exchangeFilter;
+      return inRange && matchesAccount && matchesExchange;
     });
-  }, [rows, startDate, endDate]);
+  }, [rows, startDate, endDate, accountFilter, exchangeFilter]);
 
-  const byExchange = useMemo(() => {
-    const map = new Map<string, ClosedTrade[]>();
+  const groups = useMemo(() => {
+    const map = new Map<
+      string,
+      { exchange: string; accountName?: string; trades: ClosedTrade[] }
+    >();
     filtered.forEach(r => {
-      const key = r.exchange ?? 'Unknown';
-      if (!map.has(key)) map.set(key, []);
-      map.get(key)!.push(r);
+      const exchange = r.exchange ?? 'Unknown';
+      const accountName = r.accountName;
+      const key = `${accountName ?? ''}||${exchange}`;
+      if (!map.has(key)) map.set(key, { exchange, accountName, trades: [] });
+      map.get(key)!.trades.push(r);
     });
-    return map;
+    return Array.from(map.values()).sort((a, b) => {
+      const accCompare = (a.accountName ?? '').localeCompare(
+        b.accountName ?? ''
+      );
+      return accCompare !== 0
+        ? accCompare
+        : a.exchange.localeCompare(b.exchange);
+    });
   }, [filtered]);
-
-  const exchanges = Array.from(byExchange.keys());
 
   return (
     <div className='min-h-screen bg-[--tr-bg] p-4'>
@@ -316,12 +402,48 @@ export default function HistoryPage() {
                 placeholder='DD/MM/YYYY'
               />
             </div>
+            <div>
+              <label
+                className='block text-sm font-medium mb-1'
+                style={{ color: 'var(--tr-text-2)' }}
+              >
+                Account
+              </label>
+              <Dropdown
+                value={accountFilter}
+                options={accountOptions}
+                onChange={e => setAccountFilter(e.value ?? null)}
+                optionLabel='label'
+                optionValue='value'
+                placeholder='All accounts'
+                className='w-12rem'
+              />
+            </div>
+            <div>
+              <label
+                className='block text-sm font-medium mb-1'
+                style={{ color: 'var(--tr-text-2)' }}
+              >
+                Exchange
+              </label>
+              <Dropdown
+                value={exchangeFilter}
+                options={exchangeOptions}
+                onChange={e => setExchangeFilter(e.value ?? null)}
+                optionLabel='label'
+                optionValue='value'
+                placeholder='All exchanges'
+                className='w-12rem'
+              />
+            </div>
             <Button
               label='Reset'
               outlined
               onClick={() => {
                 setStartDate(defaultStart);
                 setEndDate(defaultEnd);
+                setAccountFilter(null);
+                setExchangeFilter(null);
               }}
             />
           </div>
@@ -341,11 +463,12 @@ export default function HistoryPage() {
             </div>
           </Card>
         ) : (
-          exchanges.map(exchange => (
+          groups.map(group => (
             <ExchangeTable
-              key={exchange}
-              exchange={exchange}
-              trades={byExchange.get(exchange)!}
+              key={`${group.accountName ?? ''}||${group.exchange}`}
+              exchange={group.exchange}
+              accountName={group.accountName}
+              trades={group.trades}
               onEdit={trade => {
                 setActive(trade);
                 setShowDialog(true);

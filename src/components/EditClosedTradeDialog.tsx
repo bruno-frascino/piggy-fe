@@ -108,7 +108,7 @@ export default function EditClosedTradeDialog({
   function formatCurrency(n: number) {
     return new Intl.NumberFormat(undefined, {
       style: 'currency',
-      currency: 'USD',
+      currency: trade.baseCurrency ?? 'USD',
       maximumFractionDigits: 3,
     }).format(n);
   }

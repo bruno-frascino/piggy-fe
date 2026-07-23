@@ -4,6 +4,8 @@
 export interface ClosedTrade {
   id: string; // close event id (SELL transaction id)
   positionId?: string;
+  accountId?: string;
+  accountName?: string;
   symbol: string;
   name?: string;
   exchange?: string; // e.g., 'Binance'
@@ -18,6 +20,7 @@ export interface ClosedTrade {
   buyComments?: string;
   sellComments?: string;
   baseCurrency?: string; // placeholder for future multi-currency support
+  maxDrawdownPercent?: number; // worst intra-trade drawdown from entry price, in percent (positive number)
 }
 
 function load(): ClosedTrade[] {

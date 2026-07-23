@@ -295,6 +295,7 @@ function mapCloseEventToClosedTrade(event: unknown): ClosedTrade | null {
   const asset = isRecord(position.asset) ? position.asset : null;
   if (!asset) return null;
   const exch = isRecord(asset.exchange) ? asset.exchange : null;
+  const account = isRecord(position.account) ? position.account : null;
 
   const symbol = typeof asset.symbol === 'string' ? asset.symbol : null;
   if (!symbol) return null;
@@ -328,6 +329,11 @@ function mapCloseEventToClosedTrade(event: unknown): ClosedTrade | null {
   return {
     id: eventId,
     positionId: typeof position.id === 'string' ? position.id : undefined,
+    accountId: typeof account?.id === 'string' ? account.id : undefined,
+    accountName:
+      typeof account?.name === 'string' && account.name
+        ? account.name
+        : undefined,
     symbol,
     name: typeof asset.name === 'string' ? asset.name : symbol,
     exchange: typeof exch?.code === 'string' ? exch.code : undefined,
@@ -350,6 +356,10 @@ function mapCloseEventToClosedTrade(event: unknown): ClosedTrade | null {
           ? position.notes
           : undefined,
     baseCurrency: typeof exch?.currency === 'string' ? exch.currency : 'USD',
+    maxDrawdownPercent:
+      position.maxDrawdownPercent != null
+        ? Number(position.maxDrawdownPercent)
+        : undefined,
   };
 }
 
