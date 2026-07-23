@@ -342,7 +342,6 @@ describe('api-client', () => {
       buyFees: 1,
       capitalAllocated: 201,
       openReason: 'Buy dip',
-      notes: 'Buy dip',
     });
     expect(axiosClientMock.patch).toHaveBeenCalledWith('/positions/p1', {
       symbol: 'TSLA',
@@ -354,6 +353,36 @@ describe('api-client', () => {
       assetName: 'Tesla',
       industry: 'Auto',
       notes: 'Trim',
+    });
+  });
+
+  it('does not send openReason when opening comment is empty', async () => {
+    const apiClient = await loadClient();
+
+    axiosClientMock.post.mockResolvedValueOnce({ data: { ok: true } });
+
+    await apiClient.createPosition({
+      symbol: 'aapl',
+      exchangeCode: 'nasdaq',
+      openDate: '2026-05-01',
+      entryPrice: 100,
+      quantity: 2,
+      buyFees: 1,
+      notes: '   ',
+    });
+
+    expect(axiosClientMock.post).toHaveBeenCalledWith('/positions', {
+      symbol: 'AAPL',
+      exchangeCode: 'NASDAQ',
+      accountId: undefined,
+      accountName: undefined,
+      assetName: undefined,
+      industry: undefined,
+      openDate: '2026-05-01',
+      entryPrice: 100,
+      quantity: 2,
+      buyFees: 1,
+      capitalAllocated: 201,
     });
   });
 
@@ -494,6 +523,27 @@ describe('api-client', () => {
       '/positions/close-events/ce1'
     );
     expect(axiosClientMock.delete).toHaveBeenCalledWith('/positions/p1');
+  });
+
+  it('omits blank close comments from close payloads', async () => {
+    const apiClient = await loadClient();
+
+    axiosClientMock.post.mockResolvedValueOnce({ data: { success: true } });
+    axiosClientMock.patch.mockResolvedValueOnce({ data: { success: true } });
+
+    await apiClient.closePosition('p1', '2026-05-10', 120, 2, 1, '   ');
+    await apiClient.updateCloseEvent('ce1', { notes: '   ' });
+
+    expect(axiosClientMock.post).toHaveBeenCalledWith('/positions/p1/close', {
+      closeDate: '2026-05-10',
+      exitPrice: 120,
+      quantity: 2,
+      fees: 1,
+    });
+    expect(axiosClientMock.patch).toHaveBeenCalledWith(
+      '/positions/close-events/ce1',
+      { notes: undefined }
+    );
   });
 
   it('builds exchange portfolio series from open positions', async () => {

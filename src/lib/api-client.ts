@@ -240,6 +240,10 @@ function mapPositionToHolding(pos: unknown): HoldingPosition | null {
       : entryPrice;
   const maxDrawdownPercent =
     pos.maxDrawdownPercent != null ? Number(pos.maxDrawdownPercent) : undefined;
+  const normalizedOpenReason =
+    typeof pos.openReason === 'string' ? pos.openReason.trim() : '';
+  const normalizedLegacyNotes =
+    typeof pos.notes === 'string' ? pos.notes.trim() : '';
 
   return {
     id: typeof pos.id === 'string' ? pos.id : undefined,
@@ -268,7 +272,7 @@ function mapPositionToHolding(pos: unknown): HoldingPosition | null {
           ? asset.industry
           : '',
     currentPrice,
-    buyComments: typeof pos.notes === 'string' ? pos.notes : undefined,
+    buyComments: normalizedOpenReason || normalizedLegacyNotes || undefined,
     maxDrawdownPercent,
   };
 }
@@ -336,7 +340,9 @@ function mapCloseEventToClosedTrade(event: unknown): ClosedTrade | null {
     sellFee: Number(event.fees) || 0,
     periodDays,
     buyComments:
-      typeof position.openReason === 'string' ? position.openReason : undefined,
+      typeof position.openReason === 'string' && position.openReason.trim()
+        ? position.openReason.trim()
+        : undefined,
     sellComments:
       typeof event.notes === 'string'
         ? event.notes
@@ -790,8 +796,7 @@ class ApiClient {
       quantity,
       buyFees,
       capitalAllocated: entryPrice * quantity + buyFees,
-      openReason: payload.notes?.trim() || 'Opened from dashboard',
-      notes: payload.notes?.trim() || undefined,
+      ...(payload.notes?.trim() ? { openReason: payload.notes.trim() } : {}),
     });
   }
 
@@ -940,10 +945,13 @@ class ApiClient {
       notes?: string;
     }
   ) {
-    const response = await this.client.patch(
-      `/positions/close-events/${id}`,
-      data
-    );
+    const normalizedNotes = data.notes?.trim();
+    const response = await this.client.patch(`/positions/close-events/${id}`, {
+      ...data,
+      ...(data.notes !== undefined
+        ? { notes: normalizedNotes || undefined }
+        : {}),
+    });
     return response.data;
   }
 
@@ -960,12 +968,13 @@ class ApiClient {
     fees?: number,
     notes?: string
   ) {
+    const normalizedNotes = notes?.trim();
     const response = await this.client.post(`/positions/${id}/close`, {
       closeDate,
       exitPrice,
       ...(quantity !== undefined && { quantity }),
       ...(fees !== undefined && { fees }),
-      ...(notes ? { notes } : {}),
+      ...(normalizedNotes ? { notes: normalizedNotes } : {}),
     });
     return response.data;
   }
