@@ -10,6 +10,7 @@ import { Calendar } from 'primereact/calendar';
 import { Dropdown } from 'primereact/dropdown';
 import type { ClosedTrade } from '@/lib/closed-trades-store';
 import EditClosedTradeDialog from '@/components/EditClosedTradeDialog';
+import PageHeader from '@/components/PageHeader';
 import { useClosedPositions } from '@/hooks/api';
 import { apiClient } from '@/lib/api-client';
 import { formatDateDDMMYYYY } from '@/lib/date';
@@ -340,6 +341,10 @@ export default function HistoryPage() {
   return (
     <div className='min-h-screen bg-[--tr-bg] p-4'>
       <div className='max-w-6xl xl:max-w-7xl 2xl:max-w-screen-2xl 3xl:max-w-[1800px] mx-auto space-y-6'>
+        <PageHeader
+          title='History'
+          subtitle='Closed positions across your accounts and exchanges'
+        />
         <Card>
           <div className='flex flex-wrap gap-3 items-end'>
             <div>

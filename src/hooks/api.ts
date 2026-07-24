@@ -223,3 +223,44 @@ export const useQuotes = (symbols: string[]) => {
     staleTime: 30_000,
   });
 };
+
+// Tax report hooks
+export const useTaxReports = () => {
+  return useQuery({
+    queryKey: ['tax-reports'],
+    queryFn: () => apiClient.getTaxReports(),
+  });
+};
+
+export const useTaxReportDetail = (id?: string) => {
+  return useQuery({
+    queryKey: ['tax-reports', id ?? 'none'],
+    queryFn: () => apiClient.getTaxReportDetail(id!),
+    enabled: !!id,
+  });
+};
+
+export const useGenerateTaxReport = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (params: {
+      financialYearStartYear: number;
+      accountIds: string[];
+    }) => apiClient.generateTaxReport(params),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['tax-reports'] });
+    },
+  });
+};
+
+export const useDeleteTaxReport = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: string) => apiClient.deleteTaxReport(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['tax-reports'] });
+    },
+  });
+};

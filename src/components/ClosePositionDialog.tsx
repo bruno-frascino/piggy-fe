@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Dialog } from 'primereact/dialog';
 import { InputText } from 'primereact/inputtext';
+import { Calendar } from 'primereact/calendar';
 import { InputNumber } from 'primereact/inputnumber';
 import { InputTextarea } from 'primereact/inputtextarea';
 import { Button } from 'primereact/button';
@@ -35,6 +36,21 @@ export default function ClosePositionDialog({
     comments: '',
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const parseIsoDate = (value: string) => {
+    const parts = value.split('-').map(Number);
+    return parts.length === 3 && parts[0] > 0
+      ? new Date(parts[0], parts[1] - 1, parts[2])
+      : null;
+  };
+
+  const formatIsoDate = (value: Date | null) => {
+    if (!value) return '';
+    const year = value.getFullYear();
+    const month = String(value.getMonth() + 1).padStart(2, '0');
+    const day = String(value.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
 
   useEffect(() => {
     if (!visible || !initial) return;
@@ -113,13 +129,19 @@ export default function ClosePositionDialog({
             <label className='block text-sm font-medium mb-1'>
               Close Date *
             </label>
-            <InputText
-              value={form.closeDate}
+            <Calendar
+              value={parseIsoDate(form.closeDate)}
               onChange={e =>
-                setForm(f => ({ ...f, closeDate: e.target.value }))
+                setForm(f => ({
+                  ...f,
+                  closeDate: formatIsoDate(e.value as Date | null),
+                }))
               }
-              placeholder='YYYY-MM-DD'
+              dateFormat='dd/mm/yy'
+              showIcon
+              placeholder='DD/MM/YYYY'
               className='w-full'
+              inputClassName='w-full'
             />
             {errors.closeDate && (
               <p className='text-xs text-red-600 mt-1'>{errors.closeDate}</p>

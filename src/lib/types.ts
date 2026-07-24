@@ -79,3 +79,45 @@ export interface UpdateUserProfilePayload {
   currentPassword?: string;
   newPassword?: string;
 }
+
+export interface TaxReportLineItem {
+  positionId: string;
+  symbol: string;
+  assetType: string;
+  exchangeCode: string;
+  currency: string;
+  accountId: string;
+  accountName: string;
+  quantity: number;
+  acquireDate: string;
+  disposeDate: string;
+  holdingDays: number;
+  discountEligible: boolean;
+  proceedsForeign: number;
+  costBaseForeign: number;
+  proceedsAud: number;
+  costBaseAud: number;
+  capitalGainAud: number;
+  fxRateAcquire: number;
+  fxRateAcquireSource: 'RBA' | 'YAHOO_FALLBACK';
+  fxRateDispose: number;
+  fxRateDisposeSource: 'RBA' | 'YAHOO_FALLBACK';
+}
+
+export interface TaxReport {
+  id: string;
+  financialYearStartYear: number;
+  financialYearLabel: string;
+  accountIds: string[];
+  generatedAt: string;
+  totalProceedsAud: number;
+  totalCostBaseAud: number;
+  totalCapitalGainGrossAud: number;
+  totalCapitalLossAud: number;
+  carriedForwardLossOpeningAud: number;
+  discountAppliedAud: number;
+  netCapitalGainAud: number;
+  carriedForwardLossClosingAud: number;
+  pdfSizeBytes: number;
+  lineItems?: TaxReportLineItem[];
+}

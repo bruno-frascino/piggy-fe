@@ -9,6 +9,7 @@ import type {
   HoldingPosition,
   QuoteResult,
   StockSearchResult,
+  TaxReport,
   TradingAccount,
   UpdateUserProfilePayload,
   UserProfile,
@@ -578,6 +579,53 @@ class ApiClient {
     return unwrapArray<unknown>(response.data)
       .map(mapToTradingAccount)
       .filter((a): a is TradingAccount => a !== null);
+  }
+
+  async getTaxReports(): Promise<TaxReport[]> {
+    if (USE_MOCK_API) {
+      // Not implemented in mock mode — tax reports require real backend
+      // computation against persisted positions/transactions.
+      return [];
+    }
+
+    const response = await this.client.get('/tax-reports');
+    return unwrapArray<TaxReport>(response.data);
+  }
+
+  async getTaxReportDetail(id: string): Promise<TaxReport | null> {
+    if (USE_MOCK_API) {
+      return null;
+    }
+
+    const response = await this.client.get(`/tax-reports/${id}`);
+    const payload = isRecord(response.data) ? response.data.data : null;
+    return (payload as TaxReport) ?? null;
+  }
+
+  async generateTaxReport(params: {
+    financialYearStartYear: number;
+    accountIds: string[];
+  }): Promise<TaxReport> {
+    if (USE_MOCK_API) {
+      throw new Error(
+        'Generating tax reports is not available in mock mode — switch off NEXT_PUBLIC_USE_MOCK_API to use this feature.'
+      );
+    }
+
+    const response = await this.client.post('/tax-reports/generate', params);
+    const payload = isRecord(response.data) ? response.data.data : null;
+    return payload as TaxReport;
+  }
+
+  async downloadTaxReportPdf(id: string): Promise<Blob> {
+    const response = await this.client.get(`/tax-reports/${id}/download`, {
+      responseType: 'blob',
+    });
+    return response.data;
+  }
+
+  async deleteTaxReport(id: string): Promise<void> {
+    await this.client.delete(`/tax-reports/${id}`);
   }
 
   async getCurrentUser(): Promise<UserProfile | null> {

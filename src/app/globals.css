@@ -189,3 +189,44 @@ body {
 .topnav .signout-btn:hover {
   color: var(--tr-danger);
 }
+
+/* Mobile bottom tab bar — thumb-reachable primary navigation on small
+   screens (PWA best practice). Hidden at md+ via the `md:hidden` class. */
+.mobile-tab-bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 40;
+  display: flex;
+  background: var(--tr-surface);
+  border-top: 1px solid var(--tr-border);
+  box-shadow: 0 -1px 4px rgba(0, 0, 0, 0.06);
+  padding-bottom: env(safe-area-inset-bottom, 0);
+}
+.mobile-tab-bar-link {
+  flex: 1 1 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  padding: 8px 4px 6px;
+  font-size: 11px;
+  font-weight: 500;
+  text-decoration: none;
+  color: var(--tr-text-2);
+  transition: color 0.15s;
+}
+.mobile-tab-bar-link i {
+  font-size: 18px;
+}
+.mobile-tab-bar-link.active {
+  color: var(--tr-brand);
+}
+
+@media (max-width: 767px) {
+  body {
+    padding-bottom: calc(60px + env(safe-area-inset-bottom, 0px));
+  }
+}

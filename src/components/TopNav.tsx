@@ -196,6 +196,12 @@ export default function TopNav() {
               </span>
             )}
           </Link>
+          <Link
+            href='/reports'
+            className={`nav-link px-3 py-2 rounded-lg transition-colors ${isActive('/reports') ? 'active font-semibold' : ''}`}
+          >
+            Reports
+          </Link>
           {queuedWritesCount > 0 && (
             <button
               type='button'
