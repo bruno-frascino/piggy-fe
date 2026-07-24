@@ -13,7 +13,7 @@ import ClosePositionDialog, {
   ClosePositionPayload,
 } from '@/components/ClosePositionDialog';
 import type { ExchangeKey, QuoteResult } from '@/lib/types';
-import { useHoldings, useQuotes } from '@/hooks/api';
+import { useHoldings, useQuotes, useClosedPositions } from '@/hooks/api';
 import { apiClient } from '@/lib/api-client';
 import {
   enqueueQueuedWrite,
@@ -21,6 +21,7 @@ import {
   type QueuedWriteActionInput,
 } from '@/lib/offline-write-queue';
 import { useToast } from '@/lib/toast-context';
+import { sumRealizedPnLForScope } from '@/lib/performance-metrics';
 
 type HoldingRow = LocalHolding & {
   openDateTs: number; // numeric timestamp for reliable sorting
@@ -85,6 +86,7 @@ export default function HoldingsTable({
     selectedExchange,
     selectedAccountId
   );
+  const { data: closedPositions } = useClosedPositions();
   const [holdings, setHoldings] = useState<LocalHolding[]>([]);
   const [submitError, setSubmitError] = useState<string>('');
   useEffect(() => {
@@ -291,14 +293,29 @@ export default function HoldingsTable({
     };
   }, [holdings, quoteMap]);
 
+  // Realized P&L banked from closed positions, scoped to this account+exchange.
+  // The backend's PortfolioSnapshot.totalValue = capitalAllocated + unrealizedPnL
+  // + realizedPnL, so the live "today" equity bubbled up to the chart must also
+  // include this term to stay on the same basis as the historical snapshots —
+  // otherwise the chart's rightmost point silently drops all banked gains/losses.
+  const totalRealizedPnL = useMemo(
+    () =>
+      sumRealizedPnLForScope(
+        closedPositions,
+        selectedAccountId,
+        selectedExchange
+      ),
+    [closedPositions, selectedAccountId, selectedExchange]
+  );
+
   // Bubble live totals up to parent (DashboardView stats cards)
   useEffect(() => {
     onLiveTotals?.({
-      totalEquity: totals.totalCurrent,
+      totalEquity: totals.totalCurrent + totalRealizedPnL,
       totalPL: totals.currentReturnAbs,
       dayPL: totals.dayPL,
     });
-  }, [totals, onLiveTotals]);
+  }, [totals, totalRealizedPnL, onLiveTotals]);
 
   const rows: HoldingRow[] = useMemo(() => {
     const totalOpen =
