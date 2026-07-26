@@ -99,7 +99,10 @@ describe('ReportsView', () => {
   });
 
   it('opens the generate dialog from the header action button', () => {
-    useTaxReportsMock.mockReturnValue({ data: [], isLoading: false });
+    useTaxReportsMock.mockReturnValue({
+      data: STABLE_REPORTS,
+      isLoading: false,
+    });
 
     render(<ReportsView />);
 
