@@ -1,0 +1,83 @@
+# piggy-fe — Agent Entry Point
+
+Truffles is a personal stock portfolio tracker (equities, ETFs, crypto across multiple exchanges).
+This repo is the Next.js frontend. The sibling repo `../piggy-api` is the REST API backend — see its
+`AGENTS.md` for that side.
+
+## Run / test / build
+
+```bash
+yarn dev              # next dev
+yarn build             # next build
+yarn test              # vitest (watch)
+yarn test --run        # vitest, single pass
+yarn test:coverage     # vitest --coverage --run (thresholds: 60/60/60/45, src/lib/** only)
+yarn lint              # eslint .
+```
+
+Package manager is **yarn only** (yarn 1.22.22, matching `piggy-api`) — do not introduce npm/pnpm
+lockfiles. Env vars: `NEXT_PUBLIC_API_URL` (default `http://localhost:4000/api`),
+`NEXT_PUBLIC_USE_MOCK_API=true` for offline dev against `src/lib/mock-api.ts`.
+
+## Hard rules
+
+1. All HTTP calls go through `src/lib/api/*` (facade re-exported as `apiClient` from
+   `src/lib/api-client.ts`) — never call axios directly from a component. Never hardcode the API
+   base URL.
+2. Components call the backend only via React Query hooks in `src/hooks/api.ts`, never by importing
+   `src/lib/api/*` directly from a page or component.
+3. Every `apiClient` method needs a mock-mode branch (`NEXT_PUBLIC_USE_MOCK_API=true`) — enforced by
+   `src/lib/api-client.mock-parity.test.ts`, which walks all methods with a sentinel axios mock that
+   fails if any real network call is attempted.
+4. Data shapes are the **manually mirrored** `src/lib/types.ts`, kept in sync with
+   `piggy-api/prisma/schema.prisma` by hand (see ADR 0007 — generated types are reference-only,
+   never imported by app code).
+5. Functional components + hooks only, no class components. Strict TypeScript, no `any`.
+6. `localStorage` access must be guarded with `typeof window !== 'undefined'` and wrapped in
+   `try/catch`, falling back to in-memory state if unavailable.
+7. Dashboard UX is account-first and position-first — see
+   `.github/instructions/components.instructions.md` and `/memories/repo/portfolio-behavior.md`
+   conventions before changing dashboard flow.
+8. PWA/offline: read-only views (portfolio, history) show cached last-successful data plus a
+   stale-data indicator when offline; do not queue or auto-retry offline mutations. Never cache
+   authenticated `/api` responses in the service worker; clear client/query caches on sign-out.
+9. Every feature/bugfix ships with tests in the same change set (`@testing-library/react` for
+   components, mocked Axios + `QueryClientProvider` for hooks).
+10. Light-mode-only design system (`--tr-*` tokens in `globals.css`) — no dark mode, no rebrand, per
+    deliberate decision (ADR 0005).
+
+## Where to look
+
+- **Route map, component index, API bindings, query-key/invalidation catalog**: `context/`
+  (generated — **not yet built as of 2026-07-28**, Phase 2 tooling is planned. Until then, use
+  `src/app/` and `src/hooks/api.ts` directly.)
+- **Vendored backend contract**: `contracts/openapi.json` (pulled from `../piggy-api` via
+  `yarn contract:pull`, once Phase 3 tooling lands — not yet present).
+- **Why decisions were made**: `../docs/adr` is per-repo; see `docs/adr/` in this repo and
+  cross-references to `piggy-api/docs/adr/` for shared decisions.
+- **Scoped conventions**: `.github/instructions/*.instructions.md` (applyTo globs for components,
+  hooks/api modules, tests, PWA/offline).
+
+## Key directories
+
+```
+src/
+  app/           # Next.js App Router pages (auth/, history/, reports/, account/, offline/)
+  components/    # PrimeReact-based shared UI (AccountsBar, HoldingsTable, DashboardView, ...)
+  hooks/
+    api.ts       # React Query hooks wrapping the API client — the ONLY thing components call
+    useHoldingRows.ts, useAccountSelection.ts, useExchangeDiscovery.ts,
+    useSymbolSearch.ts, useAccountNameSuggestions.ts   # extracted view-logic hooks
+  lib/
+    api-client.ts     # thin facade re-exporting src/lib/api/* (http, mappers, auth,
+                       # accounts, user, portfolio, positions, stocks, tax-reports)
+    types.ts          # manually mirrored TypeScript interfaces
+    format.ts          # formatCurrency / formatPct / returnClass (shared formatting)
+    mock-api.ts        # mock implementations for NEXT_PUBLIC_USE_MOCK_API=true
+```
+
+## Frontend/backend coordination
+
+When a change spans both repos, land `piggy-api` first (so its `context/openapi.json` is regenerated
+and committed, once Phase 2/3 tooling lands), then run `yarn contract:pull` here before
+`yarn context:build`. See `piggy-api/AGENTS.md` for the other side of this rule.

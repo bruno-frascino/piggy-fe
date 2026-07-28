@@ -1,36 +1,61 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# piggy-fe
 
-## Getting Started
+Frontend for **Truffles** — a personal stock portfolio tracker supporting equities, ETFs, and crypto
+across multiple exchanges. This is the Next.js (App Router) web app; the sibling `../piggy-api` repo
+is the Express/PostgreSQL backend it talks to.
 
-First, run the development server:
+For AI-agent context (architecture, hard rules, key directories), see [`AGENTS.md`](./AGENTS.md).
+
+## Stack
+
+Next.js 16 (App Router) · React 19 · TypeScript · PrimeReact + PrimeFlex + Tailwind CSS · TanStack
+React Query · Axios · Chart.js · `@ducanh2912/next-pwa`. Tested with Vitest +
+`@testing-library/react`. Linted with ESLint + Prettier + lint-staged/Husky.
+
+## Getting started
+
+Requires Node 22 (see `.nvmrc`) and **yarn** (this repo is yarn-only — do not use npm/pnpm; see
+`docs/adr/0006-yarn-only.md`).
 
 ```bash
-npm run dev
-# or
+yarn install
 yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Environment variables
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| Variable                   | Purpose                                                                 |
+| -------------------------- | ----------------------------------------------------------------------- |
+| `NEXT_PUBLIC_API_URL`      | Base URL of `piggy-api` (default `http://localhost:4000/api`)           |
+| `NEXT_PUBLIC_USE_MOCK_API` | `true` to run entirely against `src/lib/mock-api.ts`, no backend needed |
 
-## Learn More
+## Scripts
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+yarn dev              # start dev server
+yarn build             # production build
+yarn start             # run a production build locally
+yarn test              # vitest (watch mode)
+yarn test --run        # vitest, single pass
+yarn test:coverage     # vitest --coverage --run
+yarn lint              # eslint .
+yarn format             # prettier --write .
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Project structure
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```
+src/
+  app/           # Next.js App Router pages (auth/, history/, reports/, account/, offline/)
+  components/    # PrimeReact-based shared UI components
+  hooks/         # React Query hooks (api.ts) + extracted view-logic hooks
+  lib/           # api-client facade, api/* HTTP modules, types.ts, format.ts, mock-api.ts
+docs/adr/        # Architecture decision records
+```
 
-## Deploy on Vercel
+## Deployment
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Deployed on Vercel (custom domain `app.trufflesinvestment.com.au`). See
+`../piggy-api/docs/deployment.md` for the full production topology (this app + the VPS-hosted API).
