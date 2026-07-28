@@ -8,27 +8,13 @@ import { Card } from 'primereact/card';
 import { Button } from 'primereact/button';
 import { Calendar } from 'primereact/calendar';
 import { Dropdown } from 'primereact/dropdown';
-import type { ClosedTrade } from '@/lib/closed-trades-store';
+import type { ClosedTrade } from '@/lib/types';
 import EditClosedTradeDialog from '@/components/EditClosedTradeDialog';
 import PageHeader from '@/components/PageHeader';
 import { useClosedPositions } from '@/hooks/api';
 import { apiClient } from '@/lib/api-client';
 import { formatDateDDMMYYYY } from '@/lib/date';
-
-function formatCurrency(n: number, currency: string = 'USD') {
-  return new Intl.NumberFormat(undefined, {
-    style: 'currency',
-    currency,
-    maximumFractionDigits: 3,
-  }).format(n);
-}
-
-function formatPct(v: number) {
-  const p = v * 100;
-  return `${p >= 0 ? '+' : ''}${p.toFixed(2)}%`;
-}
-
-const returnClass = (v: number) => (v >= 0 ? 'text-green-600' : 'text-red-600');
+import { formatCurrency, formatPct, returnClass } from '@/lib/format';
 
 function calcTotals(trades: ClosedTrade[]) {
   return trades.reduce(

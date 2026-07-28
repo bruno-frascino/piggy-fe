@@ -4,7 +4,7 @@ import {
   calculateReturnPctPerWeek,
   sumRealizedPnLForScope,
 } from './performance-metrics';
-import type { ClosedTrade } from './closed-trades-store';
+import type { ClosedTrade } from './types';
 
 function makeTrade(overrides: Partial<ClosedTrade> = {}): ClosedTrade {
   return {

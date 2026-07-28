@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Dialog } from 'primereact/dialog';
 import { InputText } from 'primereact/inputtext';
 import { InputNumber } from 'primereact/inputnumber';
@@ -10,7 +10,8 @@ import { Button } from 'primereact/button';
 import { AutoComplete } from 'primereact/autocomplete';
 import type { HoldingPosition } from '@/lib/types';
 import type { StockSearchResult } from '@/lib/types';
-import { apiClient } from '@/lib/api-client';
+import { useSymbolSearch } from '@/hooks/useSymbolSearch';
+import { useAccountNameSuggestions } from '@/hooks/useAccountNameSuggestions';
 
 export type LocalHolding = Omit<
   HoldingPosition,
@@ -62,13 +63,11 @@ export default function AddHoldingsDialog({
     buyComments: '',
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [symbolSuggestions, setSymbolSuggestions] = useState<
-    StockSearchResult[]
-  >([]);
-  const [allAccountNames, setAllAccountNames] = useState<string[]>([]);
-  const [accountSuggestions, setAccountSuggestions] = useState<string[]>([]);
+  const { symbolSuggestions, setSymbolSuggestions, searchSymbol } =
+    useSymbolSearch();
+  const { accountSuggestions, searchAccount, resetAccountSuggestions } =
+    useAccountNameSuggestions(visible, exchangeCode);
   const [manualSymbol, setManualSymbol] = useState(false);
-  const searchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Load initial values when dialog opens or mode changes
   useEffect(() => {
@@ -91,53 +90,9 @@ export default function AddHoldingsDialog({
     setForm(base);
     setErrors({});
     setSymbolSuggestions([]);
-    setAllAccountNames([]);
-    setAccountSuggestions([]);
+    resetAccountSuggestions();
     setManualSymbol(false);
   }, [visible, mode, initial, accountName]);
-
-  useEffect(() => {
-    if (!visible) return;
-    let cancelled = false;
-
-    const loadAccounts = async () => {
-      try {
-        const accounts = await apiClient.getTradingAccounts();
-        const names = Array.from(new Set(accounts.map(a => a.name))).sort();
-        if (!cancelled) {
-          setAllAccountNames(names);
-          setAccountSuggestions(names);
-        }
-      } catch {
-        if (!cancelled) {
-          setAllAccountNames([]);
-          setAccountSuggestions([]);
-        }
-      }
-    };
-
-    loadAccounts();
-    return () => {
-      cancelled = true;
-    };
-  }, [visible, exchangeCode]);
-
-  const searchSymbol = async (event: { query: string }) => {
-    if (searchTimerRef.current) clearTimeout(searchTimerRef.current);
-    const q = event.query.trim();
-    if (!q) {
-      setSymbolSuggestions([]);
-      return;
-    }
-    searchTimerRef.current = setTimeout(async () => {
-      try {
-        const results = await apiClient.searchStocks(q, 10);
-        setSymbolSuggestions(results);
-      } catch {
-        setSymbolSuggestions([]);
-      }
-    }, 300);
-  };
 
   const handleSymbolSelect = (result: StockSearchResult) => {
     setForm(f => ({
@@ -149,17 +104,6 @@ export default function AddHoldingsDialog({
     if (mode === 'add') {
       onExchangeDetected?.(result.exchange);
     }
-  };
-
-  const searchAccount = (event: { query: string }) => {
-    const q = event.query.trim().toLowerCase();
-    if (!q) {
-      setAccountSuggestions(allAccountNames);
-      return;
-    }
-    setAccountSuggestions(
-      allAccountNames.filter(name => name.toLowerCase().includes(q))
-    );
   };
 
   const handleSubmit = () => {

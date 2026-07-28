@@ -1,4 +1,4 @@
-import type { ClosedTrade } from './closed-trades-store';
+import type { ClosedTrade } from './types';
 
 const DAYS_PER_WEEK = 7;
 

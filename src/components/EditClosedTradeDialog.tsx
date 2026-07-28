@@ -8,7 +8,7 @@ import { InputNumber } from 'primereact/inputnumber';
 import { InputTextarea } from 'primereact/inputtextarea';
 import { Button } from 'primereact/button';
 import { ConfirmDialog, confirmDialog } from 'primereact/confirmdialog';
-import type { ClosedTrade } from '@/lib/closed-trades-store';
+import type { ClosedTrade } from '@/lib/types';
 
 interface Props {
   trade: ClosedTrade;

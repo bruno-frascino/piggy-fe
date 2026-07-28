@@ -2,23 +2,17 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { Card } from 'primereact/card';
-import type {
-  ExchangeKey,
-  ExchangePortfolio,
-  EquityPoint,
-  TradingAccount,
-} from '@/lib/types';
+import type { ExchangeKey, EquityPoint, TradingAccount } from '@/lib/types';
 import {
   useCreateAccount,
   useCloseAccount,
   useDeleteAccount,
   useReopenAccount,
   useUpdateAccount,
-  useCreatePortfolioSnapshot,
-  usePortfolioHistory,
   useTradingAccounts,
-  useUserPortfolio,
 } from '@/hooks/api';
+import { useAccountSelection } from '@/hooks/useAccountSelection';
+import { useExchangeDiscovery } from '@/hooks/useExchangeDiscovery';
 import { Button } from 'primereact/button';
 import { InputText } from 'primereact/inputtext';
 import { Dialog } from 'primereact/dialog';
@@ -37,7 +31,6 @@ import {
   Legend,
   Filler,
 } from 'chart.js';
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import {
   formatDateDDMMYYYY,
   computeChartCutoffDate,
@@ -80,10 +73,6 @@ function summarize(series: EquityPoint[]) {
 }
 
 export default function DashboardView() {
-  const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
-
   const { data: accountList = [], isLoading: isAccountsLoading } =
     useTradingAccounts(true);
   const createAccount = useCreateAccount();
@@ -91,7 +80,13 @@ export default function DashboardView() {
   const deleteAccount = useDeleteAccount();
   const reopenAccount = useReopenAccount();
   const updateAccount = useUpdateAccount();
-  const [selectedAccountId, setSelectedAccountId] = useState<string>('');
+  const {
+    selectedAccountId,
+    setSelectedAccountId,
+    activeAccounts,
+    closedAccounts,
+    selectedAccount,
+  } = useAccountSelection(accountList);
   const [newAccountName, setNewAccountName] = useState('');
   const [accountCreateError, setAccountCreateError] = useState('');
   const [accountActionError, setAccountActionError] = useState('');
@@ -105,67 +100,20 @@ export default function DashboardView() {
     newName: string;
   } | null>(null);
   const [renameError, setRenameError] = useState('');
-  const [selected, setSelected] = useState<ExchangeKey>('');
-
-  const activeAccounts = useMemo(
-    () => accountList.filter(a => (a.status ?? 'ACTIVE') !== 'CLOSED'),
-    [accountList]
-  );
-
-  const closedAccounts = useMemo(
-    () => accountList.filter(a => (a.status ?? 'ACTIVE') === 'CLOSED'),
-    [accountList]
-  );
-
-  const selectedAccount = useMemo<TradingAccount | null>(
-    () => accountList.find(a => a.id === selectedAccountId) ?? null,
-    [accountList, selectedAccountId]
-  );
 
   const {
-    data: remotePortfolio,
-    isLoading: isPortfolioLoading,
-    isFetched: isPortfolioFetched,
-  } = useUserPortfolio(selectedAccountId);
-  const { data: portfolioHistory = [], isFetched: isHistoryFetched } =
-    usePortfolioHistory(selectedAccountId, selected);
-  const createSnapshot = useCreatePortfolioSnapshot();
-  const [exchangeList, setExchangeList] = useState<ExchangePortfolio[]>([]);
-  const [seededFromPortfolio, setSeededFromPortfolio] = useState(false);
-
-  // Sync exchange list from API: seed on first fetch, then merge on subsequent
-  // fetches (e.g. after adding a new position to a previously unseen exchange).
-  useEffect(() => {
-    if (!isPortfolioFetched) return;
-    const incoming = remotePortfolio ?? [];
-
-    if (!seededFromPortfolio) {
-      setExchangeList(incoming);
-      setSeededFromPortfolio(true);
-      return;
-    }
-
-    // Merge: always update baseCurrency from API (source of truth) and add
-    // new exchanges, but preserve locally-edited type/description values.
-    setExchangeList(prev => {
-      const remoteMap = new Map(incoming.map(e => [e.name, e]));
-      const updated = prev.map(e => {
-        const remote = remoteMap.get(e.name);
-        return remote
-          ? { ...e, baseCurrency: remote.baseCurrency ?? e.baseCurrency }
-          : e;
-      });
-      const existingNames = new Set(prev.map(e => e.name));
-      const newEntries = incoming.filter(e => !existingNames.has(e.name));
-      return [...updated, ...newEntries];
-    });
-  }, [isPortfolioFetched, remotePortfolio, seededFromPortfolio]);
+    selected,
+    setSelected,
+    exchangeList,
+    exchange,
+    isPortfolioLoading,
+    seededFromPortfolio,
+    portfolioHistory,
+    isCreatingSnapshot,
+    handleExchangeDetected,
+  } = useExchangeDiscovery(selectedAccountId);
 
   const numberFormatter = useMemo(() => new Intl.NumberFormat('en-US'), []);
-
-  const [snapshotRequestedForKey, setSnapshotRequestedForKey] = useState<
-    string | null
-  >(null);
 
   const [liveTotals, setLiveTotals] = useState<{
     totalEquity: number;
@@ -310,146 +258,6 @@ export default function DashboardView() {
     }
   };
 
-  useEffect(() => {
-    if (!activeAccounts.length) {
-      setSelectedAccountId('');
-      return;
-    }
-    if (
-      selectedAccountId &&
-      activeAccounts.some(account => account.id === selectedAccountId)
-    ) {
-      return;
-    }
-
-    const fromQuery = searchParams?.get('accountId');
-    if (fromQuery && activeAccounts.some(account => account.id === fromQuery)) {
-      setSelectedAccountId(fromQuery);
-      return;
-    }
-
-    try {
-      const fromStorage = localStorage.getItem('selectedAccountId');
-      if (
-        fromStorage &&
-        activeAccounts.some(account => account.id === fromStorage)
-      ) {
-        setSelectedAccountId(fromStorage);
-        return;
-      }
-    } catch {
-      // no-op
-    }
-
-    setSelectedAccountId(activeAccounts[0].id);
-  }, [activeAccounts, selectedAccountId, searchParams]);
-
-  useEffect(() => {
-    setSelected('');
-    setExchangeList([]);
-    setSeededFromPortfolio(false);
-    setSnapshotRequestedForKey(null);
-  }, [selectedAccountId]);
-
-  useEffect(() => {
-    if (!selectedAccountId) return;
-    try {
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('selectedAccountId', selectedAccountId);
-      }
-      const params = new URLSearchParams(searchParams?.toString());
-      params.set('accountId', selectedAccountId);
-      if (searchParams?.get('accountId') !== selectedAccountId) {
-        router.replace(`${pathname}?${params.toString()}`);
-      }
-    } catch {
-      // no-op
-    }
-  }, [selectedAccountId, router, pathname, searchParams]);
-
-  const handleExchangeDetected = (exchangeName: string) => {
-    setExchangeList(prev => {
-      if (prev.some(e => e.name === exchangeName)) return prev;
-      return [...prev, { name: exchangeName, equitySeries: [] }];
-    });
-    setSelected(exchangeName);
-  };
-
-  // Ensure today's snapshot exists for selected account+exchange chart context.
-  useEffect(() => {
-    if (!isHistoryFetched || !selectedAccountId || !selected) return;
-
-    const today = new Date().toISOString().slice(0, 10);
-    const key = `${selectedAccountId}:${selected}:${today}`;
-    const hasToday = portfolioHistory.some(point => point.date === today);
-
-    if (
-      hasToday ||
-      snapshotRequestedForKey === key ||
-      createSnapshot.isPending
-    ) {
-      return;
-    }
-
-    setSnapshotRequestedForKey(key);
-    createSnapshot.mutate({
-      accountId: selectedAccountId,
-      exchangeCode: selected,
-    });
-  }, [
-    isHistoryFetched,
-    selectedAccountId,
-    selected,
-    portfolioHistory,
-    snapshotRequestedForKey,
-    createSnapshot,
-  ]);
-
-  // Once the list is available, establish the initial selection.
-  useEffect(() => {
-    if (!exchangeList.length || selected) return;
-    const fromQuery = searchParams?.get('exchange') as ExchangeKey | null;
-    if (fromQuery && exchangeList.some(e => e.name === fromQuery)) {
-      setSelected(fromQuery);
-      return;
-    }
-    try {
-      const fromStorage = localStorage.getItem(
-        'selectedExchange'
-      ) as ExchangeKey | null;
-      if (fromStorage && exchangeList.some(e => e.name === fromStorage)) {
-        setSelected(fromStorage);
-        return;
-      }
-    } catch {
-      // no-op
-    }
-    setSelected(exchangeList[0].name);
-  }, [exchangeList, selected, searchParams]);
-
-  // Keep URL and localStorage in sync
-  useEffect(() => {
-    if (!selected) return;
-    try {
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('selectedExchange', selected);
-      }
-      const params = new URLSearchParams(searchParams?.toString());
-      params.set('exchange', selected);
-      // Avoid replacing if already set to prevent extra history entries
-      if (searchParams?.get('exchange') !== selected) {
-        router.replace(`${pathname}?${params.toString()}`);
-      }
-    } catch {
-      // no-op
-    }
-  }, [selected, router, pathname, searchParams]);
-
-  const exchange = useMemo(
-    () =>
-      exchangeList.find(e => e.name === selected) ?? exchangeList[0] ?? null,
-    [selected, exchangeList]
-  );
   const chartSeries = useMemo(
     () => [...portfolioHistory].sort((a, b) => a.date.localeCompare(b.date)),
     [portfolioHistory]
@@ -813,7 +621,7 @@ export default function DashboardView() {
                     </h3>
                     <span className='text-xs text-gray-500'>
                       Last snapshot:{' '}
-                      {createSnapshot.isPending
+                      {isCreatingSnapshot
                         ? 'Updating...'
                         : lastSnapshotDate
                           ? formatDateDDMMYYYY(lastSnapshotDate)
