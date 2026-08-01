@@ -4,10 +4,10 @@
  * openapi.meta.json recording which piggy-api commit it came from.
  *
  * This is deliberately NOT part of `yarn context:build` (see contracts/README.md and
- * AGENTS.md's cross-repo ordering rule): CI has no sibling checkout, so context:build must
- * work purely from whatever contract is already committed. If the sibling repo can't be
- * found, this script fails loudly rather than silently leaving the stale vendored copy in
- * place — it never touches contracts/ unless the pull actually succeeds.
+ * AGENTS.md's cross-repo ordering rule): context:build must work purely from whatever contract is
+ * already committed. CI uses contract:check with a sparse backend checkout but never updates the
+ * vendored copy. If the sibling repo can't be found, this script fails loudly rather than silently
+ * leaving the stale vendored copy in place — it never touches contracts/ unless the pull succeeds.
  */
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'

@@ -29,7 +29,8 @@ Related but NOT written to this folder: `src/lib/generated/api-types.ts` (genera
 `generate-api-types.ts` from `contracts/openapi.json`, reference-only — never imported by
 app code) and `contracts/openapi.json`/`openapi.meta.json` (vendored from `../piggy-api` by
 the separate, dev-machine-only `yarn contract:pull` — never run automatically by
-`context:build`, since CI has no sibling checkout).
+`context:build`). `yarn contract:check` compares the vendored copy with backend context; pre-push
+uses the sibling checkout and CI provides a sparse backend checkout.
 
 Architecture rules enforced by `module-graph.ts` (fails the build if violated — see
 `AGENTS.md` hard rules): `components/`/`app/` must call the backend only via

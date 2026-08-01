@@ -24,6 +24,7 @@
 
 # production
 /build
+/.contract-source/
 
 # misc
 .DS_Store

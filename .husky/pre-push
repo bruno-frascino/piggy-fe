@@ -1,21 +1,35 @@
-# context:build exits 1 on architecture-rule violations (a separate, tracked concern) —
-# that must not be conflated with THIS hook's only job: blocking on stale/uncommitted context/.
+# context:build can exit 1 on architecture-rule violations; inspect its output separately from
+# the generated-file dirtiness check below.
 yarn context:build || true
 
 if [ -n "$(git status --porcelain -- context/ src/lib/generated/)" ]; then
   if [ "$CONTEXT_SKIP" = "1" ]; then
     echo "⚠ context/ is stale but CONTEXT_SKIP=1 is set — pushing anyway."
-    exit 0
+  else
+    echo ""
+    echo "✖ Push blocked: context/ (or src/lib/generated/) is out of date."
+    echo "  yarn context:build just regenerated it — the changes are already on disk."
+    echo ""
+    echo "  Run:"
+    echo "    git add context/ src/lib/generated/"
+    echo "    git commit --amend --no-edit    # or a new commit"
+    echo ""
+    echo "  Escape hatch (not recommended): CONTEXT_SKIP=1 git push"
+    echo ""
+    exit 1
   fi
-  echo ""
-  echo "✖ Push blocked: context/ (or src/lib/generated/) is out of date."
-  echo "  yarn context:build just regenerated it — the changes are already on disk."
-  echo ""
-  echo "  Run:"
-  echo "    git add context/ src/lib/generated/"
-  echo "    git commit --amend --no-edit    # or a new commit"
-  echo ""
-  echo "  Escape hatch (not recommended): CONTEXT_SKIP=1 git push"
-  echo ""
-  exit 1
+fi
+
+if ! yarn contract:check; then
+  if [ "$CONTRACT_SKIP" = "1" ]; then
+    echo "⚠ Backend contract freshness could not be verified but CONTRACT_SKIP=1 is set — pushing anyway."
+  else
+    echo ""
+    echo "✖ Push blocked: the vendored backend contract is stale or unavailable."
+    echo "  Run yarn contract:pull after backend API changes, or set PIGGY_API_PATH to a piggy-api checkout."
+    echo ""
+    echo "  Escape hatch (not recommended): CONTRACT_SKIP=1 git push"
+    echo ""
+    exit 1
+  fi
 fi

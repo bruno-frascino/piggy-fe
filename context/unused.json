@@ -26,35 +26,35 @@
       "dependencies": [
         {
           "col": 6,
-          "line": 26,
+          "line": 27,
           "name": "primeflex",
-          "pos": 727
+          "pos": 790
         }
       ],
       "devDependencies": [
         {
           "col": 6,
-          "line": 34,
+          "line": 35,
           "name": "@eslint/eslintrc",
-          "pos": 921
+          "pos": 984
         },
         {
           "col": 6,
-          "line": 44,
+          "line": 45,
           "name": "@vitejs/plugin-react",
-          "pos": 1291
-        },
-        {
-          "col": 6,
-          "line": 48,
-          "name": "eslint-config-next",
-          "pos": 1421
+          "pos": 1354
         },
         {
           "col": 6,
           "line": 49,
+          "name": "eslint-config-next",
+          "pos": 1484
+        },
+        {
+          "col": 6,
+          "line": 50,
           "name": "eslint-config-prettier",
-          "pos": 1457
+          "pos": 1520
         }
       ],
       "duplicates": [],

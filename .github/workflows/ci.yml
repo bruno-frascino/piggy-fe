@@ -8,7 +8,7 @@ on:
 
 jobs:
   verify:
-    name: Lint, test, build, context:check
+    name: Lint, test, build, context and contract checks
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -34,3 +34,17 @@ jobs:
 
       - name: Verify context/ is up to date
         run: yarn context:check
+
+      - name: Checkout backend contract source
+        uses: actions/checkout@v4
+        with:
+          repository: bruno-frascino/piggy-api
+          ref: main
+          path: .contract-source/piggy-api
+          sparse-checkout: context/openapi.json
+          sparse-checkout-cone-mode: false
+
+      - name: Verify backend contract is current
+        env:
+          PIGGY_API_PATH: ${{ github.workspace }}/.contract-source/piggy-api
+        run: yarn contract:check

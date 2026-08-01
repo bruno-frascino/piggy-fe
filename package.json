@@ -15,7 +15,8 @@
     "format": "prettier --write .",
     "context:build": "tsx scripts/context/build.ts",
     "context:check": "tsx scripts/context/check.ts",
-    "contract:pull": "tsx scripts/context/pull-contract.ts"
+    "contract:pull": "tsx scripts/context/pull-contract.ts",
+    "contract:check": "tsx scripts/context/check-contract.ts"
   },
   "dependencies": {
     "@ducanh2912/next-pwa": "^10.2.9",

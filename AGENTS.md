@@ -55,10 +55,11 @@ lockfiles. Env vars: `NEXT_PUBLIC_API_URL` (default `http://localhost:4000/api`)
   Run `yarn context:check` to verify it's fresh.)
 - **Vendored backend contract**: `contracts/openapi.json` (+ `openapi.meta.json` recording the
   source piggy-api commit) pulled from `../piggy-api` via `yarn contract:pull` (dev-machine only —
-  requires a sibling `piggy-api` checkout or `PIGGY_API_PATH`). `yarn context:build` then generates
-  `src/lib/generated/api-types.ts` (REFERENCE ONLY — never import it from app code, enforced by an
-  ESLint `no-restricted-imports` rule) and `context/contract-drift.md` (warning-only report vs.
-  `src/lib/types.ts`).
+  requires a sibling `piggy-api` checkout or `PIGGY_API_PATH`). `yarn contract:check` compares that
+  vendored file with backend context and runs in pre-push and CI. `yarn context:build` then
+  generates `src/lib/generated/api-types.ts` (REFERENCE ONLY — never import it from app code,
+  enforced by an ESLint `no-restricted-imports` rule) and `context/contract-drift.md` (warning-only
+  report vs. `src/lib/types.ts`).
 - **Why decisions were made**: `../docs/adr` is per-repo; see `docs/adr/` in this repo and
   cross-references to `piggy-api/docs/adr/` for shared decisions.
 - **Scoped conventions**: `.github/instructions/*.instructions.md` (applyTo globs for components,
