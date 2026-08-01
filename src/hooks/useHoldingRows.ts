@@ -1,9 +1,13 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useQueryClient } from '@tanstack/react-query';
 import type { LocalHolding } from '@/components/AddHoldingsDialog';
 import type { ExchangeKey, QuoteResult } from '@/lib/types';
-import { useHoldings, useQuotes, useClosedPositions } from '@/hooks/api';
-import { apiClient } from '@/lib/api-client';
+import {
+  useHoldings,
+  useQuotes,
+  useClosedPositions,
+  useRecalculateDrawdown,
+  useUpdatePosition,
+} from '@/hooks/api';
 import { sumRealizedPnLForScope } from '@/lib/performance-metrics';
 
 export type HoldingRow = LocalHolding & {
@@ -52,7 +56,8 @@ export function useHoldingRows({
     dayPL: number;
   }) => void;
 }) {
-  const queryClient = useQueryClient();
+  const { mutateAsync: updatePosition } = useUpdatePosition();
+  const { mutateAsync: recalculateDrawdown } = useRecalculateDrawdown();
   const MS_PER_DAY = 24 * 60 * 60 * 1000;
   const now = Date.now();
 
@@ -260,13 +265,11 @@ export function useHoldingRows({
     if (updates.length > 0) {
       void Promise.all(
         updates.map(({ id, currentPrice }) =>
-          apiClient.updatePosition(id, { currentPrice }).catch(() => {})
+          updatePosition({ id, payload: { currentPrice } }).catch(() => {})
         )
-      ).then(() => {
-        void queryClient.invalidateQueries({ queryKey: ['holdings'] });
-      });
+      );
     }
-  }, [rows, quoteMap, queryClient]);
+  }, [rows, quoteMap, updatePosition]);
 
   const tableScrollHeight = useMemo(() => {
     const minPx = 260;
@@ -295,23 +298,20 @@ export function useHoldingRows({
   const handleResetMaxDrawdown = useCallback(
     (row: HoldingRow) => {
       if (!row.id || !isOnline()) return;
-      void apiClient
-        .updatePosition(row.id, { maxDrawdownPercent: null })
-        .then(() => queryClient.invalidateQueries({ queryKey: ['holdings'] }))
-        .catch(() => {});
+      void updatePosition({
+        id: row.id,
+        payload: { maxDrawdownPercent: null },
+      }).catch(() => {});
     },
-    [queryClient]
+    [updatePosition]
   );
 
   const handleRecalculateDrawdown = useCallback(
     (row: HoldingRow) => {
       if (!row.id || !isOnline()) return;
-      void apiClient
-        .recalculateDrawdown(row.id)
-        .then(() => queryClient.invalidateQueries({ queryKey: ['holdings'] }))
-        .catch(() => {});
+      void recalculateDrawdown(row.id).catch(() => {});
     },
-    [queryClient]
+    [recalculateDrawdown]
   );
 
   return {

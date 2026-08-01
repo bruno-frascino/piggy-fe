@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { apiClient } from '@/lib/api-client';
+import { useTradingAccounts } from '@/hooks/api';
 
 /**
  * Owns the trading-account-name autocomplete suggestions for
@@ -13,32 +13,19 @@ export function useAccountNameSuggestions(
 ) {
   const [allAccountNames, setAllAccountNames] = useState<string[]>([]);
   const [accountSuggestions, setAccountSuggestions] = useState<string[]>([]);
+  const { data: accounts, isError } = useTradingAccounts(false, visible);
 
   useEffect(() => {
     if (!visible) return;
-    let cancelled = false;
 
-    const loadAccounts = async () => {
-      try {
-        const accounts = await apiClient.getTradingAccounts();
-        const names = Array.from(new Set(accounts.map(a => a.name))).sort();
-        if (!cancelled) {
-          setAllAccountNames(names);
-          setAccountSuggestions(names);
-        }
-      } catch {
-        if (!cancelled) {
-          setAllAccountNames([]);
-          setAccountSuggestions([]);
-        }
-      }
-    };
-
-    loadAccounts();
-    return () => {
-      cancelled = true;
-    };
-  }, [visible, exchangeCode]);
+    const names = isError
+      ? []
+      : Array.from(
+          new Set((accounts ?? []).map(account => account.name))
+        ).sort();
+    setAllAccountNames(names);
+    setAccountSuggestions(names);
+  }, [visible, exchangeCode, accounts, isError]);
 
   const searchAccount = (event: { query: string }) => {
     const q = event.query.trim().toLowerCase();

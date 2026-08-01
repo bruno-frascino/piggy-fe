@@ -16,10 +16,11 @@ function invalidatePositionQueries(queryClient: QueryClient) {
 }
 
 // Account hooks
-export const useTradingAccounts = (includeClosed = false) => {
+export const useTradingAccounts = (includeClosed = false, enabled = true) => {
   return useQuery({
     queryKey: ['trading-accounts', includeClosed ? 'all' : 'active'],
     queryFn: () => apiClient.getTradingAccounts(includeClosed),
+    enabled,
     staleTime: 10 * 60 * 1000,
   });
 };
@@ -303,6 +304,15 @@ export const useUpdateCloseEvent = () => {
   });
 };
 
+export const useRecalculateDrawdown = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: string) => apiClient.recalculateDrawdown(id),
+    onSuccess: () => invalidatePositionQueries(queryClient),
+  });
+};
+
 export const useQuotes = (symbols: string[]) => {
   // Stable key: sorted, joined so reference changes don't trigger redundant fetches
   const key = [...symbols].sort().join(',');
@@ -312,6 +322,16 @@ export const useQuotes = (symbols: string[]) => {
     enabled: symbols.length > 0,
     refetchInterval: 60_000, // refresh every minute
     staleTime: 30_000,
+  });
+};
+
+export const useStockSearch = (query: string, limit = 10) => {
+  return useQuery({
+    queryKey: ['stock-search', query, limit],
+    queryFn: () => apiClient.searchStocks(query, limit),
+    enabled: query.length > 0,
+    retry: false,
+    staleTime: 5 * 60 * 1000,
   });
 };
 

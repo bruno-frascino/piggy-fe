@@ -38,9 +38,8 @@ import `src/lib/mock-api.ts` directly; only `src/lib/api/http.ts` imports axios;
 circular dependencies.
 
 There is no accepted architecture-violation baseline. `yarn context:build` and
-`yarn context:check` fail on every encoded violation. Separate helper-hook API-layer debt that is
-not represented by the component/app import rule remains tracked in `AGENTS.md` and the follow-up
-register below.
+`yarn context:check` fail on every encoded violation. Components, pages, and helper hooks all use
+the central React Query layer in `src/hooks/api.ts`.
 
 The cleanup plan and other deferred operational concerns are tracked in
 `docs/context-maintenance-follow-ups.md`.

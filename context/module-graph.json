@@ -55,6 +55,8 @@
         "src/components/TopNav.tsx",
         "src/components/DashboardView.tsx",
         "src/components/HoldingsTable.tsx",
+        "src/hooks/useAccountNameSuggestions.ts",
+        "src/hooks/useSymbolSearch.ts",
         "src/hooks/useHoldingRows.ts",
         "src/hooks/useExchangeDiscovery.ts",
         "src/components/ReportsView.tsx",
@@ -208,9 +210,6 @@
       "dependents": [
         "src/hooks/api.ts",
         "src/lib/offline-write-queue.ts",
-        "src/hooks/useAccountNameSuggestions.ts",
-        "src/hooks/useSymbolSearch.ts",
-        "src/hooks/useHoldingRows.ts",
         "src/lib/api-client.mock-parity.test.ts",
         "src/lib/api-client.test.ts"
       ],
@@ -1541,9 +1540,9 @@
           "exoticallyRequired": false,
           "followable": true,
           "matchesDoNotFollow": false,
-          "module": "@/lib/api-client",
+          "module": "@/hooks/api",
           "moduleSystem": "es6",
-          "resolved": "src/lib/api-client.ts",
+          "resolved": "src/hooks/api.ts",
           "valid": true
         }
       ],
@@ -1568,14 +1567,15 @@
           "exoticallyRequired": false,
           "followable": true,
           "matchesDoNotFollow": false,
-          "module": "@/lib/api-client",
+          "module": "@/hooks/api",
           "moduleSystem": "es6",
-          "resolved": "src/lib/api-client.ts",
+          "resolved": "src/hooks/api.ts",
           "valid": true
         }
       ],
       "dependents": [
-        "src/components/AddHoldingsDialog.tsx"
+        "src/components/AddHoldingsDialog.tsx",
+        "src/hooks/api.test.tsx"
       ],
       "orphan": false,
       "source": "src/hooks/useSymbolSearch.ts",
@@ -1608,23 +1608,6 @@
           "module": "@/hooks/api",
           "moduleSystem": "es6",
           "resolved": "src/hooks/api.ts",
-          "valid": true
-        },
-        {
-          "circular": false,
-          "coreModule": false,
-          "couldNotResolve": false,
-          "dependencyTypes": [
-            "undetermined",
-            "import"
-          ],
-          "dynamic": false,
-          "exoticallyRequired": false,
-          "followable": true,
-          "matchesDoNotFollow": false,
-          "module": "@/lib/api-client",
-          "moduleSystem": "es6",
-          "resolved": "src/lib/api-client.ts",
           "valid": true
         },
         {
@@ -2133,6 +2116,23 @@
           "module": "./api",
           "moduleSystem": "es6",
           "resolved": "src/hooks/api.ts",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "local",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "./useSymbolSearch",
+          "moduleSystem": "es6",
+          "resolved": "src/hooks/useSymbolSearch.ts",
           "valid": true
         }
       ],

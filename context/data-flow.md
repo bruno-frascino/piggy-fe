@@ -11,6 +11,7 @@
 | `['portfolio-history', accountId ?? 'none', exchangeCode ?? 'none',]` | usePortfolioHistory | — |
 | `['portfolio-history']` | useDeleteAccount, useCloseAccount, useCreatePortfolioSnapshot | useDeleteAccount, useCloseAccount, useCreatePortfolioSnapshot |
 | `['quotes', key]` | useQuotes | — |
+| `['stock-search', query, limit]` | useStockSearch | — |
 | `['tax-reports', id ?? 'none']` | useTaxReportDetail | — |
 | `['tax-reports']` | useTaxReports, useGenerateTaxReport, useDeleteTaxReport | useGenerateTaxReport, useDeleteTaxReport |
 | `['trading-accounts', includeClosed ? 'all' : 'active']` | useTradingAccounts | — |

@@ -1,8 +1,16 @@
 // @vitest-environment jsdom
 
+import type { ReactElement } from 'react';
 import '@testing-library/jest-dom/vitest';
-import { cleanup, fireEvent, render, screen } from '@testing-library/react';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import {
+  cleanup,
+  fireEvent,
+  render as renderWithTestingLibrary,
+  screen,
+  waitFor,
+} from '@testing-library/react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 // Characterization tests for AddHoldingsDialog's form-validation logic and
 // submission shaping — the riskiest, most complex part of this component and
@@ -24,6 +32,15 @@ vi.mock('@/lib/api-client', () => ({
 
 import AddHoldingsDialog from './AddHoldingsDialog';
 
+function render(ui: ReactElement) {
+  const queryClient = new QueryClient({
+    defaultOptions: { queries: { retry: false } },
+  });
+  return renderWithTestingLibrary(
+    <QueryClientProvider client={queryClient}>{ui}</QueryClientProvider>
+  );
+}
+
 function enterManualSymbol(symbol: string) {
   fireEvent.click(
     screen.getByRole('button', { name: /Can't find it\? Enter manually/i })
@@ -33,11 +50,12 @@ function enterManualSymbol(symbol: string) {
   });
 }
 
-afterEach(() => {
-  cleanup();
+beforeEach(() => {
   vi.clearAllMocks();
   getTradingAccountsMock.mockResolvedValue([]);
 });
+
+afterEach(cleanup);
 
 describe('AddHoldingsDialog validation', () => {
   it('blocks submission and shows the exchange-detection error when no symbol/exchange is resolved', () => {
@@ -145,7 +163,7 @@ describe('AddHoldingsDialog validation', () => {
 });
 
 describe('AddHoldingsDialog account loading', () => {
-  it('loads trading account names when the dialog opens', () => {
+  it('loads trading account names when the dialog opens', async () => {
     getTradingAccountsMock.mockResolvedValue([
       { id: 'a1', name: 'Main' },
       { id: 'a2', name: 'Spouse' },
@@ -153,7 +171,9 @@ describe('AddHoldingsDialog account loading', () => {
 
     render(<AddHoldingsDialog visible onHide={vi.fn()} onSubmit={vi.fn()} />);
 
-    expect(getTradingAccountsMock).toHaveBeenCalledTimes(1);
+    await waitFor(() => {
+      expect(getTradingAccountsMock).toHaveBeenCalledWith(false);
+    });
   });
 
   it('does not fetch accounts while the dialog is hidden', () => {

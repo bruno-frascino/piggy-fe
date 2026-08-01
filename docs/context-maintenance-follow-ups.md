@@ -3,12 +3,6 @@
 Tracked on 2026-08-01. These items are intentionally deferred; update this document when each item
 is verified or resolved.
 
-## API-layer architecture debt
-
-- Move direct calls to `getTradingAccounts`, `searchStocks`, and `updatePosition` out of
-  `useAccountNameSuggestions.ts`, `useSymbolSearch.ts`, and `useHoldingRows.ts` into the central
-  React Query layer so query keys, caching, and invalidation remain consistent.
-
 ## Contract freshness
 
 - `yarn context:check` validates the committed vendored contract, not whether it matches the latest

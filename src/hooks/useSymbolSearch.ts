@@ -1,5 +1,5 @@
-import { useRef, useState } from 'react';
-import { apiClient } from '@/lib/api-client';
+import { useEffect, useRef, useState } from 'react';
+import { useStockSearch } from '@/hooks/api';
 import type { StockSearchResult } from '@/lib/types';
 
 /**
@@ -13,22 +13,44 @@ export function useSymbolSearch() {
   const [symbolSuggestions, setSymbolSuggestions] = useState<
     StockSearchResult[]
   >([]);
+  const [searchRequest, setSearchRequest] = useState({
+    query: '',
+    sequence: 0,
+  });
   const searchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const { data: searchResults, isError } = useStockSearch(
+    searchRequest.query,
+    10
+  );
 
-  const searchSymbol = async (event: { query: string }) => {
+  useEffect(() => {
+    if (!searchRequest.query) return;
+    setSymbolSuggestions(isError ? [] : (searchResults ?? []));
+  }, [searchRequest, searchResults, isError]);
+
+  useEffect(
+    () => () => {
+      if (searchTimerRef.current) clearTimeout(searchTimerRef.current);
+    },
+    []
+  );
+
+  const searchSymbol = (event: { query: string }) => {
     if (searchTimerRef.current) clearTimeout(searchTimerRef.current);
     const q = event.query.trim();
     if (!q) {
+      setSearchRequest(request => ({
+        query: '',
+        sequence: request.sequence + 1,
+      }));
       setSymbolSuggestions([]);
       return;
     }
-    searchTimerRef.current = setTimeout(async () => {
-      try {
-        const results = await apiClient.searchStocks(q, 10);
-        setSymbolSuggestions(results);
-      } catch {
-        setSymbolSuggestions([]);
-      }
+    searchTimerRef.current = setTimeout(() => {
+      setSearchRequest(request => ({
+        query: q,
+        sequence: request.sequence + 1,
+      }));
     }, 300);
   };
 

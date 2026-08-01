@@ -20,7 +20,8 @@ const {
   useHoldingsMock,
   useQuotesMock,
   useClosedPositionsMock,
-  apiUpdatePositionMock,
+  updatePositionMock,
+  recalculateDrawdownMock,
   mutationMock,
   showToastMock,
   emptyHoldings,
@@ -28,7 +29,8 @@ const {
   useHoldingsMock: vi.fn(),
   useQuotesMock: vi.fn(),
   useClosedPositionsMock: vi.fn(),
-  apiUpdatePositionMock: vi.fn(),
+  updatePositionMock: vi.fn(),
+  recalculateDrawdownMock: vi.fn(),
   mutationMock: vi.fn(),
   showToastMock: vi.fn(),
   emptyHoldings: [] as unknown[],
@@ -38,18 +40,13 @@ vi.mock('@/hooks/api', () => ({
   useHoldings: useHoldingsMock,
   useQuotes: useQuotesMock,
   useClosedPositions: useClosedPositionsMock,
+  useTradingAccounts: () => ({ data: undefined, isError: false }),
+  useStockSearch: () => ({ data: undefined, isError: false }),
   useCreatePosition: () => ({ mutateAsync: mutationMock }),
-  useUpdatePosition: () => ({ mutateAsync: mutationMock }),
+  useUpdatePosition: () => ({ mutateAsync: updatePositionMock }),
+  useRecalculateDrawdown: () => ({ mutateAsync: recalculateDrawdownMock }),
   useClosePosition: () => ({ mutateAsync: mutationMock }),
   useDeletePosition: () => ({ mutateAsync: mutationMock }),
-}));
-
-vi.mock('@/lib/api-client', () => ({
-  apiClient: {
-    updatePosition: apiUpdatePositionMock,
-    deletePosition: vi.fn(),
-    recalculateDrawdown: vi.fn(),
-  },
 }));
 
 vi.mock('@/lib/offline-write-queue', () => ({
@@ -103,7 +100,8 @@ function setQuotes(quotes: unknown[]) {
 
 beforeEach(() => {
   useClosedPositionsMock.mockReturnValue({ data: emptyHoldings });
-  apiUpdatePositionMock.mockResolvedValue({ success: true });
+  updatePositionMock.mockResolvedValue({ success: true });
+  recalculateDrawdownMock.mockResolvedValue({ success: true });
   mutationMock.mockResolvedValue({ success: true });
   Object.defineProperty(window.navigator, 'onLine', {
     configurable: true,
@@ -182,8 +180,9 @@ describe('HoldingsTable max-drawdown ratchet effect', () => {
 
     // priceDrawdownPct = (90-100)/100*100 = -10%, abs 10% > existing 5% + 0.01
     await waitFor(() => {
-      expect(apiUpdatePositionMock).toHaveBeenCalledWith('p1', {
-        currentPrice: 90,
+      expect(updatePositionMock).toHaveBeenCalledWith({
+        id: 'p1',
+        payload: { currentPrice: 90 },
       });
     });
   });
@@ -207,7 +206,7 @@ describe('HoldingsTable max-drawdown ratchet effect', () => {
     renderTable();
 
     await new Promise(resolve => setTimeout(resolve, 50));
-    expect(apiUpdatePositionMock).not.toHaveBeenCalled();
+    expect(updatePositionMock).not.toHaveBeenCalled();
   });
 
   it('does not update when there is no live quote for the symbol', async () => {
@@ -217,7 +216,7 @@ describe('HoldingsTable max-drawdown ratchet effect', () => {
     renderTable();
 
     await new Promise(resolve => setTimeout(resolve, 50));
-    expect(apiUpdatePositionMock).not.toHaveBeenCalled();
+    expect(updatePositionMock).not.toHaveBeenCalled();
   });
 
   it('does not update when the new drawdown does not exceed the stored max', async () => {
@@ -235,7 +234,7 @@ describe('HoldingsTable max-drawdown ratchet effect', () => {
     renderTable();
 
     await new Promise(resolve => setTimeout(resolve, 50));
-    expect(apiUpdatePositionMock).not.toHaveBeenCalled();
+    expect(updatePositionMock).not.toHaveBeenCalled();
   });
 
   it('does not update when the live price is above entry (positive return, no drawdown)', async () => {
@@ -253,6 +252,6 @@ describe('HoldingsTable max-drawdown ratchet effect', () => {
     renderTable();
 
     await new Promise(resolve => setTimeout(resolve, 50));
-    expect(apiUpdatePositionMock).not.toHaveBeenCalled();
+    expect(updatePositionMock).not.toHaveBeenCalled();
   });
 });
