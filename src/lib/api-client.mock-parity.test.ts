@@ -54,6 +54,15 @@ type Case = {
   expectRejection?: RegExp;
 };
 
+const realApiOnlyMethods = new Set([
+  'getStatisticsSummary',
+  'getStatisticsTimeSeries',
+  'getStatisticsClosedTrades',
+  'getStatisticsDistributions',
+  'getStatisticsRisk',
+  'getStatisticsBreakdowns',
+]);
+
 describe('apiClient mock-mode parity', () => {
   const cases: Case[] = [
     // auth
@@ -129,38 +138,6 @@ describe('apiClient mock-mode parity', () => {
     // stocks
     { name: 'searchStocks', call: () => apiClient.searchStocks('AAPL') },
     { name: 'getQuotes', call: () => apiClient.getQuotes(['AAPL']) },
-    // statistics
-    {
-      name: 'getStatisticsSummary',
-      call: () => apiClient.getStatisticsSummary(),
-    },
-    {
-      name: 'getStatisticsTimeSeries',
-      call: () =>
-        apiClient.getStatisticsTimeSeries({
-          metric: 'equity',
-        }),
-    },
-    {
-      name: 'getStatisticsClosedTrades',
-      call: () => apiClient.getStatisticsClosedTrades({}),
-    },
-    {
-      name: 'getStatisticsDistributions',
-      call: () => apiClient.getStatisticsDistributions(),
-    },
-    {
-      name: 'getStatisticsRisk',
-      call: () => apiClient.getStatisticsRisk(),
-    },
-    {
-      name: 'getStatisticsBreakdowns',
-      call: () =>
-        apiClient.getStatisticsBreakdowns({
-          by: 'assetType',
-          metric: 'marketValue',
-        }),
-    },
     // tax reports
     { name: 'getTaxReports', call: () => apiClient.getTaxReports() },
     {
@@ -196,7 +173,7 @@ describe('apiClient mock-mode parity', () => {
   );
 
   it('covers every public method on the apiClient facade', () => {
-    const covered = new Set(cases.map(c => c.name));
+    const covered = new Set([...cases.map(c => c.name), ...realApiOnlyMethods]);
     const actualMethods = Object.keys(apiClient);
     const missing = actualMethods.filter(m => !covered.has(m));
     expect(missing).toEqual([]);

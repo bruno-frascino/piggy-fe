@@ -2,8 +2,8 @@
 name: add-api-endpoint-e2e
 description:
   Add a new REST API endpoint end-to-end across piggy-api and piggy-fe — backend route, Swagger
-  docs, frontend API module, React Query hook, mock-mode support, and tests on both sides. Use when
-  the user asks to add/expose a new backend endpoint that the frontend will consume.
+  docs, frontend API module, React Query hook, and tests on both sides. Use when the user asks to
+  add/expose a new backend endpoint that the frontend will consume.
 ---
 
 # Add a new API endpoint end-to-end
@@ -24,18 +24,14 @@ endpoint must land first — see `AGENTS.md`'s cross-repo ordering rule.
 3. **Types**: add/update the matching interface in `src/lib/types.ts` (the manually mirrored source
    of truth — see ADR 0007). Cross-check against `piggy-api/prisma/schema.prisma` for the real
    shape.
-4. **Mock mode**: add a branch in `src/lib/mock-api.ts` for `NEXT_PUBLIC_USE_MOCK_API=true` — read
-   endpoints return sensible mock data, write endpoints return `{ success: true }` matching the
-   existing convention. Run `yarn test --run src/lib/api-client.mock-parity.test.ts` to confirm no
-   method is missing a mock branch.
-5. **Hook**: add a React Query hook (query or mutation) in `src/hooks/api.ts`, with a query key
+4. **Hook**: add a React Query hook (query or mutation) in `src/hooks/api.ts`, with a query key
    following the existing catalog conventions and correct `invalidateQueries` wiring for any
    mutation. Components must call this hook, never the api module directly.
-6. **Component wiring**: consume the hook from the relevant component(s) under `src/components/` or
+5. **Component wiring**: consume the hook from the relevant component(s) under `src/components/` or
    `src/app/**`, following `.github/instructions/components.instructions.md`.
-7. **Tests**: add/extend tests for the hook (mocked axios + `QueryClientProvider`) and any component
+6. **Tests**: add/extend tests for the hook (mocked axios + `QueryClientProvider`) and any component
    behavior change, per `.github/instructions/testing.instructions.md` — watch for the `vi.hoisted`
    stable-mock-reference gotcha documented there.
-8. **Context** (once Phase 2 tooling lands): run `yarn context:build` so `context/api-binding.md`
+7. **Context** (once Phase 2 tooling lands): run `yarn context:build` so `context/api-binding.md`
    picks up the new endpoint↔hook↔query-key mapping.
-9. Verify: `yarn lint && yarn test --run && yarn build`.
+8. Verify: `yarn lint && yarn test --run && yarn build`.

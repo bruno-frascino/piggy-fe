@@ -11,12 +11,6 @@ applyTo: 'src/hooks/**,src/lib/api/**'
 - React Query hooks in `src/hooks/api.ts` are the ONLY thing components call — never import
   `src/lib/api/*` directly from `src/app/**` pages or `src/components/**`.
 - Never hardcode API URLs. Use `NEXT_PUBLIC_API_URL` (default `http://localhost:4000/api`).
-- Every `apiClient` method needs a mock-mode branch in `src/lib/mock-api.ts` guarded by
-  `NEXT_PUBLIC_USE_MOCK_API=true`. Read methods return sensible mock/empty data; write methods
-  return `{ success: true }` no-ops matching the existing sibling convention. Verify with
-  `yarn test --run src/lib/api-client.mock-parity.test.ts` after adding a new endpoint — it fails
-  loudly if any method has no mock branch (sentinel axios mock rejects on any real network call
-  attempted in mock mode).
 - Data shapes: camelCase JSON keys both sides, no transform layer. `src/lib/types.ts` is the
   manually mirrored source of truth for app code (ADR 0007) — update it whenever
   `piggy-api/prisma/schema.prisma` changes a relevant model.

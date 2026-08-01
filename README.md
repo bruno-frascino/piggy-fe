@@ -26,10 +26,9 @@ Open [http://localhost:3000](http://localhost:3000).
 
 ### Environment variables
 
-| Variable                   | Purpose                                                                 |
-| -------------------------- | ----------------------------------------------------------------------- |
-| `NEXT_PUBLIC_API_URL`      | Base URL of `piggy-api` (default `http://localhost:4000/api`)           |
-| `NEXT_PUBLIC_USE_MOCK_API` | `true` to run entirely against `src/lib/mock-api.ts`, no backend needed |
+| Variable              | Purpose                                                       |
+| --------------------- | ------------------------------------------------------------- |
+| `NEXT_PUBLIC_API_URL` | Base URL of `piggy-api` (default `http://localhost:4000/api`) |
 
 ## Scripts
 
@@ -51,7 +50,7 @@ src/
   app/           # Next.js App Router pages (auth/, history/, reports/, account/, offline/)
   components/    # PrimeReact-based shared UI components
   hooks/         # React Query hooks (api.ts) + extracted view-logic hooks
-  lib/           # api-client facade, api/* HTTP modules, types.ts, format.ts, mock-api.ts
+  lib/           # api-client facade, api/* HTTP modules, types.ts, format.ts
 docs/adr/        # Architecture decision records
 ```
 

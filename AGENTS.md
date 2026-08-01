@@ -16,8 +16,7 @@ yarn lint              # eslint .
 ```
 
 Package manager is **yarn only** (yarn 1.22.22, matching `piggy-api`) — do not introduce npm/pnpm
-lockfiles. Env vars: `NEXT_PUBLIC_API_URL` (default `http://localhost:4000/api`),
-`NEXT_PUBLIC_USE_MOCK_API=true` for offline dev against `src/lib/mock-api.ts`.
+lockfiles. Env var: `NEXT_PUBLIC_API_URL` (default `http://localhost:4000/api`).
 
 ## Hard rules
 
@@ -27,25 +26,22 @@ lockfiles. Env vars: `NEXT_PUBLIC_API_URL` (default `http://localhost:4000/api`)
 2. Components call the backend only via React Query hooks in `src/hooks/api.ts`, never by importing
    `src/lib/api/*` directly from a page or component. Helper hooks also consume `src/hooks/api.ts`;
    do not add direct `apiClient` imports elsewhere under `src/hooks/`.
-3. Every `apiClient` method needs a mock-mode branch (`NEXT_PUBLIC_USE_MOCK_API=true`) — enforced by
-   `src/lib/api-client.mock-parity.test.ts`, which walks all methods with a sentinel axios mock that
-   fails if any real network call is attempted.
-4. Data shapes are the **manually mirrored** `src/lib/types.ts`, kept in sync with
+3. Data shapes are the **manually mirrored** `src/lib/types.ts`, kept in sync with
    `piggy-api/prisma/schema.prisma` by hand (see ADR 0007 — generated types are reference-only,
    never imported by app code).
-5. Functional components + hooks only, no class components. Strict TypeScript, no `any`.
-6. `localStorage` access must be guarded with `typeof window !== 'undefined'` and wrapped in
+4. Functional components + hooks only, no class components. Strict TypeScript, no `any`.
+5. `localStorage` access must be guarded with `typeof window !== 'undefined'` and wrapped in
    `try/catch`, falling back to in-memory state if unavailable.
-7. Dashboard UX is account-first and position-first — see
+6. Dashboard UX is account-first and position-first — see
    `.github/instructions/components.instructions.md` and `/memories/repo/portfolio-behavior.md`
    conventions before changing dashboard flow.
-8. PWA/offline: read-only views (portfolio, history) show cached last-successful data plus a
+7. PWA/offline: read-only views (portfolio, history) show cached last-successful data plus a
    stale-data indicator when offline; do not queue or auto-retry offline mutations. Never cache
    authenticated `/api` responses in the service worker; clear client/query caches on sign-out.
-9. Every feature/bugfix ships with tests in the same change set (`@testing-library/react` for
+8. Every feature/bugfix ships with tests in the same change set (`@testing-library/react` for
    components, mocked Axios + `QueryClientProvider` for hooks).
-10. Light-mode-only design system (`--tr-*` tokens in `globals.css`) — no dark mode, no rebrand, per
-    deliberate decision (ADR 0005).
+9. Light-mode-only design system (`--tr-*` tokens in `globals.css`) — no dark mode, no rebrand, per
+   deliberate decision (ADR 0005).
 
 ## Where to look
 
@@ -79,8 +75,7 @@ src/
     api-client.ts     # thin facade re-exporting src/lib/api/* (http, mappers, auth,
                        # accounts, user, portfolio, positions, stocks, tax-reports)
     types.ts          # manually mirrored TypeScript interfaces
-    format.ts          # formatCurrency / formatPct / returnClass (shared formatting)
-    mock-api.ts        # mock implementations for NEXT_PUBLIC_USE_MOCK_API=true
+   format.ts          # formatCurrency / formatPct / returnClass (shared formatting)
 ```
 
 ## Frontend/backend coordination

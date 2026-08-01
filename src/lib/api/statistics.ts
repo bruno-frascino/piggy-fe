@@ -15,8 +15,6 @@ import type {
 } from '../types';
 import { isRecord, unwrapArray } from './mappers';
 
-const USE_MOCK_API = process.env.NEXT_PUBLIC_USE_MOCK_API === 'true';
-
 type TimeSeriesMetric = 'equity' | 'totalPnL' | 'realizedPnL';
 type TimeSeriesGranularity = 'day' | 'week' | 'month';
 
@@ -85,10 +83,6 @@ export function createStatisticsApi(client: AxiosInstance) {
     async getStatisticsSummary(
       filters: StatisticsFilters = {}
     ): Promise<StatisticsSummary> {
-      if (USE_MOCK_API) {
-        return emptySummary();
-      }
-
       const response = await client.get('/statistics/summary', {
         params: buildScopeParams(filters),
       });
@@ -103,14 +97,6 @@ export function createStatisticsApi(client: AxiosInstance) {
       metric: TimeSeriesMetric;
       granularity?: TimeSeriesGranularity;
     }): Promise<StatisticsTimeSeries> {
-      if (USE_MOCK_API) {
-        return {
-          points: [],
-          currency: 'USD',
-          asOf: new Date().toISOString(),
-        };
-      }
-
       const response = await client.get('/statistics/timeseries', {
         params: {
           ...buildScopeParams(params.filters ?? {}),
@@ -149,17 +135,6 @@ export function createStatisticsApi(client: AxiosInstance) {
       sortBy?: StatisticsClosedTradesSortBy;
       sortDir?: StatisticsClosedTradesSortDir;
     }): Promise<StatisticsClosedTradesResponse> {
-      if (USE_MOCK_API) {
-        return {
-          rows: [],
-          meta: {
-            total: 0,
-            limit: params.limit ?? 50,
-            offset: params.offset ?? 0,
-          },
-        };
-      }
-
       const response = await client.get('/statistics/closed-trades', {
         params: {
           ...buildScopeParams(params.filters ?? {}),
@@ -191,10 +166,6 @@ export function createStatisticsApi(client: AxiosInstance) {
     async getStatisticsDistributions(
       filters: StatisticsFilters = {}
     ): Promise<StatisticsDistributions> {
-      if (USE_MOCK_API) {
-        return emptyDistributions();
-      }
-
       const response = await client.get('/statistics/distributions', {
         params: buildScopeParams(filters),
       });
@@ -212,10 +183,6 @@ export function createStatisticsApi(client: AxiosInstance) {
     async getStatisticsRisk(
       filters: StatisticsFilters = {}
     ): Promise<StatisticsRisk> {
-      if (USE_MOCK_API) {
-        return emptyRisk();
-      }
-
       const response = await client.get('/statistics/risk', {
         params: buildScopeParams(filters),
       });
@@ -253,10 +220,6 @@ export function createStatisticsApi(client: AxiosInstance) {
       by: StatisticsBreakdownBy;
       metric: StatisticsBreakdownMetric;
     }): Promise<StatisticsBreakdownsResponse> {
-      if (USE_MOCK_API) {
-        return { rows: [], total: 0 };
-      }
-
       const response = await client.get('/statistics/breakdowns', {
         params: {
           ...buildScopeParams(params.filters ?? {}),

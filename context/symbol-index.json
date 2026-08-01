@@ -864,13 +864,13 @@
     "startLine": 14
   },
   {
-    "endLine": 276,
+    "endLine": 239,
     "file": "src/lib/api/statistics.ts",
     "jsdoc": "",
     "kind": "FunctionDeclaration",
     "name": "createStatisticsApi",
     "signature": "export function createStatisticsApi(client: AxiosInstance)",
-    "startLine": 83
+    "startLine": 81
   },
   {
     "endLine": 49,
