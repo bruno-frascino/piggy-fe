@@ -24,11 +24,12 @@ is verified or resolved.
 
 ## Hosted enforcement
 
-- Open a pull request and confirm the PR-only `CI` workflow passes on GitHub-hosted Ubuntu. Local
-  lint, test, build, and context checks pass, but the hosted workflow has not run yet.
-- After the first successful run, consider making the `CI / Lint, test, build, context:check` check
-  required in branch protection. Local Husky hooks can be bypassed and are not an authoritative
-  control.
+- Push a documentation-only test change or use `workflow_dispatch` and confirm the `CI` workflow
+  passes on GitHub-hosted Ubuntu. Local lint, test, build, and context checks pass, but the hosted
+  workflow has not been verified yet.
+- Check the GitHub Actions result after every direct push. The hosted workflow runs after `main` is
+  updated, so failures require a follow-up fix or revert; local Husky hooks remain the preventive
+  consistency check and can be bypassed.
 
 ## Generator maintenance
 
