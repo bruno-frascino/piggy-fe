@@ -45,3 +45,9 @@ applyTo: 'src/components/**'
 - Form-level errors: PrimeReact `<Message severity="error" text={...} />`.
 - Global mutation success/error feedback: PrimeReact `<Toast>` via the `useToast()` hook (context
   provider) — don't prop-drill a toast ref.
+
+## Date display format
+
+- All user-facing dates must be displayed as `dd/MM/yyyy` (for example `01/08/2026`).
+- Keep transport/query dates in machine-friendly formats where needed (e.g. `YYYY-MM-DD`), but
+  always format them for UI display before rendering.

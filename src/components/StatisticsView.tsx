@@ -321,14 +321,14 @@ export default function StatisticsView() {
   };
 
   const periodLabel = compareEnabled
-    ? `Comparing ${previousFilters?.dateFrom}..${previousFilters?.dateTo} against current period`
+    ? `Comparing ${formatDateDDMMYYYY(previousFilters?.dateFrom ?? '')}..${formatDateDDMMYYYY(previousFilters?.dateTo ?? '')} against current period`
     : null;
 
   const handleExportSnapshot = () => {
     const openedAt = new Date();
-    const openedAtLabel = openedAt.toLocaleString();
-    const fromLabel = fromDate ? toLocalDateString(fromDate) : 'N/A';
-    const toLabel = toDate ? toLocalDateString(toDate) : 'N/A';
+    const openedAtLabel = `${formatDateDDMMYYYY(openedAt)} ${openedAt.toLocaleTimeString()}`;
+    const fromLabel = fromDate ? formatDateDDMMYYYY(fromDate) : 'N/A';
+    const toLabel = toDate ? formatDateDDMMYYYY(toDate) : 'N/A';
 
     const rows = (closedTrades?.rows ?? [])
       .map(
@@ -588,7 +588,7 @@ export default function StatisticsView() {
                   setActivePreset('CUSTOM');
                   setPageFirst(0);
                 }}
-                dateFormat='yy-mm-dd'
+                dateFormat='dd/mm/yy'
                 showIcon
                 className='w-full'
               />
@@ -607,7 +607,7 @@ export default function StatisticsView() {
                   setActivePreset('CUSTOM');
                   setPageFirst(0);
                 }}
-                dateFormat='yy-mm-dd'
+                dateFormat='dd/mm/yy'
                 showIcon
                 className='w-full'
               />
