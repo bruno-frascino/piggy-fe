@@ -186,15 +186,6 @@ export function createPositionsApi(client: AxiosInstance) {
       return response.data;
     },
 
-    async deleteCloseEvent(id: string) {
-      if (USE_MOCK_API) {
-        return { success: true };
-      }
-
-      const response = await client.delete(`/positions/close-events/${id}`);
-      return response.data;
-    },
-
     async closePosition(
       id: string,
       closeDate: string,

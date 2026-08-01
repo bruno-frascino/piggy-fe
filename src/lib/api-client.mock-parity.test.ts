@@ -122,10 +122,6 @@ describe('apiClient mock-mode parity', () => {
       call: () => apiClient.updateCloseEvent('evt-1', { notes: 'x' }),
     },
     {
-      name: 'deleteCloseEvent',
-      call: () => apiClient.deleteCloseEvent('evt-1'),
-    },
-    {
       name: 'closePosition',
       call: () => apiClient.closePosition('pos-1', '2026-02-01', 110),
     },

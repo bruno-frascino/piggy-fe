@@ -37,6 +37,25 @@ async function main(): Promise<void> {
   const entries: Record<string, ManifestEntry> = {}
   let hadArchitectureViolations = false
 
+  if (contractExists()) {
+    const apiTypes = await generateApiTypes()
+    entries['api-types.ts'] = {
+      path: relKey(API_TYPES_PATH),
+      sha256: writeArtifact(API_TYPES_PATH, apiTypes.content),
+    }
+
+    const contractDrift = generateContractDrift()
+    entries['contract-drift.md'] = {
+      path: relKey(CONTRACT_DRIFT_PATH),
+      sha256: writeArtifact(CONTRACT_DRIFT_PATH, contractDrift.content),
+    }
+  } else {
+    console.warn(
+      '⚠ contracts/openapi.json not found — skipping api-types.ts + contract-drift.md.\n' +
+        '  Run `yarn contract:pull` (dev-machine only) to vendor it from ../piggy-api.'
+    )
+  }
+
   const routeMap = generateRouteMap()
   entries['route-map.md'] = { path: relKey(ROUTE_MAP_PATH), sha256: writeArtifact(ROUTE_MAP_PATH, routeMap.content) }
 
@@ -80,25 +99,6 @@ async function main(): Promise<void> {
   entries['unused.json'] = {
     path: relKey(UNUSED_PATH),
     sha256: writeArtifact(UNUSED_PATH, stableStringify(unused.report)),
-  }
-
-  if (contractExists()) {
-    const apiTypes = await generateApiTypes()
-    entries['api-types.ts'] = {
-      path: relKey(API_TYPES_PATH),
-      sha256: writeArtifact(API_TYPES_PATH, apiTypes.content),
-    }
-
-    const contractDrift = generateContractDrift()
-    entries['contract-drift.md'] = {
-      path: relKey(CONTRACT_DRIFT_PATH),
-      sha256: writeArtifact(CONTRACT_DRIFT_PATH, contractDrift.content),
-    }
-  } else {
-    console.warn(
-      '⚠ contracts/openapi.json not found — skipping api-types.ts + contract-drift.md.\n' +
-        '  Run `yarn contract:pull` (dev-machine only) to vendor it from ../piggy-api.'
-    )
   }
 
   writeManifest(MANIFEST_PATH, entries)

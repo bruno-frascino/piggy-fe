@@ -42,5 +42,5 @@ There is no accepted architecture-violation baseline. `yarn context:build` and
 `yarn context:check` fail on every encoded violation. Components, pages, and helper hooks all use
 the central React Query layer in `src/hooks/api.ts`.
 
-The cleanup plan and other deferred operational concerns are tracked in
-`docs/context-maintenance-follow-ups.md`.
+Generator maintenance and review rules live in
+`.github/instructions/context-maintenance.instructions.md`.

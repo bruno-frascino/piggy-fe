@@ -2,8 +2,13 @@
 
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-type InterceptorFulfilled = (value: any) => any;
-type InterceptorRejected = (error: any) => any;
+type TestRequestConfig = {
+  headers: Record<string, string>;
+  url?: string;
+  _retry?: boolean;
+};
+type InterceptorFulfilled = (value: TestRequestConfig) => TestRequestConfig;
+type InterceptorRejected = (error: unknown) => unknown | Promise<unknown>;
 
 const axiosPostMock = vi.fn();
 const axiosCreateMock = vi.fn();
@@ -67,7 +72,7 @@ describe('api-client', () => {
     const config = { headers: {} as Record<string, string> };
     const result = requestFulfilled?.(config);
 
-    expect(result.headers.Authorization).toBe('Bearer token-1');
+    expect(result?.headers.Authorization).toBe('Bearer token-1');
   });
 
   it('refreshes token on 401 and retries original request', async () => {
@@ -486,7 +491,6 @@ describe('api-client', () => {
     await apiClient.logout('refresh-1');
     await apiClient.closePosition('p1', '2026-05-10', 120, 2, 1, 'done');
     await apiClient.updateCloseEvent('ce1', { exitPrice: 125 });
-    await apiClient.deleteCloseEvent('ce1');
     await apiClient.deletePosition('p1');
 
     expect(axiosClientMock.post).toHaveBeenCalledWith('/auth/login', {
@@ -518,9 +522,6 @@ describe('api-client', () => {
     expect(axiosClientMock.patch).toHaveBeenCalledWith(
       '/positions/close-events/ce1',
       { exitPrice: 125 }
-    );
-    expect(axiosClientMock.delete).toHaveBeenCalledWith(
-      '/positions/close-events/ce1'
     );
     expect(axiosClientMock.delete).toHaveBeenCalledWith('/positions/p1');
   });

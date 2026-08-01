@@ -783,7 +783,7 @@
     "startLine": 27
   },
   {
-    "endLine": 230,
+    "endLine": 221,
     "file": "src/lib/api/positions.ts",
     "jsdoc": "",
     "kind": "FunctionDeclaration",
@@ -882,7 +882,7 @@
     "startLine": 14
   },
   {
-    "endLine": 1578,
+    "endLine": 1645,
     "file": "src/lib/generated/api-types.ts",
     "jsdoc": "GENERATED from contracts/openapi.json by scripts/context/generate-api-types.ts. REFERENCE ONLY — never import this file from app code (components/hooks/pages). src/lib/types.ts is the manually mirrored source of truth (see docs/adr/0007-manual-types-mirror.md). See context/contract-drift.md for a report of any drift between the two.",
     "kind": "InterfaceDeclaration",
@@ -891,40 +891,40 @@
     "startLine": 7
   },
   {
-    "endLine": 1579,
+    "endLine": 1646,
     "file": "src/lib/generated/api-types.ts",
     "jsdoc": "",
     "kind": "TypeAliasDeclaration",
     "name": "webhooks",
     "signature": "export type webhooks = Record<string, never>;",
-    "startLine": 1579
+    "startLine": 1646
   },
   {
-    "endLine": 1637,
+    "endLine": 1683,
     "file": "src/lib/generated/api-types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "components",
     "signature": "export interface components",
-    "startLine": 1580
+    "startLine": 1647
   },
   {
-    "endLine": 1638,
+    "endLine": 1684,
     "file": "src/lib/generated/api-types.ts",
     "jsdoc": "",
     "kind": "TypeAliasDeclaration",
     "name": "$defs",
     "signature": "export type $defs = Record<string, never>;",
-    "startLine": 1638
+    "startLine": 1684
   },
   {
-    "endLine": 1639,
+    "endLine": 1685,
     "file": "src/lib/generated/api-types.ts",
     "jsdoc": "",
     "kind": "TypeAliasDeclaration",
     "name": "operations",
     "signature": "export type operations = Record<string, never>;",
-    "startLine": 1639
+    "startLine": 1685
   },
   {
     "endLine": 10,
@@ -1242,48 +1242,57 @@
     "startLine": 62
   },
   {
-    "endLine": 74,
+    "endLine": 73,
+    "file": "src/lib/types.ts",
+    "jsdoc": "",
+    "kind": "InterfaceDeclaration",
+    "name": "ApiErrorResponse",
+    "signature": "export interface ApiErrorResponse",
+    "startLine": 69
+  },
+  {
+    "endLine": 82,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "UserProfile",
     "signature": "export interface UserProfile",
-    "startLine": 69
+    "startLine": 75
   },
   {
-    "endLine": 81,
+    "endLine": 89,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "UpdateUserProfilePayload",
     "signature": "export interface UpdateUserProfilePayload",
-    "startLine": 76
+    "startLine": 84
   },
   {
-    "endLine": 105,
+    "endLine": 113,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "TaxReportLineItem",
     "signature": "export interface TaxReportLineItem",
-    "startLine": 83
+    "startLine": 91
   },
   {
-    "endLine": 123,
+    "endLine": 131,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "TaxReport",
     "signature": "export interface TaxReport",
-    "startLine": 107
+    "startLine": 115
   },
   {
-    "endLine": 149,
+    "endLine": 157,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "ClosedTrade",
     "signature": "export interface ClosedTrade",
-    "startLine": 129
+    "startLine": 137
   }
 ]

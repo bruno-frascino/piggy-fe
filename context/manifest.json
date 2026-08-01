@@ -2,11 +2,11 @@
   "artifacts": {
     "api-binding.md": {
       "path": "context/api-binding.md",
-      "sha256": "fe1135cdd0b4658744cfe69da27d4954d9e5ab89826d70170344de6599c0be7a"
+      "sha256": "67cd2228adffe15aa11ededb59786918316271f03200ebd0d686237b9d28341c"
     },
     "api-types.ts": {
       "path": "src/lib/generated/api-types.ts",
-      "sha256": "c7cd8b0b5232fcb31482491e349a849b207b353212dacc4d7c7f839683f4590a"
+      "sha256": "a8bb429c17e6739c31b8d4b69d4437a11146533fb2f17e98ce269cd6bad915f9"
     },
     "component-index.md": {
       "path": "context/component-index.md",
@@ -14,7 +14,7 @@
     },
     "contract-drift.md": {
       "path": "context/contract-drift.md",
-      "sha256": "cb79a3e8b649f4327c059946149687cbc8b832639327292bf0fb787ee0a9856f"
+      "sha256": "aa281f8162e11db855d6288eff7a07bbf792b2eeff5d0615499e44b78b4af51b"
     },
     "data-flow.md": {
       "path": "context/data-flow.md",
@@ -34,13 +34,13 @@
     },
     "symbol-index.json": {
       "path": "context/symbol-index.json",
-      "sha256": "ea267c36e9a1481585f8731e3c53b9696bab30a3645288d6b153422be1e5f535"
+      "sha256": "cd1c8a5990a1be004c208d2ef14fa7a120ab7ac2a858b2de960e41d3aab0c029"
     },
     "unused.json": {
       "path": "context/unused.json",
-      "sha256": "5c453d026ab56464c34c79d3b2ba47f5009c47973f32f4b2f34e9edf645a21f3"
+      "sha256": "477af2dfa953ca256bc037440fdc3321d87445a6152f13dc8a550b5ce70035cd"
     }
   },
-  "generatedAt": "2026-08-01T05:08:09.901Z",
+  "generatedAt": "2026-08-01T05:21:43.600Z",
   "generatorVersion": 1
 }

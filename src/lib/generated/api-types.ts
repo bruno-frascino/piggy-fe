@@ -874,6 +874,73 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/positions/close-events/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Update a close event (SELL transaction) */
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        /** Format: date-time */
+                        closeDate?: string;
+                        exitPrice?: number;
+                        notes?: string;
+                        sellFees?: number;
+                    };
+                };
+            };
+            responses: {
+                /** @description Updated SELL transaction */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Validation error */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Close event not found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        trace?: never;
+    };
     "/api/positions/{id}": {
         parameters: {
             query?: never;
@@ -1582,38 +1649,17 @@ export interface components {
         Error: {
             /** @description Detailed validation errors */
             details?: Record<string, never>[];
-            /** @description Error message */
+            /** @description Stable error category */
             error?: string;
-            /** @example false */
-            success?: boolean;
-        };
-        Exchange: {
-            /** @description Exchange code (e.g., NYSE, NASDAQ) */
-            code?: string;
-            /** @description Country where exchange is located */
-            country?: string;
-            /** Format: date-time */
-            createdAt?: string;
-            /** @description Exchange currency (3 letters) */
-            currency?: string;
-            /** @description Unique identifier */
-            id?: string;
-            /** @description Whether exchange is active */
-            isActive?: boolean;
-            /** @description Exchange full name */
-            name?: string;
-            /** @description Exchange timezone */
-            timezone?: string;
-            /** Format: date-time */
-            updatedAt?: string;
-        };
-        Success: {
-            /** @description Response data */
-            data?: Record<string, never>;
-            /** @example true */
-            success?: boolean;
+            /** @description Human-readable error detail */
+            message?: string;
         };
         User: {
+            /**
+             * @description User portfolio base currency (3 letters)
+             * @example USD
+             */
+            baseCurrency?: string;
             /** Format: date-time */
             createdAt?: string;
             /**

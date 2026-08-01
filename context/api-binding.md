@@ -38,4 +38,4 @@
 
 ## apiClient methods with no hook
 
-- `deleteCloseEvent` — no hook in src/hooks/** calls this method.
+None — every apiClient method is called from at least one hook. ✅

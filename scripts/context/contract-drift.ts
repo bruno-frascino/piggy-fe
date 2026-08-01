@@ -28,6 +28,11 @@ interface DriftEntry {
   extraInTypes: string[]
 }
 
+const SCHEMA_INTERFACE_ALIASES: Record<string, string> = {
+  Error: 'ApiErrorResponse',
+  User: 'UserProfile',
+}
+
 export function contractExists(): boolean {
   return existsSync(CONTRACT_PATH)
 }
@@ -44,7 +49,8 @@ export function generateContractDrift(): { content: string; driftCount: number }
 
   const entries: DriftEntry[] = []
   for (const [schemaName, schema] of Object.entries(schemas)) {
-    const iface = interfaces.get(schemaName)
+    const interfaceName = SCHEMA_INTERFACE_ALIASES[schemaName] ?? schemaName
+    const iface = interfaces.get(interfaceName)
     const schemaFields = new Set(Object.keys(schema.properties ?? {}))
     if (!iface) {
       entries.push({ schemaName, matchedInterface: null, missingFromTypes: [...schemaFields], extraInTypes: [] })
@@ -53,13 +59,18 @@ export function generateContractDrift(): { content: string; driftCount: number }
     const typeFields = new Set(iface.getProperties().map((p) => p.getName()))
     entries.push({
       schemaName,
-      matchedInterface: schemaName,
+      matchedInterface: interfaceName,
       missingFromTypes: [...schemaFields].filter((f) => !typeFields.has(f)),
       extraInTypes: [...typeFields].filter((f) => !schemaFields.has(f)),
     })
   }
 
-  const unmatchedInterfaces = [...interfaces.keys()].filter((name) => !schemas[name])
+  const matchedInterfaces = new Set(
+    entries.flatMap((entry) => (entry.matchedInterface ? [entry.matchedInterface] : []))
+  )
+  const unmatchedInterfaces = [...interfaces.keys()].filter(
+    (name) => !schemas[name] && !matchedInterfaces.has(name)
+  )
   const driftCount = entries.filter(
     (e) => e.matchedInterface === null || e.missingFromTypes.length > 0
   ).length
@@ -81,6 +92,9 @@ export function generateContractDrift(): { content: string; driftCount: number }
     if (!e.matchedInterface) {
       lines.push(`No interface named \`${e.schemaName}\` found in \`src/lib/types.ts\`.`, '')
       continue
+    }
+    if (e.matchedInterface !== e.schemaName) {
+      lines.push(`Matched to \`${e.matchedInterface}\` in \`src/lib/types.ts\`.`, '')
     }
     if (e.missingFromTypes.length === 0 && e.extraInTypes.length === 0) {
       lines.push('In sync. ✅', '')

@@ -4,24 +4,20 @@
 > WARNING-only artifact: a non-empty drift list never fails the build (see
 > `docs/adr/0007-manual-types-mirror.md`). `src/lib/types.ts` remains the source of truth.
 
-- OpenAPI component schemas: 4
-- Schemas with drift or no matching interface: 4
+- OpenAPI component schemas: 2
+- Schemas with drift or no matching interface: 0
 
 ## `Error`
 
-No interface named `Error` found in `src/lib/types.ts`.
+Matched to `ApiErrorResponse` in `src/lib/types.ts`.
 
-## `Exchange`
-
-No interface named `Exchange` found in `src/lib/types.ts`.
-
-## `Success`
-
-No interface named `Success` found in `src/lib/types.ts`.
+In sync. ✅
 
 ## `User`
 
-No interface named `User` found in `src/lib/types.ts`.
+Matched to `UserProfile` in `src/lib/types.ts`.
+
+In sync. ✅
 
 ## Interfaces in types.ts with no matching OpenAPI schema name
 
@@ -34,7 +30,6 @@ No interface named `User` found in `src/lib/types.ts`.
 - `StockSearchResult`
 - `QuoteResult`
 - `TradingAccount`
-- `UserProfile`
 - `UpdateUserProfilePayload`
 - `TaxReportLineItem`
 - `TaxReport`

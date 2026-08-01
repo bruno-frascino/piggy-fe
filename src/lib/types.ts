@@ -66,11 +66,19 @@ export interface TradingAccount {
   closedAt?: string | null;
 }
 
+export interface ApiErrorResponse {
+  error: string;
+  message?: string;
+  details?: unknown[];
+}
+
 export interface UserProfile {
   id: string;
   name: string;
   email: string;
   baseCurrency: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface UpdateUserProfilePayload {
