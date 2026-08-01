@@ -1,0 +1,9 @@
+context/
+coverage/
+.next/
+node_modules/
+public/sw.js
+public/workbox-*.js
+public/swe-worker-*.js
+src/lib/generated/
+contracts/

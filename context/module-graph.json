@@ -1,0 +1,2653 @@
+{
+  "modules": [
+    {
+      "dependencies": [
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/hooks/api",
+          "moduleSystem": "es6",
+          "resolved": "src/hooks/api.ts",
+          "valid": true
+        }
+      ],
+      "dependents": [],
+      "orphan": false,
+      "source": "src/app/account/page.tsx",
+      "valid": true
+    },
+    {
+      "dependencies": [
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/lib/api-client",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/api-client.ts",
+          "valid": true
+        }
+      ],
+      "dependents": [
+        "src/app/account/page.tsx",
+        "src/app/auth/forgot-password/page.tsx",
+        "src/app/auth/login/page.tsx",
+        "src/app/auth/reset-password/page.tsx",
+        "src/app/auth/signup/page.tsx",
+        "src/app/history/page.tsx",
+        "src/components/TopNav.tsx",
+        "src/components/DashboardView.tsx",
+        "src/hooks/useHoldingRows.ts",
+        "src/hooks/useExchangeDiscovery.ts",
+        "src/components/ReportsView.tsx",
+        "src/components/GenerateReportDialog.tsx",
+        "src/components/ReportDetailDialog.tsx"
+      ],
+      "orphan": false,
+      "source": "src/hooks/api.ts",
+      "valid": true
+    },
+    {
+      "dependencies": [
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "local",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "./api/accounts",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/api/accounts.ts",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "local",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "./api/auth",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/api/auth.ts",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "local",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "./api/http",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/api/http.ts",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "local",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "./api/portfolio",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/api/portfolio.ts",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "local",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "./api/positions",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/api/positions.ts",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "local",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "./api/stocks",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/api/stocks.ts",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "local",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "./api/tax-reports",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/api/tax-reports.ts",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "local",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "./api/user",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/api/user.ts",
+          "valid": true
+        }
+      ],
+      "dependents": [
+        "src/hooks/api.ts",
+        "src/app/history/page.tsx",
+        "src/components/TopNav.tsx",
+        "src/lib/offline-write-queue.ts",
+        "src/components/HoldingsTable.tsx",
+        "src/hooks/useAccountNameSuggestions.ts",
+        "src/hooks/useSymbolSearch.ts",
+        "src/hooks/useHoldingRows.ts",
+        "src/components/ReportsView.tsx",
+        "src/lib/api-client.mock-parity.test.ts",
+        "src/lib/api-client.test.ts"
+      ],
+      "orphan": false,
+      "source": "src/lib/api-client.ts",
+      "valid": true
+    },
+    {
+      "dependencies": [
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "local",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "./mappers",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/api/mappers.ts",
+          "valid": true
+        }
+      ],
+      "dependents": [
+        "src/lib/api-client.ts"
+      ],
+      "orphan": false,
+      "source": "src/lib/api/accounts.ts",
+      "valid": true
+    },
+    {
+      "dependencies": [],
+      "dependents": [
+        "src/lib/api/accounts.ts",
+        "src/lib/api/portfolio.ts",
+        "src/lib/api/positions.ts",
+        "src/lib/api/stocks.ts",
+        "src/lib/api/tax-reports.ts",
+        "src/lib/api/user.ts"
+      ],
+      "orphan": false,
+      "source": "src/lib/api/mappers.ts",
+      "valid": true
+    },
+    {
+      "dependencies": [
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "local",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "../mock-api",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/mock-api.ts",
+          "valid": true
+        }
+      ],
+      "dependents": [
+        "src/lib/api-client.ts"
+      ],
+      "orphan": false,
+      "source": "src/lib/api/auth.ts",
+      "valid": true
+    },
+    {
+      "dependencies": [],
+      "dependents": [
+        "src/lib/api/auth.ts"
+      ],
+      "orphan": false,
+      "source": "src/lib/mock-api.ts",
+      "valid": true
+    },
+    {
+      "dependencies": [],
+      "dependents": [
+        "src/lib/api-client.ts"
+      ],
+      "orphan": false,
+      "source": "src/lib/api/http.ts",
+      "valid": true
+    },
+    {
+      "dependencies": [
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "local",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "../mock-portfolio",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/mock-portfolio.ts",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "local",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "./mappers",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/api/mappers.ts",
+          "valid": true
+        }
+      ],
+      "dependents": [
+        "src/lib/api-client.ts"
+      ],
+      "orphan": false,
+      "source": "src/lib/api/portfolio.ts",
+      "valid": true
+    },
+    {
+      "dependencies": [],
+      "dependents": [
+        "src/lib/api/portfolio.ts",
+        "src/lib/api/positions.ts"
+      ],
+      "orphan": false,
+      "source": "src/lib/mock-portfolio.ts",
+      "valid": true
+    },
+    {
+      "dependencies": [
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "local",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "../mock-holdings",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/mock-holdings.ts",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "local",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "../mock-portfolio",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/mock-portfolio.ts",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "local",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "./mappers",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/api/mappers.ts",
+          "valid": true
+        }
+      ],
+      "dependents": [
+        "src/lib/api-client.ts"
+      ],
+      "orphan": false,
+      "source": "src/lib/api/positions.ts",
+      "valid": true
+    },
+    {
+      "dependencies": [],
+      "dependents": [
+        "src/lib/api/positions.ts"
+      ],
+      "orphan": false,
+      "source": "src/lib/mock-holdings.ts",
+      "valid": true
+    },
+    {
+      "dependencies": [
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "local",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "./mappers",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/api/mappers.ts",
+          "valid": true
+        }
+      ],
+      "dependents": [
+        "src/lib/api-client.ts"
+      ],
+      "orphan": false,
+      "source": "src/lib/api/stocks.ts",
+      "valid": true
+    },
+    {
+      "dependencies": [
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "local",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "./mappers",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/api/mappers.ts",
+          "valid": true
+        }
+      ],
+      "dependents": [
+        "src/lib/api-client.ts"
+      ],
+      "orphan": false,
+      "source": "src/lib/api/tax-reports.ts",
+      "valid": true
+    },
+    {
+      "dependencies": [
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "local",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "./mappers",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/api/mappers.ts",
+          "valid": true
+        }
+      ],
+      "dependents": [
+        "src/lib/api-client.ts"
+      ],
+      "orphan": false,
+      "source": "src/lib/api/user.ts",
+      "valid": true
+    },
+    {
+      "dependencies": [
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/components/CoreHeader",
+          "moduleSystem": "es6",
+          "resolved": "src/components/CoreHeader.tsx",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/hooks/api",
+          "moduleSystem": "es6",
+          "resolved": "src/hooks/api.ts",
+          "valid": true
+        }
+      ],
+      "dependents": [],
+      "orphan": false,
+      "source": "src/app/auth/forgot-password/page.tsx",
+      "valid": true
+    },
+    {
+      "dependencies": [],
+      "dependents": [
+        "src/app/auth/forgot-password/page.tsx",
+        "src/app/auth/login/page.tsx",
+        "src/app/auth/reset-password/page.tsx",
+        "src/app/auth/signup/page.tsx"
+      ],
+      "orphan": false,
+      "source": "src/components/CoreHeader.tsx",
+      "valid": true
+    },
+    {
+      "dependencies": [
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/components/CoreHeader",
+          "moduleSystem": "es6",
+          "resolved": "src/components/CoreHeader.tsx",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/hooks/api",
+          "moduleSystem": "es6",
+          "resolved": "src/hooks/api.ts",
+          "valid": true
+        }
+      ],
+      "dependents": [],
+      "orphan": false,
+      "source": "src/app/auth/login/page.tsx",
+      "valid": true
+    },
+    {
+      "dependencies": [
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/components/CoreHeader",
+          "moduleSystem": "es6",
+          "resolved": "src/components/CoreHeader.tsx",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/hooks/api",
+          "moduleSystem": "es6",
+          "resolved": "src/hooks/api.ts",
+          "valid": true
+        }
+      ],
+      "dependents": [],
+      "orphan": false,
+      "source": "src/app/auth/reset-password/page.tsx",
+      "valid": true
+    },
+    {
+      "dependencies": [
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/components/CoreHeader",
+          "moduleSystem": "es6",
+          "resolved": "src/components/CoreHeader.tsx",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/hooks/api",
+          "moduleSystem": "es6",
+          "resolved": "src/hooks/api.ts",
+          "valid": true
+        }
+      ],
+      "dependents": [],
+      "orphan": false,
+      "source": "src/app/auth/signup/page.tsx",
+      "valid": true
+    },
+    {
+      "dependencies": [
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/components/EditClosedTradeDialog",
+          "moduleSystem": "es6",
+          "resolved": "src/components/EditClosedTradeDialog.tsx",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/components/PageHeader",
+          "moduleSystem": "es6",
+          "resolved": "src/components/PageHeader.tsx",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/hooks/api",
+          "moduleSystem": "es6",
+          "resolved": "src/hooks/api.ts",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/lib/api-client",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/api-client.ts",
+          "rules": [
+            {
+              "name": "components-app-no-direct-api-client",
+              "severity": "error"
+            }
+          ],
+          "valid": false
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/lib/date",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/date.ts",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/lib/format",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/format.ts",
+          "valid": true
+        }
+      ],
+      "dependents": [],
+      "orphan": false,
+      "source": "src/app/history/page.tsx",
+      "valid": true
+    },
+    {
+      "dependencies": [],
+      "dependents": [
+        "src/app/history/page.tsx"
+      ],
+      "orphan": false,
+      "source": "src/components/EditClosedTradeDialog.tsx",
+      "valid": true
+    },
+    {
+      "dependencies": [],
+      "dependents": [
+        "src/app/history/page.tsx",
+        "src/components/ReportsView.tsx"
+      ],
+      "orphan": false,
+      "source": "src/components/PageHeader.tsx",
+      "valid": true
+    },
+    {
+      "dependencies": [],
+      "dependents": [
+        "src/app/history/page.tsx",
+        "src/components/DashboardView.tsx",
+        "src/lib/date.test.ts"
+      ],
+      "orphan": false,
+      "source": "src/lib/date.ts",
+      "valid": true
+    },
+    {
+      "dependencies": [],
+      "dependents": [
+        "src/app/history/page.tsx",
+        "src/components/HoldingsTable.tsx",
+        "src/lib/format.test.ts"
+      ],
+      "orphan": false,
+      "source": "src/lib/format.ts",
+      "valid": true
+    },
+    {
+      "dependencies": [
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "local",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": false,
+          "matchesDoNotFollow": false,
+          "module": "../styles/password-fix.css",
+          "moduleSystem": "es6",
+          "resolved": "src/styles/password-fix.css",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "local",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": false,
+          "matchesDoNotFollow": false,
+          "module": "./globals.css",
+          "moduleSystem": "es6",
+          "resolved": "src/app/globals.css",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "local",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "./providers",
+          "moduleSystem": "es6",
+          "resolved": "src/app/providers.tsx",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/components/TopNavGate",
+          "moduleSystem": "es6",
+          "resolved": "src/components/TopNavGate.tsx",
+          "valid": true
+        }
+      ],
+      "dependents": [],
+      "orphan": false,
+      "source": "src/app/layout.tsx",
+      "valid": true
+    },
+    {
+      "coreModule": false,
+      "couldNotResolve": false,
+      "dependencies": [],
+      "dependencyTypes": [
+        "local",
+        "import"
+      ],
+      "dependents": [
+        "src/app/layout.tsx"
+      ],
+      "followable": false,
+      "matchesDoNotFollow": false,
+      "orphan": false,
+      "source": "src/styles/password-fix.css",
+      "valid": true
+    },
+    {
+      "coreModule": false,
+      "couldNotResolve": false,
+      "dependencies": [],
+      "dependencyTypes": [
+        "local",
+        "import"
+      ],
+      "dependents": [
+        "src/app/layout.tsx"
+      ],
+      "followable": false,
+      "matchesDoNotFollow": false,
+      "orphan": false,
+      "source": "src/app/globals.css",
+      "valid": true
+    },
+    {
+      "dependencies": [
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/lib/toast-context",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/toast-context.tsx",
+          "valid": true
+        }
+      ],
+      "dependents": [
+        "src/app/layout.tsx"
+      ],
+      "orphan": false,
+      "source": "src/app/providers.tsx",
+      "valid": true
+    },
+    {
+      "dependencies": [],
+      "dependents": [
+        "src/app/providers.tsx",
+        "src/components/TopNav.tsx",
+        "src/components/HoldingsTable.tsx",
+        "src/components/ReportsView.tsx",
+        "src/components/GenerateReportDialog.tsx"
+      ],
+      "orphan": false,
+      "source": "src/lib/toast-context.tsx",
+      "valid": true
+    },
+    {
+      "dependencies": [
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/components/MobileTabBar",
+          "moduleSystem": "es6",
+          "resolved": "src/components/MobileTabBar.tsx",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/components/TopNav",
+          "moduleSystem": "es6",
+          "resolved": "src/components/TopNav.tsx",
+          "valid": true
+        }
+      ],
+      "dependents": [
+        "src/app/layout.tsx"
+      ],
+      "orphan": false,
+      "source": "src/components/TopNavGate.tsx",
+      "valid": true
+    },
+    {
+      "dependencies": [],
+      "dependents": [
+        "src/components/TopNavGate.tsx"
+      ],
+      "orphan": false,
+      "source": "src/components/MobileTabBar.tsx",
+      "valid": true
+    },
+    {
+      "dependencies": [
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/hooks/api",
+          "moduleSystem": "es6",
+          "resolved": "src/hooks/api.ts",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/lib/api-client",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/api-client.ts",
+          "rules": [
+            {
+              "name": "components-app-no-direct-api-client",
+              "severity": "error"
+            }
+          ],
+          "valid": false
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/lib/offline-write-queue",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/offline-write-queue.ts",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/lib/toast-context",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/toast-context.tsx",
+          "valid": true
+        }
+      ],
+      "dependents": [
+        "src/components/TopNavGate.tsx"
+      ],
+      "orphan": false,
+      "source": "src/components/TopNav.tsx",
+      "valid": true
+    },
+    {
+      "dependencies": [
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/lib/api-client",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/api-client.ts",
+          "valid": true
+        }
+      ],
+      "dependents": [
+        "src/components/TopNav.tsx",
+        "src/components/HoldingsTable.tsx",
+        "src/lib/offline-write-queue.test.ts"
+      ],
+      "orphan": false,
+      "source": "src/lib/offline-write-queue.ts",
+      "valid": true
+    },
+    {
+      "dependencies": [],
+      "dependents": [
+        "src/app/offline/page.tsx"
+      ],
+      "orphan": false,
+      "source": "src/app/offline/ClientActions.tsx",
+      "valid": true
+    },
+    {
+      "dependencies": [
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "local",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "./ClientActions",
+          "moduleSystem": "es6",
+          "resolved": "src/app/offline/ClientActions.tsx",
+          "valid": true
+        }
+      ],
+      "dependents": [],
+      "orphan": false,
+      "source": "src/app/offline/page.tsx",
+      "valid": true
+    },
+    {
+      "dependencies": [
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/components/DashboardView",
+          "moduleSystem": "es6",
+          "resolved": "src/components/DashboardView.tsx",
+          "valid": true
+        }
+      ],
+      "dependents": [],
+      "orphan": false,
+      "source": "src/app/page.tsx",
+      "valid": true
+    },
+    {
+      "dependencies": [
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/components/AccountActionDialog",
+          "moduleSystem": "es6",
+          "resolved": "src/components/AccountActionDialog.tsx",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/components/AccountsBar",
+          "moduleSystem": "es6",
+          "resolved": "src/components/AccountsBar.tsx",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/components/EmptyAccountsState",
+          "moduleSystem": "es6",
+          "resolved": "src/components/EmptyAccountsState.tsx",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/components/HoldingsTable",
+          "moduleSystem": "es6",
+          "resolved": "src/components/HoldingsTable.tsx",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/hooks/api",
+          "moduleSystem": "es6",
+          "resolved": "src/hooks/api.ts",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/hooks/useAccountSelection",
+          "moduleSystem": "es6",
+          "resolved": "src/hooks/useAccountSelection.ts",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/hooks/useExchangeDiscovery",
+          "moduleSystem": "es6",
+          "resolved": "src/hooks/useExchangeDiscovery.ts",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/lib/date",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/date.ts",
+          "valid": true
+        }
+      ],
+      "dependents": [
+        "src/app/page.tsx",
+        "src/components/DashboardView.test.tsx"
+      ],
+      "orphan": false,
+      "source": "src/components/DashboardView.tsx",
+      "valid": true
+    },
+    {
+      "dependencies": [],
+      "dependents": [
+        "src/components/DashboardView.tsx",
+        "src/components/AccountActionDialog.test.tsx"
+      ],
+      "orphan": false,
+      "source": "src/components/AccountActionDialog.tsx",
+      "valid": true
+    },
+    {
+      "dependencies": [],
+      "dependents": [
+        "src/components/DashboardView.tsx",
+        "src/components/AccountsBar.test.tsx"
+      ],
+      "orphan": false,
+      "source": "src/components/AccountsBar.tsx",
+      "valid": true
+    },
+    {
+      "dependencies": [],
+      "dependents": [
+        "src/components/DashboardView.tsx",
+        "src/components/EmptyAccountsState.test.tsx"
+      ],
+      "orphan": false,
+      "source": "src/components/EmptyAccountsState.tsx",
+      "valid": true
+    },
+    {
+      "dependencies": [
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/components/AddHoldingsDialog",
+          "moduleSystem": "es6",
+          "resolved": "src/components/AddHoldingsDialog.tsx",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/components/ClosePositionDialog",
+          "moduleSystem": "es6",
+          "resolved": "src/components/ClosePositionDialog.tsx",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/hooks/useHoldingRows",
+          "moduleSystem": "es6",
+          "resolved": "src/hooks/useHoldingRows.ts",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/lib/api-client",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/api-client.ts",
+          "rules": [
+            {
+              "name": "components-app-no-direct-api-client",
+              "severity": "error"
+            }
+          ],
+          "valid": false
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/lib/format",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/format.ts",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/lib/offline-write-queue",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/offline-write-queue.ts",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/lib/toast-context",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/toast-context.tsx",
+          "valid": true
+        }
+      ],
+      "dependents": [
+        "src/components/DashboardView.tsx",
+        "src/components/HoldingsTable.test.tsx"
+      ],
+      "orphan": false,
+      "source": "src/components/HoldingsTable.tsx",
+      "valid": true
+    },
+    {
+      "dependencies": [
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/hooks/useAccountNameSuggestions",
+          "moduleSystem": "es6",
+          "resolved": "src/hooks/useAccountNameSuggestions.ts",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/hooks/useSymbolSearch",
+          "moduleSystem": "es6",
+          "resolved": "src/hooks/useSymbolSearch.ts",
+          "valid": true
+        }
+      ],
+      "dependents": [
+        "src/components/HoldingsTable.tsx",
+        "src/components/AddHoldingsDialog.test.tsx"
+      ],
+      "orphan": false,
+      "source": "src/components/AddHoldingsDialog.tsx",
+      "valid": true
+    },
+    {
+      "dependencies": [
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/lib/api-client",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/api-client.ts",
+          "valid": true
+        }
+      ],
+      "dependents": [
+        "src/components/AddHoldingsDialog.tsx"
+      ],
+      "orphan": false,
+      "source": "src/hooks/useAccountNameSuggestions.ts",
+      "valid": true
+    },
+    {
+      "dependencies": [
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/lib/api-client",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/api-client.ts",
+          "valid": true
+        }
+      ],
+      "dependents": [
+        "src/components/AddHoldingsDialog.tsx"
+      ],
+      "orphan": false,
+      "source": "src/hooks/useSymbolSearch.ts",
+      "valid": true
+    },
+    {
+      "dependencies": [],
+      "dependents": [
+        "src/components/HoldingsTable.tsx",
+        "src/components/ClosePositionDialog.test.tsx"
+      ],
+      "orphan": false,
+      "source": "src/components/ClosePositionDialog.tsx",
+      "valid": true
+    },
+    {
+      "dependencies": [
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/hooks/api",
+          "moduleSystem": "es6",
+          "resolved": "src/hooks/api.ts",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/lib/api-client",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/api-client.ts",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/lib/performance-metrics",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/performance-metrics.ts",
+          "valid": true
+        }
+      ],
+      "dependents": [
+        "src/components/HoldingsTable.tsx"
+      ],
+      "orphan": false,
+      "source": "src/hooks/useHoldingRows.ts",
+      "valid": true
+    },
+    {
+      "dependencies": [],
+      "dependents": [
+        "src/hooks/useHoldingRows.ts",
+        "src/lib/performance-metrics.test.ts"
+      ],
+      "orphan": false,
+      "source": "src/lib/performance-metrics.ts",
+      "valid": true
+    },
+    {
+      "dependencies": [],
+      "dependents": [
+        "src/components/DashboardView.tsx"
+      ],
+      "orphan": false,
+      "source": "src/hooks/useAccountSelection.ts",
+      "valid": true
+    },
+    {
+      "dependencies": [
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/hooks/api",
+          "moduleSystem": "es6",
+          "resolved": "src/hooks/api.ts",
+          "valid": true
+        }
+      ],
+      "dependents": [
+        "src/components/DashboardView.tsx"
+      ],
+      "orphan": false,
+      "source": "src/hooks/useExchangeDiscovery.ts",
+      "valid": true
+    },
+    {
+      "dependencies": [
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/components/ReportsView",
+          "moduleSystem": "es6",
+          "resolved": "src/components/ReportsView.tsx",
+          "valid": true
+        }
+      ],
+      "dependents": [],
+      "orphan": false,
+      "source": "src/app/reports/page.tsx",
+      "valid": true
+    },
+    {
+      "dependencies": [
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/components/GenerateReportDialog",
+          "moduleSystem": "es6",
+          "resolved": "src/components/GenerateReportDialog.tsx",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/components/PageHeader",
+          "moduleSystem": "es6",
+          "resolved": "src/components/PageHeader.tsx",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/components/ReportDetailDialog",
+          "moduleSystem": "es6",
+          "resolved": "src/components/ReportDetailDialog.tsx",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/hooks/api",
+          "moduleSystem": "es6",
+          "resolved": "src/hooks/api.ts",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/lib/api-client",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/api-client.ts",
+          "rules": [
+            {
+              "name": "components-app-no-direct-api-client",
+              "severity": "error"
+            }
+          ],
+          "valid": false
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/lib/toast-context",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/toast-context.tsx",
+          "valid": true
+        }
+      ],
+      "dependents": [
+        "src/app/reports/page.tsx",
+        "src/components/ReportsView.test.tsx"
+      ],
+      "orphan": false,
+      "source": "src/components/ReportsView.tsx",
+      "valid": true
+    },
+    {
+      "dependencies": [
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/hooks/api",
+          "moduleSystem": "es6",
+          "resolved": "src/hooks/api.ts",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/lib/toast-context",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/toast-context.tsx",
+          "valid": true
+        }
+      ],
+      "dependents": [
+        "src/components/ReportsView.tsx",
+        "src/components/GenerateReportDialog.test.tsx"
+      ],
+      "orphan": false,
+      "source": "src/components/GenerateReportDialog.tsx",
+      "valid": true
+    },
+    {
+      "dependencies": [
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/hooks/api",
+          "moduleSystem": "es6",
+          "resolved": "src/hooks/api.ts",
+          "valid": true
+        }
+      ],
+      "dependents": [
+        "src/components/ReportsView.tsx"
+      ],
+      "orphan": false,
+      "source": "src/components/ReportDetailDialog.tsx",
+      "valid": true
+    },
+    {
+      "dependencies": [
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "local",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "./AccountActionDialog",
+          "moduleSystem": "es6",
+          "resolved": "src/components/AccountActionDialog.tsx",
+          "valid": true
+        }
+      ],
+      "dependents": [],
+      "orphan": false,
+      "source": "src/components/AccountActionDialog.test.tsx",
+      "valid": true
+    },
+    {
+      "dependencies": [
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "local",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "./AccountsBar",
+          "moduleSystem": "es6",
+          "resolved": "src/components/AccountsBar.tsx",
+          "valid": true
+        }
+      ],
+      "dependents": [],
+      "orphan": false,
+      "source": "src/components/AccountsBar.test.tsx",
+      "valid": true
+    },
+    {
+      "dependencies": [
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "local",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "./AddHoldingsDialog",
+          "moduleSystem": "es6",
+          "resolved": "src/components/AddHoldingsDialog.tsx",
+          "valid": true
+        }
+      ],
+      "dependents": [],
+      "orphan": false,
+      "source": "src/components/AddHoldingsDialog.test.tsx",
+      "valid": true
+    },
+    {
+      "dependencies": [
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "local",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "./ClosePositionDialog",
+          "moduleSystem": "es6",
+          "resolved": "src/components/ClosePositionDialog.tsx",
+          "valid": true
+        }
+      ],
+      "dependents": [],
+      "orphan": false,
+      "source": "src/components/ClosePositionDialog.test.tsx",
+      "valid": true
+    },
+    {
+      "dependencies": [
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "local",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "./DashboardView",
+          "moduleSystem": "es6",
+          "resolved": "src/components/DashboardView.tsx",
+          "valid": true
+        }
+      ],
+      "dependents": [],
+      "orphan": false,
+      "source": "src/components/DashboardView.test.tsx",
+      "valid": true
+    },
+    {
+      "dependencies": [
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "local",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "./EmptyAccountsState",
+          "moduleSystem": "es6",
+          "resolved": "src/components/EmptyAccountsState.tsx",
+          "valid": true
+        }
+      ],
+      "dependents": [],
+      "orphan": false,
+      "source": "src/components/EmptyAccountsState.test.tsx",
+      "valid": true
+    },
+    {
+      "dependencies": [
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "local",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "./GenerateReportDialog",
+          "moduleSystem": "es6",
+          "resolved": "src/components/GenerateReportDialog.tsx",
+          "valid": true
+        }
+      ],
+      "dependents": [],
+      "orphan": false,
+      "source": "src/components/GenerateReportDialog.test.tsx",
+      "valid": true
+    },
+    {
+      "dependencies": [
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "local",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "./HoldingsTable",
+          "moduleSystem": "es6",
+          "resolved": "src/components/HoldingsTable.tsx",
+          "valid": true
+        }
+      ],
+      "dependents": [],
+      "orphan": false,
+      "source": "src/components/HoldingsTable.test.tsx",
+      "valid": true
+    },
+    {
+      "dependencies": [
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "local",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "./ReportsView",
+          "moduleSystem": "es6",
+          "resolved": "src/components/ReportsView.tsx",
+          "valid": true
+        }
+      ],
+      "dependents": [],
+      "orphan": false,
+      "source": "src/components/ReportsView.test.tsx",
+      "valid": true
+    },
+    {
+      "dependencies": [],
+      "dependents": [],
+      "orphan": true,
+      "source": "src/hooks/useLongPress.ts",
+      "valid": true
+    },
+    {
+      "dependencies": [
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "local",
+            "dynamic-import"
+          ],
+          "dynamic": true,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "./api-client",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/api-client.ts",
+          "valid": true
+        }
+      ],
+      "dependents": [],
+      "orphan": false,
+      "source": "src/lib/api-client.mock-parity.test.ts",
+      "valid": true
+    },
+    {
+      "dependencies": [
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "local",
+            "dynamic-import"
+          ],
+          "dynamic": true,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "./api-client",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/api-client.ts",
+          "valid": true
+        }
+      ],
+      "dependents": [],
+      "orphan": false,
+      "source": "src/lib/api-client.test.ts",
+      "valid": true
+    },
+    {
+      "dependencies": [
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "local",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "./date",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/date.ts",
+          "valid": true
+        }
+      ],
+      "dependents": [],
+      "orphan": false,
+      "source": "src/lib/date.test.ts",
+      "valid": true
+    },
+    {
+      "dependencies": [
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "local",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "./format",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/format.ts",
+          "valid": true
+        }
+      ],
+      "dependents": [],
+      "orphan": false,
+      "source": "src/lib/format.test.ts",
+      "valid": true
+    },
+    {
+      "dependencies": [],
+      "dependents": [],
+      "orphan": true,
+      "source": "src/lib/generated/api-types.ts",
+      "valid": true
+    },
+    {
+      "dependencies": [
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "local",
+            "dynamic-import"
+          ],
+          "dynamic": true,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "./offline-write-queue",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/offline-write-queue.ts",
+          "valid": true
+        }
+      ],
+      "dependents": [],
+      "orphan": false,
+      "source": "src/lib/offline-write-queue.test.ts",
+      "valid": true
+    },
+    {
+      "dependencies": [
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "local",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "./performance-metrics",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/performance-metrics.ts",
+          "valid": true
+        }
+      ],
+      "dependents": [],
+      "orphan": false,
+      "source": "src/lib/performance-metrics.test.ts",
+      "valid": true
+    },
+    {
+      "dependencies": [],
+      "dependents": [],
+      "orphan": true,
+      "source": "src/lib/types.ts",
+      "valid": true
+    }
+  ],
+  "summary": {
+    "environment": {
+      "extensionsFound": [
+        {
+          "available": true,
+          "extension": ".js"
+        },
+        {
+          "available": true,
+          "extension": ".cjs"
+        },
+        {
+          "available": true,
+          "extension": ".mjs"
+        },
+        {
+          "available": true,
+          "extension": ".jsx"
+        },
+        {
+          "available": true,
+          "extension": ".ts"
+        },
+        {
+          "available": true,
+          "extension": ".tsx"
+        },
+        {
+          "available": true,
+          "extension": ".d.ts"
+        },
+        {
+          "available": true,
+          "extension": ".cts"
+        },
+        {
+          "available": true,
+          "extension": ".d.cts"
+        },
+        {
+          "available": true,
+          "extension": ".mts"
+        },
+        {
+          "available": true,
+          "extension": ".d.mts"
+        },
+        {
+          "available": false,
+          "extension": ".vue"
+        },
+        {
+          "available": false,
+          "extension": ".svelte"
+        },
+        {
+          "available": false,
+          "extension": ".ls"
+        },
+        {
+          "available": false,
+          "extension": ".coffee"
+        },
+        {
+          "available": false,
+          "extension": ".litcoffee"
+        },
+        {
+          "available": false,
+          "extension": ".coffee.md"
+        },
+        {
+          "available": false,
+          "extension": ".csx"
+        },
+        {
+          "available": false,
+          "extension": ".cjsx"
+        }
+      ],
+      "nodeVersionFound": "v22.23.1",
+      "nodeVersionSupported": "^22||^24||>=26",
+      "osVersionFound": "arm64 darwin@25.5.0",
+      "transpilersFound": [
+        {
+          "available": true,
+          "currentVersion": "acorn@8.17.0",
+          "name": "javascript",
+          "version": "*"
+        },
+        {
+          "available": true,
+          "currentVersion": "@babel/core@7.29.0",
+          "name": "babel",
+          "version": ">=7.0.0 <8.0.0"
+        },
+        {
+          "available": false,
+          "currentVersion": "-",
+          "name": "coffee-script",
+          "version": ">=1.0.0 <2.0.0"
+        },
+        {
+          "available": false,
+          "currentVersion": "-",
+          "name": "coffeescript",
+          "version": ">=1.0.0 <3.0.0"
+        },
+        {
+          "available": false,
+          "currentVersion": "-",
+          "name": "livescript",
+          "version": ">=1.0.0 <2.0.0"
+        },
+        {
+          "available": false,
+          "currentVersion": "-",
+          "name": "svelte",
+          "version": ">=3.0.0 <6.0.0"
+        },
+        {
+          "available": false,
+          "currentVersion": "-",
+          "name": "swc",
+          "version": ">=1.0.0 <2.0.0"
+        },
+        {
+          "available": true,
+          "currentVersion": "typescript@6.0.3",
+          "name": "typescript",
+          "version": ">=2.0.0 <7.0.0"
+        },
+        {
+          "available": false,
+          "currentVersion": "-",
+          "name": "vue-template-compiler",
+          "version": ">=2.0.0 <3.0.0"
+        },
+        {
+          "available": false,
+          "currentVersion": "-",
+          "name": "@vue/compiler-sfc",
+          "version": ">=3.0.0 <4.0.0"
+        }
+      ],
+      "version": "18.1.0"
+    },
+    "error": 4,
+    "ignore": 0,
+    "info": 0,
+    "optionsUsed": {
+      "args": "src",
+      "baseDir": "/Users/brunofrascino/dev/piggy-fe",
+      "combinedDependencies": false,
+      "detectJSDocImports": false,
+      "detectProcessBuiltinModuleCalls": false,
+      "exoticRequireStrings": [],
+      "externalModuleResolutionStrategy": "node_modules",
+      "includeOnly": "^src",
+      "metrics": false,
+      "moduleSystems": [
+        "es6",
+        "cjs",
+        "tsd",
+        "amd"
+      ],
+      "preserveSymlinks": false,
+      "skipAnalysisNotInRules": false,
+      "tsConfig": {
+        "fileName": "/Users/brunofrascino/dev/piggy-fe/tsconfig.json"
+      },
+      "tsPreCompilationDeps": false
+    },
+    "ruleSetUsed": {
+      "forbidden": [
+        {
+          "comment": "No circular dependencies anywhere under src/.",
+          "from": {},
+          "name": "no-circular",
+          "scope": "module",
+          "severity": "error",
+          "to": {
+            "circular": true
+          }
+        },
+        {
+          "comment": "components/ and app/ must call the backend only via src/hooks/api.ts, never src/lib/api/* or api-client.ts directly.",
+          "from": {
+            "path": "^src/(components|app)"
+          },
+          "name": "components-app-no-direct-api-client",
+          "scope": "module",
+          "severity": "error",
+          "to": {
+            "path": "^src/lib/(api-client\\.ts$|api/)"
+          }
+        },
+        {
+          "comment": "components/ must not import src/lib/mock-api.ts directly.",
+          "from": {
+            "path": "^src/components"
+          },
+          "name": "components-no-mock-import",
+          "scope": "module",
+          "severity": "error",
+          "to": {
+            "path": "^src/lib/mock-api\\.ts$"
+          }
+        },
+        {
+          "comment": "Only src/lib/api/http.ts may import axios directly.",
+          "from": {
+            "path": "^src/(?!lib/api/http\\.ts$)"
+          },
+          "name": "only-http-imports-axios",
+          "scope": "module",
+          "severity": "error",
+          "to": {
+            "path": "node_modules/axios"
+          }
+        }
+      ]
+    },
+    "totalCruised": 72,
+    "totalDependenciesCruised": 96,
+    "violations": [
+      {
+        "dependencyTypes": [
+          "undetermined",
+          "import"
+        ],
+        "from": "src/app/history/page.tsx",
+        "rule": {
+          "name": "components-app-no-direct-api-client",
+          "severity": "error"
+        },
+        "to": "src/lib/api-client.ts",
+        "type": "dependency",
+        "unresolvedTo": "@/lib/api-client"
+      },
+      {
+        "dependencyTypes": [
+          "undetermined",
+          "import"
+        ],
+        "from": "src/components/HoldingsTable.tsx",
+        "rule": {
+          "name": "components-app-no-direct-api-client",
+          "severity": "error"
+        },
+        "to": "src/lib/api-client.ts",
+        "type": "dependency",
+        "unresolvedTo": "@/lib/api-client"
+      },
+      {
+        "dependencyTypes": [
+          "undetermined",
+          "import"
+        ],
+        "from": "src/components/ReportsView.tsx",
+        "rule": {
+          "name": "components-app-no-direct-api-client",
+          "severity": "error"
+        },
+        "to": "src/lib/api-client.ts",
+        "type": "dependency",
+        "unresolvedTo": "@/lib/api-client"
+      },
+      {
+        "dependencyTypes": [
+          "undetermined",
+          "import"
+        ],
+        "from": "src/components/TopNav.tsx",
+        "rule": {
+          "name": "components-app-no-direct-api-client",
+          "severity": "error"
+        },
+        "to": "src/lib/api-client.ts",
+        "type": "dependency",
+        "unresolvedTo": "@/lib/api-client"
+      }
+    ],
+    "warn": 0
+  }
+}

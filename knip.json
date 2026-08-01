@@ -1,0 +1,6 @@
+{
+  "$schema": "https://unpkg.com/knip@5/schema.json",
+  "entry": ["scripts/context/*.ts"],
+  "project": ["src/**/*.{ts,tsx}", "scripts/**/*.ts"],
+  "ignore": ["coverage/**", "context/**", ".next/**", "public/**", "src/lib/generated/**"]
+}

@@ -21,6 +21,18 @@ const eslintConfig = [
       "@typescript-eslint/no-unused-vars": "warn",
       "@typescript-eslint/no-explicit-any": "warn",
       "prefer-const": "warn",
+      "no-restricted-imports": [
+        "error",
+        {
+          patterns: [
+            {
+              group: ["@/lib/generated/*", "**/lib/generated/*"],
+              message:
+                "src/lib/generated/* is reference-only (generated from the vendored OpenAPI contract). Import from src/lib/types.ts instead — see docs/adr/0007-manual-types-mirror.md.",
+            },
+          ],
+        },
+      ],
     },
   },
   {
@@ -31,6 +43,7 @@ const eslintConfig = [
       "build/**",
       "next-env.d.ts",
       "public/**",
+      "context/**",
     ],
   },
 ];

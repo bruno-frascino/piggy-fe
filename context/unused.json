@@ -1,0 +1,313 @@
+{
+  "issues": [
+    {
+      "binaries": [],
+      "catalog": [],
+      "dependencies": [],
+      "devDependencies": [],
+      "duplicates": [],
+      "enumMembers": [],
+      "exports": [],
+      "file": "src/hooks/useLongPress.ts",
+      "files": [
+        {
+          "name": "src/hooks/useLongPress.ts"
+        }
+      ],
+      "namespaceMembers": [],
+      "optionalPeerDependencies": [],
+      "types": [],
+      "unlisted": [],
+      "unresolved": []
+    },
+    {
+      "binaries": [],
+      "catalog": [],
+      "dependencies": [
+        {
+          "col": 6,
+          "line": 26,
+          "name": "primeflex",
+          "pos": 727
+        }
+      ],
+      "devDependencies": [
+        {
+          "col": 6,
+          "line": 34,
+          "name": "@eslint/eslintrc",
+          "pos": 921
+        },
+        {
+          "col": 6,
+          "line": 44,
+          "name": "@vitejs/plugin-react",
+          "pos": 1291
+        },
+        {
+          "col": 6,
+          "line": 48,
+          "name": "eslint-config-next",
+          "pos": 1421
+        },
+        {
+          "col": 6,
+          "line": 49,
+          "name": "eslint-config-prettier",
+          "pos": 1457
+        }
+      ],
+      "duplicates": [],
+      "enumMembers": [],
+      "exports": [],
+      "file": "package.json",
+      "files": [],
+      "namespaceMembers": [],
+      "optionalPeerDependencies": [],
+      "types": [],
+      "unlisted": [],
+      "unresolved": []
+    },
+    {
+      "binaries": [],
+      "catalog": [],
+      "dependencies": [],
+      "devDependencies": [],
+      "duplicates": [],
+      "enumMembers": [],
+      "exports": [
+        {
+          "col": 14,
+          "line": 15,
+          "name": "GENERATOR_VERSION",
+          "pos": 617
+        },
+        {
+          "col": 17,
+          "line": 18,
+          "name": "sortKeysDeep",
+          "pos": 735
+        },
+        {
+          "col": 17,
+          "line": 38,
+          "name": "normalizeText",
+          "pos": 1479
+        },
+        {
+          "col": 17,
+          "line": 43,
+          "name": "sha256",
+          "pos": 1643
+        }
+      ],
+      "file": "scripts/context/lib/manifest.ts",
+      "files": [],
+      "namespaceMembers": [],
+      "optionalPeerDependencies": [],
+      "types": [],
+      "unlisted": [],
+      "unresolved": []
+    },
+    {
+      "binaries": [],
+      "catalog": [],
+      "dependencies": [],
+      "devDependencies": [],
+      "duplicates": [],
+      "enumMembers": [],
+      "exports": [
+        {
+          "col": 14,
+          "line": 257,
+          "name": "useDeleteTaxReport",
+          "pos": 7388
+        }
+      ],
+      "file": "src/hooks/api.ts",
+      "files": [],
+      "namespaceMembers": [],
+      "optionalPeerDependencies": [],
+      "types": [],
+      "unlisted": [],
+      "unresolved": []
+    },
+    {
+      "binaries": [],
+      "catalog": [],
+      "dependencies": [],
+      "devDependencies": [],
+      "duplicates": [],
+      "enumMembers": [],
+      "exports": [
+        {
+          "col": 14,
+          "line": 218,
+          "name": "mockBalance",
+          "pos": 4607
+        },
+        {
+          "col": 14,
+          "line": 226,
+          "name": "mockTransactions",
+          "pos": 4746
+        }
+      ],
+      "file": "src/lib/mock-api.ts",
+      "files": [],
+      "namespaceMembers": [],
+      "optionalPeerDependencies": [],
+      "types": [
+        {
+          "col": 18,
+          "line": 12,
+          "name": "ApiError",
+          "pos": 211
+        }
+      ],
+      "unlisted": [],
+      "unresolved": []
+    },
+    {
+      "binaries": [],
+      "catalog": [],
+      "dependencies": [],
+      "devDependencies": [],
+      "duplicates": [],
+      "enumMembers": [],
+      "exports": [
+        {
+          "col": 17,
+          "line": 23,
+          "name": "normalizeEquitySeries",
+          "pos": 525
+        },
+        {
+          "col": 17,
+          "line": 181,
+          "name": "toDateStr",
+          "pos": 5717
+        }
+      ],
+      "file": "src/lib/api/mappers.ts",
+      "files": [],
+      "namespaceMembers": [],
+      "optionalPeerDependencies": [],
+      "types": [],
+      "unlisted": [],
+      "unresolved": []
+    },
+    {
+      "binaries": [],
+      "catalog": [],
+      "dependencies": [],
+      "devDependencies": [],
+      "duplicates": [],
+      "enumMembers": [],
+      "exports": [
+        {
+          "col": 17,
+          "line": 43,
+          "name": "summarize",
+          "pos": 1173
+        }
+      ],
+      "file": "src/lib/mock-portfolio.ts",
+      "files": [],
+      "namespaceMembers": [],
+      "optionalPeerDependencies": [],
+      "types": [
+        {
+          "col": 13,
+          "line": 1,
+          "name": "ExchangeKey",
+          "pos": 12
+        },
+        {
+          "col": 18,
+          "line": 3,
+          "name": "EquityPoint",
+          "pos": 89
+        }
+      ],
+      "unlisted": [],
+      "unresolved": []
+    },
+    {
+      "binaries": [],
+      "catalog": [],
+      "dependencies": [],
+      "devDependencies": [],
+      "duplicates": [],
+      "enumMembers": [],
+      "exports": [
+        {
+          "col": 14,
+          "line": 29,
+          "name": "mockHoldings",
+          "pos": 769
+        }
+      ],
+      "file": "src/lib/mock-holdings.ts",
+      "files": [],
+      "namespaceMembers": [],
+      "optionalPeerDependencies": [],
+      "types": [
+        {
+          "col": 18,
+          "line": 17,
+          "name": "ExchangeHoldings",
+          "pos": 516
+        }
+      ],
+      "unlisted": [],
+      "unresolved": []
+    },
+    {
+      "binaries": [],
+      "catalog": [],
+      "dependencies": [],
+      "devDependencies": [],
+      "duplicates": [],
+      "enumMembers": [],
+      "exports": [],
+      "file": "src/components/DashboardView.tsx",
+      "files": [],
+      "namespaceMembers": [],
+      "optionalPeerDependencies": [],
+      "types": [
+        {
+          "col": 18,
+          "line": 59,
+          "name": "ExchangeDefinition",
+          "pos": 1659
+        }
+      ],
+      "unlisted": [],
+      "unresolved": []
+    },
+    {
+      "binaries": [],
+      "catalog": [],
+      "dependencies": [],
+      "devDependencies": [],
+      "duplicates": [],
+      "enumMembers": [],
+      "exports": [],
+      "file": "src/lib/types.ts",
+      "files": [],
+      "namespaceMembers": [],
+      "optionalPeerDependencies": [],
+      "types": [
+        {
+          "col": 18,
+          "line": 16,
+          "name": "AvailableExchange",
+          "pos": 313
+        }
+      ],
+      "unlisted": [],
+      "unresolved": []
+    }
+  ]
+}

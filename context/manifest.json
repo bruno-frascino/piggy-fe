@@ -1,0 +1,46 @@
+{
+  "artifacts": {
+    "api-binding.md": {
+      "path": "context/api-binding.md",
+      "sha256": "7baeb025faddd1cab911726c86fe9a85528cd1b3ea46caab42be8c07569a5e3c"
+    },
+    "api-types.ts": {
+      "path": "src/lib/generated/api-types.ts",
+      "sha256": "c7cd8b0b5232fcb31482491e349a849b207b353212dacc4d7c7f839683f4590a"
+    },
+    "component-index.md": {
+      "path": "context/component-index.md",
+      "sha256": "d17675f26c12f097137858a887d9d36a7c25ed30822f59da7a6c1d8886d0c105"
+    },
+    "contract-drift.md": {
+      "path": "context/contract-drift.md",
+      "sha256": "cb79a3e8b649f4327c059946149687cbc8b832639327292bf0fb787ee0a9856f"
+    },
+    "data-flow.md": {
+      "path": "context/data-flow.md",
+      "sha256": "a961c64f59c65c68988dca2dc7858bece5d0e0ff48ba91f9bea671f5dea8954a"
+    },
+    "module-graph.json": {
+      "path": "context/module-graph.json",
+      "sha256": "64a3b364c29d5d9f6701d5137ba546610b466e203aed4924885da193e7d956b5"
+    },
+    "module-graph.md": {
+      "path": "context/module-graph.md",
+      "sha256": "ed135d021f38d77fdb2e8eaad00ea6e7f8776bd962a5674af296463e5f5af892"
+    },
+    "route-map.md": {
+      "path": "context/route-map.md",
+      "sha256": "2d13c65a733e15dba2b4de06b3bb1191442e658b0d68baa8893ff1cfb20e0ddf"
+    },
+    "symbol-index.json": {
+      "path": "context/symbol-index.json",
+      "sha256": "022617357bab070c351761acfd035ae90485600ebace6f235d6cb8d8fb4e7334"
+    },
+    "unused.json": {
+      "path": "context/unused.json",
+      "sha256": "3db536cb17b8a2490b9078977b61b3481e16f62d584beedb55197bf8b8ae52f9"
+    }
+  },
+  "generatedAt": "2026-08-01T00:54:09.952Z",
+  "generatorVersion": 1
+}

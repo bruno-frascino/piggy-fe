@@ -1,0 +1,3 @@
+src/lib/generated/** linguist-generated=true
+contracts/openapi.json linguist-generated=true
+context/** linguist-generated=true

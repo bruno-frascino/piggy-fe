@@ -1,0 +1,1208 @@
+[
+  {
+    "endLine": 287,
+    "file": "src/app/account/page.tsx",
+    "jsdoc": "",
+    "kind": "FunctionDeclaration",
+    "name": "default",
+    "signature": "export default function AccountPage()",
+    "startLine": 25
+  },
+  {
+    "endLine": 149,
+    "file": "src/app/auth/forgot-password/page.tsx",
+    "jsdoc": "",
+    "kind": "FunctionDeclaration",
+    "name": "default",
+    "signature": "export default function ForgotPasswordPage()",
+    "startLine": 12
+  },
+  {
+    "endLine": 154,
+    "file": "src/app/auth/login/page.tsx",
+    "jsdoc": "",
+    "kind": "FunctionDeclaration",
+    "name": "default",
+    "signature": "export default function LoginPage()",
+    "startLine": 15
+  },
+  {
+    "endLine": 171,
+    "file": "src/app/auth/reset-password/page.tsx",
+    "jsdoc": "",
+    "kind": "FunctionDeclaration",
+    "name": "default",
+    "signature": "export default function ResetPasswordPage()",
+    "startLine": 165
+  },
+  {
+    "endLine": 234,
+    "file": "src/app/auth/signup/page.tsx",
+    "jsdoc": "",
+    "kind": "FunctionDeclaration",
+    "name": "default",
+    "signature": "export default function SignupPage()",
+    "startLine": 14
+  },
+  {
+    "endLine": 522,
+    "file": "src/app/history/page.tsx",
+    "jsdoc": "",
+    "kind": "FunctionDeclaration",
+    "name": "default",
+    "signature": "export default function HistoryPage()",
+    "startLine": 254
+  },
+  {
+    "endLine": 37,
+    "file": "src/app/layout.tsx",
+    "jsdoc": "",
+    "kind": "VariableDeclaration",
+    "name": "metadata",
+    "signature": "metadata: Metadata =",
+    "startLine": 25
+  },
+  {
+    "endLine": 42,
+    "file": "src/app/layout.tsx",
+    "jsdoc": "",
+    "kind": "VariableDeclaration",
+    "name": "viewport",
+    "signature": "viewport =",
+    "startLine": 40
+  },
+  {
+    "endLine": 61,
+    "file": "src/app/layout.tsx",
+    "jsdoc": "",
+    "kind": "FunctionDeclaration",
+    "name": "default",
+    "signature": "export default function RootLayout(",
+    "startLine": 44
+  },
+  {
+    "endLine": 22,
+    "file": "src/app/offline/ClientActions.tsx",
+    "jsdoc": "",
+    "kind": "FunctionDeclaration",
+    "name": "default",
+    "signature": "export default function OfflineActions()",
+    "startLine": 5
+  },
+  {
+    "endLine": 3,
+    "file": "src/app/offline/page.tsx",
+    "jsdoc": "",
+    "kind": "VariableDeclaration",
+    "name": "metadata",
+    "signature": "metadata =",
+    "startLine": 1
+  },
+  {
+    "endLine": 22,
+    "file": "src/app/offline/page.tsx",
+    "jsdoc": "",
+    "kind": "FunctionDeclaration",
+    "name": "default",
+    "signature": "export default function OfflinePage()",
+    "startLine": 7
+  },
+  {
+    "endLine": 14,
+    "file": "src/app/page.tsx",
+    "jsdoc": "",
+    "kind": "FunctionDeclaration",
+    "name": "default",
+    "signature": "export default function HomePage()",
+    "startLine": 8
+  },
+  {
+    "endLine": 28,
+    "file": "src/app/providers.tsx",
+    "jsdoc": "",
+    "kind": "FunctionDeclaration",
+    "name": "Providers",
+    "signature": "export function Providers(",
+    "startLine": 8
+  },
+  {
+    "endLine": 5,
+    "file": "src/app/reports/page.tsx",
+    "jsdoc": "",
+    "kind": "FunctionDeclaration",
+    "name": "default",
+    "signature": "export default function ReportsPage()",
+    "startLine": 3
+  },
+  {
+    "endLine": 105,
+    "file": "src/components/AccountActionDialog.tsx",
+    "jsdoc": "",
+    "kind": "FunctionDeclaration",
+    "name": "default",
+    "signature": "export default function AccountActionDialog(",
+    "startLine": 16
+  },
+  {
+    "endLine": 182,
+    "file": "src/components/AccountsBar.tsx",
+    "jsdoc": "",
+    "kind": "FunctionDeclaration",
+    "name": "default",
+    "signature": "export default function AccountsBar(",
+    "startLine": 24
+  },
+  {
+    "endLine": 27,
+    "file": "src/components/AddHoldingsDialog.tsx",
+    "jsdoc": "",
+    "kind": "TypeAliasDeclaration",
+    "name": "LocalHolding",
+    "signature": "export type LocalHolding = Omit< HoldingPosition, 'stopLoss' | 'currentPrice' | 'maxDrawdownPercent' > &",
+    "startLine": 16
+  },
+  {
+    "endLine": 519,
+    "file": "src/components/AddHoldingsDialog.tsx",
+    "jsdoc": "",
+    "kind": "FunctionDeclaration",
+    "name": "default",
+    "signature": "export default function AddHoldingsDialog(",
+    "startLine": 29
+  },
+  {
+    "endLine": 18,
+    "file": "src/components/ClosePositionDialog.tsx",
+    "jsdoc": "",
+    "kind": "InterfaceDeclaration",
+    "name": "ClosePositionPayload",
+    "signature": "export interface ClosePositionPayload",
+    "startLine": 12
+  },
+  {
+    "endLine": 269,
+    "file": "src/components/ClosePositionDialog.tsx",
+    "jsdoc": "",
+    "kind": "FunctionDeclaration",
+    "name": "default",
+    "signature": "export default function ClosePositionDialog(",
+    "startLine": 20
+  },
+  {
+    "endLine": 45,
+    "file": "src/components/CoreHeader.tsx",
+    "jsdoc": "",
+    "kind": "FunctionDeclaration",
+    "name": "default",
+    "signature": "export default function CoreHeader(",
+    "startLine": 10
+  },
+  {
+    "endLine": 65,
+    "file": "src/components/DashboardView.tsx",
+    "jsdoc": "",
+    "kind": "InterfaceDeclaration",
+    "name": "ExchangeDefinition",
+    "signature": "export interface ExchangeDefinition",
+    "startLine": 59
+  },
+  {
+    "endLine": 695,
+    "file": "src/components/DashboardView.tsx",
+    "jsdoc": "",
+    "kind": "FunctionDeclaration",
+    "name": "default",
+    "signature": "export default function DashboardView()",
+    "startLine": 75
+  },
+  {
+    "endLine": 404,
+    "file": "src/components/EditClosedTradeDialog.tsx",
+    "jsdoc": "",
+    "kind": "FunctionDeclaration",
+    "name": "default",
+    "signature": "export default function EditClosedTradeDialog(",
+    "startLine": 20
+  },
+  {
+    "endLine": 31,
+    "file": "src/components/EmptyAccountsState.tsx",
+    "jsdoc": "",
+    "kind": "FunctionDeclaration",
+    "name": "default",
+    "signature": "export default function EmptyAccountsState(",
+    "startLine": 9
+  },
+  {
+    "endLine": 165,
+    "file": "src/components/GenerateReportDialog.tsx",
+    "jsdoc": "",
+    "kind": "FunctionDeclaration",
+    "name": "default",
+    "signature": "export default function GenerateReportDialog(",
+    "startLine": 28
+  },
+  {
+    "endLine": 893,
+    "file": "src/components/HoldingsTable.tsx",
+    "jsdoc": "",
+    "kind": "FunctionDeclaration",
+    "name": "default",
+    "signature": "export default function HoldingsTable(",
+    "startLine": 32
+  },
+  {
+    "endLine": 39,
+    "file": "src/components/MobileTabBar.tsx",
+    "jsdoc": "Bottom-fixed primary navigation shown only below the `md` breakpoint — thumb-reachable navigation is a standard mobile/PWA UX pattern. Mirrors the same routes as the desktop TopNav; hidden on /auth/* by the same gate (TopNavGate) that hides TopNav.",
+    "kind": "FunctionDeclaration",
+    "name": "default",
+    "signature": "export default function MobileTabBar()",
+    "startLine": 19
+  },
+  {
+    "endLine": 35,
+    "file": "src/components/PageHeader.tsx",
+    "jsdoc": "Shared page header used across Dashboard/History/Reports for a consistent title + optional subtitle + right-aligned primary action.",
+    "kind": "FunctionDeclaration",
+    "name": "default",
+    "signature": "export default function PageHeader(",
+    "startLine": 15
+  },
+  {
+    "endLine": 130,
+    "file": "src/components/ReportDetailDialog.tsx",
+    "jsdoc": "",
+    "kind": "FunctionDeclaration",
+    "name": "default",
+    "signature": "export default function ReportDetailDialog(",
+    "startLine": 22
+  },
+  {
+    "endLine": 177,
+    "file": "src/components/ReportsView.tsx",
+    "jsdoc": "",
+    "kind": "FunctionDeclaration",
+    "name": "default",
+    "signature": "export default function ReportsView()",
+    "startLine": 21
+  },
+  {
+    "endLine": 242,
+    "file": "src/components/TopNav.tsx",
+    "jsdoc": "",
+    "kind": "FunctionDeclaration",
+    "name": "default",
+    "signature": "export default function TopNav()",
+    "startLine": 18
+  },
+  {
+    "endLine": 17,
+    "file": "src/components/TopNavGate.tsx",
+    "jsdoc": "",
+    "kind": "FunctionDeclaration",
+    "name": "default",
+    "signature": "export default function TopNavGate()",
+    "startLine": 7
+  },
+  {
+    "endLine": 11,
+    "file": "src/hooks/api.ts",
+    "jsdoc": "",
+    "kind": "VariableDeclaration",
+    "name": "useTradingAccounts",
+    "signature": "useTradingAccounts = (includeClosed = false) =>",
+    "startLine": 5
+  },
+  {
+    "endLine": 22,
+    "file": "src/hooks/api.ts",
+    "jsdoc": "",
+    "kind": "VariableDeclaration",
+    "name": "useCreateAccount",
+    "signature": "useCreateAccount = () =>",
+    "startLine": 13
+  },
+  {
+    "endLine": 37,
+    "file": "src/hooks/api.ts",
+    "jsdoc": "",
+    "kind": "VariableDeclaration",
+    "name": "useDeleteAccount",
+    "signature": "useDeleteAccount = () =>",
+    "startLine": 24
+  },
+  {
+    "endLine": 51,
+    "file": "src/hooks/api.ts",
+    "jsdoc": "",
+    "kind": "VariableDeclaration",
+    "name": "useCloseAccount",
+    "signature": "useCloseAccount = () =>",
+    "startLine": 39
+  },
+  {
+    "endLine": 62,
+    "file": "src/hooks/api.ts",
+    "jsdoc": "",
+    "kind": "VariableDeclaration",
+    "name": "useReopenAccount",
+    "signature": "useReopenAccount = () =>",
+    "startLine": 53
+  },
+  {
+    "endLine": 74,
+    "file": "src/hooks/api.ts",
+    "jsdoc": "",
+    "kind": "VariableDeclaration",
+    "name": "useUpdateAccount",
+    "signature": "useUpdateAccount = () =>",
+    "startLine": 64
+  },
+  {
+    "endLine": 92,
+    "file": "src/hooks/api.ts",
+    "jsdoc": "",
+    "kind": "VariableDeclaration",
+    "name": "useLogin",
+    "signature": "useLogin = () =>",
+    "startLine": 77
+  },
+  {
+    "endLine": 118,
+    "file": "src/hooks/api.ts",
+    "jsdoc": "",
+    "kind": "VariableDeclaration",
+    "name": "useSignup",
+    "signature": "useSignup = () =>",
+    "startLine": 95
+  },
+  {
+    "endLine": 126,
+    "file": "src/hooks/api.ts",
+    "jsdoc": "",
+    "kind": "VariableDeclaration",
+    "name": "useForgotPassword",
+    "signature": "useForgotPassword = () =>",
+    "startLine": 121
+  },
+  {
+    "endLine": 140,
+    "file": "src/hooks/api.ts",
+    "jsdoc": "",
+    "kind": "VariableDeclaration",
+    "name": "useResetPassword",
+    "signature": "useResetPassword = () =>",
+    "startLine": 129
+  },
+  {
+    "endLine": 147,
+    "file": "src/hooks/api.ts",
+    "jsdoc": "",
+    "kind": "VariableDeclaration",
+    "name": "useCurrentUser",
+    "signature": "useCurrentUser = () =>",
+    "startLine": 142
+  },
+  {
+    "endLine": 158,
+    "file": "src/hooks/api.ts",
+    "jsdoc": "",
+    "kind": "VariableDeclaration",
+    "name": "useUpdateCurrentUser",
+    "signature": "useUpdateCurrentUser = () =>",
+    "startLine": 149
+  },
+  {
+    "endLine": 166,
+    "file": "src/hooks/api.ts",
+    "jsdoc": "",
+    "kind": "VariableDeclaration",
+    "name": "useUserPortfolio",
+    "signature": "useUserPortfolio = (accountId?: string) =>",
+    "startLine": 160
+  },
+  {
+    "endLine": 181,
+    "file": "src/hooks/api.ts",
+    "jsdoc": "",
+    "kind": "VariableDeclaration",
+    "name": "usePortfolioHistory",
+    "signature": "usePortfolioHistory = ( accountId?: string, exchangeCode?: string ) =>",
+    "startLine": 168
+  },
+  {
+    "endLine": 198,
+    "file": "src/hooks/api.ts",
+    "jsdoc": "",
+    "kind": "VariableDeclaration",
+    "name": "useCreatePortfolioSnapshot",
+    "signature": "useCreatePortfolioSnapshot = () =>",
+    "startLine": 183
+  },
+  {
+    "endLine": 206,
+    "file": "src/hooks/api.ts",
+    "jsdoc": "",
+    "kind": "VariableDeclaration",
+    "name": "useHoldings",
+    "signature": "useHoldings = (exchangeName?: string, accountId?: string) =>",
+    "startLine": 200
+  },
+  {
+    "endLine": 213,
+    "file": "src/hooks/api.ts",
+    "jsdoc": "",
+    "kind": "VariableDeclaration",
+    "name": "useClosedPositions",
+    "signature": "useClosedPositions = () =>",
+    "startLine": 208
+  },
+  {
+    "endLine": 225,
+    "file": "src/hooks/api.ts",
+    "jsdoc": "",
+    "kind": "VariableDeclaration",
+    "name": "useQuotes",
+    "signature": "useQuotes = (symbols: string[]) =>",
+    "startLine": 215
+  },
+  {
+    "endLine": 233,
+    "file": "src/hooks/api.ts",
+    "jsdoc": "",
+    "kind": "VariableDeclaration",
+    "name": "useTaxReports",
+    "signature": "useTaxReports = () =>",
+    "startLine": 228
+  },
+  {
+    "endLine": 241,
+    "file": "src/hooks/api.ts",
+    "jsdoc": "",
+    "kind": "VariableDeclaration",
+    "name": "useTaxReportDetail",
+    "signature": "useTaxReportDetail = (id?: string) =>",
+    "startLine": 235
+  },
+  {
+    "endLine": 255,
+    "file": "src/hooks/api.ts",
+    "jsdoc": "",
+    "kind": "VariableDeclaration",
+    "name": "useGenerateTaxReport",
+    "signature": "useGenerateTaxReport = () =>",
+    "startLine": 243
+  },
+  {
+    "endLine": 266,
+    "file": "src/hooks/api.ts",
+    "jsdoc": "",
+    "kind": "VariableDeclaration",
+    "name": "useDeleteTaxReport",
+    "signature": "useDeleteTaxReport = () =>",
+    "startLine": 257
+  },
+  {
+    "endLine": 60,
+    "file": "src/hooks/useAccountNameSuggestions.ts",
+    "jsdoc": "Owns the trading-account-name autocomplete suggestions for AddHoldingsDialog's Account field: loads all known account names whenever the dialog opens, and filters them as the user types. Extracted verbatim from AddHoldingsDialog.tsx.",
+    "kind": "FunctionDeclaration",
+    "name": "useAccountNameSuggestions",
+    "signature": "export function useAccountNameSuggestions( visible: boolean, exchangeCode?: string )",
+    "startLine": 10
+  },
+  {
+    "endLine": 93,
+    "file": "src/hooks/useAccountSelection.ts",
+    "jsdoc": "Owns trading-account selection state for the dashboard: splitting active/closed accounts, resolving the initially-selected account from the URL query param -> localStorage -> first-active-account (in that priority order), and keeping the URL + localStorage in sync afterward. Extracted verbatim (same effects/deps) from DashboardView.tsx — see DashboardView.test.tsx for coverage of account switching/selection.",
+    "kind": "FunctionDeclaration",
+    "name": "useAccountSelection",
+    "signature": "export function useAccountSelection(accountList: TradingAccount[])",
+    "startLine": 14
+  },
+  {
+    "endLine": 172,
+    "file": "src/hooks/useExchangeDiscovery.ts",
+    "jsdoc": "Owns exchange discovery/selection for the dashboard: seeding the exchange list from the user's portfolio (merging on subsequent fetches so locally -edited fields survive), resolving the initially-selected exchange from the URL -> localStorage -> first-exchange (in that priority order), keeping the URL/localStorage in sync, and ensuring a snapshot exists for today once history has loaded. Extracted verbatim (same effects/deps) from DashboardView.tsx.",
+    "kind": "FunctionDeclaration",
+    "name": "useExchangeDiscovery",
+    "signature": "export function useExchangeDiscovery(selectedAccountId: string)",
+    "startLine": 20
+  },
+  {
+    "endLine": 22,
+    "file": "src/hooks/useHoldingRows.ts",
+    "jsdoc": "",
+    "kind": "TypeAliasDeclaration",
+    "name": "HoldingRow",
+    "signature": "export type HoldingRow = LocalHolding &",
+    "startLine": 9
+  },
+  {
+    "endLine": 330,
+    "file": "src/hooks/useHoldingRows.ts",
+    "jsdoc": "Owns all data-derivation concerns for HoldingsTable: syncing remote holdings into local state, merging in live quotes, computing per-row and aggregate totals, bubbling live totals to the parent, and the rate-limited max-drawdown ratchet effect. Extracted verbatim (same effects/deps) from HoldingsTable.tsx so behavior is unchanged — see src/components/HoldingsTable.test.tsx for characterization tests covering the row computation and the ratchet effect.",
+    "kind": "FunctionDeclaration",
+    "name": "useHoldingRows",
+    "signature": "export function useHoldingRows(",
+    "startLine": 38
+  },
+  {
+    "endLine": 8,
+    "file": "src/hooks/useLongPress.ts",
+    "jsdoc": "",
+    "kind": "TypeAliasDeclaration",
+    "name": "LongPressOptions",
+    "signature": "export type LongPressOptions =",
+    "startLine": 8
+  },
+  {
+    "endLine": 58,
+    "file": "src/hooks/useLongPress.ts",
+    "jsdoc": "",
+    "kind": "FunctionDeclaration",
+    "name": "useLongPress",
+    "signature": "export function useLongPress<T extends Element = Element>( onLongPress: () => void, opts: LongPressOptions =",
+    "startLine": 10
+  },
+  {
+    "endLine": 36,
+    "file": "src/hooks/useSymbolSearch.ts",
+    "jsdoc": "Owns debounced stock-symbol search suggestions for AddHoldingsDialog's symbol AutoComplete field. Extracted verbatim (same debounce/timer behavior) from AddHoldingsDialog.tsx — see AddHoldingsDialog.test.tsx for characterization coverage of the dialog's validation/submission behavior that depends on the resolved symbol.",
+    "kind": "FunctionDeclaration",
+    "name": "useSymbolSearch",
+    "signature": "export function useSymbolSearch()",
+    "startLine": 12
+  },
+  {
+    "endLine": 27,
+    "file": "src/lib/api-client.ts",
+    "jsdoc": "",
+    "kind": "VariableDeclaration",
+    "name": "apiClient",
+    "signature": "apiClient =",
+    "startLine": 19
+  },
+  {
+    "endLine": 104,
+    "file": "src/lib/api/accounts.ts",
+    "jsdoc": "",
+    "kind": "FunctionDeclaration",
+    "name": "createAccountsApi",
+    "signature": "export function createAccountsApi(client: AxiosInstance)",
+    "startLine": 7
+  },
+  {
+    "endLine": 56,
+    "file": "src/lib/api/auth.ts",
+    "jsdoc": "",
+    "kind": "FunctionDeclaration",
+    "name": "createAuthApi",
+    "signature": "export function createAuthApi(client: AxiosInstance)",
+    "startLine": 6
+  },
+  {
+    "endLine": 96,
+    "file": "src/lib/api/http.ts",
+    "jsdoc": "",
+    "kind": "FunctionDeclaration",
+    "name": "createHttpClient",
+    "signature": "export function createHttpClient(baseURL: string): AxiosInstance",
+    "startLine": 6
+  },
+  {
+    "endLine": 11,
+    "file": "src/lib/api/mappers.ts",
+    "jsdoc": "",
+    "kind": "FunctionDeclaration",
+    "name": "isRecord",
+    "signature": "export function isRecord(value: unknown): value is Record<string, unknown>",
+    "startLine": 9
+  },
+  {
+    "endLine": 21,
+    "file": "src/lib/api/mappers.ts",
+    "jsdoc": "",
+    "kind": "FunctionDeclaration",
+    "name": "unwrapArray",
+    "signature": "export function unwrapArray<T>(payload: unknown): T[]",
+    "startLine": 13
+  },
+  {
+    "endLine": 40,
+    "file": "src/lib/api/mappers.ts",
+    "jsdoc": "",
+    "kind": "FunctionDeclaration",
+    "name": "normalizeEquitySeries",
+    "signature": "export function normalizeEquitySeries(payload: unknown): EquityPoint[]",
+    "startLine": 23
+  },
+  {
+    "endLine": 55,
+    "file": "src/lib/api/mappers.ts",
+    "jsdoc": "",
+    "kind": "FunctionDeclaration",
+    "name": "mapToTradingAccount",
+    "signature": "export function mapToTradingAccount(row: unknown): TradingAccount | null",
+    "startLine": 42
+  },
+  {
+    "endLine": 76,
+    "file": "src/lib/api/mappers.ts",
+    "jsdoc": "",
+    "kind": "FunctionDeclaration",
+    "name": "mapToUserProfile",
+    "signature": "export function mapToUserProfile(row: unknown): UserProfile | null",
+    "startLine": 57
+  },
+  {
+    "endLine": 96,
+    "file": "src/lib/api/mappers.ts",
+    "jsdoc": "",
+    "kind": "FunctionDeclaration",
+    "name": "mapSnapshotToEquityPoint",
+    "signature": "export function mapSnapshotToEquityPoint(row: unknown): EquityPoint | null",
+    "startLine": 78
+  },
+  {
+    "endLine": 179,
+    "file": "src/lib/api/mappers.ts",
+    "jsdoc": "",
+    "kind": "FunctionDeclaration",
+    "name": "mapPositionToHolding",
+    "signature": "export function mapPositionToHolding(pos: unknown): HoldingPosition | null",
+    "startLine": 98
+  },
+  {
+    "endLine": 185,
+    "file": "src/lib/api/mappers.ts",
+    "jsdoc": "",
+    "kind": "FunctionDeclaration",
+    "name": "toDateStr",
+    "signature": "export function toDateStr(v: unknown): string",
+    "startLine": 181
+  },
+  {
+    "endLine": 265,
+    "file": "src/lib/api/mappers.ts",
+    "jsdoc": "",
+    "kind": "FunctionDeclaration",
+    "name": "mapCloseEventToClosedTrade",
+    "signature": "export function mapCloseEventToClosedTrade(event: unknown): ClosedTrade | null",
+    "startLine": 187
+  },
+  {
+    "endLine": 190,
+    "file": "src/lib/api/portfolio.ts",
+    "jsdoc": "",
+    "kind": "FunctionDeclaration",
+    "name": "createPortfolioApi",
+    "signature": "export function createPortfolioApi(client: AxiosInstance)",
+    "startLine": 27
+  },
+  {
+    "endLine": 230,
+    "file": "src/lib/api/positions.ts",
+    "jsdoc": "",
+    "kind": "FunctionDeclaration",
+    "name": "createPositionsApi",
+    "signature": "export function createPositionsApi(client: AxiosInstance)",
+    "startLine": 14
+  },
+  {
+    "endLine": 49,
+    "file": "src/lib/api/stocks.ts",
+    "jsdoc": "",
+    "kind": "FunctionDeclaration",
+    "name": "createStocksApi",
+    "signature": "export function createStocksApi(client: AxiosInstance)",
+    "startLine": 7
+  },
+  {
+    "endLine": 68,
+    "file": "src/lib/api/tax-reports.ts",
+    "jsdoc": "",
+    "kind": "FunctionDeclaration",
+    "name": "createTaxReportsApi",
+    "signature": "export function createTaxReportsApi(client: AxiosInstance)",
+    "startLine": 7
+  },
+  {
+    "endLine": 45,
+    "file": "src/lib/api/user.ts",
+    "jsdoc": "",
+    "kind": "FunctionDeclaration",
+    "name": "createUserApi",
+    "signature": "export function createUserApi(client: AxiosInstance)",
+    "startLine": 7
+  },
+  {
+    "endLine": 9,
+    "file": "src/lib/date.ts",
+    "jsdoc": "",
+    "kind": "FunctionDeclaration",
+    "name": "formatDateDDMMYYYY",
+    "signature": "export function formatDateDDMMYYYY(value: string | Date): string",
+    "startLine": 1
+  },
+  {
+    "endLine": 17,
+    "file": "src/lib/date.ts",
+    "jsdoc": "Formats a Date as YYYY-MM-DD using LOCAL time (safe for date comparisons).",
+    "kind": "FunctionDeclaration",
+    "name": "toLocalDateString",
+    "signature": "export function toLocalDateString(d: Date): string",
+    "startLine": 12
+  },
+  {
+    "endLine": 28,
+    "file": "src/lib/date.ts",
+    "jsdoc": "",
+    "kind": "TypeAliasDeclaration",
+    "name": "ChartTimeframe",
+    "signature": "export type ChartTimeframe = | 'D' | 'W' | 'M' | '3M' | '6M' | 'YTD' | 'Y' | '5Y' | 'ALL';",
+    "startLine": 19
+  },
+  {
+    "endLine": 56,
+    "file": "src/lib/date.ts",
+    "jsdoc": "Returns the earliest date that should be visible for the given timeframe, relative to `now`. Returns null for 'ALL' (no cutoff).",
+    "kind": "FunctionDeclaration",
+    "name": "computeChartCutoffDate",
+    "signature": "export function computeChartCutoffDate( timeframe: Exclude<ChartTimeframe, 'ALL'>, now: Date ): Date",
+    "startLine": 34
+  },
+  {
+    "endLine": 7,
+    "file": "src/lib/format.ts",
+    "jsdoc": "",
+    "kind": "FunctionDeclaration",
+    "name": "formatCurrency",
+    "signature": "export function formatCurrency(n: number, currency: string = 'USD')",
+    "startLine": 1
+  },
+  {
+    "endLine": 12,
+    "file": "src/lib/format.ts",
+    "jsdoc": "",
+    "kind": "FunctionDeclaration",
+    "name": "formatPct",
+    "signature": "export function formatPct(v: number)",
+    "startLine": 9
+  },
+  {
+    "endLine": 15,
+    "file": "src/lib/format.ts",
+    "jsdoc": "",
+    "kind": "VariableDeclaration",
+    "name": "returnClass",
+    "signature": "returnClass = (v: number) => v >= 0 ? 'text-green-600' : 'text-red-600'",
+    "startLine": 14
+  },
+  {
+    "endLine": 1578,
+    "file": "src/lib/generated/api-types.ts",
+    "jsdoc": "GENERATED from contracts/openapi.json by scripts/context/generate-api-types.ts. REFERENCE ONLY — never import this file from app code (components/hooks/pages). src/lib/types.ts is the manually mirrored source of truth (see docs/adr/0007-manual-types-mirror.md). See context/contract-drift.md for a report of any drift between the two.",
+    "kind": "InterfaceDeclaration",
+    "name": "paths",
+    "signature": "export interface paths",
+    "startLine": 7
+  },
+  {
+    "endLine": 1579,
+    "file": "src/lib/generated/api-types.ts",
+    "jsdoc": "",
+    "kind": "TypeAliasDeclaration",
+    "name": "webhooks",
+    "signature": "export type webhooks = Record<string, never>;",
+    "startLine": 1579
+  },
+  {
+    "endLine": 1637,
+    "file": "src/lib/generated/api-types.ts",
+    "jsdoc": "",
+    "kind": "InterfaceDeclaration",
+    "name": "components",
+    "signature": "export interface components",
+    "startLine": 1580
+  },
+  {
+    "endLine": 1638,
+    "file": "src/lib/generated/api-types.ts",
+    "jsdoc": "",
+    "kind": "TypeAliasDeclaration",
+    "name": "$defs",
+    "signature": "export type $defs = Record<string, never>;",
+    "startLine": 1638
+  },
+  {
+    "endLine": 1639,
+    "file": "src/lib/generated/api-types.ts",
+    "jsdoc": "",
+    "kind": "TypeAliasDeclaration",
+    "name": "operations",
+    "signature": "export type operations = Record<string, never>;",
+    "startLine": 1639
+  },
+  {
+    "endLine": 10,
+    "file": "src/lib/mock-api.ts",
+    "jsdoc": "",
+    "kind": "InterfaceDeclaration",
+    "name": "AuthResponse",
+    "signature": "export interface AuthResponse",
+    "startLine": 3
+  },
+  {
+    "endLine": 18,
+    "file": "src/lib/mock-api.ts",
+    "jsdoc": "",
+    "kind": "InterfaceDeclaration",
+    "name": "ApiError",
+    "signature": "export interface ApiError",
+    "startLine": 12
+  },
+  {
+    "endLine": 215,
+    "file": "src/lib/mock-api.ts",
+    "jsdoc": "",
+    "kind": "ClassDeclaration",
+    "name": "MockAuthService",
+    "signature": "export class MockAuthService",
+    "startLine": 39
+  },
+  {
+    "endLine": 223,
+    "file": "src/lib/mock-api.ts",
+    "jsdoc": "",
+    "kind": "VariableDeclaration",
+    "name": "mockBalance",
+    "signature": "mockBalance =",
+    "startLine": 218
+  },
+  {
+    "endLine": 254,
+    "file": "src/lib/mock-api.ts",
+    "jsdoc": "",
+    "kind": "VariableDeclaration",
+    "name": "mockTransactions",
+    "signature": "mockTransactions = [",
+    "startLine": 226
+  },
+  {
+    "endLine": 15,
+    "file": "src/lib/mock-holdings.ts",
+    "jsdoc": "",
+    "kind": "InterfaceDeclaration",
+    "name": "HoldingPosition",
+    "signature": "export interface HoldingPosition",
+    "startLine": 5
+  },
+  {
+    "endLine": 20,
+    "file": "src/lib/mock-holdings.ts",
+    "jsdoc": "",
+    "kind": "InterfaceDeclaration",
+    "name": "ExchangeHoldings",
+    "signature": "export interface ExchangeHoldings",
+    "startLine": 17
+  },
+  {
+    "endLine": 133,
+    "file": "src/lib/mock-holdings.ts",
+    "jsdoc": "",
+    "kind": "VariableDeclaration",
+    "name": "mockHoldings",
+    "signature": "mockHoldings: ExchangeHoldings[] = [",
+    "startLine": 29
+  },
+  {
+    "endLine": 137,
+    "file": "src/lib/mock-holdings.ts",
+    "jsdoc": "",
+    "kind": "VariableDeclaration",
+    "name": "getHoldingsForExchange",
+    "signature": "getHoldingsForExchange = (name: string): HoldingPosition[] =>",
+    "startLine": 135
+  },
+  {
+    "endLine": 1,
+    "file": "src/lib/mock-portfolio.ts",
+    "jsdoc": "",
+    "kind": "TypeAliasDeclaration",
+    "name": "ExchangeKey",
+    "signature": "export type ExchangeKey = 'Binance' | 'Coinbase' | 'Kraken' | 'eToro';",
+    "startLine": 1
+  },
+  {
+    "endLine": 6,
+    "file": "src/lib/mock-portfolio.ts",
+    "jsdoc": "",
+    "kind": "InterfaceDeclaration",
+    "name": "EquityPoint",
+    "signature": "export interface EquityPoint",
+    "startLine": 3
+  },
+  {
+    "endLine": 11,
+    "file": "src/lib/mock-portfolio.ts",
+    "jsdoc": "",
+    "kind": "InterfaceDeclaration",
+    "name": "ExchangePortfolio",
+    "signature": "export interface ExchangePortfolio",
+    "startLine": 8
+  },
+  {
+    "endLine": 41,
+    "file": "src/lib/mock-portfolio.ts",
+    "jsdoc": "",
+    "kind": "VariableDeclaration",
+    "name": "exchanges",
+    "signature": "exchanges: ExchangePortfolio[] = [",
+    "startLine": 36
+  },
+  {
+    "endLine": 53,
+    "file": "src/lib/mock-portfolio.ts",
+    "jsdoc": "",
+    "kind": "FunctionDeclaration",
+    "name": "summarize",
+    "signature": "export function summarize(series: EquityPoint[])",
+    "startLine": 43
+  },
+  {
+    "endLine": 5,
+    "file": "src/lib/offline-write-queue.ts",
+    "jsdoc": "",
+    "kind": "VariableDeclaration",
+    "name": "OFFLINE_WRITE_QUEUE_CHANGED_EVENT",
+    "signature": "OFFLINE_WRITE_QUEUE_CHANGED_EVENT = 'truffles:offline-write-queue-changed'",
+    "startLine": 4
+  },
+  {
+    "endLine": 66,
+    "file": "src/lib/offline-write-queue.ts",
+    "jsdoc": "",
+    "kind": "TypeAliasDeclaration",
+    "name": "QueuedWriteAction",
+    "signature": "export type QueuedWriteAction = |",
+    "startLine": 46
+  },
+  {
+    "endLine": 82,
+    "file": "src/lib/offline-write-queue.ts",
+    "jsdoc": "",
+    "kind": "TypeAliasDeclaration",
+    "name": "QueuedWriteActionInput",
+    "signature": "export type QueuedWriteActionInput = |",
+    "startLine": 68
+  },
+  {
+    "endLine": 120,
+    "file": "src/lib/offline-write-queue.ts",
+    "jsdoc": "",
+    "kind": "FunctionDeclaration",
+    "name": "getQueuedWritesCount",
+    "signature": "export function getQueuedWritesCount()",
+    "startLine": 118
+  },
+  {
+    "endLine": 124,
+    "file": "src/lib/offline-write-queue.ts",
+    "jsdoc": "",
+    "kind": "FunctionDeclaration",
+    "name": "clearQueuedWrites",
+    "signature": "export function clearQueuedWrites()",
+    "startLine": 122
+  },
+  {
+    "endLine": 136,
+    "file": "src/lib/offline-write-queue.ts",
+    "jsdoc": "",
+    "kind": "FunctionDeclaration",
+    "name": "enqueueQueuedWrite",
+    "signature": "export function enqueueQueuedWrite(action: QueuedWriteActionInput)",
+    "startLine": 126
+  },
+  {
+    "endLine": 165,
+    "file": "src/lib/offline-write-queue.ts",
+    "jsdoc": "",
+    "kind": "FunctionDeclaration",
+    "name": "replayQueuedWrites",
+    "signature": "export async function replayQueuedWrites( execute: (action: QueuedWriteAction) => Promise<void> )",
+    "startLine": 138
+  },
+  {
+    "endLine": 188,
+    "file": "src/lib/offline-write-queue.ts",
+    "jsdoc": "",
+    "kind": "FunctionDeclaration",
+    "name": "syncQueuedWritesNow",
+    "signature": "export async function syncQueuedWritesNow()",
+    "startLine": 167
+  },
+  {
+    "endLine": 27,
+    "file": "src/lib/performance-metrics.ts",
+    "jsdoc": "Sums realized P&L across closed trades scoped to a specific account + exchange. Mirrors the backend's PortfolioSnapshot.totalValue basis (capitalAllocated + unrealizedPnL + realizedPnL) so live \"today\" equity figures derived from open holdings can be put on the same footing as the historical snapshots by adding this term.",
+    "kind": "FunctionDeclaration",
+    "name": "sumRealizedPnLForScope",
+    "signature": "export function sumRealizedPnLForScope( closedTrades: ClosedTrade[] | undefined, accountId: string | undefined, exchange: string | undefined ): number",
+    "startLine": 12
+  },
+  {
+    "endLine": 42,
+    "file": "src/lib/performance-metrics.ts",
+    "jsdoc": "",
+    "kind": "FunctionDeclaration",
+    "name": "calculateGainLossPerWeek",
+    "signature": "export function calculateGainLossPerWeek( gainLoss: number, daysOpen: number ): number | null",
+    "startLine": 29
+  },
+  {
+    "endLine": 57,
+    "file": "src/lib/performance-metrics.ts",
+    "jsdoc": "",
+    "kind": "FunctionDeclaration",
+    "name": "calculateReturnPctPerWeek",
+    "signature": "export function calculateReturnPctPerWeek( returnPct: number, daysOpen: number ): number | null",
+    "startLine": 44
+  },
+  {
+    "endLine": 26,
+    "file": "src/lib/toast-context.tsx",
+    "jsdoc": "",
+    "kind": "FunctionDeclaration",
+    "name": "ToastProvider",
+    "signature": "export function ToastProvider(",
+    "startLine": 13
+  },
+  {
+    "endLine": 34,
+    "file": "src/lib/toast-context.tsx",
+    "jsdoc": "",
+    "kind": "FunctionDeclaration",
+    "name": "useToast",
+    "signature": "export function useToast(): ToastContextValue",
+    "startLine": 28
+  },
+  {
+    "endLine": 1,
+    "file": "src/lib/types.ts",
+    "jsdoc": "",
+    "kind": "TypeAliasDeclaration",
+    "name": "ExchangeKey",
+    "signature": "export type ExchangeKey = string;",
+    "startLine": 1
+  },
+  {
+    "endLine": 6,
+    "file": "src/lib/types.ts",
+    "jsdoc": "",
+    "kind": "InterfaceDeclaration",
+    "name": "EquityPoint",
+    "signature": "export interface EquityPoint",
+    "startLine": 3
+  },
+  {
+    "endLine": 14,
+    "file": "src/lib/types.ts",
+    "jsdoc": "",
+    "kind": "InterfaceDeclaration",
+    "name": "ExchangePortfolio",
+    "signature": "export interface ExchangePortfolio",
+    "startLine": 8
+  },
+  {
+    "endLine": 26,
+    "file": "src/lib/types.ts",
+    "jsdoc": "",
+    "kind": "InterfaceDeclaration",
+    "name": "AvailableExchange",
+    "signature": "export interface AvailableExchange",
+    "startLine": 16
+  },
+  {
+    "endLine": 44,
+    "file": "src/lib/types.ts",
+    "jsdoc": "",
+    "kind": "InterfaceDeclaration",
+    "name": "HoldingPosition",
+    "signature": "export interface HoldingPosition",
+    "startLine": 28
+  },
+  {
+    "endLine": 52,
+    "file": "src/lib/types.ts",
+    "jsdoc": "",
+    "kind": "InterfaceDeclaration",
+    "name": "StockSearchResult",
+    "signature": "export interface StockSearchResult",
+    "startLine": 46
+  },
+  {
+    "endLine": 60,
+    "file": "src/lib/types.ts",
+    "jsdoc": "",
+    "kind": "InterfaceDeclaration",
+    "name": "QuoteResult",
+    "signature": "export interface QuoteResult",
+    "startLine": 54
+  },
+  {
+    "endLine": 67,
+    "file": "src/lib/types.ts",
+    "jsdoc": "",
+    "kind": "InterfaceDeclaration",
+    "name": "TradingAccount",
+    "signature": "export interface TradingAccount",
+    "startLine": 62
+  },
+  {
+    "endLine": 74,
+    "file": "src/lib/types.ts",
+    "jsdoc": "",
+    "kind": "InterfaceDeclaration",
+    "name": "UserProfile",
+    "signature": "export interface UserProfile",
+    "startLine": 69
+  },
+  {
+    "endLine": 81,
+    "file": "src/lib/types.ts",
+    "jsdoc": "",
+    "kind": "InterfaceDeclaration",
+    "name": "UpdateUserProfilePayload",
+    "signature": "export interface UpdateUserProfilePayload",
+    "startLine": 76
+  },
+  {
+    "endLine": 105,
+    "file": "src/lib/types.ts",
+    "jsdoc": "",
+    "kind": "InterfaceDeclaration",
+    "name": "TaxReportLineItem",
+    "signature": "export interface TaxReportLineItem",
+    "startLine": 83
+  },
+  {
+    "endLine": 123,
+    "file": "src/lib/types.ts",
+    "jsdoc": "",
+    "kind": "InterfaceDeclaration",
+    "name": "TaxReport",
+    "signature": "export interface TaxReport",
+    "startLine": 107
+  },
+  {
+    "endLine": 149,
+    "file": "src/lib/types.ts",
+    "jsdoc": "",
+    "kind": "InterfaceDeclaration",
+    "name": "ClosedTrade",
+    "signature": "export interface ClosedTrade",
+    "startLine": 129
+  }
+]
