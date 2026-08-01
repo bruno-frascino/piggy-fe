@@ -1,7 +1,6 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { useQueryClient } from '@tanstack/react-query';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Card } from 'primereact/card';
@@ -11,8 +10,11 @@ import { Dropdown } from 'primereact/dropdown';
 import type { ClosedTrade } from '@/lib/types';
 import EditClosedTradeDialog from '@/components/EditClosedTradeDialog';
 import PageHeader from '@/components/PageHeader';
-import { useClosedPositions } from '@/hooks/api';
-import { apiClient } from '@/lib/api-client';
+import {
+  useClosedPositions,
+  useDeletePosition,
+  useUpdateCloseEvent,
+} from '@/hooks/api';
 import { formatDateDDMMYYYY } from '@/lib/date';
 import { formatCurrency, formatPct, returnClass } from '@/lib/format';
 
@@ -252,8 +254,9 @@ function ExchangeTable({
 }
 
 export default function HistoryPage() {
-  const queryClient = useQueryClient();
   const { data: rows = [], isLoading } = useClosedPositions();
+  const { mutateAsync: updateCloseEvent } = useUpdateCloseEvent();
+  const { mutateAsync: deletePosition } = useDeletePosition();
   const currentYear = new Date().getFullYear();
   const defaultStart = `${currentYear}-01-01`;
   const defaultEnd = `${currentYear}-12-31`;
@@ -477,39 +480,22 @@ export default function HistoryPage() {
             }}
             onSave={(updated: ClosedTrade) => {
               if (updated.id) {
-                apiClient
-                  .updateCloseEvent(updated.id, {
+                updateCloseEvent({
+                  id: updated.id,
+                  data: {
                     closeDate: updated.closeDate,
                     exitPrice: updated.sellPrice,
                     sellFees: updated.sellFee,
                     notes: updated.sellComments ?? '',
-                  })
-                  .then(() =>
-                    queryClient.invalidateQueries({
-                      queryKey: ['closed-positions'],
-                    })
-                  )
-                  .catch(console.error);
+                  },
+                }).catch(console.error);
               }
               setShowDialog(false);
               setActive(null);
             }}
             onDeletePosition={(positionId: string) => {
               if (positionId) {
-                apiClient
-                  .deletePosition(positionId)
-                  .then(async () => {
-                    await queryClient.invalidateQueries({
-                      queryKey: ['closed-positions'],
-                    });
-                    await queryClient.invalidateQueries({
-                      queryKey: ['holdings'],
-                    });
-                    await queryClient.invalidateQueries({
-                      queryKey: ['user-portfolio'],
-                    });
-                  })
-                  .catch(console.error);
+                deletePosition(positionId).catch(console.error);
               }
               setShowDialog(false);
               setActive(null);

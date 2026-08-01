@@ -45,13 +45,13 @@
     "startLine": 14
   },
   {
-    "endLine": 522,
+    "endLine": 508,
     "file": "src/app/history/page.tsx",
     "jsdoc": "",
     "kind": "FunctionDeclaration",
     "name": "default",
     "signature": "export default function HistoryPage()",
-    "startLine": 254
+    "startLine": 256
   },
   {
     "endLine": 37,
@@ -243,13 +243,13 @@
     "startLine": 28
   },
   {
-    "endLine": 893,
+    "endLine": 898,
     "file": "src/components/HoldingsTable.tsx",
     "jsdoc": "",
     "kind": "FunctionDeclaration",
     "name": "default",
     "signature": "export default function HoldingsTable(",
-    "startLine": 32
+    "startLine": 37
   },
   {
     "endLine": 39,
@@ -279,13 +279,13 @@
     "startLine": 22
   },
   {
-    "endLine": 177,
+    "endLine": 181,
     "file": "src/components/ReportsView.tsx",
     "jsdoc": "",
     "kind": "FunctionDeclaration",
     "name": "default",
     "signature": "export default function ReportsView()",
-    "startLine": 21
+    "startLine": 24
   },
   {
     "endLine": 242,
@@ -294,7 +294,7 @@
     "kind": "FunctionDeclaration",
     "name": "default",
     "signature": "export default function TopNav()",
-    "startLine": 18
+    "startLine": 17
   },
   {
     "endLine": 17,
@@ -306,202 +306,265 @@
     "startLine": 7
   },
   {
-    "endLine": 11,
+    "endLine": 25,
     "file": "src/hooks/api.ts",
     "jsdoc": "",
     "kind": "VariableDeclaration",
     "name": "useTradingAccounts",
     "signature": "useTradingAccounts = (includeClosed = false) =>",
-    "startLine": 5
+    "startLine": 19
   },
   {
-    "endLine": 22,
+    "endLine": 36,
     "file": "src/hooks/api.ts",
     "jsdoc": "",
     "kind": "VariableDeclaration",
     "name": "useCreateAccount",
     "signature": "useCreateAccount = () =>",
-    "startLine": 13
-  },
-  {
-    "endLine": 37,
-    "file": "src/hooks/api.ts",
-    "jsdoc": "",
-    "kind": "VariableDeclaration",
-    "name": "useDeleteAccount",
-    "signature": "useDeleteAccount = () =>",
-    "startLine": 24
+    "startLine": 27
   },
   {
     "endLine": 51,
     "file": "src/hooks/api.ts",
     "jsdoc": "",
     "kind": "VariableDeclaration",
-    "name": "useCloseAccount",
-    "signature": "useCloseAccount = () =>",
-    "startLine": 39
+    "name": "useDeleteAccount",
+    "signature": "useDeleteAccount = () =>",
+    "startLine": 38
   },
   {
-    "endLine": 62,
+    "endLine": 65,
+    "file": "src/hooks/api.ts",
+    "jsdoc": "",
+    "kind": "VariableDeclaration",
+    "name": "useCloseAccount",
+    "signature": "useCloseAccount = () =>",
+    "startLine": 53
+  },
+  {
+    "endLine": 76,
     "file": "src/hooks/api.ts",
     "jsdoc": "",
     "kind": "VariableDeclaration",
     "name": "useReopenAccount",
     "signature": "useReopenAccount = () =>",
-    "startLine": 53
+    "startLine": 67
   },
   {
-    "endLine": 74,
+    "endLine": 88,
     "file": "src/hooks/api.ts",
     "jsdoc": "",
     "kind": "VariableDeclaration",
     "name": "useUpdateAccount",
     "signature": "useUpdateAccount = () =>",
-    "startLine": 64
+    "startLine": 78
   },
   {
-    "endLine": 92,
+    "endLine": 106,
     "file": "src/hooks/api.ts",
     "jsdoc": "",
     "kind": "VariableDeclaration",
     "name": "useLogin",
     "signature": "useLogin = () =>",
-    "startLine": 77
+    "startLine": 91
   },
   {
-    "endLine": 118,
+    "endLine": 132,
     "file": "src/hooks/api.ts",
     "jsdoc": "",
     "kind": "VariableDeclaration",
     "name": "useSignup",
     "signature": "useSignup = () =>",
-    "startLine": 95
-  },
-  {
-    "endLine": 126,
-    "file": "src/hooks/api.ts",
-    "jsdoc": "",
-    "kind": "VariableDeclaration",
-    "name": "useForgotPassword",
-    "signature": "useForgotPassword = () =>",
-    "startLine": 121
+    "startLine": 109
   },
   {
     "endLine": 140,
     "file": "src/hooks/api.ts",
     "jsdoc": "",
     "kind": "VariableDeclaration",
-    "name": "useResetPassword",
-    "signature": "useResetPassword = () =>",
-    "startLine": 129
+    "name": "useForgotPassword",
+    "signature": "useForgotPassword = () =>",
+    "startLine": 135
   },
   {
-    "endLine": 147,
+    "endLine": 152,
     "file": "src/hooks/api.ts",
     "jsdoc": "",
     "kind": "VariableDeclaration",
-    "name": "useCurrentUser",
-    "signature": "useCurrentUser = () =>",
-    "startLine": 142
+    "name": "useResetPassword",
+    "signature": "useResetPassword = () =>",
+    "startLine": 143
   },
   {
     "endLine": 158,
     "file": "src/hooks/api.ts",
     "jsdoc": "",
     "kind": "VariableDeclaration",
-    "name": "useUpdateCurrentUser",
-    "signature": "useUpdateCurrentUser = () =>",
-    "startLine": 149
+    "name": "useLogout",
+    "signature": "useLogout = () =>",
+    "startLine": 154
   },
   {
-    "endLine": 166,
+    "endLine": 165,
+    "file": "src/hooks/api.ts",
+    "jsdoc": "",
+    "kind": "VariableDeclaration",
+    "name": "useCurrentUser",
+    "signature": "useCurrentUser = () =>",
+    "startLine": 160
+  },
+  {
+    "endLine": 176,
+    "file": "src/hooks/api.ts",
+    "jsdoc": "",
+    "kind": "VariableDeclaration",
+    "name": "useUpdateCurrentUser",
+    "signature": "useUpdateCurrentUser = () =>",
+    "startLine": 167
+  },
+  {
+    "endLine": 184,
     "file": "src/hooks/api.ts",
     "jsdoc": "",
     "kind": "VariableDeclaration",
     "name": "useUserPortfolio",
     "signature": "useUserPortfolio = (accountId?: string) =>",
-    "startLine": 160
+    "startLine": 178
   },
   {
-    "endLine": 181,
+    "endLine": 199,
     "file": "src/hooks/api.ts",
     "jsdoc": "",
     "kind": "VariableDeclaration",
     "name": "usePortfolioHistory",
     "signature": "usePortfolioHistory = ( accountId?: string, exchangeCode?: string ) =>",
-    "startLine": 168
+    "startLine": 186
   },
   {
-    "endLine": 198,
+    "endLine": 216,
     "file": "src/hooks/api.ts",
     "jsdoc": "",
     "kind": "VariableDeclaration",
     "name": "useCreatePortfolioSnapshot",
     "signature": "useCreatePortfolioSnapshot = () =>",
-    "startLine": 183
+    "startLine": 201
   },
   {
-    "endLine": 206,
+    "endLine": 224,
     "file": "src/hooks/api.ts",
     "jsdoc": "",
     "kind": "VariableDeclaration",
     "name": "useHoldings",
     "signature": "useHoldings = (exchangeName?: string, accountId?: string) =>",
-    "startLine": 200
+    "startLine": 218
   },
   {
-    "endLine": 213,
+    "endLine": 231,
     "file": "src/hooks/api.ts",
     "jsdoc": "",
     "kind": "VariableDeclaration",
     "name": "useClosedPositions",
     "signature": "useClosedPositions = () =>",
-    "startLine": 208
-  },
-  {
-    "endLine": 225,
-    "file": "src/hooks/api.ts",
-    "jsdoc": "",
-    "kind": "VariableDeclaration",
-    "name": "useQuotes",
-    "signature": "useQuotes = (symbols: string[]) =>",
-    "startLine": 215
-  },
-  {
-    "endLine": 233,
-    "file": "src/hooks/api.ts",
-    "jsdoc": "",
-    "kind": "VariableDeclaration",
-    "name": "useTaxReports",
-    "signature": "useTaxReports = () =>",
-    "startLine": 228
+    "startLine": 226
   },
   {
     "endLine": 241,
     "file": "src/hooks/api.ts",
     "jsdoc": "",
     "kind": "VariableDeclaration",
-    "name": "useTaxReportDetail",
-    "signature": "useTaxReportDetail = (id?: string) =>",
-    "startLine": 235
+    "name": "useCreatePosition",
+    "signature": "useCreatePosition = () =>",
+    "startLine": 233
   },
   {
-    "endLine": 255,
+    "endLine": 256,
+    "file": "src/hooks/api.ts",
+    "jsdoc": "",
+    "kind": "VariableDeclaration",
+    "name": "useUpdatePosition",
+    "signature": "useUpdatePosition = () =>",
+    "startLine": 243
+  },
+  {
+    "endLine": 280,
+    "file": "src/hooks/api.ts",
+    "jsdoc": "",
+    "kind": "VariableDeclaration",
+    "name": "useClosePosition",
+    "signature": "useClosePosition = () =>",
+    "startLine": 258
+  },
+  {
+    "endLine": 289,
+    "file": "src/hooks/api.ts",
+    "jsdoc": "",
+    "kind": "VariableDeclaration",
+    "name": "useDeletePosition",
+    "signature": "useDeletePosition = () =>",
+    "startLine": 282
+  },
+  {
+    "endLine": 304,
+    "file": "src/hooks/api.ts",
+    "jsdoc": "",
+    "kind": "VariableDeclaration",
+    "name": "useUpdateCloseEvent",
+    "signature": "useUpdateCloseEvent = () =>",
+    "startLine": 291
+  },
+  {
+    "endLine": 316,
+    "file": "src/hooks/api.ts",
+    "jsdoc": "",
+    "kind": "VariableDeclaration",
+    "name": "useQuotes",
+    "signature": "useQuotes = (symbols: string[]) =>",
+    "startLine": 306
+  },
+  {
+    "endLine": 324,
+    "file": "src/hooks/api.ts",
+    "jsdoc": "",
+    "kind": "VariableDeclaration",
+    "name": "useTaxReports",
+    "signature": "useTaxReports = () =>",
+    "startLine": 319
+  },
+  {
+    "endLine": 332,
+    "file": "src/hooks/api.ts",
+    "jsdoc": "",
+    "kind": "VariableDeclaration",
+    "name": "useTaxReportDetail",
+    "signature": "useTaxReportDetail = (id?: string) =>",
+    "startLine": 326
+  },
+  {
+    "endLine": 346,
     "file": "src/hooks/api.ts",
     "jsdoc": "",
     "kind": "VariableDeclaration",
     "name": "useGenerateTaxReport",
     "signature": "useGenerateTaxReport = () =>",
-    "startLine": 243
+    "startLine": 334
   },
   {
-    "endLine": 266,
+    "endLine": 357,
     "file": "src/hooks/api.ts",
     "jsdoc": "",
     "kind": "VariableDeclaration",
     "name": "useDeleteTaxReport",
     "signature": "useDeleteTaxReport = () =>",
-    "startLine": 257
+    "startLine": 348
+  },
+  {
+    "endLine": 363,
+    "file": "src/hooks/api.ts",
+    "jsdoc": "",
+    "kind": "VariableDeclaration",
+    "name": "useDownloadTaxReportPdf",
+    "signature": "useDownloadTaxReportPdf = () =>",
+    "startLine": 359
   },
   {
     "endLine": 60,

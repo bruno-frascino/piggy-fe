@@ -9,12 +9,14 @@ const {
   useTradingAccountsMock,
   useTaxReportDetailMock,
   useGenerateTaxReportMock,
+  useDownloadTaxReportPdfMock,
   downloadTaxReportPdfMock,
 } = vi.hoisted(() => ({
   useTaxReportsMock: vi.fn(),
   useTradingAccountsMock: vi.fn(),
   useTaxReportDetailMock: vi.fn(),
   useGenerateTaxReportMock: vi.fn(),
+  useDownloadTaxReportPdfMock: vi.fn(),
   downloadTaxReportPdfMock: vi.fn(),
 }));
 
@@ -43,16 +45,11 @@ vi.mock('@/hooks/api', () => ({
   useTradingAccounts: useTradingAccountsMock,
   useTaxReportDetail: useTaxReportDetailMock,
   useGenerateTaxReport: useGenerateTaxReportMock,
+  useDownloadTaxReportPdf: useDownloadTaxReportPdfMock,
 }));
 
 vi.mock('@/lib/toast-context', () => ({
   useToast: () => ({ show: vi.fn() }),
-}));
-
-vi.mock('@/lib/api-client', () => ({
-  apiClient: {
-    downloadTaxReportPdf: downloadTaxReportPdfMock,
-  },
 }));
 
 import ReportsView from './ReportsView';
@@ -68,6 +65,9 @@ beforeEach(() => {
   useGenerateTaxReportMock.mockReturnValue({
     mutateAsync: vi.fn(),
     isPending: false,
+  });
+  useDownloadTaxReportPdfMock.mockReturnValue({
+    mutateAsync: downloadTaxReportPdfMock,
   });
 });
 

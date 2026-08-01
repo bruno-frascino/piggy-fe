@@ -4,28 +4,35 @@
 
 | Hook | Kind | apiClient method(s) | Query key(s) | Invalidates | Location |
 | ---- | ---- | -------------------- | ------------- | ----------- | -------- |
-| `useTradingAccounts` | query | getTradingAccounts | ['trading-accounts', includeClosed ? 'all' : 'active'] | — | [src/hooks/api.ts:5](../src/hooks/api.ts#L5) |
-| `useCreateAccount` | mutation | createAccount | ['trading-accounts'] | ['trading-accounts'] | [src/hooks/api.ts:13](../src/hooks/api.ts#L13) |
-| `useDeleteAccount` | mutation | deleteAccount | ['trading-accounts'], ['user-portfolio'], ['portfolio-history'], ['holdings'], ['closed-positions'] | ['trading-accounts'], ['user-portfolio'], ['portfolio-history'], ['holdings'], ['closed-positions'] | [src/hooks/api.ts:24](../src/hooks/api.ts#L24) |
-| `useCloseAccount` | mutation | closeAccount | ['trading-accounts'], ['user-portfolio'], ['portfolio-history'], ['holdings'] | ['trading-accounts'], ['user-portfolio'], ['portfolio-history'], ['holdings'] | [src/hooks/api.ts:39](../src/hooks/api.ts#L39) |
-| `useReopenAccount` | mutation | reopenAccount | ['trading-accounts'] | ['trading-accounts'] | [src/hooks/api.ts:53](../src/hooks/api.ts#L53) |
-| `useUpdateAccount` | mutation | updateAccount | ['trading-accounts'] | ['trading-accounts'] | [src/hooks/api.ts:64](../src/hooks/api.ts#L64) |
-| `useLogin` | mutation | login | — | — | [src/hooks/api.ts:77](../src/hooks/api.ts#L77) |
-| `useSignup` | mutation | signup | — | — | [src/hooks/api.ts:95](../src/hooks/api.ts#L95) |
-| `useForgotPassword` | mutation | forgotPassword | — | — | [src/hooks/api.ts:121](../src/hooks/api.ts#L121) |
-| `useResetPassword` | mutation | resetPassword | — | — | [src/hooks/api.ts:129](../src/hooks/api.ts#L129) |
-| `useCurrentUser` | query | getCurrentUser | ['current-user'] | — | [src/hooks/api.ts:142](../src/hooks/api.ts#L142) |
-| `useUpdateCurrentUser` | mutation | updateCurrentUser | ['current-user'] | ['current-user'] | [src/hooks/api.ts:149](../src/hooks/api.ts#L149) |
-| `useUserPortfolio` | query | getUserPortfolio | ['user-portfolio', accountId ?? 'all'] | — | [src/hooks/api.ts:160](../src/hooks/api.ts#L160) |
-| `usePortfolioHistory` | query | getPortfolioHistory | ['portfolio-history', accountId ?? 'none', exchangeCode ?? 'none',] | — | [src/hooks/api.ts:168](../src/hooks/api.ts#L168) |
-| `useCreatePortfolioSnapshot` | mutation | createPortfolioSnapshot | ['portfolio-history'] | ['portfolio-history'] | [src/hooks/api.ts:183](../src/hooks/api.ts#L183) |
-| `useHoldings` | query | getHoldings | ['holdings', exchangeName ?? 'all', accountId ?? 'all'] | — | [src/hooks/api.ts:200](../src/hooks/api.ts#L200) |
-| `useClosedPositions` | query | getClosedPositions | ['closed-positions'] | — | [src/hooks/api.ts:208](../src/hooks/api.ts#L208) |
-| `useQuotes` | query | getQuotes | ['quotes', key] | — | [src/hooks/api.ts:215](../src/hooks/api.ts#L215) |
-| `useTaxReports` | query | getTaxReports | ['tax-reports'] | — | [src/hooks/api.ts:228](../src/hooks/api.ts#L228) |
-| `useTaxReportDetail` | query | getTaxReportDetail | ['tax-reports', id ?? 'none'] | — | [src/hooks/api.ts:235](../src/hooks/api.ts#L235) |
-| `useGenerateTaxReport` | mutation | generateTaxReport | ['tax-reports'] | ['tax-reports'] | [src/hooks/api.ts:243](../src/hooks/api.ts#L243) |
-| `useDeleteTaxReport` | mutation | deleteTaxReport | ['tax-reports'] | ['tax-reports'] | [src/hooks/api.ts:257](../src/hooks/api.ts#L257) |
+| `useTradingAccounts` | query | getTradingAccounts | ['trading-accounts', includeClosed ? 'all' : 'active'] | — | [src/hooks/api.ts:19](../src/hooks/api.ts#L19) |
+| `useCreateAccount` | mutation | createAccount | ['trading-accounts'] | ['trading-accounts'] | [src/hooks/api.ts:27](../src/hooks/api.ts#L27) |
+| `useDeleteAccount` | mutation | deleteAccount | ['trading-accounts'], ['user-portfolio'], ['portfolio-history'], ['holdings'], ['closed-positions'] | ['trading-accounts'], ['user-portfolio'], ['portfolio-history'], ['holdings'], ['closed-positions'] | [src/hooks/api.ts:38](../src/hooks/api.ts#L38) |
+| `useCloseAccount` | mutation | closeAccount | ['trading-accounts'], ['user-portfolio'], ['portfolio-history'], ['holdings'] | ['trading-accounts'], ['user-portfolio'], ['portfolio-history'], ['holdings'] | [src/hooks/api.ts:53](../src/hooks/api.ts#L53) |
+| `useReopenAccount` | mutation | reopenAccount | ['trading-accounts'] | ['trading-accounts'] | [src/hooks/api.ts:67](../src/hooks/api.ts#L67) |
+| `useUpdateAccount` | mutation | updateAccount | ['trading-accounts'] | ['trading-accounts'] | [src/hooks/api.ts:78](../src/hooks/api.ts#L78) |
+| `useLogin` | mutation | login | — | — | [src/hooks/api.ts:91](../src/hooks/api.ts#L91) |
+| `useSignup` | mutation | signup | — | — | [src/hooks/api.ts:109](../src/hooks/api.ts#L109) |
+| `useForgotPassword` | mutation | forgotPassword | — | — | [src/hooks/api.ts:135](../src/hooks/api.ts#L135) |
+| `useResetPassword` | mutation | resetPassword | — | — | [src/hooks/api.ts:143](../src/hooks/api.ts#L143) |
+| `useLogout` | mutation | logout | — | — | [src/hooks/api.ts:154](../src/hooks/api.ts#L154) |
+| `useCurrentUser` | query | getCurrentUser | ['current-user'] | — | [src/hooks/api.ts:160](../src/hooks/api.ts#L160) |
+| `useUpdateCurrentUser` | mutation | updateCurrentUser | ['current-user'] | ['current-user'] | [src/hooks/api.ts:167](../src/hooks/api.ts#L167) |
+| `useUserPortfolio` | query | getUserPortfolio | ['user-portfolio', accountId ?? 'all'] | — | [src/hooks/api.ts:178](../src/hooks/api.ts#L178) |
+| `usePortfolioHistory` | query | getPortfolioHistory | ['portfolio-history', accountId ?? 'none', exchangeCode ?? 'none',] | — | [src/hooks/api.ts:186](../src/hooks/api.ts#L186) |
+| `useCreatePortfolioSnapshot` | mutation | createPortfolioSnapshot | ['portfolio-history'] | ['portfolio-history'] | [src/hooks/api.ts:201](../src/hooks/api.ts#L201) |
+| `useHoldings` | query | getHoldings | ['holdings', exchangeName ?? 'all', accountId ?? 'all'] | — | [src/hooks/api.ts:218](../src/hooks/api.ts#L218) |
+| `useClosedPositions` | query | getClosedPositions | ['closed-positions'] | — | [src/hooks/api.ts:226](../src/hooks/api.ts#L226) |
+| `useCreatePosition` | mutation | createPosition | — | — | [src/hooks/api.ts:233](../src/hooks/api.ts#L233) |
+| `useUpdatePosition` | mutation | updatePosition | — | — | [src/hooks/api.ts:243](../src/hooks/api.ts#L243) |
+| `useClosePosition` | mutation | closePosition | — | — | [src/hooks/api.ts:258](../src/hooks/api.ts#L258) |
+| `useDeletePosition` | mutation | deletePosition | — | — | [src/hooks/api.ts:282](../src/hooks/api.ts#L282) |
+| `useUpdateCloseEvent` | mutation | updateCloseEvent | — | — | [src/hooks/api.ts:291](../src/hooks/api.ts#L291) |
+| `useQuotes` | query | getQuotes | ['quotes', key] | — | [src/hooks/api.ts:306](../src/hooks/api.ts#L306) |
+| `useTaxReports` | query | getTaxReports | ['tax-reports'] | — | [src/hooks/api.ts:319](../src/hooks/api.ts#L319) |
+| `useTaxReportDetail` | query | getTaxReportDetail | ['tax-reports', id ?? 'none'] | — | [src/hooks/api.ts:326](../src/hooks/api.ts#L326) |
+| `useGenerateTaxReport` | mutation | generateTaxReport | ['tax-reports'] | ['tax-reports'] | [src/hooks/api.ts:334](../src/hooks/api.ts#L334) |
+| `useDeleteTaxReport` | mutation | deleteTaxReport | ['tax-reports'] | ['tax-reports'] | [src/hooks/api.ts:348](../src/hooks/api.ts#L348) |
+| `useDownloadTaxReportPdf` | mutation | downloadTaxReportPdf | — | — | [src/hooks/api.ts:359](../src/hooks/api.ts#L359) |
 
 ## apiClient methods called from other hooks (not src/hooks/api.ts)
 
@@ -37,11 +44,5 @@ These bypass the central React Query hook layer — no cache/query-key wiring fo
 
 ## apiClient methods with no hook
 
-- `closePosition` — no hook in src/hooks/** calls this method.
-- `createPosition` — no hook in src/hooks/** calls this method.
 - `deleteCloseEvent` — no hook in src/hooks/** calls this method.
-- `deletePosition` — no hook in src/hooks/** calls this method.
-- `downloadTaxReportPdf` — no hook in src/hooks/** calls this method.
-- `logout` — no hook in src/hooks/** calls this method.
 - `recalculateDrawdown` — no hook in src/hooks/** calls this method.
-- `updateCloseEvent` — no hook in src/hooks/** calls this method.

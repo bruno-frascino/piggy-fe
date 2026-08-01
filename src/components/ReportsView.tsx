@@ -3,8 +3,11 @@
 import { useState } from 'react';
 import { Card } from 'primereact/card';
 import { Button } from 'primereact/button';
-import { useTaxReports, useTradingAccounts } from '@/hooks/api';
-import { apiClient } from '@/lib/api-client';
+import {
+  useDownloadTaxReportPdf,
+  useTaxReports,
+  useTradingAccounts,
+} from '@/hooks/api';
 import PageHeader from '@/components/PageHeader';
 import GenerateReportDialog from '@/components/GenerateReportDialog';
 import ReportDetailDialog from '@/components/ReportDetailDialog';
@@ -21,6 +24,7 @@ function formatAud(n: number): string {
 export default function ReportsView() {
   const { data: reports = [], isLoading } = useTaxReports();
   const { data: accounts = [] } = useTradingAccounts(true);
+  const { mutateAsync: downloadTaxReportPdf } = useDownloadTaxReportPdf();
   const { show: showToast } = useToast();
   const [showGenerateDialog, setShowGenerateDialog] = useState(false);
   const [detailReportId, setDetailReportId] = useState<string | null>(null);
@@ -32,7 +36,7 @@ export default function ReportsView() {
   const handleDownload = async (report: TaxReport) => {
     setDownloadingId(report.id);
     try {
-      const blob = await apiClient.downloadTaxReportPdf(report.id);
+      const blob = await downloadTaxReportPdf(report.id);
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;

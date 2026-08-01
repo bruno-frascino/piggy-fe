@@ -37,11 +37,10 @@ Architecture rules enforced by `module-graph.ts` (fails the build if violated â€
 import `src/lib/mock-api.ts` directly; only `src/lib/api/http.ts` imports axios; no
 circular dependencies.
 
-**Known tracked debt (see `AGENTS.md` hard rule #2):** as of 2026-07-28, `module-graph.md`
-lists 4 real violations of the components/app rule that have not yet been fixed. Re-running
-`yarn context:build` will keep reporting them (non-zero exit) until they're fixed â€” this is
-expected and intentional, not a bug in the tooling. `yarn context:check` accepts exactly
-those four paths as a temporary baseline and fails if a new architecture violation appears.
+There is no accepted architecture-violation baseline. `yarn context:build` and
+`yarn context:check` fail on every encoded violation. Separate helper-hook API-layer debt that is
+not represented by the component/app import rule remains tracked in `AGENTS.md` and the follow-up
+register below.
 
 The cleanup plan and other deferred operational concerns are tracked in
 `docs/context-maintenance-follow-ups.md`.

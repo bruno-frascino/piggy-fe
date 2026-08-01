@@ -5,15 +5,9 @@ is verified or resolved.
 
 ## API-layer architecture debt
 
-- Replace direct `apiClient` imports in `src/app/history/page.tsx`, `src/components/TopNav.tsx`,
-  `src/components/HoldingsTable.tsx`, and `src/components/ReportsView.tsx` with React Query hooks in
-  `src/hooks/api.ts`.
 - Move direct calls to `getTradingAccounts`, `searchStocks`, and `updatePosition` out of
   `useAccountNameSuggestions.ts`, `useSymbolSearch.ts`, and `useHoldingRows.ts` into the central
   React Query layer so query keys, caching, and invalidation remain consistent.
-- Add focused hook/component tests, then remove resolved entries from
-  `ACCEPTED_ARCHITECTURE_VIOLATIONS` in `scripts/context/check.ts`. The exact four current
-  component/app violations are temporarily accepted; any new violation fails the check.
 
 ## Contract freshness
 

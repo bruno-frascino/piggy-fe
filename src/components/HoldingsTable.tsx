@@ -13,7 +13,6 @@ import ClosePositionDialog, {
   ClosePositionPayload,
 } from '@/components/ClosePositionDialog';
 import type { ExchangeKey } from '@/lib/types';
-import { apiClient } from '@/lib/api-client';
 import {
   enqueueQueuedWrite,
   syncQueuedWritesNow,
@@ -22,6 +21,12 @@ import {
 import { useToast } from '@/lib/toast-context';
 import { formatCurrency, formatPct, returnClass } from '@/lib/format';
 import { useHoldingRows, type HoldingRow } from '@/hooks/useHoldingRows';
+import {
+  useClosePosition,
+  useCreatePosition,
+  useDeletePosition,
+  useUpdatePosition,
+} from '@/hooks/api';
 
 function formatNumber(n: number) {
   return new Intl.NumberFormat(undefined, {
@@ -50,6 +55,10 @@ export default function HoldingsTable({
 }) {
   const queryClient = useQueryClient();
   const { show: showToast } = useToast();
+  const { mutateAsync: createPosition } = useCreatePosition();
+  const { mutateAsync: updatePosition } = useUpdatePosition();
+  const { mutateAsync: closePosition } = useClosePosition();
+  const { mutateAsync: deletePosition } = useDeletePosition();
   const [submitError, setSubmitError] = useState<string>('');
 
   const {
@@ -202,8 +211,7 @@ export default function HoldingsTable({
     }
 
     try {
-      await apiClient.deletePosition(current.id);
-      await invalidateAfterWrite();
+      await deletePosition(current.id);
       setHoldings(prev => prev.filter((_, index) => index !== editIdx));
       setShowDialog(false);
       setEditIdx(null);
@@ -743,8 +751,7 @@ export default function HoldingsTable({
                     'Position update queued.'
                   );
                 } else {
-                  await apiClient.updatePosition(current.id, payload);
-                  await invalidateAfterWrite();
+                  await updatePosition({ id: current.id, payload });
                 }
 
                 setHoldings(prev =>
@@ -802,8 +809,7 @@ export default function HoldingsTable({
                 },
               ]);
             } else {
-              await apiClient.createPosition(payload);
-              await invalidateAfterWrite();
+              await createPosition(payload);
             }
 
             setSubmitError('');
@@ -853,15 +859,14 @@ export default function HoldingsTable({
                   return;
                 }
 
-                await apiClient.closePosition(
-                  closeInitial.id,
-                  closePayload.closeDate,
-                  closePayload.exitPrice,
-                  closePayload.quantity,
-                  closePayload.fees,
-                  closePayload.notes
-                );
-                await invalidateAfterWrite();
+                await closePosition({
+                  id: closeInitial.id,
+                  closeDate: closePayload.closeDate,
+                  exitPrice: closePayload.exitPrice,
+                  quantity: closePayload.quantity,
+                  fees: closePayload.fees,
+                  notes: closePayload.notes,
+                });
               }
             }
 

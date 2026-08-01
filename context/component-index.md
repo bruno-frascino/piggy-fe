@@ -94,8 +94,8 @@
 
 ## `HoldingsTable`
 
-- File: [src/components/HoldingsTable.tsx](../src/components/HoldingsTable.tsx) (894 lines)
-- API hooks used: —
+- File: [src/components/HoldingsTable.tsx](../src/components/HoldingsTable.tsx) (899 lines)
+- API hooks used: useClosePosition, useCreatePosition, useDeletePosition, useUpdatePosition
 - Other hooks used: useCallback, useEffect, useHoldingRows, useQueryClient, useRef, useState, useToast
 
 ## `MobileTabBar`
@@ -125,14 +125,14 @@
 
 ## `ReportsView`
 
-- File: [src/components/ReportsView.tsx](../src/components/ReportsView.tsx) (178 lines)
-- API hooks used: useTaxReports, useTradingAccounts
+- File: [src/components/ReportsView.tsx](../src/components/ReportsView.tsx) (182 lines)
+- API hooks used: useDownloadTaxReportPdf, useTaxReports, useTradingAccounts
 - Other hooks used: useState, useToast
 
 ## `TopNav`
 
 - File: [src/components/TopNav.tsx](../src/components/TopNav.tsx) (243 lines)
-- API hooks used: useCurrentUser
+- API hooks used: useCurrentUser, useLogout
 - Other hooks used: useEffect, usePathname, useQueryClient, useRouter, useState, useToast
 
 ## `TopNavGate`

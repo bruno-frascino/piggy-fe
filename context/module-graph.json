@@ -54,11 +54,13 @@
         "src/app/history/page.tsx",
         "src/components/TopNav.tsx",
         "src/components/DashboardView.tsx",
+        "src/components/HoldingsTable.tsx",
         "src/hooks/useHoldingRows.ts",
         "src/hooks/useExchangeDiscovery.ts",
         "src/components/ReportsView.tsx",
         "src/components/GenerateReportDialog.tsx",
-        "src/components/ReportDetailDialog.tsx"
+        "src/components/ReportDetailDialog.tsx",
+        "src/hooks/api.test.tsx"
       ],
       "orphan": false,
       "source": "src/hooks/api.ts",
@@ -205,14 +207,10 @@
       ],
       "dependents": [
         "src/hooks/api.ts",
-        "src/app/history/page.tsx",
-        "src/components/TopNav.tsx",
         "src/lib/offline-write-queue.ts",
-        "src/components/HoldingsTable.tsx",
         "src/hooks/useAccountNameSuggestions.ts",
         "src/hooks/useSymbolSearch.ts",
         "src/hooks/useHoldingRows.ts",
-        "src/components/ReportsView.tsx",
         "src/lib/api-client.mock-parity.test.ts",
         "src/lib/api-client.test.ts"
       ],
@@ -756,29 +754,6 @@
           "exoticallyRequired": false,
           "followable": true,
           "matchesDoNotFollow": false,
-          "module": "@/lib/api-client",
-          "moduleSystem": "es6",
-          "resolved": "src/lib/api-client.ts",
-          "rules": [
-            {
-              "name": "components-app-no-direct-api-client",
-              "severity": "error"
-            }
-          ],
-          "valid": false
-        },
-        {
-          "circular": false,
-          "coreModule": false,
-          "couldNotResolve": false,
-          "dependencyTypes": [
-            "undetermined",
-            "import"
-          ],
-          "dynamic": false,
-          "exoticallyRequired": false,
-          "followable": true,
-          "matchesDoNotFollow": false,
           "module": "@/lib/date",
           "moduleSystem": "es6",
           "resolved": "src/lib/date.ts",
@@ -1069,29 +1044,6 @@
           "moduleSystem": "es6",
           "resolved": "src/hooks/api.ts",
           "valid": true
-        },
-        {
-          "circular": false,
-          "coreModule": false,
-          "couldNotResolve": false,
-          "dependencyTypes": [
-            "undetermined",
-            "import"
-          ],
-          "dynamic": false,
-          "exoticallyRequired": false,
-          "followable": true,
-          "matchesDoNotFollow": false,
-          "module": "@/lib/api-client",
-          "moduleSystem": "es6",
-          "resolved": "src/lib/api-client.ts",
-          "rules": [
-            {
-              "name": "components-app-no-direct-api-client",
-              "severity": "error"
-            }
-          ],
-          "valid": false
         },
         {
           "circular": false,
@@ -1448,9 +1400,9 @@
           "exoticallyRequired": false,
           "followable": true,
           "matchesDoNotFollow": false,
-          "module": "@/hooks/useHoldingRows",
+          "module": "@/hooks/api",
           "moduleSystem": "es6",
-          "resolved": "src/hooks/useHoldingRows.ts",
+          "resolved": "src/hooks/api.ts",
           "valid": true
         },
         {
@@ -1465,16 +1417,10 @@
           "exoticallyRequired": false,
           "followable": true,
           "matchesDoNotFollow": false,
-          "module": "@/lib/api-client",
+          "module": "@/hooks/useHoldingRows",
           "moduleSystem": "es6",
-          "resolved": "src/lib/api-client.ts",
-          "rules": [
-            {
-              "name": "components-app-no-direct-api-client",
-              "severity": "error"
-            }
-          ],
-          "valid": false
+          "resolved": "src/hooks/useHoldingRows.ts",
+          "valid": true
         },
         {
           "circular": false,
@@ -1859,29 +1805,6 @@
           "exoticallyRequired": false,
           "followable": true,
           "matchesDoNotFollow": false,
-          "module": "@/lib/api-client",
-          "moduleSystem": "es6",
-          "resolved": "src/lib/api-client.ts",
-          "rules": [
-            {
-              "name": "components-app-no-direct-api-client",
-              "severity": "error"
-            }
-          ],
-          "valid": false
-        },
-        {
-          "circular": false,
-          "coreModule": false,
-          "couldNotResolve": false,
-          "dependencyTypes": [
-            "undetermined",
-            "import"
-          ],
-          "dynamic": false,
-          "exoticallyRequired": false,
-          "followable": true,
-          "matchesDoNotFollow": false,
           "module": "@/lib/toast-context",
           "moduleSystem": "es6",
           "resolved": "src/lib/toast-context.tsx",
@@ -2194,6 +2117,31 @@
       "valid": true
     },
     {
+      "dependencies": [
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "local",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "./api",
+          "moduleSystem": "es6",
+          "resolved": "src/hooks/api.ts",
+          "valid": true
+        }
+      ],
+      "dependents": [],
+      "orphan": false,
+      "source": "src/hooks/api.test.tsx",
+      "valid": true
+    },
+    {
       "dependencies": [],
       "dependents": [],
       "orphan": true,
@@ -2366,7 +2314,7 @@
     }
   ],
   "summary": {
-    "error": 4,
+    "error": 0,
     "ignore": 0,
     "info": 0,
     "optionsUsed": {
@@ -2442,66 +2390,9 @@
         }
       ]
     },
-    "totalCruised": 72,
-    "totalDependenciesCruised": 96,
-    "violations": [
-      {
-        "dependencyTypes": [
-          "undetermined",
-          "import"
-        ],
-        "from": "src/app/history/page.tsx",
-        "rule": {
-          "name": "components-app-no-direct-api-client",
-          "severity": "error"
-        },
-        "to": "src/lib/api-client.ts",
-        "type": "dependency",
-        "unresolvedTo": "@/lib/api-client"
-      },
-      {
-        "dependencyTypes": [
-          "undetermined",
-          "import"
-        ],
-        "from": "src/components/HoldingsTable.tsx",
-        "rule": {
-          "name": "components-app-no-direct-api-client",
-          "severity": "error"
-        },
-        "to": "src/lib/api-client.ts",
-        "type": "dependency",
-        "unresolvedTo": "@/lib/api-client"
-      },
-      {
-        "dependencyTypes": [
-          "undetermined",
-          "import"
-        ],
-        "from": "src/components/ReportsView.tsx",
-        "rule": {
-          "name": "components-app-no-direct-api-client",
-          "severity": "error"
-        },
-        "to": "src/lib/api-client.ts",
-        "type": "dependency",
-        "unresolvedTo": "@/lib/api-client"
-      },
-      {
-        "dependencyTypes": [
-          "undetermined",
-          "import"
-        ],
-        "from": "src/components/TopNav.tsx",
-        "rule": {
-          "name": "components-app-no-direct-api-client",
-          "severity": "error"
-        },
-        "to": "src/lib/api-client.ts",
-        "type": "dependency",
-        "unresolvedTo": "@/lib/api-client"
-      }
-    ],
+    "totalCruised": 73,
+    "totalDependenciesCruised": 94,
+    "violations": [],
     "warn": 0
   }
 }

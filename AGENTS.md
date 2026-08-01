@@ -26,15 +26,11 @@ lockfiles. Env vars: `NEXT_PUBLIC_API_URL` (default `http://localhost:4000/api`)
    base URL.
 2. Components call the backend only via React Query hooks in `src/hooks/api.ts`, never by importing
    `src/lib/api/*` directly from a page or component.
-   > **Known debt (tracked, not yet fixed as of 2026-07-28):** `yarn context:check` /
-   > `context/module-graph.md` currently flag 4 real violations of this rule — direct `apiClient`
-   > imports in `src/app/history/page.tsx`, `src/components/TopNav.tsx`,
-   > `src/components/HoldingsTable.tsx`, `src/components/ReportsView.tsx` — plus 3 `apiClient`
-   > methods (`getTradingAccounts`, `searchStocks`, `updatePosition`) called directly from other
-   > hooks (`useAccountNameSuggestions.ts`, `useSymbolSearch.ts`, `useHoldingRows.ts`) bypassing
-   > `hooks/api.ts`'s query-key/cache wiring. Fix by adding proper hooks in `hooks/api.ts` and
-   > rewiring these call sites; do not add new direct `apiClient` imports outside `hooks/api.ts` in
-   > the meantime.
+   > **Known debt:** 3 `apiClient` methods (`getTradingAccounts`, `searchStocks`, `updatePosition`)
+   > are still called directly from helper hooks (`useAccountNameSuggestions.ts`,
+   > `useSymbolSearch.ts`, `useHoldingRows.ts`) instead of central hooks in `hooks/api.ts`,
+   > bypassing its query-key/cache wiring. Do not add new direct `apiClient` imports outside
+   > `hooks/api.ts`.
 3. Every `apiClient` method needs a mock-mode branch (`NEXT_PUBLIC_USE_MOCK_API=true`) — enforced by
    `src/lib/api-client.mock-parity.test.ts`, which walks all methods with a sentinel axios mock that
    fails if any real network call is attempted.

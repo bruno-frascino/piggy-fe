@@ -22,12 +22,6 @@ import { generateContractDrift } from './contract-drift.js'
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const ROOT = path.join(__dirname, '..', '..')
 const COMMITTED_MANIFEST_PATH = path.join(ROOT, 'context', 'manifest.json')
-const ACCEPTED_ARCHITECTURE_VIOLATIONS = new Set([
-  'components-app-no-direct-api-client:src/app/history/page.tsx->src/lib/api-client.ts',
-  'components-app-no-direct-api-client:src/components/HoldingsTable.tsx->src/lib/api-client.ts',
-  'components-app-no-direct-api-client:src/components/ReportsView.tsx->src/lib/api-client.ts',
-  'components-app-no-direct-api-client:src/components/TopNav.tsx->src/lib/api-client.ts',
-])
 
 async function buildIntoTempDir(tempContextDir: string): Promise<{
   hashes: Record<string, string>
@@ -102,9 +96,6 @@ async function main(): Promise<void> {
   try {
     const { hashes: freshHashes, architectureViolations } = await buildIntoTempDir(tempDir)
     const stale: string[] = []
-    const newArchitectureViolations = architectureViolations.filter(
-      (violation) => !ACCEPTED_ARCHITECTURE_VIOLATIONS.has(violation)
-    )
 
     for (const [name, entry] of Object.entries(committed.artifacts)) {
       if (freshHashes[name] === undefined) continue
@@ -121,9 +112,9 @@ async function main(): Promise<void> {
       console.error('\nRun `yarn context:build`, then `git add context/` and commit.')
       failed = true
     }
-    if (newArchitectureViolations.length > 0) {
-      console.error('Found architecture rule violations outside the accepted baseline:')
-      for (const violation of newArchitectureViolations) console.error(`  - ${violation}`)
+    if (architectureViolations.length > 0) {
+      console.error('Found architecture rule violations:')
+      for (const violation of architectureViolations) console.error(`  - ${violation}`)
       failed = true
     }
     if (failed) {

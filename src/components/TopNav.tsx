@@ -5,8 +5,7 @@ import Image from 'next/image';
 import { usePathname, useRouter } from 'next/navigation';
 import { useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
-import { useCurrentUser } from '@/hooks/api';
-import { apiClient } from '@/lib/api-client';
+import { useCurrentUser, useLogout } from '@/hooks/api';
 import {
   clearQueuedWrites,
   getQueuedWritesCount,
@@ -21,6 +20,7 @@ export default function TopNav() {
   const queryClient = useQueryClient();
   const { show: showToast } = useToast();
   const { data: currentUser } = useCurrentUser();
+  const { mutateAsync: logout } = useLogout();
   const [queuedWritesCount, setQueuedWritesCount] = useState(0);
   const [syncingNow, setSyncingNow] = useState(false);
   const isActive = (href: string) => pathname === href;
@@ -73,7 +73,7 @@ export default function TopNav() {
     const refreshToken = localStorage.getItem('refreshToken');
 
     if (refreshToken) {
-      await apiClient.logout(refreshToken).catch(() => undefined);
+      await logout(refreshToken).catch(() => undefined);
     }
 
     clearQueuedWrites();

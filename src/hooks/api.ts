@@ -1,5 +1,19 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import {
+  useQuery,
+  useMutation,
+  useQueryClient,
+  type QueryClient,
+} from '@tanstack/react-query';
 import { apiClient } from '@/lib/api-client';
+
+function invalidatePositionQueries(queryClient: QueryClient) {
+  return Promise.all([
+    queryClient.invalidateQueries({ queryKey: ['holdings'] }),
+    queryClient.invalidateQueries({ queryKey: ['closed-positions'] }),
+    queryClient.invalidateQueries({ queryKey: ['portfolio-history'] }),
+    queryClient.invalidateQueries({ queryKey: ['user-portfolio'] }),
+  ]);
+}
 
 // Account hooks
 export const useTradingAccounts = (includeClosed = false) => {
@@ -127,8 +141,6 @@ export const useForgotPassword = () => {
 
 // Reset password mutation
 export const useResetPassword = () => {
-  const queryClient = useQueryClient();
-
   return useMutation({
     mutationFn: ({ token, password }: { token: string; password: string }) =>
       apiClient.resetPassword(token, password),
@@ -136,6 +148,12 @@ export const useResetPassword = () => {
       // Reset password returns only { success, message } — no token
       // Redirect is handled by the page component after success
     },
+  });
+};
+
+export const useLogout = () => {
+  return useMutation({
+    mutationFn: (refreshToken: string) => apiClient.logout(refreshToken),
   });
 };
 
@@ -212,6 +230,79 @@ export const useClosedPositions = () => {
   });
 };
 
+export const useCreatePosition = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (payload: Parameters<typeof apiClient.createPosition>[0]) =>
+      apiClient.createPosition(payload),
+    onSuccess: () => invalidatePositionQueries(queryClient),
+  });
+};
+
+export const useUpdatePosition = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      id,
+      payload,
+    }: {
+      id: string;
+      payload: Parameters<typeof apiClient.updatePosition>[1];
+    }) => apiClient.updatePosition(id, payload),
+    onSuccess: () => invalidatePositionQueries(queryClient),
+  });
+};
+
+export const useClosePosition = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      id,
+      closeDate,
+      exitPrice,
+      quantity,
+      fees,
+      notes,
+    }: {
+      id: string;
+      closeDate: string;
+      exitPrice: number;
+      quantity?: number;
+      fees?: number;
+      notes?: string;
+    }) =>
+      apiClient.closePosition(id, closeDate, exitPrice, quantity, fees, notes),
+    onSuccess: () => invalidatePositionQueries(queryClient),
+  });
+};
+
+export const useDeletePosition = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: string) => apiClient.deletePosition(id),
+    onSuccess: () => invalidatePositionQueries(queryClient),
+  });
+};
+
+export const useUpdateCloseEvent = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      id,
+      data,
+    }: {
+      id: string;
+      data: Parameters<typeof apiClient.updateCloseEvent>[1];
+    }) => apiClient.updateCloseEvent(id, data),
+    onSuccess: () => invalidatePositionQueries(queryClient),
+  });
+};
+
 export const useQuotes = (symbols: string[]) => {
   // Stable key: sorted, joined so reference changes don't trigger redundant fetches
   const key = [...symbols].sort().join(',');
@@ -262,5 +353,11 @@ export const useDeleteTaxReport = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['tax-reports'] });
     },
+  });
+};
+
+export const useDownloadTaxReportPdf = () => {
+  return useMutation({
+    mutationFn: (id: string) => apiClient.downloadTaxReportPdf(id),
   });
 };
