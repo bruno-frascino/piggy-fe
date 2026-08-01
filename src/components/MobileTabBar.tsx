@@ -7,6 +7,7 @@ const TABS = [
   { href: '/', label: 'Dashboard', icon: 'pi-home' },
   { href: '/history', label: 'History', icon: 'pi-clock' },
   { href: '/reports', label: 'Reports', icon: 'pi-file-pdf' },
+  { href: '/statistics', label: 'Statistics', icon: 'pi-chart-line' },
   { href: '/account', label: 'Account', icon: 'pi-user' },
 ] as const;
 

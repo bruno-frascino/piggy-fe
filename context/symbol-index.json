@@ -261,13 +261,13 @@
     "startLine": 37
   },
   {
-    "endLine": 39,
+    "endLine": 40,
     "file": "src/components/MobileTabBar.tsx",
     "jsdoc": "Bottom-fixed primary navigation shown only below the `md` breakpoint — thumb-reachable navigation is a standard mobile/PWA UX pattern. Mirrors the same routes as the desktop TopNav; hidden on /auth/* by the same gate (TopNavGate) that hides TopNav.",
     "kind": "FunctionDeclaration",
     "name": "default",
     "signature": "export default function MobileTabBar()",
-    "startLine": 19
+    "startLine": 20
   },
   {
     "endLine": 35,
@@ -306,7 +306,7 @@
     "startLine": 172
   },
   {
-    "endLine": 243,
+    "endLine": 249,
     "file": "src/components/TopNav.tsx",
     "jsdoc": "",
     "kind": "FunctionDeclaration",

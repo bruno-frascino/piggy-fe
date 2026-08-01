@@ -100,7 +100,7 @@
 
 ## `MobileTabBar`
 
-- File: [src/components/MobileTabBar.tsx](../src/components/MobileTabBar.tsx) (40 lines)
+- File: [src/components/MobileTabBar.tsx](../src/components/MobileTabBar.tsx) (41 lines)
 - API hooks used: —
 - Other hooks used: usePathname
 
@@ -137,7 +137,7 @@
 
 ## `TopNav`
 
-- File: [src/components/TopNav.tsx](../src/components/TopNav.tsx) (244 lines)
+- File: [src/components/TopNav.tsx](../src/components/TopNav.tsx) (250 lines)
 - API hooks used: useCurrentUser, useLogout
 - Other hooks used: useEffect, usePathname, useQueryClient, useRouter, useState, useToast
 
