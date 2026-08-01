@@ -153,7 +153,7 @@ export default function TopNav() {
 
   return (
     <nav className='sticky top-0 z-40 topnav'>
-      <div className='max-w-6xl xl:max-w-7xl 2xl:max-w-screen-2xl 3xl:max-w-[1800px] mx-auto px-5 h-16 flex items-center justify-between gap-4'>
+      <div className='max-w-6xl xl:max-w-7xl 2xl:max-w-screen-2xl 3xl:max-w-[1800px] mx-auto px-4 sm:px-5 h-16 flex items-center justify-between gap-3 sm:gap-4'>
         {/* Left: Brand */}
         <Link
           href='/'
@@ -166,6 +166,7 @@ export default function TopNav() {
             aria-hidden
             width={64}
             height={64}
+            className='h-11 w-11 sm:h-16 sm:w-16'
             priority
           />
           <span className='font-bold text-slate-800 text-xl tracking-tight hidden sm:inline'>
@@ -174,7 +175,7 @@ export default function TopNav() {
         </Link>
 
         {/* Center: Nav links */}
-        <div className='flex items-center gap-1 text-sm md:text-base'>
+        <div className='hidden md:flex items-center gap-1 text-sm md:text-base'>
           <Link
             href='/'
             className={`nav-link px-3 py-2 rounded-lg transition-colors ${isActive('/') ? 'active font-semibold' : ''}`}
@@ -217,7 +218,7 @@ export default function TopNav() {
         </div>
 
         {/* Right: User + Sign out */}
-        <div className='flex items-center gap-3 shrink-0'>
+        <div className='flex items-center gap-2 sm:gap-3 shrink-0'>
           <Link
             href='/account'
             className='h-9 w-9 rounded-full user-badge flex items-center justify-center text-xs font-semibold'
@@ -228,7 +229,7 @@ export default function TopNav() {
           </Link>
           <button
             onClick={handleSignOut}
-            className='signout-btn flex items-center gap-1 text-sm px-2 py-1 rounded-lg transition-colors'
+            className='signout-btn flex items-center justify-center gap-1 text-sm h-9 w-9 md:w-auto md:px-2 py-1 rounded-lg transition-colors'
             title='Sign out'
             aria-label='Sign out'
           >

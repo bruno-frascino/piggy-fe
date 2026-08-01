@@ -155,3 +155,116 @@ export interface ClosedTrade {
   baseCurrency?: string; // placeholder for future multi-currency support
   maxDrawdownPercent?: number; // worst intra-trade drawdown from entry price, in percent (positive number)
 }
+
+export interface StatisticsFilters {
+  accountIds?: string[];
+  exchangeCodes?: string[];
+  assetTypes?: Array<'EQUITY' | 'ETF' | 'CRYPTO'>;
+  status?: Array<'OPEN' | 'PARTIAL' | 'CLOSED'>;
+  dateFrom?: string;
+  dateTo?: string;
+}
+
+export interface StatisticsSummary {
+  totalTrades: number;
+  winRate: number;
+  avgWin: number;
+  avgLoss: number;
+  profitFactor: number | null;
+  expectancyPerTrade: number;
+  avgHoldingDays: number | null;
+  realizedPnL: number;
+  unrealizedPnL: number;
+  totalPnL: number;
+  metricDefinitionVersion: string;
+  asOf: string;
+}
+
+export interface StatisticsTimeSeriesPoint {
+  bucketStart: string;
+  bucketEnd: string;
+  value: number;
+}
+
+export interface StatisticsTimeSeries {
+  points: StatisticsTimeSeriesPoint[];
+  currency: string;
+  asOf: string;
+}
+
+export interface StatisticsHistogramBucket {
+  min: number;
+  max: number;
+  count: number;
+}
+
+export interface StatisticsDistributions {
+  returnPctHistogram: StatisticsHistogramBucket[];
+  pnlHistogram: StatisticsHistogramBucket[];
+  holdingDaysHistogram: StatisticsHistogramBucket[];
+  sampleSize: number;
+}
+
+export interface StatisticsRisk {
+  volatilityAnnualized: number | null;
+  sharpeRatio: number | null;
+  maxDrawdownPct: number | null;
+  methodology: 'SNAPSHOT_RETURNS_V1';
+  confidence: 'LOW' | 'MEDIUM' | 'HIGH';
+  sampleSize: number;
+  fallbackReason?: string;
+}
+
+export type StatisticsBreakdownBy =
+  | 'account'
+  | 'exchange'
+  | 'assetType'
+  | 'industry';
+
+export type StatisticsBreakdownMetric =
+  | 'marketValue'
+  | 'realizedPnL'
+  | 'totalPnL';
+
+export interface StatisticsBreakdownRow {
+  key: string;
+  label: string;
+  value: number;
+  weight: number;
+}
+
+export interface StatisticsBreakdownsResponse {
+  rows: StatisticsBreakdownRow[];
+  total: number;
+}
+
+export interface StatisticsClosedTradeRow {
+  id: string;
+  positionId: string;
+  symbol: string;
+  accountId: string;
+  exchangeCode: string;
+  openDate: string;
+  closeDate: string;
+  unitsClosed: number;
+  pnl: number;
+  returnPct: number;
+  holdingDays: number;
+}
+
+export type StatisticsClosedTradesSortBy =
+  | 'closeDate'
+  | 'pnl'
+  | 'returnPct'
+  | 'holdingDays';
+
+export type StatisticsClosedTradesSortDir = 'asc' | 'desc';
+
+export interface StatisticsClosedTradesResponse {
+  rows: StatisticsClosedTradeRow[];
+  meta: {
+    total: number;
+    limit: number;
+    offset: number;
+  };
+}

@@ -119,9 +119,9 @@
       "exports": [
         {
           "col": 14,
-          "line": 368,
+          "line": 375,
           "name": "useDeleteTaxReport",
-          "pos": 10197
+          "pos": 10373
         }
       ],
       "file": "src/hooks/api.ts",
@@ -310,6 +310,18 @@
           "line": 69,
           "name": "ApiErrorResponse",
           "pos": 1504
+        },
+        {
+          "col": 18,
+          "line": 183,
+          "name": "StatisticsTimeSeriesPoint",
+          "pos": 4441
+        },
+        {
+          "col": 18,
+          "line": 195,
+          "name": "StatisticsHistogramBucket",
+          "pos": 4668
         }
       ],
       "unlisted": [],

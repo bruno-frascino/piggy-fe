@@ -1183,6 +1183,354 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/statistics/breakdowns": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get grouped portfolio breakdown rows for charts/tables */
+        get: {
+            parameters: {
+                query: {
+                    by: "account" | "exchange" | "assetType" | "industry";
+                    metric: "marketValue" | "realizedPnL" | "totalPnL";
+                    /** @description CSV trading account IDs */
+                    accountIds?: string;
+                    /** @description CSV exchange codes (e.g. NASDAQ, ASX) */
+                    exchangeCodes?: string;
+                    /** @description CSV asset types */
+                    assetTypes?: "EQUITY" | "ETF" | "CRYPTO";
+                    /** @description CSV position statuses */
+                    status?: "OPEN" | "PARTIAL" | "CLOSED";
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Grouped rows with weights */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Validation error */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/statistics/closed-trades": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get paginated closed trade rows for the selected scope */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description CSV trading account IDs */
+                    accountIds?: string;
+                    /** @description CSV exchange codes (e.g. NASDAQ, ASX) */
+                    exchangeCodes?: string;
+                    /** @description CSV asset types */
+                    assetTypes?: "EQUITY" | "ETF" | "CRYPTO";
+                    dateFrom?: string;
+                    dateTo?: string;
+                    limit?: number;
+                    offset?: number;
+                    sortBy?: "closeDate" | "pnl" | "returnPct" | "holdingDays";
+                    sortDir?: "asc" | "desc";
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Paginated closed trades */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Validation error */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/statistics/distributions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get histogram distributions for returns, PnL and holding days */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description CSV trading account IDs */
+                    accountIds?: string;
+                    /** @description CSV exchange codes (e.g. NASDAQ, ASX) */
+                    exchangeCodes?: string;
+                    /** @description CSV asset types */
+                    assetTypes?: "EQUITY" | "ETF" | "CRYPTO";
+                    dateFrom?: string;
+                    dateTo?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Histogram buckets for charting */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Validation error */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/statistics/risk": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get risk metrics from portfolio snapshot return series */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description CSV trading account IDs */
+                    accountIds?: string;
+                    /** @description CSV exchange codes (e.g. NASDAQ, ASX) */
+                    exchangeCodes?: string;
+                    dateFrom?: string;
+                    dateTo?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Volatility, Sharpe and drawdown metrics */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Validation error */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/statistics/summary": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get statistics summary KPIs for the selected scope */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description CSV trading account IDs */
+                    accountIds?: string;
+                    /** @description CSV exchange codes (e.g. NASDAQ, ASX) */
+                    exchangeCodes?: string;
+                    /** @description CSV asset types */
+                    assetTypes?: "EQUITY" | "ETF" | "CRYPTO";
+                    /** @description CSV position statuses */
+                    status?: "OPEN" | "PARTIAL" | "CLOSED";
+                    dateFrom?: string;
+                    dateTo?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Aggregated summary metrics */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Validation error */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/statistics/timeseries": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get time-series points for statistics charts */
+        get: {
+            parameters: {
+                query: {
+                    metric: "equity" | "totalPnL" | "realizedPnL";
+                    granularity?: "day" | "week" | "month";
+                    /** @description CSV trading account IDs */
+                    accountIds?: string;
+                    /** @description CSV exchange codes (e.g. NASDAQ, ASX) */
+                    exchangeCodes?: string;
+                    dateFrom?: string;
+                    dateTo?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Aggregated time-series points */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Validation error */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/stocks/quotes": {
         parameters: {
             query?: never;

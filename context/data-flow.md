@@ -11,6 +11,12 @@
 | `['portfolio-history', accountId ?? 'none', exchangeCode ?? 'none',]` | usePortfolioHistory | — |
 | `['portfolio-history']` | useDeleteAccount, useCloseAccount, useCreatePortfolioSnapshot | useDeleteAccount, useCloseAccount, useCreatePortfolioSnapshot |
 | `['quotes', key]` | useQuotes | — |
+| `['statistics-breakdowns', params.by, params.metric, params.filters ?? {},]` | useStatisticsBreakdowns | — |
+| `['statistics-closed-trades', params.filters ?? {}, params.limit ?? 50, params.offset ?? 0, params.sortBy ?? 'closeDate', params.sortDir ?? 'desc',]` | useStatisticsClosedTrades | — |
+| `['statistics-distributions', filters]` | useStatisticsDistributions | — |
+| `['statistics-risk', filters]` | useStatisticsRisk | — |
+| `['statistics-summary', filters]` | useStatisticsSummary | — |
+| `['statistics-timeseries', params.metric, params.granularity ?? 'month', params.filters ?? {},]` | useStatisticsTimeSeries | — |
 | `['stock-search', query, limit]` | useStockSearch | — |
 | `['tax-reports', id ?? 'none']` | useTaxReportDetail | — |
 | `['tax-reports']` | useTaxReports, useGenerateTaxReport, useDeleteTaxReport | useGenerateTaxReport, useDeleteTaxReport |

@@ -62,6 +62,7 @@
         "src/components/ReportsView.tsx",
         "src/components/GenerateReportDialog.tsx",
         "src/components/ReportDetailDialog.tsx",
+        "src/components/StatisticsView.tsx",
         "src/hooks/api.test.tsx"
       ],
       "orphan": false,
@@ -167,6 +168,23 @@
           "exoticallyRequired": false,
           "followable": true,
           "matchesDoNotFollow": false,
+          "module": "./api/statistics",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/api/statistics.ts",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "local",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
           "module": "./api/stocks",
           "moduleSystem": "es6",
           "resolved": "src/lib/api/stocks.ts",
@@ -250,6 +268,7 @@
         "src/lib/api/accounts.ts",
         "src/lib/api/portfolio.ts",
         "src/lib/api/positions.ts",
+        "src/lib/api/statistics.ts",
         "src/lib/api/stocks.ts",
         "src/lib/api/tax-reports.ts",
         "src/lib/api/user.ts"
@@ -425,6 +444,33 @@
       ],
       "orphan": false,
       "source": "src/lib/mock-holdings.ts",
+      "valid": true
+    },
+    {
+      "dependencies": [
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "local",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "./mappers",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/api/mappers.ts",
+          "valid": true
+        }
+      ],
+      "dependents": [
+        "src/lib/api-client.ts"
+      ],
+      "orphan": false,
+      "source": "src/lib/api/statistics.ts",
       "valid": true
     },
     {
@@ -794,7 +840,8 @@
       "dependencies": [],
       "dependents": [
         "src/app/history/page.tsx",
-        "src/components/ReportsView.tsx"
+        "src/components/ReportsView.tsx",
+        "src/components/StatisticsView.tsx"
       ],
       "orphan": false,
       "source": "src/components/PageHeader.tsx",
@@ -805,6 +852,7 @@
       "dependents": [
         "src/app/history/page.tsx",
         "src/components/DashboardView.tsx",
+        "src/components/StatisticsView.tsx",
         "src/lib/date.test.ts"
       ],
       "orphan": false,
@@ -816,6 +864,8 @@
       "dependents": [
         "src/app/history/page.tsx",
         "src/components/HoldingsTable.tsx",
+        "src/components/StatisticsView.tsx",
+        "src/components/StatisticsView.test.tsx",
         "src/lib/format.test.ts"
       ],
       "orphan": false,
@@ -1881,6 +1931,110 @@
           "coreModule": false,
           "couldNotResolve": false,
           "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/components/StatisticsView",
+          "moduleSystem": "es6",
+          "resolved": "src/components/StatisticsView.tsx",
+          "valid": true
+        }
+      ],
+      "dependents": [],
+      "orphan": false,
+      "source": "src/app/statistics/page.tsx",
+      "valid": true
+    },
+    {
+      "dependencies": [
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/components/PageHeader",
+          "moduleSystem": "es6",
+          "resolved": "src/components/PageHeader.tsx",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/hooks/api",
+          "moduleSystem": "es6",
+          "resolved": "src/hooks/api.ts",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/lib/date",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/date.ts",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/lib/format",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/format.ts",
+          "valid": true
+        }
+      ],
+      "dependents": [
+        "src/app/statistics/page.tsx",
+        "src/components/StatisticsView.test.tsx"
+      ],
+      "orphan": false,
+      "source": "src/components/StatisticsView.tsx",
+      "valid": true
+    },
+    {
+      "dependencies": [
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
             "local",
             "import"
           ],
@@ -2097,6 +2251,48 @@
       "dependents": [],
       "orphan": false,
       "source": "src/components/ReportsView.test.tsx",
+      "valid": true
+    },
+    {
+      "dependencies": [
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "local",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "./StatisticsView",
+          "moduleSystem": "es6",
+          "resolved": "src/components/StatisticsView.tsx",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/lib/format",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/format.ts",
+          "valid": true
+        }
+      ],
+      "dependents": [],
+      "orphan": false,
+      "source": "src/components/StatisticsView.test.tsx",
       "valid": true
     },
     {
@@ -2390,8 +2586,8 @@
         }
       ]
     },
-    "totalCruised": 73,
-    "totalDependenciesCruised": 94,
+    "totalCruised": 77,
+    "totalDependenciesCruised": 103,
     "violations": [],
     "warn": 0
   }

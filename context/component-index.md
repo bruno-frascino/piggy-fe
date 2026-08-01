@@ -129,9 +129,15 @@
 - API hooks used: useDownloadTaxReportPdf, useTaxReports, useTradingAccounts
 - Other hooks used: useState, useToast
 
+## `StatisticsView`
+
+- File: [src/components/StatisticsView.tsx](../src/components/StatisticsView.tsx) (1080 lines)
+- API hooks used: useStatisticsBreakdowns, useStatisticsClosedTrades, useStatisticsDistributions, useStatisticsRisk, useStatisticsSummary, useStatisticsTimeSeries, useTradingAccounts
+- Other hooks used: useMemo, useState
+
 ## `TopNav`
 
-- File: [src/components/TopNav.tsx](../src/components/TopNav.tsx) (243 lines)
+- File: [src/components/TopNav.tsx](../src/components/TopNav.tsx) (244 lines)
 - API hooks used: useCurrentUser, useLogout
 - Other hooks used: useEffect, usePathname, useQueryClient, useRouter, useState, useToast
 

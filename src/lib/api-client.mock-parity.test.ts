@@ -129,6 +129,38 @@ describe('apiClient mock-mode parity', () => {
     // stocks
     { name: 'searchStocks', call: () => apiClient.searchStocks('AAPL') },
     { name: 'getQuotes', call: () => apiClient.getQuotes(['AAPL']) },
+    // statistics
+    {
+      name: 'getStatisticsSummary',
+      call: () => apiClient.getStatisticsSummary(),
+    },
+    {
+      name: 'getStatisticsTimeSeries',
+      call: () =>
+        apiClient.getStatisticsTimeSeries({
+          metric: 'equity',
+        }),
+    },
+    {
+      name: 'getStatisticsClosedTrades',
+      call: () => apiClient.getStatisticsClosedTrades({}),
+    },
+    {
+      name: 'getStatisticsDistributions',
+      call: () => apiClient.getStatisticsDistributions(),
+    },
+    {
+      name: 'getStatisticsRisk',
+      call: () => apiClient.getStatisticsRisk(),
+    },
+    {
+      name: 'getStatisticsBreakdowns',
+      call: () =>
+        apiClient.getStatisticsBreakdowns({
+          by: 'assetType',
+          metric: 'marketValue',
+        }),
+    },
     // tax reports
     { name: 'getTaxReports', call: () => apiClient.getTaxReports() },
     {

@@ -5,6 +5,13 @@ import {
   type QueryClient,
 } from '@tanstack/react-query';
 import { apiClient } from '@/lib/api-client';
+import type {
+  StatisticsBreakdownBy,
+  StatisticsBreakdownMetric,
+  StatisticsClosedTradesSortBy,
+  StatisticsClosedTradesSortDir,
+  StatisticsFilters,
+} from '@/lib/types';
 
 function invalidatePositionQueries(queryClient: QueryClient) {
   return Promise.all([
@@ -379,5 +386,95 @@ export const useDeleteTaxReport = () => {
 export const useDownloadTaxReportPdf = () => {
   return useMutation({
     mutationFn: (id: string) => apiClient.downloadTaxReportPdf(id),
+  });
+};
+
+// Statistics hooks
+export const useStatisticsSummary = (
+  filters: StatisticsFilters = {},
+  options?: { enabled?: boolean }
+) => {
+  return useQuery({
+    queryKey: ['statistics-summary', filters],
+    queryFn: () => apiClient.getStatisticsSummary(filters),
+    staleTime: 60_000,
+    enabled: options?.enabled ?? true,
+  });
+};
+
+export const useStatisticsTimeSeries = (params: {
+  filters?: StatisticsFilters;
+  metric: 'equity' | 'totalPnL' | 'realizedPnL';
+  granularity?: 'day' | 'week' | 'month';
+  enabled?: boolean;
+}) => {
+  return useQuery({
+    queryKey: [
+      'statistics-timeseries',
+      params.metric,
+      params.granularity ?? 'month',
+      params.filters ?? {},
+    ],
+    queryFn: () => apiClient.getStatisticsTimeSeries(params),
+    staleTime: 60_000,
+    enabled: params.enabled ?? true,
+  });
+};
+
+export const useStatisticsDistributions = (filters: StatisticsFilters = {}) => {
+  return useQuery({
+    queryKey: ['statistics-distributions', filters],
+    queryFn: () => apiClient.getStatisticsDistributions(filters),
+    staleTime: 60_000,
+  });
+};
+
+export const useStatisticsRisk = (
+  filters: StatisticsFilters = {},
+  options?: { enabled?: boolean }
+) => {
+  return useQuery({
+    queryKey: ['statistics-risk', filters],
+    queryFn: () => apiClient.getStatisticsRisk(filters),
+    staleTime: 60_000,
+    enabled: options?.enabled ?? true,
+  });
+};
+
+export const useStatisticsBreakdowns = (params: {
+  filters?: StatisticsFilters;
+  by: StatisticsBreakdownBy;
+  metric: StatisticsBreakdownMetric;
+}) => {
+  return useQuery({
+    queryKey: [
+      'statistics-breakdowns',
+      params.by,
+      params.metric,
+      params.filters ?? {},
+    ],
+    queryFn: () => apiClient.getStatisticsBreakdowns(params),
+    staleTime: 60_000,
+  });
+};
+
+export const useStatisticsClosedTrades = (params: {
+  filters?: StatisticsFilters;
+  limit?: number;
+  offset?: number;
+  sortBy?: StatisticsClosedTradesSortBy;
+  sortDir?: StatisticsClosedTradesSortDir;
+}) => {
+  return useQuery({
+    queryKey: [
+      'statistics-closed-trades',
+      params.filters ?? {},
+      params.limit ?? 50,
+      params.offset ?? 0,
+      params.sortBy ?? 'closeDate',
+      params.sortDir ?? 'desc',
+    ],
+    queryFn: () => apiClient.getStatisticsClosedTrades(params),
+    staleTime: 60_000,
   });
 };

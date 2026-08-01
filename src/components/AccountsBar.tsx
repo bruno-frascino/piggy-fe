@@ -69,7 +69,7 @@ export default function AccountsBar({
 
   return (
     <div className='sticky top-16 z-30 bg-white border-b border-gray-200 shadow-sm'>
-      <div className='max-w-6xl xl:max-w-7xl 2xl:max-w-screen-2xl 3xl:max-w-[1800px] mx-auto px-4 py-2 flex items-center gap-2'>
+      <div className='max-w-6xl xl:max-w-7xl 2xl:max-w-screen-2xl 3xl:max-w-[1800px] mx-auto px-4 sm:px-5 py-2 flex items-center gap-2'>
         <div className='flex items-center flex-1 min-w-0'>
           {selectedAccount ? (
             <div className='inline-flex items-center rounded-full border bg-blue-600 text-white border-blue-600 transition select-none shrink-0 max-w-full'>

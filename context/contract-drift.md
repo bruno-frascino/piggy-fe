@@ -34,3 +34,14 @@ In sync. ✅
 - `TaxReportLineItem`
 - `TaxReport`
 - `ClosedTrade`
+- `StatisticsFilters`
+- `StatisticsSummary`
+- `StatisticsTimeSeriesPoint`
+- `StatisticsTimeSeries`
+- `StatisticsHistogramBucket`
+- `StatisticsDistributions`
+- `StatisticsRisk`
+- `StatisticsBreakdownRow`
+- `StatisticsBreakdownsResponse`
+- `StatisticsClosedTradeRow`
+- `StatisticsClosedTradesResponse`

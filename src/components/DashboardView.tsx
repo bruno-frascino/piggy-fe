@@ -509,7 +509,7 @@ export default function DashboardView() {
       </Dialog>
 
       {hasAnyAccount ? (
-        <div className='p-4'>
+        <div className='px-4 sm:px-5 py-4'>
           <div className='max-w-6xl xl:max-w-7xl 2xl:max-w-screen-2xl 3xl:max-w-[1800px] mx-auto space-y-6'>
             {selectedAccountId ? (
               <>
