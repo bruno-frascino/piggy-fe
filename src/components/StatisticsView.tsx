@@ -336,7 +336,7 @@ export default function StatisticsView() {
           <tr>
             <td>${esc(formatDateDDMMYYYY(row.closeDate))}</td>
             <td>${esc(row.symbol)}</td>
-            <td>${esc(formatCurrency(row.pnl))}</td>
+            <td>${esc(formatCurrency(row.pnl, row.currency))}</td>
             <td>${esc(formatSignedPctValue(row.returnPct))}</td>
             <td>${row.holdingDays}</td>
           </tr>
@@ -915,7 +915,7 @@ export default function StatisticsView() {
                 }
                 body={row => (
                   <span className={returnClass(row.pnl)}>
-                    {formatCurrency(row.pnl)}
+                    {formatCurrency(row.pnl, row.currency)}
                   </span>
                 )}
               />
@@ -1028,7 +1028,7 @@ export default function StatisticsView() {
                   <p
                     className={`font-semibold ${returnClass(selectedTrade.pnl)}`}
                   >
-                    {formatCurrency(selectedTrade.pnl)}
+                    {formatCurrency(selectedTrade.pnl, selectedTrade.currency)}
                   </p>
                 </div>
                 <div>

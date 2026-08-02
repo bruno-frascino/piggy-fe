@@ -1277,7 +1277,15 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": {
+                            data?: {
+                                /** @description ISO 4217 currency code from the trade's exchange */
+                                currency?: string;
+                            }[];
+                            success?: boolean;
+                        };
+                    };
                 };
                 /** @description Validation error */
                 400: {

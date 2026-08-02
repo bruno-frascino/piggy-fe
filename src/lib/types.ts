@@ -244,6 +244,7 @@ export interface StatisticsClosedTradeRow {
   symbol: string;
   accountId: string;
   exchangeCode: string;
+  currency: string;
   openDate: string;
   closeDate: string;
   unitsClosed: number;

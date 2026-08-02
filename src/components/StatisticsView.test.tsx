@@ -114,9 +114,10 @@ beforeEach(() => {
         {
           id: 'tx-1',
           positionId: 'p-1',
-          symbol: 'AAPL',
+          symbol: 'BHP.AX',
           accountId: 'acc-1',
-          exchangeCode: 'NASDAQ',
+          exchangeCode: 'ASX',
+          currency: 'AUD',
           openDate: '2026-01-01',
           closeDate: '2026-01-20',
           unitsClosed: 1,
@@ -130,6 +131,7 @@ beforeEach(() => {
           symbol: 'TSLA',
           accountId: 'acc-1',
           exchangeCode: 'NASDAQ',
+          currency: 'USD',
           openDate: '2026-02-01',
           closeDate: '2026-02-15',
           unitsClosed: 2,
@@ -168,7 +170,8 @@ describe('StatisticsView', () => {
 
     expect(screen.getByText('Statistics')).toBeInTheDocument();
     expect(screen.getByText('Total P/L')).toBeInTheDocument();
-    expect(screen.getByText('AAPL')).toBeInTheDocument();
+    expect(screen.getByText('BHP.AX')).toBeInTheDocument();
+    expect(screen.getByText(formatCurrency(20, 'AUD'))).toBeInTheDocument();
     expect(screen.getAllByTestId('chart-stub').length).toBeGreaterThan(0);
     expect(screen.getByTestId('bar-chart-stub')).toBeInTheDocument();
   });
@@ -250,16 +253,18 @@ describe('StatisticsView', () => {
     render(<StatisticsView />);
 
     fireEvent.click(
-      screen.getByRole('button', { name: 'View trade details AAPL' })
+      screen.getByRole('button', { name: 'View trade details BHP.AX' })
     );
 
     await waitFor(() => {
-      expect(screen.getByText('Trade Details · AAPL')).toBeInTheDocument();
+      expect(screen.getByText('Trade Details · BHP.AX')).toBeInTheDocument();
       expect(screen.getByText('Position ID')).toBeInTheDocument();
     });
 
     const dialog = screen.getByRole('dialog');
-    expect(within(dialog).getByText(formatCurrency(20))).toBeInTheDocument();
+    expect(
+      within(dialog).getByText(formatCurrency(20, 'AUD'))
+    ).toBeInTheDocument();
 
     fireEvent.click(
       screen.getByRole('button', { name: 'Close trade details' })
@@ -267,7 +272,7 @@ describe('StatisticsView', () => {
 
     await waitFor(() => {
       expect(
-        screen.queryByText('Trade Details · AAPL')
+        screen.queryByText('Trade Details · BHP.AX')
       ).not.toBeInTheDocument();
     });
   });
@@ -276,11 +281,11 @@ describe('StatisticsView', () => {
     render(<StatisticsView />);
 
     fireEvent.click(
-      screen.getByRole('button', { name: 'View trade details AAPL' })
+      screen.getByRole('button', { name: 'View trade details BHP.AX' })
     );
 
     await waitFor(() => {
-      expect(screen.getByText('Trade Details · AAPL')).toBeInTheDocument();
+      expect(screen.getByText('Trade Details · BHP.AX')).toBeInTheDocument();
     });
 
     fireEvent.click(screen.getByRole('button', { name: 'Next trade details' }));

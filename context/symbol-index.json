@@ -963,7 +963,7 @@
     "startLine": 14
   },
   {
-    "endLine": 1993,
+    "endLine": 2001,
     "file": "src/lib/generated/api-types.ts",
     "jsdoc": "GENERATED from contracts/openapi.json by scripts/context/generate-api-types.ts. REFERENCE ONLY — never import this file from app code (components/hooks/pages). src/lib/types.ts is the manually mirrored source of truth (see docs/adr/0007-manual-types-mirror.md). See context/contract-drift.md for a report of any drift between the two.",
     "kind": "InterfaceDeclaration",
@@ -972,40 +972,40 @@
     "startLine": 7
   },
   {
-    "endLine": 1994,
+    "endLine": 2002,
     "file": "src/lib/generated/api-types.ts",
     "jsdoc": "",
     "kind": "TypeAliasDeclaration",
     "name": "webhooks",
     "signature": "export type webhooks = Record<string, never>;",
-    "startLine": 1994
+    "startLine": 2002
   },
   {
-    "endLine": 2031,
+    "endLine": 2039,
     "file": "src/lib/generated/api-types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "components",
     "signature": "export interface components",
-    "startLine": 1995
+    "startLine": 2003
   },
   {
-    "endLine": 2032,
+    "endLine": 2040,
     "file": "src/lib/generated/api-types.ts",
     "jsdoc": "",
     "kind": "TypeAliasDeclaration",
     "name": "$defs",
     "signature": "export type $defs = Record<string, never>;",
-    "startLine": 2032
+    "startLine": 2040
   },
   {
-    "endLine": 2033,
+    "endLine": 2041,
     "file": "src/lib/generated/api-types.ts",
     "jsdoc": "",
     "kind": "TypeAliasDeclaration",
     "name": "operations",
     "signature": "export type operations = Record<string, never>;",
-    "startLine": 2033
+    "startLine": 2041
   },
   {
     "endLine": 10,
@@ -1476,7 +1476,7 @@
     "startLine": 236
   },
   {
-    "endLine": 253,
+    "endLine": 254,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
@@ -1485,30 +1485,30 @@
     "startLine": 241
   },
   {
-    "endLine": 259,
+    "endLine": 260,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "TypeAliasDeclaration",
     "name": "StatisticsClosedTradesSortBy",
     "signature": "export type StatisticsClosedTradesSortBy = | 'closeDate' | 'pnl' | 'returnPct' | 'holdingDays';",
-    "startLine": 255
+    "startLine": 256
   },
   {
-    "endLine": 261,
+    "endLine": 262,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "TypeAliasDeclaration",
     "name": "StatisticsClosedTradesSortDir",
     "signature": "export type StatisticsClosedTradesSortDir = 'asc' | 'desc';",
-    "startLine": 261
+    "startLine": 262
   },
   {
-    "endLine": 270,
+    "endLine": 271,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "StatisticsClosedTradesResponse",
     "signature": "export interface StatisticsClosedTradesResponse",
-    "startLine": 263
+    "startLine": 264
   }
 ]

@@ -6,7 +6,7 @@
     },
     "api-types.ts": {
       "path": "src/lib/generated/api-types.ts",
-      "sha256": "880731cd1803b043727cf5c65211f060a24635c6c57d381f9ef2af3b784c97b9"
+      "sha256": "ab1a3fe524b081009ca79b5cbb5fdad8f774dca71accb169b5849b9e58f140fe"
     },
     "component-index.md": {
       "path": "context/component-index.md",
@@ -34,13 +34,13 @@
     },
     "symbol-index.json": {
       "path": "context/symbol-index.json",
-      "sha256": "76861544a123674ae9cfa7953a44af33b3ce2e55f1fa5c65a3e365f27d0bcd11"
+      "sha256": "f9c366b4cc8dda923df4febeb1284576eecc78c91ae02a970dda8bbcf1fee343"
     },
     "unused.json": {
       "path": "context/unused.json",
       "sha256": "bbc79ffad50880be02f41d5d8b52430e8ccf17e8eedad713dc8e607dc4bda462"
     }
   },
-  "generatedAt": "2026-08-01T11:06:36.294Z",
+  "generatedAt": "2026-08-02T08:32:41.049Z",
   "generatorVersion": 1
 }
