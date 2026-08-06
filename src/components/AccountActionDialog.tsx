@@ -38,6 +38,7 @@ export default function AccountActionDialog({
       header={header}
       visible
       modal
+      blockScroll
       dismissableMask={false}
       closable={!loading}
       closeOnEscape={!loading}

@@ -173,6 +173,7 @@ export default function AddHoldingsDialog({
       style={{ width: '800px', maxWidth: '95vw' }}
       contentStyle={{ maxHeight: 'calc(85vh - 6rem)', overflowY: 'auto' }}
       modal
+      blockScroll
       onHide={onHide}
     >
       <div className='space-y-4'>

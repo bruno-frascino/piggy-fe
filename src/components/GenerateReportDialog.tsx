@@ -87,6 +87,7 @@ export default function GenerateReportDialog({
       header='Generate Capital Gains Report'
       visible={visible}
       modal
+      blockScroll
       style={{ width: '560px', maxWidth: '95vw' }}
       closable={!generateReport.isPending}
       closeOnEscape={!generateReport.isPending}

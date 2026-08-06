@@ -29,6 +29,7 @@ export default function ReportDetailDialog({ reportId, onHide }: Props) {
       }
       visible={!!reportId}
       modal
+      blockScroll
       style={{ width: '900px', maxWidth: '95vw' }}
       onHide={onHide}
     >

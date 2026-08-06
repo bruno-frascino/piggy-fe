@@ -137,6 +137,7 @@ export default function AccountsBar({
         visible={manageDialogVisible}
         style={{ width: '480px', maxWidth: '95vw' }}
         modal
+        blockScroll
         onHide={() => setManageDialogVisible(false)}
       >
         {closedAccounts.length === 0 ? (

@@ -397,6 +397,7 @@ export default function DashboardView() {
         visible={renameDialog !== null}
         style={{ width: '520px', maxWidth: '95vw' }}
         modal
+        blockScroll
         closable={!updateAccount.isPending}
         closeOnEscape={!updateAccount.isPending}
         onHide={() => {
@@ -461,6 +462,7 @@ export default function DashboardView() {
         visible={showAccountDialog}
         style={{ width: '520px', maxWidth: '95vw' }}
         modal
+        blockScroll
         onHide={() => {
           setShowAccountDialog(false);
           setAccountCreateError('');

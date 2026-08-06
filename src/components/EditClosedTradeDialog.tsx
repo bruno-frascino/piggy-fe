@@ -122,6 +122,7 @@ export default function EditClosedTradeDialog({
       header={`Edit Closed Position — ${trade.symbol}`}
       visible
       modal
+      blockScroll
       style={{ width: '900px', maxWidth: '95vw' }}
       onHide={onHide}
     >

@@ -963,6 +963,7 @@ export default function StatisticsView() {
           onHide={() => setSelectedTrade(null)}
           style={{ width: '560px', maxWidth: '95vw' }}
           modal
+          blockScroll
         >
           {selectedTrade && (
             <div className='space-y-4'>

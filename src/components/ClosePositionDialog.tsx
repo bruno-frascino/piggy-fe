@@ -108,6 +108,7 @@ export default function ClosePositionDialog({
       style={{ width: '720px', maxWidth: '95vw' }}
       contentStyle={{ maxHeight: 'calc(85vh - 6rem)', overflowY: 'auto' }}
       modal
+      blockScroll
       onHide={onHide}
     >
       <div className='space-y-4'>
