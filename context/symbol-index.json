@@ -297,7 +297,7 @@
     "startLine": 24
   },
   {
-    "endLine": 1077,
+    "endLine": 1079,
     "file": "src/components/StatisticsView.tsx",
     "jsdoc": "",
     "kind": "FunctionDeclaration",
