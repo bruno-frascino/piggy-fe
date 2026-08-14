@@ -297,13 +297,13 @@
     "startLine": 24
   },
   {
-    "endLine": 1080,
+    "endLine": 1077,
     "file": "src/components/StatisticsView.tsx",
     "jsdoc": "",
     "kind": "FunctionDeclaration",
     "name": "default",
     "signature": "export default function StatisticsView()",
-    "startLine": 172
+    "startLine": 173
   },
   {
     "endLine": 249,

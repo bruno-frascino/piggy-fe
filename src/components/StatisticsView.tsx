@@ -3,7 +3,6 @@
 import { useMemo, useState } from 'react';
 import { Card } from 'primereact/card';
 import { Calendar } from 'primereact/calendar';
-import { MultiSelect } from 'primereact/multiselect';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Button } from 'primereact/button';
@@ -36,6 +35,8 @@ import {
   useStatisticsTimeSeries,
   useTradingAccounts,
 } from '@/hooks/api';
+import { useAccountSelection } from '@/hooks/useAccountSelection';
+import { useExchangeDiscovery } from '@/hooks/useExchangeDiscovery';
 import PageHeader from '@/components/PageHeader';
 import { formatDateDDMMYYYY, toLocalDateString } from '@/lib/date';
 import { formatCurrency, formatPct, returnClass } from '@/lib/format';
@@ -179,7 +180,6 @@ export default function StatisticsView() {
   const [fromDate, setFromDate] = useState<DateValue>(new Date(defaultStart));
   const [toDate, setToDate] = useState<DateValue>(new Date(defaultEnd));
   const [activePreset, setActivePreset] = useState<DatePreset>('12M');
-  const [selectedAccountIds, setSelectedAccountIds] = useState<string[]>([]);
   const [sortBy, setSortBy] =
     useState<StatisticsClosedTradesSortBy>('closeDate');
   const [sortDir, setSortDir] = useState<StatisticsClosedTradesSortDir>('desc');
@@ -193,15 +193,20 @@ export default function StatisticsView() {
   >('pnl');
 
   const { data: accounts = [] } = useTradingAccounts(true);
+  // Reuses the dashboard's account + exchange selection so statistics stay in a single
+  // currency without needing FX conversion.
+  const { selectedAccountId, selectedAccount } = useAccountSelection(accounts);
+  const { selected: selectedExchangeCode } =
+    useExchangeDiscovery(selectedAccountId);
 
   const filters = useMemo(
     () => ({
-      accountIds:
-        selectedAccountIds.length > 0 ? selectedAccountIds : undefined,
+      accountIds: selectedAccountId ? [selectedAccountId] : undefined,
+      exchangeCodes: selectedExchangeCode ? [selectedExchangeCode] : undefined,
       dateFrom: fromDate ? toLocalDateString(fromDate) : undefined,
       dateTo: toDate ? toLocalDateString(toDate) : undefined,
     }),
-    [selectedAccountIds, fromDate, toDate]
+    [selectedAccountId, selectedExchangeCode, fromDate, toDate]
   );
 
   const { data: summary, isLoading: summaryLoading } =
@@ -278,18 +283,11 @@ export default function StatisticsView() {
     setSelectedTrade(closedTradeRows[nextIndex] ?? null);
   };
 
-  const accountOptions = useMemo(
-    () => accounts.map(acc => ({ label: acc.name, value: acc.id })),
-    [accounts]
-  );
-
-  const selectedAccountNames = useMemo(() => {
-    if (selectedAccountIds.length === 0) return 'All accounts';
-    const names = selectedAccountIds
-      .map(id => accounts.find(acc => acc.id === id)?.name ?? id)
-      .join(', ');
-    return names || 'All accounts';
-  }, [selectedAccountIds, accounts]);
+  const scopeLabel = useMemo(() => {
+    const accountLabel = selectedAccount?.name ?? 'No account selected';
+    const exchangeLabel = selectedExchangeCode ?? 'No exchange selected';
+    return `${accountLabel} · ${exchangeLabel}`;
+  }, [selectedAccount, selectedExchangeCode]);
 
   const handleSort = (nextSortBy: StatisticsClosedTradesSortBy) => {
     if (sortBy !== nextSortBy) {
@@ -365,7 +363,7 @@ export default function StatisticsView() {
         </head>
         <body>
           <h1>Statistics Snapshot</h1>
-          <div class="meta">Exported ${esc(openedAtLabel)} · Range ${esc(fromLabel)} to ${esc(toLabel)} · ${esc(selectedAccountNames)}</div>
+          <div class="meta">Exported ${esc(openedAtLabel)} · Range ${esc(fromLabel)} to ${esc(toLabel)} · ${esc(scopeLabel)}</div>
           <div class="grid">
             <div class="card"><div class="label">Total P/L</div><div class="value">${esc(formatCurrency(summary?.totalPnL ?? 0))}</div></div>
             <div class="card"><div class="label">Win Rate</div><div class="value">${esc(formatPct(summary?.winRate ?? 0))}</div></div>
@@ -617,16 +615,17 @@ export default function StatisticsView() {
                 className='block text-sm mb-1'
                 style={{ color: 'var(--tr-text-2)' }}
               >
-                Accounts
+                Scope
               </label>
-              <MultiSelect
-                value={selectedAccountIds}
-                options={accountOptions}
-                onChange={e => setSelectedAccountIds(e.value)}
-                placeholder='All accounts'
-                display='chip'
-                className='w-full'
-              />
+              <div
+                className='w-full rounded-md border px-3 py-2 text-sm'
+                style={{
+                  borderColor: 'var(--tr-border)',
+                  color: 'var(--tr-text)',
+                }}
+              >
+                {scopeLabel}
+              </div>
             </div>
           </div>
           <div className='flex flex-wrap gap-2 mt-4'>

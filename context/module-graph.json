@@ -1698,7 +1698,8 @@
     {
       "dependencies": [],
       "dependents": [
-        "src/components/DashboardView.tsx"
+        "src/components/DashboardView.tsx",
+        "src/components/StatisticsView.tsx"
       ],
       "orphan": false,
       "source": "src/hooks/useAccountSelection.ts",
@@ -1725,7 +1726,8 @@
         }
       ],
       "dependents": [
-        "src/components/DashboardView.tsx"
+        "src/components/DashboardView.tsx",
+        "src/components/StatisticsView.tsx"
       ],
       "orphan": false,
       "source": "src/hooks/useExchangeDiscovery.ts",
@@ -1983,6 +1985,40 @@
           "module": "@/hooks/api",
           "moduleSystem": "es6",
           "resolved": "src/hooks/api.ts",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/hooks/useAccountSelection",
+          "moduleSystem": "es6",
+          "resolved": "src/hooks/useAccountSelection.ts",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/hooks/useExchangeDiscovery",
+          "moduleSystem": "es6",
+          "resolved": "src/hooks/useExchangeDiscovery.ts",
           "valid": true
         },
         {
@@ -2587,7 +2623,7 @@
       ]
     },
     "totalCruised": 77,
-    "totalDependenciesCruised": 103,
+    "totalDependenciesCruised": 105,
     "violations": [],
     "warn": 0
   }

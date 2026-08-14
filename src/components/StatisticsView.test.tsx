@@ -20,6 +20,8 @@ const {
   useStatisticsBreakdownsMock,
   useStatisticsTimeSeriesMock,
   useStatisticsClosedTradesMock,
+  useAccountSelectionMock,
+  useExchangeDiscoveryMock,
 } = vi.hoisted(() => ({
   useTradingAccountsMock: vi.fn(),
   useStatisticsSummaryMock: vi.fn(),
@@ -28,6 +30,8 @@ const {
   useStatisticsBreakdownsMock: vi.fn(),
   useStatisticsTimeSeriesMock: vi.fn(),
   useStatisticsClosedTradesMock: vi.fn(),
+  useAccountSelectionMock: vi.fn(),
+  useExchangeDiscoveryMock: vi.fn(),
 }));
 
 vi.mock('react-chartjs-2', () => ({
@@ -45,6 +49,14 @@ vi.mock('@/hooks/api', () => ({
   useStatisticsClosedTrades: useStatisticsClosedTradesMock,
 }));
 
+vi.mock('@/hooks/useAccountSelection', () => ({
+  useAccountSelection: useAccountSelectionMock,
+}));
+
+vi.mock('@/hooks/useExchangeDiscovery', () => ({
+  useExchangeDiscovery: useExchangeDiscoveryMock,
+}));
+
 import StatisticsView from './StatisticsView';
 
 afterEach(() => {
@@ -55,6 +67,25 @@ beforeEach(() => {
   vi.clearAllMocks();
   useTradingAccountsMock.mockReturnValue({
     data: [{ id: 'acc-1', name: 'Main' }],
+  });
+  useAccountSelectionMock.mockReturnValue({
+    selectedAccountId: 'acc-1',
+    setSelectedAccountId: vi.fn(),
+    activeAccounts: [{ id: 'acc-1', name: 'Main' }],
+    closedAccounts: [],
+    selectedAccount: { id: 'acc-1', name: 'Main' },
+  });
+  useExchangeDiscoveryMock.mockReturnValue({
+    selected: 'NASDAQ',
+    setSelected: vi.fn(),
+    exchangeList: [{ name: 'NASDAQ', equitySeries: [] }],
+    exchange: { name: 'NASDAQ', equitySeries: [] },
+    isPortfolioLoading: false,
+    seededFromPortfolio: true,
+    portfolioHistory: [],
+    isHistoryFetched: true,
+    isCreatingSnapshot: false,
+    handleExchangeDetected: vi.fn(),
   });
   useStatisticsSummaryMock.mockReturnValue({
     data: {
@@ -174,6 +205,18 @@ describe('StatisticsView', () => {
     expect(screen.getByText(formatCurrency(20, 'AUD'))).toBeInTheDocument();
     expect(screen.getAllByTestId('chart-stub').length).toBeGreaterThan(0);
     expect(screen.getByTestId('bar-chart-stub')).toBeInTheDocument();
+  });
+
+  it('scopes statistics queries to the dashboard-selected account and exchange', () => {
+    render(<StatisticsView />);
+
+    expect(useStatisticsSummaryMock).toHaveBeenCalledWith(
+      expect.objectContaining({
+        accountIds: ['acc-1'],
+        exchangeCodes: ['NASDAQ'],
+      })
+    );
+    expect(screen.getByText('Main · NASDAQ')).toBeInTheDocument();
   });
 
   it('updates closed-trades hook params when clicking sort headers', async () => {

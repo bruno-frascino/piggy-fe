@@ -131,9 +131,9 @@
 
 ## `StatisticsView`
 
-- File: [src/components/StatisticsView.tsx](../src/components/StatisticsView.tsx) (1081 lines)
+- File: [src/components/StatisticsView.tsx](../src/components/StatisticsView.tsx) (1078 lines)
 - API hooks used: useStatisticsBreakdowns, useStatisticsClosedTrades, useStatisticsDistributions, useStatisticsRisk, useStatisticsSummary, useStatisticsTimeSeries, useTradingAccounts
-- Other hooks used: useMemo, useState
+- Other hooks used: useAccountSelection, useExchangeDiscovery, useMemo, useState
 
 ## `TopNav`
 

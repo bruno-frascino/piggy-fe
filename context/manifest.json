@@ -10,7 +10,7 @@
     },
     "component-index.md": {
       "path": "context/component-index.md",
-      "sha256": "004cf1e29a11d73a2c519193eabfd00e447d150b8db402137c608edff27ac867"
+      "sha256": "a67ca979f76775c4bb6bdf1c1cc2d121933d0a078342b248096827e69761b9f9"
     },
     "contract-drift.md": {
       "path": "context/contract-drift.md",
@@ -22,7 +22,7 @@
     },
     "module-graph.json": {
       "path": "context/module-graph.json",
-      "sha256": "3a8ca7e2d2043ff432fb0e4fc85ef70b6c3c4ffd0b61a7dfc1e8441182fa28d1"
+      "sha256": "e3ff2d6952b41cf9b3e4abe4d62d9874bad40632a6cf6220efc34200b85b2762"
     },
     "module-graph.md": {
       "path": "context/module-graph.md",
@@ -34,13 +34,13 @@
     },
     "symbol-index.json": {
       "path": "context/symbol-index.json",
-      "sha256": "b5c22ba6bf0a9d0b19ca69d70ee4daedb4b99084e5fa75a7ea53ab84cb3cfb74"
+      "sha256": "7cc659dd83056abeef94ee667a018e4ddf9f65bed1af5c095213c2c6187f5375"
     },
     "unused.json": {
       "path": "context/unused.json",
       "sha256": "bbc79ffad50880be02f41d5d8b52430e8ccf17e8eedad713dc8e607dc4bda462"
     }
   },
-  "generatedAt": "2026-08-05T13:12:51.211Z",
+  "generatedAt": "2026-08-11T19:58:56.380Z",
   "generatorVersion": 1
 }
