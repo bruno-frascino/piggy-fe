@@ -135,13 +135,13 @@
     "startLine": 3
   },
   {
-    "endLine": 5,
+    "endLine": 14,
     "file": "src/app/statistics/page.tsx",
     "jsdoc": "",
     "kind": "FunctionDeclaration",
     "name": "default",
     "signature": "export default function StatisticsPage()",
-    "startLine": 3
+    "startLine": 8
   },
   {
     "endLine": 106,
