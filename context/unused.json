@@ -119,9 +119,15 @@
       "exports": [
         {
           "col": 14,
-          "line": 375,
+          "line": 377,
           "name": "useDeleteTaxReport",
-          "pos": 10373
+          "pos": 10419
+        },
+        {
+          "col": 14,
+          "line": 495,
+          "name": "useUpcomingDividends",
+          "pos": 13416
         }
       ],
       "file": "src/hooks/api.ts",

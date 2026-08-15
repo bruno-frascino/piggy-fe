@@ -11,6 +11,9 @@
 | `['portfolio-history', accountId ?? 'none', exchangeCode ?? 'none',]` | usePortfolioHistory | — |
 | `['portfolio-history']` | useDeleteAccount, useCloseAccount, useCreatePortfolioSnapshot | useDeleteAccount, useCloseAccount, useCreatePortfolioSnapshot |
 | `['quotes', key]` | useQuotes | — |
+| `['saved-screens']` | useSavedScreens, useCreateSavedScreen, useDeleteSavedScreen | useCreateSavedScreen, useDeleteSavedScreen |
+| `['screener', filters]` | useScreener | — |
+| `['screener']` | useAddWatchlistItem, useRemoveWatchlistItem | useAddWatchlistItem, useRemoveWatchlistItem |
 | `['statistics-breakdowns', params.by, params.metric, params.filters ?? {},]` | useStatisticsBreakdowns | — |
 | `['statistics-closed-trades', params.filters ?? {}, params.limit ?? 50, params.offset ?? 0, params.sortBy ?? 'closeDate', params.sortDir ?? 'desc',]` | useStatisticsClosedTrades | — |
 | `['statistics-distributions', filters]` | useStatisticsDistributions | — |
@@ -22,5 +25,10 @@
 | `['tax-reports']` | useTaxReports, useGenerateTaxReport, useDeleteTaxReport | useGenerateTaxReport, useDeleteTaxReport |
 | `['trading-accounts', includeClosed ? 'all' : 'active']` | useTradingAccounts | — |
 | `['trading-accounts']` | useCreateAccount, useDeleteAccount, useCloseAccount, useReopenAccount, useUpdateAccount | useCreateAccount, useDeleteAccount, useCloseAccount, useReopenAccount, useUpdateAccount |
+| `['upcoming-dividends', key]` | useUpcomingDividends | — |
 | `['user-portfolio', accountId ?? 'all']` | useUserPortfolio | — |
 | `['user-portfolio']` | useDeleteAccount, useCloseAccount | useDeleteAccount, useCloseAccount |
+| `['watchlist', id]` | useWatchlistDetail | — |
+| `['watchlist', variables.id]` | useRenameWatchlist | useRenameWatchlist |
+| `['watchlist', variables.watchlistId]` | useAddWatchlistItem, useRemoveWatchlistItem | useAddWatchlistItem, useRemoveWatchlistItem |
+| `['watchlists']` | useWatchlists, useCreateWatchlist, useRenameWatchlist, useDeleteWatchlist, useAddWatchlistItem, useRemoveWatchlistItem | useCreateWatchlist, useRenameWatchlist, useDeleteWatchlist, useAddWatchlistItem, useRemoveWatchlistItem |

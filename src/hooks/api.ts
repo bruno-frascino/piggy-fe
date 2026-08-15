@@ -6,6 +6,8 @@ import {
 } from '@tanstack/react-query';
 import { apiClient } from '@/lib/api-client';
 import type {
+  AddWatchlistItemPayload,
+  ScreenerFilters,
   StatisticsBreakdownBy,
   StatisticsBreakdownMetric,
   StatisticsClosedTradesSortBy,
@@ -476,5 +478,150 @@ export const useStatisticsClosedTrades = (params: {
     ],
     queryFn: () => apiClient.getStatisticsClosedTrades(params),
     staleTime: 60_000,
+  });
+};
+
+// Screener hooks
+export const useScreener = (filters: ScreenerFilters, enabled = true) => {
+  return useQuery({
+    queryKey: ['screener', filters],
+    queryFn: () => apiClient.runScreener(filters),
+    enabled,
+    retry: false,
+    staleTime: 60_000,
+  });
+};
+
+export const useUpcomingDividends = (symbols: string[], enabled = true) => {
+  const key = [...symbols].sort().join(',');
+  return useQuery({
+    queryKey: ['upcoming-dividends', key],
+    queryFn: () => apiClient.getUpcomingDividends(symbols),
+    enabled: enabled && symbols.length > 0,
+    staleTime: 60 * 60 * 1000,
+  });
+};
+
+export const useSavedScreens = () => {
+  return useQuery({
+    queryKey: ['saved-screens'],
+    queryFn: () => apiClient.getSavedScreens(),
+    staleTime: 5 * 60 * 1000,
+  });
+};
+
+export const useCreateSavedScreen = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      name,
+      filters,
+    }: {
+      name: string;
+      filters: ScreenerFilters;
+    }) => apiClient.createSavedScreen(name, filters),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['saved-screens'] });
+    },
+  });
+};
+
+export const useDeleteSavedScreen = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => apiClient.deleteSavedScreen(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['saved-screens'] });
+    },
+  });
+};
+
+// Watchlist hooks
+export const useWatchlists = () => {
+  return useQuery({
+    queryKey: ['watchlists'],
+    queryFn: () => apiClient.getWatchlists(),
+    staleTime: 60_000,
+  });
+};
+
+export const useWatchlistDetail = (id?: string) => {
+  return useQuery({
+    queryKey: ['watchlist', id],
+    queryFn: () => apiClient.getWatchlist(id as string),
+    enabled: Boolean(id),
+    staleTime: 30_000,
+  });
+};
+
+export const useCreateWatchlist = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (name: string) => apiClient.createWatchlist(name),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['watchlists'] });
+    },
+  });
+};
+
+export const useRenameWatchlist = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, name }: { id: string; name: string }) =>
+      apiClient.renameWatchlist(id, name),
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['watchlists'] });
+      queryClient.invalidateQueries({ queryKey: ['watchlist', variables.id] });
+    },
+  });
+};
+
+export const useDeleteWatchlist = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => apiClient.deleteWatchlist(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['watchlists'] });
+    },
+  });
+};
+
+export const useAddWatchlistItem = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      watchlistId,
+      item,
+    }: {
+      watchlistId: string;
+      item: AddWatchlistItemPayload;
+    }) => apiClient.addWatchlistItem(watchlistId, item),
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['watchlists'] });
+      queryClient.invalidateQueries({
+        queryKey: ['watchlist', variables.watchlistId],
+      });
+      queryClient.invalidateQueries({ queryKey: ['screener'] });
+    },
+  });
+};
+
+export const useRemoveWatchlistItem = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      watchlistId,
+      itemId,
+    }: {
+      watchlistId: string;
+      itemId: string;
+    }) => apiClient.removeWatchlistItem(watchlistId, itemId),
+    onSuccess: (_data, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['watchlists'] });
+      queryClient.invalidateQueries({
+        queryKey: ['watchlist', variables.watchlistId],
+      });
+      queryClient.invalidateQueries({ queryKey: ['screener'] });
+    },
   });
 };

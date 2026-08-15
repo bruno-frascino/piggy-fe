@@ -204,6 +204,12 @@ export default function TopNav() {
             Reports
           </Link>
           <Link
+            href='/screener'
+            className={`nav-link px-3 py-2 rounded-lg transition-colors ${isActive('/screener') ? 'active font-semibold' : ''}`}
+          >
+            Screener
+          </Link>
+          <Link
             href='/statistics'
             className={`nav-link px-3 py-2 rounded-lg transition-colors ${isActive('/statistics') ? 'active font-semibold' : ''}`}
           >

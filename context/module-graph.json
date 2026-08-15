@@ -62,8 +62,13 @@
         "src/components/ReportsView.tsx",
         "src/components/GenerateReportDialog.tsx",
         "src/components/ReportDetailDialog.tsx",
+        "src/components/ScreenerView.tsx",
+        "src/components/AddToWatchlistDialog.tsx",
+        "src/components/ScreenerFiltersForm.tsx",
+        "src/components/WatchlistsPanel.tsx",
         "src/components/StatisticsView.tsx",
-        "src/hooks/api.test.tsx"
+        "src/hooks/api.test.tsx",
+        "src/hooks/screener-watchlist-api.test.tsx"
       ],
       "orphan": false,
       "source": "src/hooks/api.ts",
@@ -168,6 +173,23 @@
           "exoticallyRequired": false,
           "followable": true,
           "matchesDoNotFollow": false,
+          "module": "./api/screener",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/api/screener.ts",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "local",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
           "module": "./api/statistics",
           "moduleSystem": "es6",
           "resolved": "src/lib/api/statistics.ts",
@@ -223,6 +245,23 @@
           "moduleSystem": "es6",
           "resolved": "src/lib/api/user.ts",
           "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "local",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "./api/watchlists",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/api/watchlists.ts",
+          "valid": true
         }
       ],
       "dependents": [
@@ -268,10 +307,12 @@
         "src/lib/api/accounts.ts",
         "src/lib/api/portfolio.ts",
         "src/lib/api/positions.ts",
+        "src/lib/api/screener.ts",
         "src/lib/api/statistics.ts",
         "src/lib/api/stocks.ts",
         "src/lib/api/tax-reports.ts",
-        "src/lib/api/user.ts"
+        "src/lib/api/user.ts",
+        "src/lib/api/watchlists.ts"
       ],
       "orphan": false,
       "source": "src/lib/api/mappers.ts",
@@ -470,6 +511,33 @@
         "src/lib/api-client.ts"
       ],
       "orphan": false,
+      "source": "src/lib/api/screener.ts",
+      "valid": true
+    },
+    {
+      "dependencies": [
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "local",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "./mappers",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/api/mappers.ts",
+          "valid": true
+        }
+      ],
+      "dependents": [
+        "src/lib/api-client.ts"
+      ],
+      "orphan": false,
       "source": "src/lib/api/statistics.ts",
       "valid": true
     },
@@ -552,6 +620,33 @@
       ],
       "orphan": false,
       "source": "src/lib/api/user.ts",
+      "valid": true
+    },
+    {
+      "dependencies": [
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "local",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "./mappers",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/api/mappers.ts",
+          "valid": true
+        }
+      ],
+      "dependents": [
+        "src/lib/api-client.ts"
+      ],
+      "orphan": false,
+      "source": "src/lib/api/watchlists.ts",
       "valid": true
     },
     {
@@ -1016,7 +1111,10 @@
         "src/components/TopNav.tsx",
         "src/components/HoldingsTable.tsx",
         "src/components/ReportsView.tsx",
-        "src/components/GenerateReportDialog.tsx"
+        "src/components/GenerateReportDialog.tsx",
+        "src/components/AddToWatchlistDialog.tsx",
+        "src/components/ScreenerFiltersForm.tsx",
+        "src/components/WatchlistsPanel.tsx"
       ],
       "orphan": false,
       "source": "src/lib/toast-context.tsx",
@@ -1940,6 +2038,298 @@
           "exoticallyRequired": false,
           "followable": true,
           "matchesDoNotFollow": false,
+          "module": "@/components/ScreenerView",
+          "moduleSystem": "es6",
+          "resolved": "src/components/ScreenerView.tsx",
+          "valid": true
+        }
+      ],
+      "dependents": [],
+      "orphan": false,
+      "source": "src/app/screener/page.tsx",
+      "valid": true
+    },
+    {
+      "dependencies": [
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "local",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "./AddToWatchlistDialog",
+          "moduleSystem": "es6",
+          "resolved": "src/components/AddToWatchlistDialog.tsx",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "local",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "./ScreenerFiltersForm",
+          "moduleSystem": "es6",
+          "resolved": "src/components/ScreenerFiltersForm.tsx",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "local",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "./ScreenerResultsList",
+          "moduleSystem": "es6",
+          "resolved": "src/components/ScreenerResultsList.tsx",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "local",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "./WatchlistsPanel",
+          "moduleSystem": "es6",
+          "resolved": "src/components/WatchlistsPanel.tsx",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/hooks/api",
+          "moduleSystem": "es6",
+          "resolved": "src/hooks/api.ts",
+          "valid": true
+        }
+      ],
+      "dependents": [
+        "src/app/screener/page.tsx",
+        "src/components/ScreenerView.test.tsx"
+      ],
+      "orphan": false,
+      "source": "src/components/ScreenerView.tsx",
+      "valid": true
+    },
+    {
+      "dependencies": [
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/hooks/api",
+          "moduleSystem": "es6",
+          "resolved": "src/hooks/api.ts",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/lib/toast-context",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/toast-context.tsx",
+          "valid": true
+        }
+      ],
+      "dependents": [
+        "src/components/ScreenerView.tsx",
+        "src/components/AddToWatchlistDialog.test.tsx"
+      ],
+      "orphan": false,
+      "source": "src/components/AddToWatchlistDialog.tsx",
+      "valid": true
+    },
+    {
+      "dependencies": [
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/hooks/api",
+          "moduleSystem": "es6",
+          "resolved": "src/hooks/api.ts",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/lib/screener-taxonomy",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/screener-taxonomy.ts",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/lib/toast-context",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/toast-context.tsx",
+          "valid": true
+        }
+      ],
+      "dependents": [
+        "src/components/ScreenerView.tsx",
+        "src/components/ScreenerFiltersForm.test.tsx"
+      ],
+      "orphan": false,
+      "source": "src/components/ScreenerFiltersForm.tsx",
+      "valid": true
+    },
+    {
+      "dependencies": [],
+      "dependents": [
+        "src/components/ScreenerFiltersForm.tsx"
+      ],
+      "orphan": false,
+      "source": "src/lib/screener-taxonomy.ts",
+      "valid": true
+    },
+    {
+      "dependencies": [],
+      "dependents": [
+        "src/components/ScreenerView.tsx",
+        "src/components/ScreenerResultsList.test.tsx"
+      ],
+      "orphan": false,
+      "source": "src/components/ScreenerResultsList.tsx",
+      "valid": true
+    },
+    {
+      "dependencies": [
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/hooks/api",
+          "moduleSystem": "es6",
+          "resolved": "src/hooks/api.ts",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/lib/toast-context",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/toast-context.tsx",
+          "valid": true
+        }
+      ],
+      "dependents": [
+        "src/components/ScreenerView.tsx",
+        "src/components/WatchlistsPanel.test.tsx"
+      ],
+      "orphan": false,
+      "source": "src/components/WatchlistsPanel.tsx",
+      "valid": true
+    },
+    {
+      "dependencies": [
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
           "module": "@/components/StatisticsView",
           "moduleSystem": "es6",
           "resolved": "src/components/StatisticsView.tsx",
@@ -2153,6 +2543,31 @@
           "exoticallyRequired": false,
           "followable": true,
           "matchesDoNotFollow": false,
+          "module": "./AddToWatchlistDialog",
+          "moduleSystem": "es6",
+          "resolved": "src/components/AddToWatchlistDialog.tsx",
+          "valid": true
+        }
+      ],
+      "dependents": [],
+      "orphan": false,
+      "source": "src/components/AddToWatchlistDialog.test.tsx",
+      "valid": true
+    },
+    {
+      "dependencies": [
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "local",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
           "module": "./ClosePositionDialog",
           "moduleSystem": "es6",
           "resolved": "src/components/ClosePositionDialog.tsx",
@@ -2303,6 +2718,81 @@
           "exoticallyRequired": false,
           "followable": true,
           "matchesDoNotFollow": false,
+          "module": "./ScreenerFiltersForm",
+          "moduleSystem": "es6",
+          "resolved": "src/components/ScreenerFiltersForm.tsx",
+          "valid": true
+        }
+      ],
+      "dependents": [],
+      "orphan": false,
+      "source": "src/components/ScreenerFiltersForm.test.tsx",
+      "valid": true
+    },
+    {
+      "dependencies": [
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "local",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "./ScreenerResultsList",
+          "moduleSystem": "es6",
+          "resolved": "src/components/ScreenerResultsList.tsx",
+          "valid": true
+        }
+      ],
+      "dependents": [],
+      "orphan": false,
+      "source": "src/components/ScreenerResultsList.test.tsx",
+      "valid": true
+    },
+    {
+      "dependencies": [
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "local",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "./ScreenerView",
+          "moduleSystem": "es6",
+          "resolved": "src/components/ScreenerView.tsx",
+          "valid": true
+        }
+      ],
+      "dependents": [],
+      "orphan": false,
+      "source": "src/components/ScreenerView.test.tsx",
+      "valid": true
+    },
+    {
+      "dependencies": [
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "local",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
           "module": "./StatisticsView",
           "moduleSystem": "es6",
           "resolved": "src/components/StatisticsView.tsx",
@@ -2345,6 +2835,31 @@
           "exoticallyRequired": false,
           "followable": true,
           "matchesDoNotFollow": false,
+          "module": "./WatchlistsPanel",
+          "moduleSystem": "es6",
+          "resolved": "src/components/WatchlistsPanel.tsx",
+          "valid": true
+        }
+      ],
+      "dependents": [],
+      "orphan": false,
+      "source": "src/components/WatchlistsPanel.test.tsx",
+      "valid": true
+    },
+    {
+      "dependencies": [
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "local",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
           "module": "./api",
           "moduleSystem": "es6",
           "resolved": "src/hooks/api.ts",
@@ -2371,6 +2886,31 @@
       "dependents": [],
       "orphan": false,
       "source": "src/hooks/api.test.tsx",
+      "valid": true
+    },
+    {
+      "dependencies": [
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "local",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "./api",
+          "moduleSystem": "es6",
+          "resolved": "src/hooks/api.ts",
+          "valid": true
+        }
+      ],
+      "dependents": [],
+      "orphan": false,
+      "source": "src/hooks/screener-watchlist-api.test.tsx",
       "valid": true
     },
     {
@@ -2622,8 +3162,8 @@
         }
       ]
     },
-    "totalCruised": 77,
-    "totalDependenciesCruised": 105,
+    "totalCruised": 92,
+    "totalDependenciesCruised": 128,
     "violations": [],
     "warn": 0
   }

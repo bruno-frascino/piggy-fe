@@ -45,3 +45,11 @@ In sync. ✅
 - `StatisticsBreakdownsResponse`
 - `StatisticsClosedTradeRow`
 - `StatisticsClosedTradesResponse`
+- `ScreenerResult`
+- `ScreenerFilters`
+- `UpcomingDividend`
+- `SavedScreen`
+- `Watchlist`
+- `WatchlistItem`
+- `WatchlistDetail`
+- `AddWatchlistItemPayload`

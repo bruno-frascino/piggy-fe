@@ -40,6 +40,16 @@
 - API hooks used: —
 - Other hooks used: useAccountNameSuggestions, useEffect, useState, useSymbolSearch
 
+## `AddToWatchlistDialog`
+
+- File: [src/components/AddToWatchlistDialog.tsx](../src/components/AddToWatchlistDialog.tsx) (125 lines)
+- API hooks used: useAddWatchlistItem, useCreateWatchlist, useWatchlists
+- Other hooks used: useState, useToast
+- Props:
+  - `visible: boolean`
+  - `stock: ScreenerResult | null`
+  - `onHide: () => void`
+
 ## `ClosePositionPayload`
 
 - File: [src/components/ClosePositionDialog.tsx](../src/components/ClosePositionDialog.tsx) (271 lines)
@@ -100,7 +110,7 @@
 
 ## `MobileTabBar`
 
-- File: [src/components/MobileTabBar.tsx](../src/components/MobileTabBar.tsx) (41 lines)
+- File: [src/components/MobileTabBar.tsx](../src/components/MobileTabBar.tsx) (42 lines)
 - API hooks used: —
 - Other hooks used: usePathname
 
@@ -129,6 +139,31 @@
 - API hooks used: useDownloadTaxReportPdf, useTaxReports, useTradingAccounts
 - Other hooks used: useState, useToast
 
+## `ScreenerFiltersForm`
+
+- File: [src/components/ScreenerFiltersForm.tsx](../src/components/ScreenerFiltersForm.tsx) (295 lines)
+- API hooks used: useCreateSavedScreen, useDeleteSavedScreen, useSavedScreens
+- Other hooks used: useState, useToast
+- Props:
+  - `onSearch: (filters: ScreenerFilters) => void`
+  - `pending?: boolean`
+  - `disabled?: boolean`
+
+## `ScreenerResultsList`
+
+- File: [src/components/ScreenerResultsList.tsx](../src/components/ScreenerResultsList.tsx) (110 lines)
+- API hooks used: —
+- Other hooks used: —
+- Props:
+  - `results: ScreenerResult[]`
+  - `onAddToWatchlist: (stock: ScreenerResult) => void`
+
+## `ScreenerView`
+
+- File: [src/components/ScreenerView.tsx](../src/components/ScreenerView.tsx) (98 lines)
+- API hooks used: useScreener
+- Other hooks used: useEffect, useState
+
 ## `StatisticsView`
 
 - File: [src/components/StatisticsView.tsx](../src/components/StatisticsView.tsx) (1080 lines)
@@ -137,7 +172,7 @@
 
 ## `TopNav`
 
-- File: [src/components/TopNav.tsx](../src/components/TopNav.tsx) (250 lines)
+- File: [src/components/TopNav.tsx](../src/components/TopNav.tsx) (256 lines)
 - API hooks used: useCurrentUser, useLogout
 - Other hooks used: useEffect, usePathname, useQueryClient, useRouter, useState, useToast
 
@@ -146,3 +181,9 @@
 - File: [src/components/TopNavGate.tsx](../src/components/TopNavGate.tsx) (18 lines)
 - API hooks used: —
 - Other hooks used: usePathname
+
+## `WatchlistsPanel`
+
+- File: [src/components/WatchlistsPanel.tsx](../src/components/WatchlistsPanel.tsx) (203 lines)
+- API hooks used: useCreateWatchlist, useDeleteWatchlist, useRemoveWatchlistItem, useRenameWatchlist, useWatchlistDetail, useWatchlists
+- Other hooks used: useState, useToast

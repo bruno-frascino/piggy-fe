@@ -159,6 +159,48 @@ describe('apiClient mock-mode parity', () => {
       expectRejection: /not available in mock mode/i,
     },
     { name: 'deleteTaxReport', call: () => apiClient.deleteTaxReport('rep-1') },
+    // screener
+    {
+      name: 'runScreener',
+      call: () => apiClient.runScreener({ symbol: 'AAPL' }),
+    },
+    {
+      name: 'getUpcomingDividends',
+      call: () => apiClient.getUpcomingDividends(['AAPL']),
+    },
+    { name: 'getSavedScreens', call: () => apiClient.getSavedScreens() },
+    {
+      name: 'createSavedScreen',
+      call: () => apiClient.createSavedScreen('My screen', { sector: 'Tech' }),
+    },
+    {
+      name: 'deleteSavedScreen',
+      call: () => apiClient.deleteSavedScreen('screen-1'),
+    },
+    // watchlists
+    { name: 'getWatchlists', call: () => apiClient.getWatchlists() },
+    { name: 'getWatchlist', call: () => apiClient.getWatchlist('w-1') },
+    {
+      name: 'createWatchlist',
+      call: () => apiClient.createWatchlist('Tech'),
+    },
+    {
+      name: 'renameWatchlist',
+      call: () => apiClient.renameWatchlist('w-1', 'Tech Growth'),
+    },
+    { name: 'deleteWatchlist', call: () => apiClient.deleteWatchlist('w-1') },
+    {
+      name: 'addWatchlistItem',
+      call: () =>
+        apiClient.addWatchlistItem('w-1', {
+          symbol: 'AAPL',
+          exchangeCode: 'NASDAQ',
+        }),
+    },
+    {
+      name: 'removeWatchlistItem',
+      call: () => apiClient.removeWatchlistItem('w-1', 'item-1'),
+    },
   ];
 
   it.each(cases)(

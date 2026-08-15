@@ -14,4 +14,5 @@
 | `/offline` | page | — | — | [src/app/offline/page.tsx](../src/app/offline/page.tsx) |
 | `/` | page | — | DashboardView | [src/app/page.tsx](../src/app/page.tsx) |
 | `/reports` | page | — | ReportsView | [src/app/reports/page.tsx](../src/app/reports/page.tsx) |
+| `/screener` | page | — | ScreenerView | [src/app/screener/page.tsx](../src/app/screener/page.tsx) |
 | `/statistics` | page | — | StatisticsView | [src/app/statistics/page.tsx](../src/app/statistics/page.tsx) |

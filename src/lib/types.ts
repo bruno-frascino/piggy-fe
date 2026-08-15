@@ -269,3 +269,86 @@ export interface StatisticsClosedTradesResponse {
     offset: number;
   };
 }
+
+// Screener & Watchlists — see piggy-api's context/api-surface.md for /screener, /watchlists
+
+export interface ScreenerResult {
+  symbol: string;
+  name: string;
+  exchange: string | null;
+  sector: string | null;
+  industry: string | null;
+  marketCap: number | null;
+  price: number | null;
+  lastAnnualDividend: number | null;
+  isEtf: boolean;
+  country: string | null;
+  alreadyTracked: boolean;
+  inWatchlist: boolean;
+}
+
+export type ScreenerMode = 'symbol' | 'filter';
+
+export interface ScreenerFilters {
+  symbol?: string;
+  marketCapMin?: number;
+  marketCapMax?: number;
+  dividendMin?: number;
+  dividendMax?: number;
+  sector?: string;
+  industry?: string;
+  exchange?: string;
+  limit?: number;
+  page?: number;
+}
+
+export interface UpcomingDividend {
+  symbol: string;
+  exDate: string;
+  paymentDate: string | null;
+  dividend: number;
+  yield: number | null;
+  frequency: string | null;
+}
+
+export interface SavedScreen {
+  id: string;
+  name: string;
+  filters: ScreenerFilters;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface Watchlist {
+  id: string;
+  name: string;
+  itemCount?: number;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface WatchlistItem {
+  id: string;
+  symbol: string;
+  name: string;
+  exchange: string;
+  assetType: string;
+  sector: string | null;
+  industry: string | null;
+  marketCap: number | null;
+  addedAt?: string;
+}
+
+export interface WatchlistDetail extends Watchlist {
+  items: WatchlistItem[];
+}
+
+export interface AddWatchlistItemPayload {
+  symbol: string;
+  exchangeCode: string;
+  name?: string;
+  assetType?: string;
+  sector?: string;
+  industry?: string;
+  marketCap?: number;
+}
