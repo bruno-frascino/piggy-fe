@@ -36,7 +36,7 @@
 
 ## `LocalHolding`
 
-- File: [src/components/AddHoldingsDialog.tsx](../src/components/AddHoldingsDialog.tsx) (521 lines)
+- File: [src/components/AddHoldingsDialog.tsx](../src/components/AddHoldingsDialog.tsx) (526 lines)
 - API hooks used: —
 - Other hooks used: useAccountNameSuggestions, useEffect, useState, useSymbolSearch
 
@@ -52,7 +52,7 @@
 
 ## `ClosePositionPayload`
 
-- File: [src/components/ClosePositionDialog.tsx](../src/components/ClosePositionDialog.tsx) (271 lines)
+- File: [src/components/ClosePositionDialog.tsx](../src/components/ClosePositionDialog.tsx) (276 lines)
 - API hooks used: —
 - Other hooks used: useEffect, useMemo, useState
 
@@ -75,7 +75,7 @@
 
 ## `EditClosedTradeDialog`
 
-- File: [src/components/EditClosedTradeDialog.tsx](../src/components/EditClosedTradeDialog.tsx) (406 lines)
+- File: [src/components/EditClosedTradeDialog.tsx](../src/components/EditClosedTradeDialog.tsx) (416 lines)
 - API hooks used: —
 - Other hooks used: useEffect, useMemo, useState
 - Props:
@@ -166,7 +166,7 @@
 
 ## `StatisticsView`
 
-- File: [src/components/StatisticsView.tsx](../src/components/StatisticsView.tsx) (1080 lines)
+- File: [src/components/StatisticsView.tsx](../src/components/StatisticsView.tsx) (1090 lines)
 - API hooks used: useStatisticsBreakdowns, useStatisticsClosedTrades, useStatisticsDistributions, useStatisticsRisk, useStatisticsSummary, useStatisticsTimeSeries, useTradingAccounts
 - Other hooks used: useAccountSelection, useExchangeDiscovery, useMemo, useState
 

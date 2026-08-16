@@ -207,6 +207,20 @@ describe('StatisticsView', () => {
     expect(screen.getByTestId('bar-chart-stub')).toBeInTheDocument();
   });
 
+  it('allows date fields to be typed with a numeric keyboard', () => {
+    render(<StatisticsView />);
+
+    const dateInputs = Array.from(
+      document.querySelectorAll<HTMLInputElement>('input[role="combobox"]')
+    );
+
+    expect(dateInputs).toHaveLength(2);
+    dateInputs.forEach(input => {
+      expect(input).toHaveAttribute('inputmode', 'numeric');
+      expect(input).not.toHaveAttribute('readonly');
+    });
+  });
+
   it('scopes statistics queries to the dashboard-selected account and exchange', () => {
     render(<StatisticsView />);
 

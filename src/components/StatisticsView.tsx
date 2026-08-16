@@ -587,6 +587,11 @@ export default function StatisticsView() {
                   setPageFirst(0);
                 }}
                 dateFormat='dd/mm/yy'
+                mask='99/99/9999'
+                readOnlyInput={false}
+                inputRef={input => {
+                  if (input) input.inputMode = 'numeric';
+                }}
                 showIcon
                 className='w-full'
               />
@@ -606,6 +611,11 @@ export default function StatisticsView() {
                   setPageFirst(0);
                 }}
                 dateFormat='dd/mm/yy'
+                mask='99/99/9999'
+                readOnlyInput={false}
+                inputRef={input => {
+                  if (input) input.inputMode = 'numeric';
+                }}
                 showIcon
                 className='w-full'
               />

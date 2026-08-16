@@ -45,7 +45,7 @@
     "startLine": 14
   },
   {
-    "endLine": 508,
+    "endLine": 518,
     "file": "src/app/history/page.tsx",
     "jsdoc": "",
     "kind": "FunctionDeclaration",
@@ -180,7 +180,7 @@
     "startLine": 16
   },
   {
-    "endLine": 520,
+    "endLine": 525,
     "file": "src/components/AddHoldingsDialog.tsx",
     "jsdoc": "",
     "kind": "FunctionDeclaration",
@@ -207,7 +207,7 @@
     "startLine": 12
   },
   {
-    "endLine": 270,
+    "endLine": 275,
     "file": "src/components/ClosePositionDialog.tsx",
     "jsdoc": "",
     "kind": "FunctionDeclaration",
@@ -243,7 +243,7 @@
     "startLine": 75
   },
   {
-    "endLine": 405,
+    "endLine": 415,
     "file": "src/components/EditClosedTradeDialog.tsx",
     "jsdoc": "",
     "kind": "FunctionDeclaration",
@@ -342,7 +342,7 @@
     "startLine": 39
   },
   {
-    "endLine": 1079,
+    "endLine": 1089,
     "file": "src/components/StatisticsView.tsx",
     "jsdoc": "",
     "kind": "FunctionDeclaration",

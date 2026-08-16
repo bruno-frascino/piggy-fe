@@ -212,6 +212,11 @@ export default function EditClosedTradeDialog({
                 }
               }}
               dateFormat='dd/mm/yy'
+              mask='99/99/9999'
+              readOnlyInput={false}
+              inputRef={input => {
+                if (input) input.inputMode = 'numeric';
+              }}
               showIcon
               placeholder='DD/MM/YYYY'
               className='w-full'
@@ -244,6 +249,11 @@ export default function EditClosedTradeDialog({
                 }
               }}
               dateFormat='dd/mm/yy'
+              mask='99/99/9999'
+              readOnlyInput={false}
+              inputRef={input => {
+                if (input) input.inputMode = 'numeric';
+              }}
               showIcon
               placeholder='DD/MM/YYYY'
               className='w-full'
