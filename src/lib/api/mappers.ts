@@ -145,6 +145,10 @@ export function mapPositionToHolding(pos: unknown): HoldingPosition | null {
     typeof pos.openReason === 'string' ? pos.openReason.trim() : '';
   const normalizedLegacyNotes =
     typeof pos.notes === 'string' ? pos.notes.trim() : '';
+  const legacyOpenReason =
+    normalizedLegacyNotes === 'Opened from dashboard'
+      ? ''
+      : normalizedLegacyNotes;
 
   return {
     id: typeof pos.id === 'string' ? pos.id : undefined,
@@ -173,7 +177,7 @@ export function mapPositionToHolding(pos: unknown): HoldingPosition | null {
           ? asset.industry
           : '',
     currentPrice,
-    buyComments: normalizedOpenReason || normalizedLegacyNotes || undefined,
+    buyComments: normalizedOpenReason || legacyOpenReason || undefined,
     maxDrawdownPercent,
   };
 }

@@ -69,6 +69,7 @@ export function createPositionsApi(client: AxiosInstance) {
         stopLossPrice?: number | null;
         takeProfitPrice?: number | null;
         notes?: string;
+        openReason?: string | null;
         currentPrice?: number;
         maxDrawdownPercent?: number | null;
       }
@@ -85,6 +86,10 @@ export function createPositionsApi(client: AxiosInstance) {
         assetName: payload.assetName?.trim() || undefined,
         industry: payload.industry?.trim() || undefined,
         notes: payload.notes?.trim() || undefined,
+        openReason:
+          payload.openReason === null
+            ? null
+            : payload.openReason?.trim() || undefined,
         quantity:
           payload.quantity !== undefined ? Number(payload.quantity) : undefined,
         entryPrice:

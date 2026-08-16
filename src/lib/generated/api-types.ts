@@ -1014,6 +1014,7 @@ export interface paths {
                         notes?: string;
                         /** Format: date-time */
                         openDate?: string;
+                        openReason?: string | null;
                         quantity?: number;
                         setupType?: string;
                         stopLossPrice?: number;

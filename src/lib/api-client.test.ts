@@ -221,7 +221,7 @@ describe('api-client', () => {
             buyFees: 10,
             stopLossPrice: 90,
             unrealizedPnL: 50,
-            notes: 'Long-term',
+            notes: 'Opened from dashboard',
             transactions: [
               { type: 'BUY', quantity: 5 },
               { type: 'SELL', quantity: 2 },
@@ -256,6 +256,7 @@ describe('api-client', () => {
       buyPrice: 100,
       exchangeCode: 'NASDAQ',
       accountName: 'Main',
+      buyComments: undefined,
     });
   });
 
@@ -331,7 +332,7 @@ describe('api-client', () => {
       buyFees: 2,
       assetName: ' Tesla ',
       industry: ' Auto ',
-      notes: ' Trim ',
+      openReason: ' Trim ',
     });
 
     expect(axiosClientMock.post).toHaveBeenCalledWith('/positions', {
@@ -357,7 +358,30 @@ describe('api-client', () => {
       buyFees: 2,
       assetName: 'Tesla',
       industry: 'Auto',
-      notes: 'Trim',
+      openReason: 'Trim',
+    });
+  });
+
+  it('sends null when clearing an opening comment', async () => {
+    const apiClient = await loadClient();
+
+    axiosClientMock.patch.mockResolvedValueOnce({ data: { ok: true } });
+
+    await apiClient.updatePosition('p1', { openReason: null });
+
+    expect(axiosClientMock.patch).toHaveBeenCalledWith('/positions/p1', {
+      symbol: undefined,
+      exchangeCode: undefined,
+      accountName: undefined,
+      assetName: undefined,
+      industry: undefined,
+      notes: undefined,
+      openReason: null,
+      quantity: undefined,
+      entryPrice: undefined,
+      buyFees: undefined,
+      currentPrice: undefined,
+      maxDrawdownPercent: undefined,
     });
   });
 

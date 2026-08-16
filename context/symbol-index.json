@@ -981,7 +981,7 @@
     "startLine": 78
   },
   {
-    "endLine": 179,
+    "endLine": 183,
     "file": "src/lib/api/mappers.ts",
     "jsdoc": "",
     "kind": "FunctionDeclaration",
@@ -990,22 +990,22 @@
     "startLine": 98
   },
   {
-    "endLine": 185,
+    "endLine": 189,
     "file": "src/lib/api/mappers.ts",
     "jsdoc": "",
     "kind": "FunctionDeclaration",
     "name": "toDateStr",
     "signature": "export function toDateStr(v: unknown): string",
-    "startLine": 181
+    "startLine": 185
   },
   {
-    "endLine": 265,
+    "endLine": 269,
     "file": "src/lib/api/mappers.ts",
     "jsdoc": "",
     "kind": "FunctionDeclaration",
     "name": "mapCloseEventToClosedTrade",
     "signature": "export function mapCloseEventToClosedTrade(event: unknown): ClosedTrade | null",
-    "startLine": 187
+    "startLine": 191
   },
   {
     "endLine": 190,
@@ -1017,7 +1017,7 @@
     "startLine": 27
   },
   {
-    "endLine": 221,
+    "endLine": 226,
     "file": "src/lib/api/positions.ts",
     "jsdoc": "",
     "kind": "FunctionDeclaration",
@@ -1152,7 +1152,7 @@
     "startLine": 14
   },
   {
-    "endLine": 2609,
+    "endLine": 2610,
     "file": "src/lib/generated/api-types.ts",
     "jsdoc": "GENERATED from contracts/openapi.json by scripts/context/generate-api-types.ts. REFERENCE ONLY — never import this file from app code (components/hooks/pages). src/lib/types.ts is the manually mirrored source of truth (see docs/adr/0007-manual-types-mirror.md). See context/contract-drift.md for a report of any drift between the two.",
     "kind": "InterfaceDeclaration",
@@ -1161,40 +1161,40 @@
     "startLine": 7
   },
   {
-    "endLine": 2610,
+    "endLine": 2611,
     "file": "src/lib/generated/api-types.ts",
     "jsdoc": "",
     "kind": "TypeAliasDeclaration",
     "name": "webhooks",
     "signature": "export type webhooks = Record<string, never>;",
-    "startLine": 2610
-  },
-  {
-    "endLine": 2647,
-    "file": "src/lib/generated/api-types.ts",
-    "jsdoc": "",
-    "kind": "InterfaceDeclaration",
-    "name": "components",
-    "signature": "export interface components",
     "startLine": 2611
   },
   {
     "endLine": 2648,
     "file": "src/lib/generated/api-types.ts",
     "jsdoc": "",
-    "kind": "TypeAliasDeclaration",
-    "name": "$defs",
-    "signature": "export type $defs = Record<string, never>;",
-    "startLine": 2648
+    "kind": "InterfaceDeclaration",
+    "name": "components",
+    "signature": "export interface components",
+    "startLine": 2612
   },
   {
     "endLine": 2649,
     "file": "src/lib/generated/api-types.ts",
     "jsdoc": "",
     "kind": "TypeAliasDeclaration",
+    "name": "$defs",
+    "signature": "export type $defs = Record<string, never>;",
+    "startLine": 2649
+  },
+  {
+    "endLine": 2650,
+    "file": "src/lib/generated/api-types.ts",
+    "jsdoc": "",
+    "kind": "TypeAliasDeclaration",
     "name": "operations",
     "signature": "export type operations = Record<string, never>;",
-    "startLine": 2649
+    "startLine": 2650
   },
   {
     "endLine": 10,
