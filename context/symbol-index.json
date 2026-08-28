@@ -45,13 +45,13 @@
     "startLine": 14
   },
   {
-    "endLine": 518,
+    "endLine": 558,
     "file": "src/app/history/page.tsx",
     "jsdoc": "",
     "kind": "FunctionDeclaration",
     "name": "default",
     "signature": "export default function HistoryPage()",
-    "startLine": 256
+    "startLine": 268
   },
   {
     "endLine": 37,
@@ -1116,13 +1116,31 @@
     "startLine": 19
   },
   {
-    "endLine": 56,
+    "endLine": 35,
+    "file": "src/lib/date.ts",
+    "jsdoc": "",
+    "kind": "TypeAliasDeclaration",
+    "name": "HistoryPeriodPreset",
+    "signature": "export type HistoryPeriodPreset = | 'CURRENT_FY' | 'LAST_FY' | 'YTD' | 'LAST_YEAR' | 'ALL';",
+    "startLine": 30
+  },
+  {
+    "endLine": 78,
+    "file": "src/lib/date.ts",
+    "jsdoc": "Returns the [start, end] YYYY-MM-DD bounds (local time) for a History page period preset. 'ALL' returns empty strings, meaning no bound.",
+    "kind": "FunctionDeclaration",
+    "name": "computeHistoryPeriodRange",
+    "signature": "export function computeHistoryPeriodRange( preset: HistoryPeriodPreset, now: Date ):",
+    "startLine": 46
+  },
+  {
+    "endLine": 106,
     "file": "src/lib/date.ts",
     "jsdoc": "Returns the earliest date that should be visible for the given timeframe, relative to `now`. Returns null for 'ALL' (no cutoff).",
     "kind": "FunctionDeclaration",
     "name": "computeChartCutoffDate",
     "signature": "export function computeChartCutoffDate( timeframe: Exclude<ChartTimeframe, 'ALL'>, now: Date ): Date",
-    "startLine": 34
+    "startLine": 84
   },
   {
     "endLine": 7,

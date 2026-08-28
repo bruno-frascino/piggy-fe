@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   computeChartCutoffDate,
+  computeHistoryPeriodRange,
   formatDateDDMMYYYY,
   toLocalDateString,
 } from './date';
@@ -62,5 +63,41 @@ describe('computeChartCutoffDate', () => {
   it('5Y returns five years before now', () => {
     const cutoff = computeChartCutoffDate('5Y', now);
     expect(localDateStr(cutoff)).toBe('2021-05-27');
+  });
+});
+
+describe('computeHistoryPeriodRange', () => {
+  // 27 May 2026, noon local — inside FY2025-26 (1 Jul 2025 - 30 Jun 2026)
+  const now = new Date(2026, 4, 27, 12, 0, 0);
+
+  it('CURRENT_FY returns 1 Jul of the FY start year to 30 Jun of the next year', () => {
+    const range = computeHistoryPeriodRange('CURRENT_FY', now);
+    expect(range).toEqual({ start: '2025-07-01', end: '2026-06-30' });
+  });
+
+  it('LAST_FY returns the previous financial year', () => {
+    const range = computeHistoryPeriodRange('LAST_FY', now);
+    expect(range).toEqual({ start: '2024-07-01', end: '2025-06-30' });
+  });
+
+  it('YTD returns 1 January of the current year to now', () => {
+    const range = computeHistoryPeriodRange('YTD', now);
+    expect(range).toEqual({ start: '2026-01-01', end: '2026-05-27' });
+  });
+
+  it('LAST_YEAR returns the full previous calendar year', () => {
+    const range = computeHistoryPeriodRange('LAST_YEAR', now);
+    expect(range).toEqual({ start: '2025-01-01', end: '2025-12-31' });
+  });
+
+  it('ALL returns empty bounds', () => {
+    const range = computeHistoryPeriodRange('ALL', now);
+    expect(range).toEqual({ start: '', end: '' });
+  });
+
+  it('CURRENT_FY before July uses the previous calendar year as FY start', () => {
+    const beforeJuly = new Date(2026, 3, 15, 12, 0, 0); // 15 Apr 2026
+    const range = computeHistoryPeriodRange('CURRENT_FY', beforeJuly);
+    expect(range).toEqual({ start: '2025-07-01', end: '2026-06-30' });
   });
 });

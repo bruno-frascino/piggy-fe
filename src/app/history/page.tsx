@@ -15,8 +15,20 @@ import {
   useDeletePosition,
   useUpdateCloseEvent,
 } from '@/hooks/api';
-import { formatDateDDMMYYYY } from '@/lib/date';
+import {
+  computeHistoryPeriodRange,
+  formatDateDDMMYYYY,
+  type HistoryPeriodPreset,
+} from '@/lib/date';
 import { formatCurrency, formatPct, returnClass } from '@/lib/format';
+
+const PERIOD_PRESETS: { label: string; value: HistoryPeriodPreset }[] = [
+  { label: 'Current FY', value: 'CURRENT_FY' },
+  { label: 'Last FY', value: 'LAST_FY' },
+  { label: 'YTD', value: 'YTD' },
+  { label: 'Last Year', value: 'LAST_YEAR' },
+  { label: 'All', value: 'ALL' },
+];
 
 function calcTotals(trades: ClosedTrade[]) {
   return trades.reduce(
@@ -262,10 +274,20 @@ export default function HistoryPage() {
   const defaultEnd = `${currentYear}-12-31`;
   const [startDate, setStartDate] = useState<string>(defaultStart);
   const [endDate, setEndDate] = useState<string>(defaultEnd);
+  const [activePreset, setActivePreset] = useState<HistoryPeriodPreset | null>(
+    null
+  );
   const [accountFilter, setAccountFilter] = useState<string | null>(null);
   const [exchangeFilter, setExchangeFilter] = useState<string | null>(null);
   const [showDialog, setShowDialog] = useState(false);
   const [active, setActive] = useState<ClosedTrade | null>(null);
+
+  const applyPreset = (preset: HistoryPeriodPreset) => {
+    const { start, end } = computeHistoryPeriodRange(preset, new Date());
+    setStartDate(start);
+    setEndDate(end);
+    setActivePreset(preset);
+  };
 
   const accountOptions = useMemo(() => {
     const names = new Set<string>();
@@ -335,6 +357,21 @@ export default function HistoryPage() {
           subtitle='Closed positions across your accounts and exchanges'
         />
         <Card>
+          <div className='flex flex-wrap gap-1 mb-3'>
+            {PERIOD_PRESETS.map(preset => (
+              <button
+                key={preset.value}
+                onClick={() => applyPreset(preset.value)}
+                className={`min-h-10 px-3 inline-flex items-center justify-center text-xs rounded border transition select-none ${
+                  activePreset === preset.value
+                    ? 'bg-blue-600 text-white border-blue-600'
+                    : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'
+                }`}
+              >
+                {preset.label}
+              </button>
+            ))}
+          </div>
           <div className='flex flex-wrap gap-3 items-end'>
             <div>
               <label
@@ -352,6 +389,7 @@ export default function HistoryPage() {
                 })()}
                 onChange={e => {
                   const d = e.value as Date | null;
+                  setActivePreset(null);
                   if (d) {
                     const y = d.getFullYear();
                     const mo = String(d.getMonth() + 1).padStart(2, '0');
@@ -387,6 +425,7 @@ export default function HistoryPage() {
                 })()}
                 onChange={e => {
                   const d = e.value as Date | null;
+                  setActivePreset(null);
                   if (d) {
                     const y = d.getFullYear();
                     const mo = String(d.getMonth() + 1).padStart(2, '0');
@@ -446,6 +485,7 @@ export default function HistoryPage() {
               onClick={() => {
                 setStartDate(defaultStart);
                 setEndDate(defaultEnd);
+                setActivePreset(null);
                 setAccountFilter(null);
                 setExchangeFilter(null);
               }}

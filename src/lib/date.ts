@@ -27,6 +27,56 @@ export type ChartTimeframe =
   | '5Y'
   | 'ALL';
 
+export type HistoryPeriodPreset =
+  | 'CURRENT_FY'
+  | 'LAST_FY'
+  | 'YTD'
+  | 'LAST_YEAR'
+  | 'ALL';
+
+function financialYearStartYear(d: Date): number {
+  // Australian financial year starts 1 July.
+  return d.getMonth() >= 6 ? d.getFullYear() : d.getFullYear() - 1;
+}
+
+/**
+ * Returns the [start, end] YYYY-MM-DD bounds (local time) for a History page
+ * period preset. 'ALL' returns empty strings, meaning no bound.
+ */
+export function computeHistoryPeriodRange(
+  preset: HistoryPeriodPreset,
+  now: Date
+): { start: string; end: string } {
+  switch (preset) {
+    case 'CURRENT_FY': {
+      const startYear = financialYearStartYear(now);
+      return {
+        start: toLocalDateString(new Date(startYear, 6, 1)),
+        end: toLocalDateString(new Date(startYear + 1, 5, 30)),
+      };
+    }
+    case 'LAST_FY': {
+      const startYear = financialYearStartYear(now) - 1;
+      return {
+        start: toLocalDateString(new Date(startYear, 6, 1)),
+        end: toLocalDateString(new Date(startYear + 1, 5, 30)),
+      };
+    }
+    case 'YTD':
+      return {
+        start: toLocalDateString(new Date(now.getFullYear(), 0, 1)),
+        end: toLocalDateString(now),
+      };
+    case 'LAST_YEAR':
+      return {
+        start: toLocalDateString(new Date(now.getFullYear() - 1, 0, 1)),
+        end: toLocalDateString(new Date(now.getFullYear() - 1, 11, 31)),
+      };
+    case 'ALL':
+      return { start: '', end: '' };
+  }
+}
+
 /**
  * Returns the earliest date that should be visible for the given timeframe,
  * relative to `now`. Returns null for 'ALL' (no cutoff).
