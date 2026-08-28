@@ -160,7 +160,7 @@
 
 ## `ScreenerView`
 
-- File: [src/components/ScreenerView.tsx](../src/components/ScreenerView.tsx) (98 lines)
+- File: [src/components/ScreenerView.tsx](../src/components/ScreenerView.tsx) (113 lines)
 - API hooks used: useScreener
 - Other hooks used: useEffect, useState
 

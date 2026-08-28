@@ -333,13 +333,13 @@
     "startLine": 27
   },
   {
-    "endLine": 97,
+    "endLine": 112,
     "file": "src/components/ScreenerView.tsx",
     "jsdoc": "Top-level Screener page: market-wide stock discovery plus the user's named watchlists, nested under one route/nav entry (mobile-first — avoids a crowded bottom tab bar).",
     "kind": "FunctionDeclaration",
     "name": "default",
     "signature": "export default function ScreenerView()",
-    "startLine": 39
+    "startLine": 41
   },
   {
     "endLine": 1089,
