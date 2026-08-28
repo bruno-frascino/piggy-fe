@@ -1814,9 +1814,8 @@ export interface paths {
         /**
          * Fetch live quotes for a list of symbols
          * @description Returns the current market price, day change and day change % for each
-         *     symbol via Yahoo Finance (no API key required). Symbols must use the
-         *     Yahoo Finance format — include exchange suffix where applicable
-         *     (e.g. BHP.AX for ASX, VOD.L for LSE). Maximum 50 symbols per request.
+         *     symbol via FMP, with Yahoo Finance as a fallback. Maximum 50 symbols
+         *     per request.
          */
         get: {
             parameters: {
@@ -1879,7 +1878,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Search stock symbols globally */
+        /** Search stock symbols globally via FMP with Yahoo fallback */
         get: {
             parameters: {
                 query: {
