@@ -84,7 +84,6 @@ export default function AddHoldingsDialog({
       accountName: accountName ?? 'Main',
       exchangeCode: exchangeCode ?? '',
       buyComments: '',
-      maxDrawdownPercent: undefined,
       ...initial,
     };
     setForm(base);
@@ -159,9 +158,6 @@ export default function AddHoldingsDialog({
       // Current price should come from quotes API; use buy price only as fallback.
       currentPrice: form.buyPrice!,
       buyComments: form.buyComments?.trim() || undefined,
-      // undefined = not changed; null = explicit reset; number = override
-      maxDrawdownPercent:
-        mode === 'edit' ? (form.maxDrawdownPercent ?? null) : undefined,
     };
     onSubmit(value);
   };
@@ -442,43 +438,7 @@ export default function AddHoldingsDialog({
           </div>
         </div>
 
-        {/* Row 5 (edit only): Max Drawdown % */}
-        {mode === 'edit' && (
-          <div className='grid grid-cols-12 gap-3'>
-            <div className='col-span-12 md:col-span-4'>
-              <label className='block text-sm font-medium mb-1'>
-                Max Drawdown %
-              </label>
-              <InputNumber
-                value={
-                  form.maxDrawdownPercent != null
-                    ? form.maxDrawdownPercent
-                    : null
-                }
-                onValueChange={e =>
-                  setForm(f => ({
-                    ...f,
-                    maxDrawdownPercent:
-                      e.value != null ? (e.value as number) : null,
-                  }))
-                }
-                mode='decimal'
-                minFractionDigits={2}
-                maxFractionDigits={4}
-                min={0}
-                placeholder='auto-calculated'
-                className='w-full'
-                inputClassName='w-full'
-                showButtons={false}
-              />
-              <p className='text-xs text-gray-500 mt-1'>
-                Leave blank to auto-calculate from price history.
-              </p>
-            </div>
-          </div>
-        )}
-
-        {/* Row 6: Buy Comments */}
+        {/* Row 5: Buy Comments */}
         <div>
           <label className='block text-sm font-medium mb-1'>Buy Comments</label>
           <InputTextarea

@@ -948,6 +948,7 @@
       "dependents": [
         "src/app/history/page.tsx",
         "src/components/DashboardView.tsx",
+        "src/components/ClosePositionDialog.tsx",
         "src/components/StatisticsView.tsx",
         "src/lib/date.test.ts"
       ],
@@ -1731,7 +1732,25 @@
       "valid": true
     },
     {
-      "dependencies": [],
+      "dependencies": [
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/lib/date",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/date.ts",
+          "valid": true
+        }
+      ],
       "dependents": [
         "src/components/HoldingsTable.tsx",
         "src/components/ClosePositionDialog.test.tsx"
@@ -3181,7 +3200,7 @@
       ]
     },
     "totalCruised": 92,
-    "totalDependenciesCruised": 129,
+    "totalDependenciesCruised": 130,
     "violations": [],
     "warn": 0
   }

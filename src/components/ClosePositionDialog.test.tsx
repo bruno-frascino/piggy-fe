@@ -34,6 +34,7 @@ describe('ClosePositionDialog', () => {
     );
 
     expect(screen.getByText('Close Position — AAPL')).toBeInTheDocument();
+    expect(screen.getByDisplayValue('01/07/2026')).toBeInTheDocument();
     expect(screen.getByPlaceholderText('DD/MM/YYYY')).toBeInTheDocument();
     expect(screen.queryByPlaceholderText('YYYY-MM-DD')).not.toBeInTheDocument();
   });

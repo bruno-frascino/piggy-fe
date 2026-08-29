@@ -180,7 +180,7 @@
     "startLine": 16
   },
   {
-    "endLine": 525,
+    "endLine": 485,
     "file": "src/components/AddHoldingsDialog.tsx",
     "jsdoc": "",
     "kind": "FunctionDeclaration",
@@ -198,22 +198,22 @@
     "startLine": 22
   },
   {
-    "endLine": 18,
+    "endLine": 19,
     "file": "src/components/ClosePositionDialog.tsx",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "ClosePositionPayload",
     "signature": "export interface ClosePositionPayload",
-    "startLine": 12
+    "startLine": 13
   },
   {
-    "endLine": 275,
+    "endLine": 284,
     "file": "src/components/ClosePositionDialog.tsx",
     "jsdoc": "",
     "kind": "FunctionDeclaration",
     "name": "default",
     "signature": "export default function ClosePositionDialog(",
-    "startLine": 20
+    "startLine": 21
   },
   {
     "endLine": 45,
@@ -270,7 +270,7 @@
     "startLine": 28
   },
   {
-    "endLine": 898,
+    "endLine": 896,
     "file": "src/components/HoldingsTable.tsx",
     "jsdoc": "",
     "kind": "FunctionDeclaration",

@@ -36,7 +36,7 @@
 
 ## `LocalHolding`
 
-- File: [src/components/AddHoldingsDialog.tsx](../src/components/AddHoldingsDialog.tsx) (526 lines)
+- File: [src/components/AddHoldingsDialog.tsx](../src/components/AddHoldingsDialog.tsx) (486 lines)
 - API hooks used: —
 - Other hooks used: useAccountNameSuggestions, useEffect, useState, useSymbolSearch
 
@@ -52,7 +52,7 @@
 
 ## `ClosePositionPayload`
 
-- File: [src/components/ClosePositionDialog.tsx](../src/components/ClosePositionDialog.tsx) (276 lines)
+- File: [src/components/ClosePositionDialog.tsx](../src/components/ClosePositionDialog.tsx) (285 lines)
 - API hooks used: —
 - Other hooks used: useEffect, useMemo, useState
 
@@ -104,7 +104,7 @@
 
 ## `HoldingsTable`
 
-- File: [src/components/HoldingsTable.tsx](../src/components/HoldingsTable.tsx) (899 lines)
+- File: [src/components/HoldingsTable.tsx](../src/components/HoldingsTable.tsx) (897 lines)
 - API hooks used: useClosePosition, useCreatePosition, useDeletePosition, useUpdatePosition
 - Other hooks used: useCallback, useEffect, useHoldingRows, useQueryClient, useRef, useState, useToast
 

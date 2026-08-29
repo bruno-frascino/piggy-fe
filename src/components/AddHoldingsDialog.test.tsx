@@ -125,11 +125,10 @@ describe('AddHoldingsDialog validation', () => {
       exchangeCode: 'NASDAQ',
       currentPrice: 100,
       buyComments: undefined,
-      maxDrawdownPercent: undefined,
     });
   });
 
-  it('defaults maxDrawdownPercent to null (explicit reset) in edit mode when left blank', () => {
+  it('does not expose or override automatically calculated max drawdown in edit mode', () => {
     const onSubmit = vi.fn();
 
     render(
@@ -147,18 +146,19 @@ describe('AddHoldingsDialog validation', () => {
           accountName: 'Main',
           exchangeCode: 'NASDAQ',
           currentPrice: 55,
+          maxDrawdownPercent: 12.5,
         }}
         onHide={vi.fn()}
         onSubmit={onSubmit}
       />
     );
 
+    expect(screen.queryByText('Max Drawdown %')).not.toBeInTheDocument();
+
     fireEvent.click(screen.getByRole('button', { name: 'Save' }));
 
     expect(onSubmit).toHaveBeenCalledTimes(1);
-    expect(onSubmit.mock.calls[0][0]).toMatchObject({
-      maxDrawdownPercent: null,
-    });
+    expect(onSubmit.mock.calls[0][0].maxDrawdownPercent).toBeUndefined();
   });
 });
 

@@ -8,6 +8,7 @@ import { InputNumber } from 'primereact/inputnumber';
 import { InputTextarea } from 'primereact/inputtextarea';
 import { Button } from 'primereact/button';
 import type { LocalHolding } from '@/components/AddHoldingsDialog';
+import { formatDateDDMMYYYY } from '@/lib/date';
 
 export interface ClosePositionPayload {
   closeDate: string; // ISO YYYY-MM-DD
@@ -114,13 +115,21 @@ export default function ClosePositionDialog({
       <div className='space-y-4'>
         {/* Summary row */}
         <div className='grid grid-cols-12 gap-3'>
-          <div className='col-span-12 md:col-span-4'>
+          <div className='col-span-12 md:col-span-3'>
             <label className='block text-sm font-medium mb-1'>Symbol</label>
             <InputText value={initial.symbol} readOnly className='w-full' />
           </div>
-          <div className='col-span-12 md:col-span-8'>
+          <div className='col-span-12 md:col-span-6'>
             <label className='block text-sm font-medium mb-1'>Name</label>
             <InputText value={initial.name ?? ''} readOnly className='w-full' />
+          </div>
+          <div className='col-span-12 md:col-span-3'>
+            <label className='block text-sm font-medium mb-1'>Open Date</label>
+            <InputText
+              value={formatDateDDMMYYYY(initial.openDate)}
+              readOnly
+              className='w-full'
+            />
           </div>
         </div>
 

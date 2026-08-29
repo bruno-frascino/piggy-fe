@@ -736,8 +736,6 @@ export default function HoldingsTable({
                 industry: newPos.industry,
                 stopLossPrice: newPos.stopLoss ?? null,
                 openReason: newPos.buyComments ?? null,
-                // undefined means not touched; null resets; number overrides
-                maxDrawdownPercent: newPos.maxDrawdownPercent,
               };
 
               if (current?.id) {
