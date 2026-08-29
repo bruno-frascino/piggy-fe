@@ -1,5 +1,5 @@
 import { AxiosInstance } from 'axios';
-import type { TaxReport } from '../types';
+import type { TaxReport, TaxReportPositionUsage } from '../types';
 import { isRecord, unwrapArray } from './mappers';
 
 const USE_MOCK_API = process.env.NEXT_PUBLIC_USE_MOCK_API === 'true';
@@ -15,6 +15,16 @@ export function createTaxReportsApi(client: AxiosInstance) {
 
       const response = await client.get('/tax-reports');
       return unwrapArray<TaxReport>(response.data);
+    },
+
+    async getTaxReportPositionUsage(): Promise<TaxReportPositionUsage> {
+      if (USE_MOCK_API) {
+        return {};
+      }
+
+      const response = await client.get('/tax-reports/position-usage');
+      const payload = isRecord(response.data) ? response.data.data : null;
+      return isRecord(payload) ? (payload as TaxReportPositionUsage) : {};
     },
 
     async getTaxReportDetail(id: string): Promise<TaxReport | null> {

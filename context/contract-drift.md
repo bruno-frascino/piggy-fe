@@ -36,6 +36,7 @@ In sync. ✅
 - `ClosedTrade`
 - `ClosedTradesQuery`
 - `ClosedTradesPage`
+- `TaxReportUsage`
 - `StatisticsFilters`
 - `StatisticsSummary`
 - `StatisticsTimeSeriesPoint`

@@ -23,6 +23,10 @@ function invalidatePositionQueries(queryClient: QueryClient) {
     queryClient.invalidateQueries({ queryKey: ['realized-pnl'] }),
     queryClient.invalidateQueries({ queryKey: ['portfolio-history'] }),
     queryClient.invalidateQueries({ queryKey: ['user-portfolio'] }),
+    // Editing a parcel can make an already-generated tax report stale.
+    queryClient.invalidateQueries({
+      queryKey: ['tax-reports', 'position-usage'],
+    }),
   ]);
 }
 
@@ -373,6 +377,13 @@ export const useTaxReportDetail = (id?: string) => {
     queryKey: ['tax-reports', id ?? 'none'],
     queryFn: () => apiClient.getTaxReportDetail(id!),
     enabled: !!id,
+  });
+};
+
+export const useTaxReportPositionUsage = () => {
+  return useQuery({
+    queryKey: ['tax-reports', 'position-usage'],
+    queryFn: () => apiClient.getTaxReportPositionUsage(),
   });
 };
 

@@ -170,6 +170,17 @@ export interface ClosedTradesPage {
   total: number; // matching rows on the server, may exceed trades.length
 }
 
+// GET /tax-reports/position-usage — which generated reports already include a
+// position, and whether that parcel changed after the report was generated.
+export interface TaxReportUsage {
+  reportId: string;
+  financialYearLabel: string;
+  generatedAt: string;
+  stale: boolean;
+}
+
+export type TaxReportPositionUsage = Record<string, TaxReportUsage[]>;
+
 export interface StatisticsFilters {
   accountIds?: string[];
   exchangeCodes?: string[];

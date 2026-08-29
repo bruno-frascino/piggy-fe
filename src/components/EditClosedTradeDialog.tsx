@@ -2,23 +2,45 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { Dialog } from 'primereact/dialog';
-import { InputText } from 'primereact/inputtext';
 import { Calendar } from 'primereact/calendar';
 import { InputNumber } from 'primereact/inputnumber';
 import { InputTextarea } from 'primereact/inputtextarea';
 import { Button } from 'primereact/button';
+import { Message } from 'primereact/message';
 import { ConfirmDialog, confirmDialog } from 'primereact/confirmdialog';
-import type { ClosedTrade } from '@/lib/types';
+import type { ClosedTrade, TaxReportUsage } from '@/lib/types';
 
 interface Props {
   trade: ClosedTrade;
+  reportUsage?: TaxReportUsage[];
   onHide: () => void;
   onSave: (updated: ClosedTrade) => void;
   onDeletePosition: (positionId: string) => void;
 }
 
+// Open-side facts (symbol, exchange, bought units, entry price/fee) define the
+// CGT parcel and are corrected on the position itself, not from this dialog.
+function ReadOnlyField({ label, value }: { label: string; value: string }) {
+  return (
+    <div>
+      <label className='block text-sm font-medium mb-1'>{label}</label>
+      <p
+        className='min-h-10 px-3 py-2 rounded border text-sm flex items-center'
+        style={{
+          borderColor: 'var(--tr-border)',
+          background: 'var(--tr-bg-2, #f8fafc)',
+          color: 'var(--tr-text-2)',
+        }}
+      >
+        {value || '—'}
+      </p>
+    </div>
+  );
+}
+
 export default function EditClosedTradeDialog({
   trade,
+  reportUsage = [],
   onHide,
   onSave,
   onDeletePosition,
@@ -33,38 +55,20 @@ export default function EditClosedTradeDialog({
 
   const validate = () => {
     const e: Record<string, string> = {};
-    (['symbol', 'openDate', 'closeDate'] as (keyof ClosedTrade)[]).forEach(
-      k => {
-        const v = form[k];
-        if (!v || (typeof v === 'string' && v.trim() === ''))
-          e[k as string] = 'Required';
-      }
-    );
-    if (!/\d{4}-\d{2}-\d{2}/.test(form.openDate)) e.openDate = 'Use YYYY-MM-DD';
-    if (!/\d{4}-\d{2}-\d{2}/.test(form.closeDate))
+    if (!form.closeDate.trim()) e.closeDate = 'Required';
+    else if (!/\d{4}-\d{2}-\d{2}/.test(form.closeDate))
       e.closeDate = 'Use YYYY-MM-DD';
-    if (
-      !e.openDate &&
-      !e.closeDate &&
+    else if (
       new Date(form.closeDate).getTime() < new Date(form.openDate).getTime()
     ) {
       e.closeDate = 'Close date cannot be before open date';
     }
-    (
-      [
-        'unitsClosed',
-        'buyPrice',
-        'buyFee',
-        'sellPrice',
-        'sellFee',
-      ] as (keyof ClosedTrade)[]
-    ).forEach(k => {
+    (['sellPrice', 'sellFee'] as (keyof ClosedTrade)[]).forEach(k => {
       const v = form[k];
       if (typeof v !== 'number' || isNaN(v as number))
         e[k as string] = 'Enter number';
       else if ((v as number) < 0) e[k as string] = 'Must be ≥ 0';
     });
-    if (form.unitsClosed <= 0) e.unitsClosed = 'Must be > 0';
     setErrors(e);
     return Object.keys(e).length === 0;
   };
@@ -134,38 +138,43 @@ export default function EditClosedTradeDialog({
       onHide={onHide}
     >
       <div className='space-y-4'>
+        {reportUsage.length > 0 && (
+          <Message
+            severity={reportUsage.some(u => u.stale) ? 'warn' : 'info'}
+            text={
+              reportUsage.some(u => u.stale)
+                ? `This position changed after the ${reportUsage
+                    .filter(u => u.stale)
+                    .map(u => u.financialYearLabel)
+                    .join(
+                      ', '
+                    )} tax report was generated. Regenerate that report so the PDF matches your data.`
+                : `This position is included in the ${reportUsage
+                    .map(u => u.financialYearLabel)
+                    .join(
+                      ', '
+                    )} tax report. Saving changes here will require regenerating it.`
+            }
+          />
+        )}
+
         <div className='grid grid-cols-12 gap-3'>
           <div className='col-span-12 md:col-span-3'>
-            <label className='block text-sm font-medium mb-1'>Symbol *</label>
-            <InputText
-              value={form.symbol}
-              onChange={e =>
-                setForm(f => ({ ...f, symbol: e.target.value.toUpperCase() }))
-              }
-              className='w-full uppercase'
-            />
-            {errors.symbol && (
-              <p className='text-xs text-red-600 mt-1'>{errors.symbol}</p>
-            )}
+            <ReadOnlyField label='Symbol' value={form.symbol} />
           </div>
           <div className='col-span-12 md:col-span-6'>
-            <label className='block text-sm font-medium mb-1'>Name</label>
-            <InputText
-              value={form.name ?? ''}
-              onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
-              className='w-full'
-            />
+            <ReadOnlyField label='Name' value={form.name ?? ''} />
           </div>
           <div className='col-span-12 md:col-span-3'>
-            <label className='block text-sm font-medium mb-1'>Exchange</label>
-            <InputText
-              value={form.exchange ?? ''}
-              onChange={e => setForm(f => ({ ...f, exchange: e.target.value }))}
-              className='w-full'
-              placeholder='e.g. Binance'
-            />
+            <ReadOnlyField label='Exchange' value={form.exchange ?? ''} />
           </div>
         </div>
+
+        <p className='text-xs' style={{ color: 'var(--tr-text-2)' }}>
+          Symbol, exchange, open date, bought units and entry price/fee define
+          this position&apos;s tax parcel — correct them on the position itself
+          from the dashboard.
+        </p>
 
         {/* Summary Metrics */}
         <div className='grid grid-cols-2 md:grid-cols-4 gap-3 text-center bg-blue-50 rounded-md p-3 text-sm'>
@@ -197,41 +206,7 @@ export default function EditClosedTradeDialog({
 
         <div className='grid grid-cols-12 gap-3'>
           <div className='col-span-12 md:col-span-4'>
-            <label className='block text-sm font-medium mb-1'>
-              Open Date *
-            </label>
-            <Calendar
-              value={(() => {
-                const parts = (form.openDate ?? '').split('-').map(Number);
-                return parts.length === 3 && parts[0] > 0
-                  ? new Date(parts[0], parts[1] - 1, parts[2])
-                  : null;
-              })()}
-              onChange={e => {
-                const d = e.value as Date | null;
-                if (d) {
-                  const y = d.getFullYear();
-                  const mo = String(d.getMonth() + 1).padStart(2, '0');
-                  const dy = String(d.getDate()).padStart(2, '0');
-                  setForm(f => ({ ...f, openDate: `${y}-${mo}-${dy}` }));
-                } else {
-                  setForm(f => ({ ...f, openDate: '' }));
-                }
-              }}
-              dateFormat='dd/mm/yy'
-              mask='99/99/9999'
-              readOnlyInput={false}
-              inputRef={input => {
-                if (input) input.inputMode = 'numeric';
-              }}
-              showIcon
-              placeholder='DD/MM/YYYY'
-              className='w-full'
-              inputClassName='w-full'
-            />
-            {errors.openDate && (
-              <p className='text-xs text-red-600 mt-1'>{errors.openDate}</p>
-            )}
+            <ReadOnlyField label='Open Date' value={form.openDate} />
           </div>
           <div className='col-span-12 md:col-span-4'>
             <label className='block text-sm font-medium mb-1'>
@@ -271,59 +246,25 @@ export default function EditClosedTradeDialog({
             )}
           </div>
           <div className='col-span-12 md:col-span-4'>
-            <label className='block text-sm font-medium mb-1'>
-              Units Closed *
-            </label>
-            <InputNumber
-              value={form.unitsClosed}
-              onValueChange={e =>
-                setForm(f => ({ ...f, unitsClosed: (e.value ?? 0) as number }))
-              }
-              mode='decimal'
-              maxFractionDigits={3}
-              className='w-full'
-              inputClassName='w-full'
+            <ReadOnlyField
+              label='Units Closed'
+              value={form.unitsClosed.toFixed(3)}
             />
-            {errors.unitsClosed && (
-              <p className='text-xs text-red-600 mt-1'>{errors.unitsClosed}</p>
-            )}
           </div>
         </div>
 
         <div className='grid grid-cols-12 gap-3'>
           <div className='col-span-12 md:col-span-3'>
-            <label className='block text-sm font-medium mb-1'>
-              Buy Price *
-            </label>
-            <InputNumber
-              value={form.buyPrice}
-              onValueChange={e =>
-                setForm(f => ({ ...f, buyPrice: (e.value ?? 0) as number }))
-              }
-              mode='decimal'
-              maxFractionDigits={3}
-              className='w-full'
-              inputClassName='w-full'
+            <ReadOnlyField
+              label='Buy Price'
+              value={formatCurrency(form.buyPrice)}
             />
-            {errors.buyPrice && (
-              <p className='text-xs text-red-600 mt-1'>{errors.buyPrice}</p>
-            )}
           </div>
           <div className='col-span-12 md:col-span-3'>
-            <label className='block text-sm font-medium mb-1'>Buy Fee *</label>
-            <InputNumber
-              value={form.buyFee}
-              onValueChange={e =>
-                setForm(f => ({ ...f, buyFee: (e.value ?? 0) as number }))
-              }
-              mode='decimal'
-              maxFractionDigits={3}
-              className='w-full'
-              inputClassName='w-full'
+            <ReadOnlyField
+              label='Buy Fee'
+              value={formatCurrency(form.buyFee)}
             />
-            {errors.buyFee && (
-              <p className='text-xs text-red-600 mt-1'>{errors.buyFee}</p>
-            )}
           </div>
           <div className='col-span-12 md:col-span-3'>
             <label className='block text-sm font-medium mb-1'>

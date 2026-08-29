@@ -23,6 +23,7 @@
 | `['statistics-summary', filters]` | useStatisticsSummary | — |
 | `['statistics-timeseries', params.metric, params.granularity ?? 'month', params.filters ?? {},]` | useStatisticsTimeSeries | — |
 | `['stock-search', query, limit]` | useStockSearch | — |
+| `['tax-reports', 'position-usage']` | useTaxReportPositionUsage | — |
 | `['tax-reports', id ?? 'none']` | useTaxReportDetail | — |
 | `['tax-reports']` | useTaxReports, useGenerateTaxReport, useDeleteTaxReport | useGenerateTaxReport, useDeleteTaxReport |
 | `['trading-accounts', includeClosed ? 'all' : 'active']` | useTradingAccounts | — |

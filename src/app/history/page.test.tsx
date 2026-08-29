@@ -53,6 +53,18 @@ vi.mock('@/hooks/api', () => ({
   useUpdateCloseEvent: () => ({ mutateAsync: updateCloseEventMock }),
   useUpdatePosition: () => ({ mutateAsync: updatePositionMock }),
   useDeletePosition: () => ({ mutateAsync: deletePositionMock }),
+  useTaxReportPositionUsage: () => ({
+    data: {
+      'position-1': [
+        {
+          reportId: 'r1',
+          financialYearLabel: 'FY2025-26',
+          generatedAt: '2026-07-24T00:00:00.000Z',
+          stale: true,
+        },
+      ],
+    },
+  }),
 }));
 
 vi.mock('@/components/PageHeader', () => ({
@@ -62,22 +74,30 @@ vi.mock('@/components/PageHeader', () => ({
 vi.mock('@/components/EditClosedTradeDialog', () => ({
   default: ({
     trade,
+    reportUsage,
     onSave,
   }: {
     trade: (typeof rows)[number];
+    reportUsage?: { financialYearLabel: string }[];
     onSave: (updated: (typeof rows)[number]) => Promise<void>;
   }) => (
-    <button
-      onClick={() =>
-        void onSave({
-          ...trade,
-          openDate: '2026-01-05',
-          closeDate: '2026-02-05',
-        })
-      }
-    >
-      Save edited dates
-    </button>
+    <>
+      <p>usage: {(reportUsage ?? []).map(u => u.financialYearLabel).join()}</p>
+      <button
+        onClick={() =>
+          void onSave({
+            ...trade,
+            closeDate: '2026-02-05',
+            buyComments: 'Breakout entry',
+          })
+        }
+      >
+        Save edited dates
+      </button>
+      <button onClick={() => void onSave({ ...trade })}>
+        Save open side untouched
+      </button>
+    </>
   ),
 }));
 
@@ -92,7 +112,7 @@ beforeEach(() => {
 afterEach(cleanup);
 
 describe('HistoryPage', () => {
-  it('persists edited open and close dates to their owning records', async () => {
+  it('persists edited open-side and close-side fields to their owning records', async () => {
     render(<HistoryPage />);
 
     fireEvent.click(screen.getByRole('button', { name: 'AAPL' }));
@@ -101,7 +121,7 @@ describe('HistoryPage', () => {
     await waitFor(() => {
       expect(updatePositionMock).toHaveBeenCalledWith({
         id: 'position-1',
-        payload: { openDate: '2026-01-05' },
+        payload: { openReason: 'Breakout entry' },
       });
       expect(updateCloseEventMock).toHaveBeenCalledWith({
         id: 'close-1',
@@ -113,6 +133,31 @@ describe('HistoryPage', () => {
         },
       });
     });
+  });
+
+  it('skips the position request when no open-side field changed', async () => {
+    render(<HistoryPage />);
+
+    fireEvent.click(screen.getByRole('button', { name: 'AAPL' }));
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Save open side untouched' })
+    );
+
+    await waitFor(() => expect(updateCloseEventMock).toHaveBeenCalled());
+    expect(updatePositionMock).not.toHaveBeenCalled();
+  });
+
+  it('flags rows already used by a tax report and passes usage to the dialog', () => {
+    render(<HistoryPage />);
+
+    expect(
+      screen.getByTitle(
+        'Changed since FY2025-26 tax report was generated — regenerate it'
+      )
+    ).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole('button', { name: 'AAPL' }));
+    expect(screen.getByText('usage: FY2025-26')).toBeInTheDocument();
   });
 
   it('surfaces an error toast and keeps the dialog open when saving fails', async () => {

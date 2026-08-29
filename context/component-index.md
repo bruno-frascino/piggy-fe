@@ -75,11 +75,12 @@
 
 ## `EditClosedTradeDialog`
 
-- File: [src/components/EditClosedTradeDialog.tsx](../src/components/EditClosedTradeDialog.tsx) (423 lines)
+- File: [src/components/EditClosedTradeDialog.tsx](../src/components/EditClosedTradeDialog.tsx) (364 lines)
 - API hooks used: —
 - Other hooks used: useEffect, useMemo, useState
 - Props:
   - `trade: ClosedTrade`
+  - `reportUsage?: TaxReportUsage[]`
   - `onHide: () => void`
   - `onSave: (updated: ClosedTrade) => void`
   - `onDeletePosition: (positionId: string) => void`

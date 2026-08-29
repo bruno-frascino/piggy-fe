@@ -2101,6 +2101,63 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/tax-reports/position-usage": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Map each position to the generated tax reports that already include it
+         * @description Derived from each report's stored line items — no denormalised flag is kept. A usage entry is `stale` when the position or any of its transactions was modified after the report was generated, meaning the PDF no longer matches the underlying data and should be regenerated.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Position id keyed map of report usages */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            data?: {
+                                [key: string]: {
+                                    financialYearLabel?: string;
+                                    /** Format: date-time */
+                                    generatedAt?: string;
+                                    reportId?: string;
+                                    stale?: boolean;
+                                }[];
+                            };
+                            success?: boolean;
+                        };
+                    };
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/tax-reports/{id}": {
         parameters: {
             query?: never;

@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Card } from 'primereact/card';
@@ -8,12 +8,13 @@ import { Button } from 'primereact/button';
 import { Calendar } from 'primereact/calendar';
 import { Dropdown } from 'primereact/dropdown';
 import { Message } from 'primereact/message';
-import type { ClosedTrade } from '@/lib/types';
+import type { ClosedTrade, TaxReportUsage } from '@/lib/types';
 import EditClosedTradeDialog from '@/components/EditClosedTradeDialog';
 import PageHeader from '@/components/PageHeader';
 import {
   useClosedPositions,
   useDeletePosition,
+  useTaxReportPositionUsage,
   useUpdateCloseEvent,
   useUpdatePosition,
 } from '@/hooks/api';
@@ -51,6 +52,7 @@ interface ExchangeTableProps {
   exchange: string;
   accountName?: string;
   trades: ClosedTrade[];
+  usageFor: (trade: ClosedTrade) => TaxReportUsage[];
   onEdit: (trade: ClosedTrade) => void;
 }
 
@@ -58,6 +60,7 @@ function ExchangeTable({
   exchange,
   accountName,
   trades,
+  usageFor,
   onEdit,
 }: ExchangeTableProps) {
   const totals = calcTotals(trades);
@@ -98,15 +101,35 @@ function ExchangeTable({
       >
         <Column
           header='Symbol'
-          body={(r: ClosedTrade) => (
-            <button
-              className='text-blue-600 font-semibold hover:underline'
-              onClick={() => onEdit(r)}
-              title='View / Edit Closed Position'
-            >
-              {r.symbol}
-            </button>
-          )}
+          body={(r: ClosedTrade) => {
+            const usage = usageFor(r);
+            const stale = usage.filter(u => u.stale);
+            return (
+              <span className='inline-flex items-center gap-1'>
+                <button
+                  className='text-blue-600 font-semibold hover:underline'
+                  onClick={() => onEdit(r)}
+                  title='View / Edit Closed Position'
+                >
+                  {r.symbol}
+                </button>
+                {usage.length > 0 && (
+                  <i
+                    className={
+                      stale.length > 0
+                        ? 'pi pi-exclamation-triangle text-amber-500 text-xs'
+                        : 'pi pi-file-pdf text-gray-400 text-xs'
+                    }
+                    title={
+                      stale.length > 0
+                        ? `Changed since ${stale.map(u => u.financialYearLabel).join(', ')} tax report was generated — regenerate it`
+                        : `Included in the ${usage.map(u => u.financialYearLabel).join(', ')} tax report`
+                    }
+                  />
+                )}
+              </span>
+            );
+          }}
           style={{ minWidth: '120px' }}
           frozen
           alignFrozen='left'
@@ -287,6 +310,13 @@ export default function HistoryPage() {
   });
   const rows = useMemo(() => data?.trades ?? [], [data]);
   const truncated = (data?.total ?? 0) > rows.length;
+
+  const { data: reportUsage } = useTaxReportPositionUsage();
+  const usageFor = useCallback(
+    (trade: ClosedTrade) =>
+      (trade.positionId ? reportUsage?.[trade.positionId] : undefined) ?? [],
+    [reportUsage]
+  );
 
   const [activePreset, setActivePreset] = useState<HistoryPeriodPreset | null>(
     null
@@ -540,6 +570,7 @@ export default function HistoryPage() {
               exchange={group.exchange}
               accountName={group.accountName}
               trades={group.trades}
+              usageFor={usageFor}
               onEdit={trade => {
                 setActive(trade);
                 setShowDialog(true);
@@ -551,6 +582,7 @@ export default function HistoryPage() {
         {showDialog && active && (
           <EditClosedTradeDialog
             trade={active}
+            reportUsage={usageFor(active)}
             onHide={() => {
               setShowDialog(false);
               setActive(null);
@@ -558,11 +590,14 @@ export default function HistoryPage() {
             onSave={async (updated: ClosedTrade) => {
               const updates: Promise<unknown>[] = [];
 
-              if (updated.positionId && updated.openDate !== active.openDate) {
+              if (
+                updated.positionId &&
+                updated.buyComments !== active.buyComments
+              ) {
                 updates.push(
                   updatePosition({
                     id: updated.positionId,
-                    payload: { openDate: updated.openDate },
+                    payload: { openReason: updated.buyComments ?? null },
                   })
                 );
               }

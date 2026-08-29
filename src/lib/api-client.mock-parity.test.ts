@@ -145,6 +145,10 @@ describe('apiClient mock-mode parity', () => {
     // tax reports
     { name: 'getTaxReports', call: () => apiClient.getTaxReports() },
     {
+      name: 'getTaxReportPositionUsage',
+      call: () => apiClient.getTaxReportPositionUsage(),
+    },
+    {
       name: 'getTaxReportDetail',
       call: () => apiClient.getTaxReportDetail('rep-1'),
     },
