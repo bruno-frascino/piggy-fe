@@ -25,7 +25,18 @@ export function useSymbolSearch() {
 
   useEffect(() => {
     if (!searchRequest.query) return;
-    setSymbolSuggestions(isError ? [] : (searchResults ?? []));
+    if (isError) {
+      setSymbolSuggestions([]);
+      return;
+    }
+    // Skip the transient "still loading" state (searchResults undefined):
+    // updating suggestions to [] here, then again once data lands, is two
+    // suggestions changes instead of one, and PrimeReact AutoComplete only
+    // reacts to the first one after a keystroke — the real results would
+    // silently fail to open the dropdown.
+    if (searchResults) {
+      setSymbolSuggestions(searchResults);
+    }
   }, [searchRequest, searchResults, isError]);
 
   useEffect(

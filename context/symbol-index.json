@@ -882,7 +882,7 @@
     "startLine": 10
   },
   {
-    "endLine": 58,
+    "endLine": 69,
     "file": "src/hooks/useSymbolSearch.ts",
     "jsdoc": "Owns debounced stock-symbol search suggestions for AddHoldingsDialog's symbol AutoComplete field. Extracted verbatim (same debounce/timer behavior) from AddHoldingsDialog.tsx — see AddHoldingsDialog.test.tsx for characterization coverage of the dialog's validation/submission behavior that depends on the resolved symbol.",
     "kind": "FunctionDeclaration",
