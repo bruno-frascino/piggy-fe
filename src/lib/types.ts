@@ -156,6 +156,20 @@ export interface ClosedTrade {
   maxDrawdownPercent?: number; // worst intra-trade drawdown from entry price, in percent (positive number)
 }
 
+// Server-side scope for GET /positions/close-events. The close-date range bounds
+// the payload; account/exchange slicing stays client-side over the returned page.
+export interface ClosedTradesQuery {
+  dateFrom?: string; // YYYY-MM-DD, inclusive
+  dateTo?: string; // YYYY-MM-DD, inclusive
+  limit?: number;
+  offset?: number;
+}
+
+export interface ClosedTradesPage {
+  trades: ClosedTrade[];
+  total: number; // matching rows on the server, may exceed trades.length
+}
+
 export interface StatisticsFilters {
   accountIds?: string[];
   exchangeCodes?: string[];

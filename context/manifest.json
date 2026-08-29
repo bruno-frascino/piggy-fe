@@ -2,11 +2,11 @@
   "artifacts": {
     "api-binding.md": {
       "path": "context/api-binding.md",
-      "sha256": "6c68a730fc445009f9b0b6fbca0829a07693548b05904f5b3dea5272bdfce2b3"
+      "sha256": "86798a7d8609b7f3ff731f8b1ea2b419768de3c8298d57e9da41d32f2110d9dd"
     },
     "api-types.ts": {
       "path": "src/lib/generated/api-types.ts",
-      "sha256": "97e78b18ace092f8b1bd6028beeef4c7e1d4c8380641ed320fcab379186be2b8"
+      "sha256": "cc81783705667612f8c5bb9158a483e33cbbb7c2c6d2046e9320bf9859932364"
     },
     "component-index.md": {
       "path": "context/component-index.md",
@@ -14,15 +14,15 @@
     },
     "contract-drift.md": {
       "path": "context/contract-drift.md",
-      "sha256": "30871030f570ed6da4d04f208ed359c57de180c0f5944723d9704d3b09d83073"
+      "sha256": "11e7036061eea1b954632b002d5057479c763dd7aa5fc9be1c5cc2d019a82d2c"
     },
     "data-flow.md": {
       "path": "context/data-flow.md",
-      "sha256": "66e40dbcc653b7c0e89989f7128f88bfd5b665c881498e136025534c53664435"
+      "sha256": "b409eeea1c7e132cb6502c2194d9a2e579c904d2603716a8f4dfe4bea727bdb1"
     },
     "module-graph.json": {
       "path": "context/module-graph.json",
-      "sha256": "844188dc0541f982562ca451e4cc1515c9ca6d08a8f7fb147c964e165e20b437"
+      "sha256": "03db0d5667482301b69a7cdc1e2f3868400e4d59ea479491cbcbedd499cf3bee"
     },
     "module-graph.md": {
       "path": "context/module-graph.md",
@@ -34,13 +34,13 @@
     },
     "symbol-index.json": {
       "path": "context/symbol-index.json",
-      "sha256": "3b719f111cbb957f7e36c385afafb71bdad4a0126be7d1b0c8873df82b3aca8a"
+      "sha256": "63a11fed27a15a7b18db21edc47fd2eeb33a61a91ede075c990e92daf43f1e5f"
     },
     "unused.json": {
       "path": "context/unused.json",
-      "sha256": "c107a0e5ce4ed7c0116593cac33bef7c0bfec617bab9280f9e535a6b0a9b1263"
+      "sha256": "3b5fc1624b77903a3f4888dde4e88cb3a76abb4a198b9ec6b6f75cced00bee81"
     }
   },
-  "generatedAt": "2026-08-29T07:09:29.736Z",
+  "generatedAt": "2026-08-29T16:34:28.533Z",
   "generatorVersion": 1
 }

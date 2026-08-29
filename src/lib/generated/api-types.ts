@@ -667,6 +667,67 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/portfolio/realized-pnl": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Sum realized P&L banked from closed and partially closed positions
+         * @description Server-side aggregate for a single account + exchange scope. Exists so the dashboard does not have to download every close event just to total them.
+         */
+        get: {
+            parameters: {
+                query: {
+                    accountId: string;
+                    exchangeCode: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Realized P&L total for the scope */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            data?: {
+                                realizedPnL?: number;
+                            };
+                            success?: boolean;
+                        };
+                    };
+                };
+                /** @description Validation error */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/portfolio/snapshot": {
         parameters: {
             query?: never;
@@ -843,15 +904,39 @@ export interface paths {
         /** List close events (SELL transactions) for the authenticated user */
         get: {
             parameters: {
-                query?: never;
+                query?: {
+                    /** @description Only include close events on or after this date */
+                    dateFrom?: string;
+                    /** @description Only include close events on or before this date */
+                    dateTo?: string;
+                    limit?: number;
+                    offset?: number;
+                };
                 header?: never;
                 path?: never;
                 cookie?: never;
             };
             requestBody?: never;
             responses: {
-                /** @description List of SELL transactions with position and asset context */
+                /** @description Paginated SELL transactions with position and asset context */
                 200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            data?: Record<string, never>[];
+                            meta?: {
+                                limit?: number;
+                                offset?: number;
+                                total?: number;
+                            };
+                            success?: boolean;
+                        };
+                    };
+                };
+                /** @description Validation error */
+                400: {
                     headers: {
                         [name: string]: unknown;
                     };

@@ -290,7 +290,7 @@ describe('api-client', () => {
       },
     });
 
-    const closed = await apiClient.getClosedPositions();
+    const { trades: closed } = await apiClient.getClosedPositions();
 
     expect(closed).toHaveLength(1);
     expect(closed[0]).toMatchObject({

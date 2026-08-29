@@ -4,11 +4,10 @@ import type { ExchangeKey, QuoteResult } from '@/lib/types';
 import {
   useHoldings,
   useQuotes,
-  useClosedPositions,
+  useRealizedPnL,
   useRecalculateDrawdown,
   useUpdatePosition,
 } from '@/hooks/api';
-import { sumRealizedPnLForScope } from '@/lib/performance-metrics';
 
 export type HoldingRow = LocalHolding & {
   openDateTs: number; // numeric timestamp for reliable sorting
@@ -65,9 +64,11 @@ export function useHoldingRows({
     selectedExchange,
     selectedAccountId
   );
-  const { data: closedPositions } = useClosedPositions();
+  const { data: totalRealizedPnL = 0 } = useRealizedPnL(
+    selectedAccountId,
+    selectedExchange
+  );
   const [holdings, setHoldings] = useState<LocalHolding[]>([]);
-
   useEffect(() => {
     if (remoteHoldings) {
       setHoldings(remoteHoldings);
@@ -127,15 +128,7 @@ export function useHoldingRows({
   // + realizedPnL, so the live "today" equity bubbled up to the chart must also
   // include this term to stay on the same basis as the historical snapshots —
   // otherwise the chart's rightmost point silently drops all banked gains/losses.
-  const totalRealizedPnL = useMemo(
-    () =>
-      sumRealizedPnLForScope(
-        closedPositions,
-        selectedAccountId,
-        selectedExchange
-      ),
-    [closedPositions, selectedAccountId, selectedExchange]
-  );
+  // Aggregated server-side so the dashboard never downloads the full close-event list.
 
   // Bubble live totals up to parent (DashboardView stats cards)
   useEffect(() => {

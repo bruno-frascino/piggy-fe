@@ -616,7 +616,7 @@ export default function DashboardView() {
                   </Card>
                 </div>
 
-                <Card>
+                <Card className='h-[26rem] sm:h-[28rem] md:h-[32rem]'>
                   <div className='flex items-center justify-between mb-3'>
                     <h3 className='text-base font-semibold text-gray-800'>
                       Equity History

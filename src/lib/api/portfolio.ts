@@ -165,6 +165,23 @@ export function createPortfolioApi(client: AxiosInstance) {
         .filter((p): p is EquityPoint => p !== null);
     },
 
+    async getRealizedPnL(
+      accountId?: string,
+      exchangeCode?: string
+    ): Promise<number> {
+      if (USE_MOCK_API || !accountId || !exchangeCode) {
+        return 0;
+      }
+
+      const response = await client.get('/portfolio/realized-pnl', {
+        params: { accountId, exchangeCode },
+      });
+      const data = isRecord(response.data) ? response.data.data : null;
+      return isRecord(data) && typeof data.realizedPnL === 'number'
+        ? data.realizedPnL
+        : 0;
+    },
+
     async createPortfolioSnapshot(
       accountId?: string,
       exchangeCode?: string

@@ -1,7 +1,7 @@
 // @vitest-environment jsdom
 
 import '@testing-library/jest-dom/vitest';
-import { cleanup, render, waitFor } from '@testing-library/react';
+import { cleanup, render, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
@@ -19,27 +19,25 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 const {
   useHoldingsMock,
   useQuotesMock,
-  useClosedPositionsMock,
+  useRealizedPnLMock,
   updatePositionMock,
   recalculateDrawdownMock,
   mutationMock,
   showToastMock,
-  emptyHoldings,
 } = vi.hoisted(() => ({
   useHoldingsMock: vi.fn(),
   useQuotesMock: vi.fn(),
-  useClosedPositionsMock: vi.fn(),
+  useRealizedPnLMock: vi.fn(),
   updatePositionMock: vi.fn(),
   recalculateDrawdownMock: vi.fn(),
   mutationMock: vi.fn(),
   showToastMock: vi.fn(),
-  emptyHoldings: [] as unknown[],
 }));
 
 vi.mock('@/hooks/api', () => ({
   useHoldings: useHoldingsMock,
   useQuotes: useQuotesMock,
-  useClosedPositions: useClosedPositionsMock,
+  useRealizedPnL: useRealizedPnLMock,
   useTradingAccounts: () => ({ data: undefined, isError: false }),
   useStockSearch: () => ({ data: undefined, isError: false }),
   useCreatePosition: () => ({ mutateAsync: mutationMock }),
@@ -99,7 +97,7 @@ function setQuotes(quotes: unknown[]) {
 }
 
 beforeEach(() => {
-  useClosedPositionsMock.mockReturnValue({ data: emptyHoldings });
+  useRealizedPnLMock.mockReturnValue({ data: 0 });
   updatePositionMock.mockResolvedValue({ success: true });
   recalculateDrawdownMock.mockResolvedValue({ success: true });
   mutationMock.mockResolvedValue({ success: true });
@@ -115,6 +113,16 @@ afterEach(() => {
 });
 
 describe('HoldingsTable row/total computation', () => {
+  it('uses the dashboard chart height as both its minimum and maximum height', () => {
+    setHoldings([]);
+    setQuotes([]);
+
+    renderTable();
+
+    const card = screen.getByText('Holdings · Main').closest('.p-card');
+    expect(card).toHaveClass('h-[26rem]', 'sm:h-[28rem]', 'md:h-[32rem]');
+  });
+
   it('derives effectivePrice/currentPosition from the live quote and bubbles totals to the parent', async () => {
     setHoldings([{ ...baseHolding }]);
     setQuotes([

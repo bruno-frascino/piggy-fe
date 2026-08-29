@@ -230,7 +230,7 @@ export default function HoldingsTable({
   // Dialog state is managed inside AddHoldingsDialog
 
   return (
-    <Card>
+    <Card className='h-[26rem] sm:h-[28rem] md:h-[32rem] overflow-hidden [&_.p-card-body]:h-full [&_.p-card-content]:h-full [&_.p-card-content]:overflow-y-auto'>
       <div className='flex items-center justify-between mb-4 pb-2 border-b border-gray-200'>
         <h3 className='text-xl font-semibold text-gray-900'>
           Holdings

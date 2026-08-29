@@ -1,9 +1,14 @@
 import { AxiosInstance } from 'axios';
-import type { ClosedTrade } from '../types';
+import type {
+  ClosedTrade,
+  ClosedTradesPage,
+  ClosedTradesQuery,
+} from '../types';
 import { exchanges } from '../mock-portfolio';
 import { getHoldingsForExchange } from '../mock-holdings';
 import type { HoldingPosition } from '../types';
 import {
+  isRecord,
   mapCloseEventToClosedTrade,
   mapPositionToHolding,
   unwrapArray,
@@ -155,17 +160,35 @@ export function createPositionsApi(client: AxiosInstance) {
         .filter((h): h is HoldingPosition => h !== null);
     },
 
-    async getClosedPositions(): Promise<ClosedTrade[]> {
+    async getClosedPositions(
+      params: ClosedTradesQuery = {}
+    ): Promise<ClosedTradesPage> {
       if (USE_MOCK_API) {
         // Not implemented in mock mode — mock-holdings.ts has no closed-trade
         // fixtures yet; the History page will show "no closed positions".
-        return [];
+        return { trades: [], total: 0 };
       }
 
-      const response = await client.get('/positions/close-events');
-      return unwrapArray<unknown>(response.data)
+      const response = await client.get('/positions/close-events', {
+        params: {
+          ...(params.dateFrom ? { dateFrom: params.dateFrom } : {}),
+          ...(params.dateTo ? { dateTo: params.dateTo } : {}),
+          ...(params.limit !== undefined ? { limit: params.limit } : {}),
+          ...(params.offset !== undefined ? { offset: params.offset } : {}),
+        },
+      });
+
+      const trades = unwrapArray<unknown>(response.data)
         .map(mapCloseEventToClosedTrade)
         .filter((t): t is ClosedTrade => t !== null);
+
+      const meta = isRecord(response.data) ? response.data.meta : undefined;
+      const total =
+        isRecord(meta) && typeof meta.total === 'number'
+          ? meta.total
+          : trades.length;
+
+      return { trades, total };
     },
 
     async updateCloseEvent(

@@ -125,6 +125,10 @@ describe('apiClient mock-mode parity', () => {
       call: () => apiClient.recalculateDrawdown('pos-1'),
     },
     { name: 'getHoldings', call: () => apiClient.getHoldings() },
+    {
+      name: 'getRealizedPnL',
+      call: () => apiClient.getRealizedPnL('acc-1', 'NASDAQ'),
+    },
     { name: 'getClosedPositions', call: () => apiClient.getClosedPositions() },
     {
       name: 'updateCloseEvent',

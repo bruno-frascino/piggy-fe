@@ -34,6 +34,8 @@ In sync. ✅
 - `TaxReportLineItem`
 - `TaxReport`
 - `ClosedTrade`
+- `ClosedTradesQuery`
+- `ClosedTradesPage`
 - `StatisticsFilters`
 - `StatisticsSummary`
 - `StatisticsTimeSeriesPoint`

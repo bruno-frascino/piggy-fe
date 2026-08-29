@@ -119,15 +119,15 @@
       "exports": [
         {
           "col": 14,
-          "line": 377,
+          "line": 393,
           "name": "useDeleteTaxReport",
-          "pos": 10419
+          "pos": 10977
         },
         {
           "col": 14,
-          "line": 495,
+          "line": 511,
           "name": "useUpcomingDividends",
-          "pos": 13416
+          "pos": 13974
         }
       ],
       "file": "src/hooks/api.ts",
@@ -319,15 +319,15 @@
         },
         {
           "col": 18,
-          "line": 183,
+          "line": 197,
           "name": "StatisticsTimeSeriesPoint",
-          "pos": 4441
+          "pos": 4911
         },
         {
           "col": 18,
-          "line": 195,
+          "line": 209,
           "name": "StatisticsHistogramBucket",
-          "pos": 4668
+          "pos": 5138
         }
       ],
       "unlisted": [],

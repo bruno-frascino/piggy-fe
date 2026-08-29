@@ -7,6 +7,7 @@ import {
 import { apiClient } from '@/lib/api-client';
 import type {
   AddWatchlistItemPayload,
+  ClosedTradesQuery,
   ScreenerFilters,
   StatisticsBreakdownBy,
   StatisticsBreakdownMetric,
@@ -19,6 +20,7 @@ function invalidatePositionQueries(queryClient: QueryClient) {
   return Promise.all([
     queryClient.invalidateQueries({ queryKey: ['holdings'] }),
     queryClient.invalidateQueries({ queryKey: ['closed-positions'] }),
+    queryClient.invalidateQueries({ queryKey: ['realized-pnl'] }),
     queryClient.invalidateQueries({ queryKey: ['portfolio-history'] }),
     queryClient.invalidateQueries({ queryKey: ['user-portfolio'] }),
   ]);
@@ -208,6 +210,14 @@ export const usePortfolioHistory = (
   });
 };
 
+export const useRealizedPnL = (accountId?: string, exchangeCode?: string) => {
+  return useQuery({
+    queryKey: ['realized-pnl', accountId ?? 'none', exchangeCode ?? 'none'],
+    queryFn: () => apiClient.getRealizedPnL(accountId, exchangeCode),
+    enabled: !!accountId && !!exchangeCode,
+  });
+};
+
 export const useCreatePortfolioSnapshot = () => {
   const queryClient = useQueryClient();
 
@@ -233,10 +243,16 @@ export const useHoldings = (exchangeName?: string, accountId?: string) => {
   });
 };
 
-export const useClosedPositions = () => {
+export const useClosedPositions = (params: ClosedTradesQuery = {}) => {
   return useQuery({
-    queryKey: ['closed-positions'],
-    queryFn: () => apiClient.getClosedPositions(),
+    queryKey: [
+      'closed-positions',
+      params.dateFrom ?? 'all',
+      params.dateTo ?? 'all',
+      params.limit ?? 'default',
+      params.offset ?? 0,
+    ],
+    queryFn: () => apiClient.getClosedPositions(params),
   });
 };
 

@@ -12,6 +12,8 @@ const {
   searchStocksMock,
   logoutMock,
   downloadTaxReportPdfMock,
+  getClosedPositionsMock,
+  getRealizedPnLMock,
 } = vi.hoisted(() => ({
   updatePositionMock: vi.fn(),
   updateCloseEventMock: vi.fn(),
@@ -19,6 +21,8 @@ const {
   searchStocksMock: vi.fn(),
   logoutMock: vi.fn(),
   downloadTaxReportPdfMock: vi.fn(),
+  getClosedPositionsMock: vi.fn(),
+  getRealizedPnLMock: vi.fn(),
 }));
 
 vi.mock('@/lib/api-client', () => ({
@@ -29,12 +33,16 @@ vi.mock('@/lib/api-client', () => ({
     searchStocks: searchStocksMock,
     logout: logoutMock,
     downloadTaxReportPdf: downloadTaxReportPdfMock,
+    getClosedPositions: getClosedPositionsMock,
+    getRealizedPnL: getRealizedPnLMock,
   },
 }));
 
 import {
+  useClosedPositions,
   useDownloadTaxReportPdf,
   useLogout,
+  useRealizedPnL,
   useRecalculateDrawdown,
   useStockSearch,
   useUpdateCloseEvent,
@@ -78,6 +86,9 @@ describe('central API mutation hooks', () => {
     expect(invalidateQueries).toHaveBeenCalledWith({ queryKey: ['holdings'] });
     expect(invalidateQueries).toHaveBeenCalledWith({
       queryKey: ['closed-positions'],
+    });
+    expect(invalidateQueries).toHaveBeenCalledWith({
+      queryKey: ['realized-pnl'],
     });
     expect(invalidateQueries).toHaveBeenCalledWith({
       queryKey: ['portfolio-history'],
@@ -150,6 +161,42 @@ describe('central API mutation hooks', () => {
 });
 
 describe('central API query hooks', () => {
+  it('passes the close-date scope through to the closed-positions request', async () => {
+    const page = { trades: [], total: 0 };
+    getClosedPositionsMock.mockResolvedValue(page);
+    const queryClient = new QueryClient({
+      defaultOptions: { queries: { retry: false } },
+    });
+    const params = { dateFrom: '2026-01-01', dateTo: '2026-12-31' };
+    const { result } = renderHook(() => useClosedPositions(params), {
+      wrapper: createWrapper(queryClient),
+    });
+
+    await waitFor(() => expect(result.current.data).toEqual(page));
+
+    expect(getClosedPositionsMock).toHaveBeenCalledWith(params);
+  });
+
+  it('skips the realized P&L request until both account and exchange are known', async () => {
+    getRealizedPnLMock.mockResolvedValue(1234);
+    const queryClient = new QueryClient({
+      defaultOptions: { queries: { retry: false } },
+    });
+    const wrapper = createWrapper(queryClient);
+
+    const disabled = renderHook(() => useRealizedPnL('acc-1', undefined), {
+      wrapper,
+    });
+    expect(disabled.result.current.fetchStatus).toBe('idle');
+    expect(getRealizedPnLMock).not.toHaveBeenCalled();
+
+    const enabled = renderHook(() => useRealizedPnL('acc-1', 'NASDAQ'), {
+      wrapper,
+    });
+    await waitFor(() => expect(enabled.result.current.data).toBe(1234));
+    expect(getRealizedPnLMock).toHaveBeenCalledWith('acc-1', 'NASDAQ');
+  });
+
   it('searches stocks with a query-keyed request', async () => {
     const matches = [{ symbol: 'AAPL', name: 'Apple', exchange: 'NASDAQ' }];
     searchStocksMock.mockResolvedValue(matches);

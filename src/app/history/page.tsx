@@ -7,6 +7,7 @@ import { Card } from 'primereact/card';
 import { Button } from 'primereact/button';
 import { Calendar } from 'primereact/calendar';
 import { Dropdown } from 'primereact/dropdown';
+import { Message } from 'primereact/message';
 import type { ClosedTrade } from '@/lib/types';
 import EditClosedTradeDialog from '@/components/EditClosedTradeDialog';
 import PageHeader from '@/components/PageHeader';
@@ -22,6 +23,7 @@ import {
   type HistoryPeriodPreset,
 } from '@/lib/date';
 import { formatCurrency, formatPct, returnClass } from '@/lib/format';
+import { useToast } from '@/lib/toast-context';
 
 const PERIOD_PRESETS: { label: string; value: HistoryPeriodPreset }[] = [
   { label: 'Current FY', value: 'CURRENT_FY' },
@@ -267,7 +269,7 @@ function ExchangeTable({
 }
 
 export default function HistoryPage() {
-  const { data: rows = [], isLoading } = useClosedPositions();
+  const { show: showToast } = useToast();
   const { mutateAsync: updateCloseEvent } = useUpdateCloseEvent();
   const { mutateAsync: updatePosition } = useUpdatePosition();
   const { mutateAsync: deletePosition } = useDeletePosition();
@@ -276,6 +278,16 @@ export default function HistoryPage() {
   const defaultEnd = `${currentYear}-12-31`;
   const [startDate, setStartDate] = useState<string>(defaultStart);
   const [endDate, setEndDate] = useState<string>(defaultEnd);
+
+  // The close-date range is the server-side scope; account and exchange are
+  // sliced client-side so their dropdowns keep listing every option in range.
+  const { data, isLoading } = useClosedPositions({
+    dateFrom: startDate || undefined,
+    dateTo: endDate || undefined,
+  });
+  const rows = useMemo(() => data?.trades ?? [], [data]);
+  const truncated = (data?.total ?? 0) > rows.length;
+
   const [activePreset, setActivePreset] = useState<HistoryPeriodPreset | null>(
     null
   );
@@ -283,6 +295,16 @@ export default function HistoryPage() {
   const [exchangeFilter, setExchangeFilter] = useState<string | null>(null);
   const [showDialog, setShowDialog] = useState(false);
   const [active, setActive] = useState<ClosedTrade | null>(null);
+
+  const showWriteError = (action: string, error: unknown) => {
+    const fallback = `Could not ${action}. Please try again.`;
+    showToast({
+      severity: 'error',
+      summary: 'Action failed',
+      detail: (error instanceof Error && error.message) || fallback,
+      life: 5000,
+    });
+  };
 
   const applyPreset = (preset: HistoryPeriodPreset) => {
     const { start, end } = computeHistoryPeriodRange(preset, new Date());
@@ -316,18 +338,14 @@ export default function HistoryPage() {
   }, [rows]);
 
   const filtered = useMemo(() => {
-    const start = new Date(startDate).getTime();
-    const end = new Date(endDate).getTime();
     return rows.filter(r => {
-      const t = new Date(r.closeDate).getTime();
-      const inRange = (isNaN(start) || t >= start) && (isNaN(end) || t <= end);
       const matchesAccount =
         !accountFilter || (r.accountName ?? undefined) === accountFilter;
       const matchesExchange =
         !exchangeFilter || (r.exchange ?? 'Unknown') === exchangeFilter;
-      return inRange && matchesAccount && matchesExchange;
+      return matchesAccount && matchesExchange;
     });
-  }, [rows, startDate, endDate, accountFilter, exchangeFilter]);
+  }, [rows, accountFilter, exchangeFilter]);
 
   const groups = useMemo(() => {
     const map = new Map<
@@ -495,6 +513,13 @@ export default function HistoryPage() {
           </div>
         </Card>
 
+        {truncated && (
+          <Message
+            severity='warn'
+            text={`Showing the ${rows.length} most recent of ${data?.total} closed positions in this period. Narrow the date range to see the rest.`}
+          />
+        )}
+
         {isLoading ? (
           <Card>
             <div className='p-4 text-center text-gray-400'>
@@ -561,15 +586,18 @@ export default function HistoryPage() {
                 setShowDialog(false);
                 setActive(null);
               } catch (error) {
-                console.error(error);
+                showWriteError('save this closed position', error);
               }
             }}
-            onDeletePosition={(positionId: string) => {
-              if (positionId) {
-                deletePosition(positionId).catch(console.error);
+            onDeletePosition={async (positionId: string) => {
+              if (!positionId) return;
+              try {
+                await deletePosition(positionId);
+                setShowDialog(false);
+                setActive(null);
+              } catch (error) {
+                showWriteError('delete this position', error);
               }
-              setShowDialog(false);
-              setActive(null);
             }}
           />
         )}
