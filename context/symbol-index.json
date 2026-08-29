@@ -45,13 +45,13 @@
     "startLine": 14
   },
   {
-    "endLine": 558,
+    "endLine": 579,
     "file": "src/app/history/page.tsx",
     "jsdoc": "",
     "kind": "FunctionDeclaration",
     "name": "default",
     "signature": "export default function HistoryPage()",
-    "startLine": 268
+    "startLine": 269
   },
   {
     "endLine": 37,
@@ -243,7 +243,7 @@
     "startLine": 75
   },
   {
-    "endLine": 415,
+    "endLine": 422,
     "file": "src/components/EditClosedTradeDialog.tsx",
     "jsdoc": "",
     "kind": "FunctionDeclaration",

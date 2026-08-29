@@ -14,6 +14,7 @@ import {
   useClosedPositions,
   useDeletePosition,
   useUpdateCloseEvent,
+  useUpdatePosition,
 } from '@/hooks/api';
 import {
   computeHistoryPeriodRange,
@@ -268,6 +269,7 @@ function ExchangeTable({
 export default function HistoryPage() {
   const { data: rows = [], isLoading } = useClosedPositions();
   const { mutateAsync: updateCloseEvent } = useUpdateCloseEvent();
+  const { mutateAsync: updatePosition } = useUpdatePosition();
   const { mutateAsync: deletePosition } = useDeletePosition();
   const currentYear = new Date().getFullYear();
   const defaultStart = `${currentYear}-01-01`;
@@ -528,20 +530,39 @@ export default function HistoryPage() {
               setShowDialog(false);
               setActive(null);
             }}
-            onSave={(updated: ClosedTrade) => {
-              if (updated.id) {
-                updateCloseEvent({
-                  id: updated.id,
-                  data: {
-                    closeDate: updated.closeDate,
-                    exitPrice: updated.sellPrice,
-                    sellFees: updated.sellFee,
-                    notes: updated.sellComments ?? '',
-                  },
-                }).catch(console.error);
+            onSave={async (updated: ClosedTrade) => {
+              const updates: Promise<unknown>[] = [];
+
+              if (updated.positionId && updated.openDate !== active.openDate) {
+                updates.push(
+                  updatePosition({
+                    id: updated.positionId,
+                    payload: { openDate: updated.openDate },
+                  })
+                );
               }
-              setShowDialog(false);
-              setActive(null);
+
+              if (updated.id) {
+                updates.push(
+                  updateCloseEvent({
+                    id: updated.id,
+                    data: {
+                      closeDate: updated.closeDate,
+                      exitPrice: updated.sellPrice,
+                      sellFees: updated.sellFee,
+                      notes: updated.sellComments ?? '',
+                    },
+                  })
+                );
+              }
+
+              try {
+                await Promise.all(updates);
+                setShowDialog(false);
+                setActive(null);
+              } catch (error) {
+                console.error(error);
+              }
             }}
             onDeletePosition={(positionId: string) => {
               if (positionId) {

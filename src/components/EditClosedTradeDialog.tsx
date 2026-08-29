@@ -43,6 +43,13 @@ export default function EditClosedTradeDialog({
     if (!/\d{4}-\d{2}-\d{2}/.test(form.openDate)) e.openDate = 'Use YYYY-MM-DD';
     if (!/\d{4}-\d{2}-\d{2}/.test(form.closeDate))
       e.closeDate = 'Use YYYY-MM-DD';
+    if (
+      !e.openDate &&
+      !e.closeDate &&
+      new Date(form.closeDate).getTime() < new Date(form.openDate).getTime()
+    ) {
+      e.closeDate = 'Close date cannot be before open date';
+    }
     (
       [
         'unitsClosed',

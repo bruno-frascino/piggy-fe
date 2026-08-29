@@ -836,6 +836,31 @@
           "coreModule": false,
           "couldNotResolve": false,
           "dependencyTypes": [
+            "local",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "./page",
+          "moduleSystem": "es6",
+          "resolved": "src/app/history/page.tsx",
+          "valid": true
+        }
+      ],
+      "dependents": [],
+      "orphan": false,
+      "source": "src/app/history/page.test.tsx",
+      "valid": true
+    },
+    {
+      "dependencies": [
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
             "undetermined",
             "import"
           ],
@@ -917,7 +942,9 @@
           "valid": true
         }
       ],
-      "dependents": [],
+      "dependents": [
+        "src/app/history/page.test.tsx"
+      ],
       "orphan": false,
       "source": "src/app/history/page.tsx",
       "valid": true
@@ -925,7 +952,8 @@
     {
       "dependencies": [],
       "dependents": [
-        "src/app/history/page.tsx"
+        "src/app/history/page.tsx",
+        "src/components/EditClosedTradeDialog.test.tsx"
       ],
       "orphan": false,
       "source": "src/components/EditClosedTradeDialog.tsx",
@@ -2655,6 +2683,31 @@
           "exoticallyRequired": false,
           "followable": true,
           "matchesDoNotFollow": false,
+          "module": "./EditClosedTradeDialog",
+          "moduleSystem": "es6",
+          "resolved": "src/components/EditClosedTradeDialog.tsx",
+          "valid": true
+        }
+      ],
+      "dependents": [],
+      "orphan": false,
+      "source": "src/components/EditClosedTradeDialog.test.tsx",
+      "valid": true
+    },
+    {
+      "dependencies": [
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "local",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
           "module": "./EmptyAccountsState",
           "moduleSystem": "es6",
           "resolved": "src/components/EmptyAccountsState.tsx",
@@ -3199,8 +3252,8 @@
         }
       ]
     },
-    "totalCruised": 92,
-    "totalDependenciesCruised": 130,
+    "totalCruised": 94,
+    "totalDependenciesCruised": 132,
     "violations": [],
     "warn": 0
   }

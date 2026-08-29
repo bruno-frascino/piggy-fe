@@ -75,7 +75,7 @@
 
 ## `EditClosedTradeDialog`
 
-- File: [src/components/EditClosedTradeDialog.tsx](../src/components/EditClosedTradeDialog.tsx) (416 lines)
+- File: [src/components/EditClosedTradeDialog.tsx](../src/components/EditClosedTradeDialog.tsx) (423 lines)
 - API hooks used: —
 - Other hooks used: useEffect, useMemo, useState
 - Props:
