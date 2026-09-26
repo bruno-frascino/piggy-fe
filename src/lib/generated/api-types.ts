@@ -307,7 +307,7 @@ export interface paths {
         put?: never;
         /**
          * Request a password reset link
-         * @description Always responds with 200 regardless of whether the email is registered (prevents user enumeration). In non-production environments the `resetToken` field is included directly in the response for testing.
+         * @description Emails a reset link to the address if it is registered. Always responds with 200 regardless of whether the email exists or whether delivery succeeded (prevents user enumeration). In non-production environments the `resetToken` field is also included in the response for testing.
          */
         post: {
             parameters: {
@@ -337,6 +337,15 @@ export interface paths {
                             resetToken?: string;
                             success?: boolean;
                         };
+                    };
+                };
+                /** @description Too many reset requests for this IP/email */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
                     };
                 };
             };

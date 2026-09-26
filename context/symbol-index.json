@@ -1188,7 +1188,7 @@
     "startLine": 14
   },
   {
-    "endLine": 2751,
+    "endLine": 2760,
     "file": "src/lib/generated/api-types.ts",
     "jsdoc": "GENERATED from contracts/openapi.json by scripts/context/generate-api-types.ts. REFERENCE ONLY — never import this file from app code (components/hooks/pages). src/lib/types.ts is the manually mirrored source of truth (see docs/adr/0007-manual-types-mirror.md). See context/contract-drift.md for a report of any drift between the two.",
     "kind": "InterfaceDeclaration",
@@ -1197,40 +1197,40 @@
     "startLine": 7
   },
   {
-    "endLine": 2752,
+    "endLine": 2761,
     "file": "src/lib/generated/api-types.ts",
     "jsdoc": "",
     "kind": "TypeAliasDeclaration",
     "name": "webhooks",
     "signature": "export type webhooks = Record<string, never>;",
-    "startLine": 2752
+    "startLine": 2761
   },
   {
-    "endLine": 2789,
+    "endLine": 2798,
     "file": "src/lib/generated/api-types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "components",
     "signature": "export interface components",
-    "startLine": 2753
+    "startLine": 2762
   },
   {
-    "endLine": 2790,
+    "endLine": 2799,
     "file": "src/lib/generated/api-types.ts",
     "jsdoc": "",
     "kind": "TypeAliasDeclaration",
     "name": "$defs",
     "signature": "export type $defs = Record<string, never>;",
-    "startLine": 2790
+    "startLine": 2799
   },
   {
-    "endLine": 2791,
+    "endLine": 2800,
     "file": "src/lib/generated/api-types.ts",
     "jsdoc": "",
     "kind": "TypeAliasDeclaration",
     "name": "operations",
     "signature": "export type operations = Record<string, never>;",
-    "startLine": 2791
+    "startLine": 2800
   },
   {
     "endLine": 10,
