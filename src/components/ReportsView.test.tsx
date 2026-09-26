@@ -27,6 +27,9 @@ const STABLE_REPORTS = [
     financialYearStartYear: 2025,
     financialYearLabel: 'FY2025-26',
     accountIds: ['acc-1'],
+    version: 1,
+    supersededAt: null,
+    isCurrent: true,
     generatedAt: '2026-07-24T00:00:00.000Z',
     totalProceedsAud: 1490,
     totalCostBaseAud: 1020,
@@ -96,6 +99,44 @@ describe('ReportsView', () => {
     expect(screen.getByText('FY2025-26')).toBeInTheDocument();
     expect(screen.getByText('My Portfolio')).toBeInTheDocument();
     expect(screen.getByText('$235.00')).toBeInTheDocument();
+  });
+
+  it('badges the revision number and superseded state, and toggles history', () => {
+    const REVISIONS = [
+      { ...STABLE_REPORTS[0], id: 'r2', version: 2 },
+      {
+        ...STABLE_REPORTS[0],
+        id: 'r1',
+        version: 1,
+        isCurrent: false,
+        supersededAt: '2026-08-01T00:00:00.000Z',
+      },
+    ];
+    useTaxReportsMock.mockReturnValue({ data: REVISIONS, isLoading: false });
+
+    render(<ReportsView />);
+
+    expect(screen.getByText('v2')).toBeInTheDocument();
+    expect(screen.getByText('Superseded')).toBeInTheDocument();
+
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Show earlier revisions' })
+    );
+
+    expect(useTaxReportsMock).toHaveBeenLastCalledWith(true);
+  });
+
+  it('does not offer revision history when every report is v1', () => {
+    useTaxReportsMock.mockReturnValue({
+      data: STABLE_REPORTS,
+      isLoading: false,
+    });
+
+    render(<ReportsView />);
+
+    expect(
+      screen.queryByRole('button', { name: 'Show earlier revisions' })
+    ).not.toBeInTheDocument();
   });
 
   it('opens the generate dialog from the header action button', () => {

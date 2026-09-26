@@ -52,5 +52,13 @@ export function createAuthApi(client: AxiosInstance) {
       });
       return response.data;
     },
+
+    async restoreAccount(email: string, password: string) {
+      if (USE_MOCK_API) {
+        return await MockAuthService.login(email, password);
+      }
+      const response = await client.post('/auth/restore', { email, password });
+      return response.data;
+    },
   };
 }

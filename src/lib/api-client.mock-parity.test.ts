@@ -74,6 +74,14 @@ describe('apiClient mock-mode parity', () => {
       name: 'resetPassword',
       call: () => apiClient.resetPassword('tok', 'password123'),
     },
+    {
+      name: 'restoreAccount',
+      call: () => apiClient.restoreAccount('a@b.com', 'pw'),
+    },
+    {
+      name: 'deleteCurrentUser',
+      call: () => apiClient.deleteCurrentUser('pw'),
+    },
     // accounts
     { name: 'getTradingAccounts', call: () => apiClient.getTradingAccounts() },
     { name: 'getAccounts', call: () => apiClient.getAccounts() },

@@ -8,8 +8,10 @@ applyTo: 'src/app/**,public/**,next.config.ts'
   `public/sw.js` (generated).
 - **Never cache authenticated `/api` responses** in the service worker's runtime caching — doing so
   risks serving one user's data to the next user on a shared/reused device.
-- Clear client-side caches (React Query cache + any local UI cache) on sign-out, so no stale
-  cross-user data survives a logout/login cycle on the same browser.
+- Clear client-side caches (React Query cache + any local UI cache) on sign-out **and on account
+  deletion**, so no stale cross-user data survives a logout/login cycle on the same browser. Both
+  paths must call `clearClientSession` in `src/lib/session.ts` rather than re-implementing the
+  teardown — it also deletes the service-worker caches that can hold authenticated responses.
 - Read-only views (portfolio dashboard, history) should show the last-successful cached data plus an
   explicit stale-data indicator when the app detects it's offline, rather than a blank/error state.
 - Do not queue or auto-retry mutations made while offline — mutations should fail visibly (via

@@ -22,13 +22,16 @@ function formatAud(n: number): string {
 }
 
 export default function ReportsView() {
-  const { data: reports = [], isLoading } = useTaxReports();
+  const [showSuperseded, setShowSuperseded] = useState(false);
+  const { data: reports = [], isLoading } = useTaxReports(showSuperseded);
   const { data: accounts = [] } = useTradingAccounts(true);
   const { mutateAsync: downloadTaxReportPdf } = useDownloadTaxReportPdf();
   const { show: showToast } = useToast();
   const [showGenerateDialog, setShowGenerateDialog] = useState(false);
   const [detailReportId, setDetailReportId] = useState<string | null>(null);
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
+
+  const hasRevisions = reports.some(r => r.version > 1);
 
   const accountName = (id: string) =>
     accounts.find(a => a.id === id)?.name ?? id;
@@ -40,7 +43,8 @@ export default function ReportsView() {
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `capital-gains-${report.financialYearLabel}.pdf`;
+      const suffix = report.version > 1 ? `-v${report.version}` : '';
+      a.download = `capital-gains-${report.financialYearLabel}${suffix}.pdf`;
       a.click();
       URL.revokeObjectURL(url);
     } catch {
@@ -100,16 +104,49 @@ export default function ReportsView() {
           </Card>
         )}
 
+        {(hasRevisions || showSuperseded) && (
+          <div className='flex justify-end'>
+            <Button
+              label={
+                showSuperseded
+                  ? 'Hide earlier revisions'
+                  : 'Show earlier revisions'
+              }
+              icon={showSuperseded ? 'pi pi-eye-slash' : 'pi pi-history'}
+              severity='secondary'
+              text
+              size='small'
+              onClick={() => setShowSuperseded(v => !v)}
+            />
+          </div>
+        )}
+
         <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
           {reports.map(report => (
             <Card key={report.id}>
               <div className='flex items-start justify-between gap-3 mb-2'>
                 <div>
                   <h3
-                    className='text-lg font-semibold'
+                    className='text-lg font-semibold flex items-center gap-2'
                     style={{ color: 'var(--tr-text)' }}
                   >
                     {report.financialYearLabel}
+                    {report.version > 1 && (
+                      <span
+                        className='text-xs px-2 py-0.5 rounded-full font-normal'
+                        style={{
+                          background: 'var(--tr-brand-bg)',
+                          color: 'var(--tr-brand)',
+                        }}
+                      >
+                        v{report.version}
+                      </span>
+                    )}
+                    {!report.isCurrent && (
+                      <span className='text-xs px-2 py-0.5 rounded-full font-normal bg-gray-100 text-gray-600'>
+                        Superseded
+                      </span>
+                    )}
                   </h3>
                   <div className='flex flex-wrap gap-1 mt-1'>
                     {report.accountIds.map(id => (

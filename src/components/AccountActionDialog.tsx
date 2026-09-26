@@ -30,7 +30,7 @@ export default function AccountActionDialog({
     ? `Delete ${accountName} permanently?`
     : `Close ${accountName}?`;
   const detail = isDelete
-    ? 'This permanently removes the account from the app. It only works when the account has no positions or snapshots.'
+    ? 'This permanently removes the account and its performance history from the app. It only works when the account has no positions and is not used by a generated tax report.'
     : 'This archives the account. You can reopen it later and your history will be preserved.';
 
   return (
@@ -75,7 +75,7 @@ export default function AccountActionDialog({
         <div className='space-y-2'>
           <p className='text-sm text-gray-600'>
             {isDelete
-              ? 'If the account still has activity, clear it first by closing positions or archiving the account.'
+              ? 'If the account still has positions or tax reports, close it instead — that keeps every record intact and can be undone.'
               : 'Use close when you want to keep the account around but stop using it for now.'}
           </p>
           {error && <p className='text-sm text-red-600'>{error}</p>}

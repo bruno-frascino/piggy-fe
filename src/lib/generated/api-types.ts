@@ -104,7 +104,7 @@ export interface paths {
         post?: never;
         /**
          * Delete a trading account
-         * @description Deletes an empty trading account owned by the authenticated user.
+         * @description Permanently deletes a trading account owned by the authenticated user, along with its derived performance history (portfolio snapshots). Refuses to delete an account that still has positions, or one that is referenced by a generated tax report — close the account instead to preserve that history.
          */
         delete: {
             parameters: {
@@ -138,7 +138,7 @@ export interface paths {
                     };
                     content?: never;
                 };
-                /** @description Account has related data and cannot be deleted */
+                /** @description Account has positions or is used by a tax report */
                 409: {
                     headers: {
                         [name: string]: unknown;
@@ -408,6 +408,15 @@ export interface paths {
                         "application/json": components["schemas"]["Error"];
                     };
                 };
+                /** @description Account is scheduled for deletion — restore it to sign in */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
             };
         };
         delete?: never;
@@ -626,6 +635,65 @@ export interface paths {
                     content: {
                         "application/json": components["schemas"]["Error"];
                     };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/auth/restore": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Cancel a pending account deletion and sign in
+         * @description Valid only while the account is inside its deletion grace period. Requires the account password, so a deletion cannot be undone by anyone who merely knows the email address.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        /** Format: email */
+                        email: string;
+                        password: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description Account restored — returns user object + accessToken + refreshToken */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Invalid credentials */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Account is not pending deletion */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
                 };
             };
         };
@@ -2020,7 +2088,10 @@ export interface paths {
         /** List generated capital gains tax reports for the authenticated user */
         get: {
             parameters: {
-                query?: never;
+                query?: {
+                    /** @description Include earlier revisions that have been superseded by a regeneration */
+                    includeSuperseded?: "true" | "false";
+                };
                 header?: never;
                 path?: never;
                 cookie?: never;
@@ -2062,7 +2133,7 @@ export interface paths {
         put?: never;
         /**
          * Generate (or regenerate) an ATO capital gains tax report
-         * @description Computes a capital gains summary for the given Australian financial year across an explicit set of Trading Accounts (a "declaration"), renders a PDF, and upserts the persisted TaxReport for that (financial year, account selection) combination.
+         * @description Computes a capital gains summary for the given Australian financial year across an explicit set of Trading Accounts (a "declaration"), renders a PDF, and stores it as a new revision for that (financial year, account selection) combination. Previous revisions are retained and stay downloadable so an already-lodged report is never overwritten. Regenerating with unchanged content returns the existing current revision instead of creating a new one.
          */
         post: {
             parameters: {
@@ -2211,7 +2282,10 @@ export interface paths {
         };
         put?: never;
         post?: never;
-        /** Delete a persisted tax report */
+        /**
+         * Delete a persisted tax report revision
+         * @description Deleting the current revision promotes the most recent remaining revision back to current, so the carried-forward loss chain stays intact.
+         */
         delete: {
             parameters: {
                 query?: never;
@@ -2354,7 +2428,53 @@ export interface paths {
         };
         put?: never;
         post?: never;
-        delete?: never;
+        /**
+         * Schedule the authenticated user's account for deletion
+         * @description Marks the account deleted and revokes every session immediately. The data is retained until the grace period expires, during which signing in returns 403 with `accountPendingDeletion` and the account can be restored via POST /api/auth/restore. After that a scheduled purge removes the user and all their positions, accounts, snapshots, tax reports and watchlists.
+         */
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        currentPassword: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description Account scheduled for deletion */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            data?: {
+                                /** Format: date-time */
+                                deletedAt?: string;
+                                /** Format: date-time */
+                                purgeAfter?: string;
+                            };
+                            success?: boolean;
+                        };
+                    };
+                };
+                /** @description Current password incorrect or not authenticated */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["Error"];
+                    };
+                };
+            };
+        };
         options?: never;
         head?: never;
         /** Update the authenticated user's profile or password */

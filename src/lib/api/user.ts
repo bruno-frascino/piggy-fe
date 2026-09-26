@@ -41,5 +41,25 @@ export function createUserApi(client: AxiosInstance) {
       const data = isRecord(response.data) ? response.data.data : response.data;
       return mapToUserProfile(data);
     },
+
+    async deleteCurrentUser(
+      currentPassword: string
+    ): Promise<{ deletedAt: string; purgeAfter: string }> {
+      if (USE_MOCK_API) {
+        const now = new Date();
+        return {
+          deletedAt: now.toISOString(),
+          purgeAfter: new Date(
+            now.getTime() + 30 * 24 * 60 * 60 * 1000
+          ).toISOString(),
+        };
+      }
+
+      const response = await client.delete('/users/me', {
+        data: { currentPassword },
+      });
+      const data = isRecord(response.data) ? response.data.data : response.data;
+      return data as { deletedAt: string; purgeAfter: string };
+    },
   };
 }

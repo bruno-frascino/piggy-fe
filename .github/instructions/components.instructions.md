@@ -38,7 +38,8 @@ applyTo: 'src/components/**'
 - Read-only views (portfolio, history) show cached last-successful data plus an explicit stale-data
   indicator when offline. Do not queue or auto-retry offline mutations.
 - Never cache authenticated `/api` responses in the service worker's runtime caching config. Clear
-  client/query caches on sign-out to avoid stale cross-user data.
+  client/query caches on sign-out and on account deletion (via `clearClientSession` in
+  `src/lib/session.ts`) to avoid stale cross-user data.
 
 ## Feedback / errors
 

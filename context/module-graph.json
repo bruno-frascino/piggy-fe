@@ -14,15 +14,59 @@
           "exoticallyRequired": false,
           "followable": true,
           "matchesDoNotFollow": false,
+          "module": "@/components/DeleteAccountDialog",
+          "moduleSystem": "es6",
+          "resolved": "src/components/DeleteAccountDialog.tsx",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
           "module": "@/hooks/api",
           "moduleSystem": "es6",
           "resolved": "src/hooks/api.ts",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/lib/session",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/session.ts",
           "valid": true
         }
       ],
       "dependents": [],
       "orphan": false,
       "source": "src/app/account/page.tsx",
+      "valid": true
+    },
+    {
+      "dependencies": [],
+      "dependents": [
+        "src/app/account/page.tsx",
+        "src/components/DeleteAccountDialog.test.tsx"
+      ],
+      "orphan": false,
+      "source": "src/components/DeleteAccountDialog.tsx",
       "valid": true
     },
     {
@@ -656,6 +700,65 @@
           "coreModule": false,
           "couldNotResolve": false,
           "dependencyTypes": [
+            "local",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "./offline-write-queue",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/offline-write-queue.ts",
+          "valid": true
+        }
+      ],
+      "dependents": [
+        "src/app/account/page.tsx",
+        "src/components/TopNav.tsx",
+        "src/lib/session.test.ts"
+      ],
+      "orphan": false,
+      "source": "src/lib/session.ts",
+      "valid": true
+    },
+    {
+      "dependencies": [
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/lib/api-client",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/api-client.ts",
+          "valid": true
+        }
+      ],
+      "dependents": [
+        "src/lib/session.ts",
+        "src/components/TopNav.tsx",
+        "src/components/HoldingsTable.tsx",
+        "src/lib/offline-write-queue.test.ts"
+      ],
+      "orphan": false,
+      "source": "src/lib/offline-write-queue.ts",
+      "valid": true
+    },
+    {
+      "dependencies": [
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
             "undetermined",
             "import"
           ],
@@ -1269,21 +1372,11 @@
           "exoticallyRequired": false,
           "followable": true,
           "matchesDoNotFollow": false,
-          "module": "@/lib/toast-context",
+          "module": "@/lib/session",
           "moduleSystem": "es6",
-          "resolved": "src/lib/toast-context.tsx",
+          "resolved": "src/lib/session.ts",
           "valid": true
-        }
-      ],
-      "dependents": [
-        "src/components/TopNavGate.tsx"
-      ],
-      "orphan": false,
-      "source": "src/components/TopNav.tsx",
-      "valid": true
-    },
-    {
-      "dependencies": [
+        },
         {
           "circular": false,
           "coreModule": false,
@@ -1296,19 +1389,17 @@
           "exoticallyRequired": false,
           "followable": true,
           "matchesDoNotFollow": false,
-          "module": "@/lib/api-client",
+          "module": "@/lib/toast-context",
           "moduleSystem": "es6",
-          "resolved": "src/lib/api-client.ts",
+          "resolved": "src/lib/toast-context.tsx",
           "valid": true
         }
       ],
       "dependents": [
-        "src/components/TopNav.tsx",
-        "src/components/HoldingsTable.tsx",
-        "src/lib/offline-write-queue.test.ts"
+        "src/components/TopNavGate.tsx"
       ],
       "orphan": false,
-      "source": "src/lib/offline-write-queue.ts",
+      "source": "src/components/TopNav.tsx",
       "valid": true
     },
     {
@@ -2674,6 +2765,31 @@
           "exoticallyRequired": false,
           "followable": true,
           "matchesDoNotFollow": false,
+          "module": "./DeleteAccountDialog",
+          "moduleSystem": "es6",
+          "resolved": "src/components/DeleteAccountDialog.tsx",
+          "valid": true
+        }
+      ],
+      "dependents": [],
+      "orphan": false,
+      "source": "src/components/DeleteAccountDialog.test.tsx",
+      "valid": true
+    },
+    {
+      "dependencies": [
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "local",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
           "module": "./EditClosedTradeDialog",
           "moduleSystem": "es6",
           "resolved": "src/components/EditClosedTradeDialog.tsx",
@@ -3168,6 +3284,31 @@
       "valid": true
     },
     {
+      "dependencies": [
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "local",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "./session",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/session.ts",
+          "valid": true
+        }
+      ],
+      "dependents": [],
+      "orphan": false,
+      "source": "src/lib/session.test.ts",
+      "valid": true
+    },
+    {
       "dependencies": [],
       "dependents": [],
       "orphan": true,
@@ -3252,8 +3393,8 @@
         }
       ]
     },
-    "totalCruised": 94,
-    "totalDependenciesCruised": 132,
+    "totalCruised": 98,
+    "totalDependenciesCruised": 138,
     "violations": [],
     "warn": 0
   }

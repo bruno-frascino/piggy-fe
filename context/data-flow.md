@@ -24,8 +24,9 @@
 | `['statistics-timeseries', params.metric, params.granularity ?? 'month', params.filters ?? {},]` | useStatisticsTimeSeries | — |
 | `['stock-search', query, limit]` | useStockSearch | — |
 | `['tax-reports', 'position-usage']` | useTaxReportPositionUsage | — |
+| `['tax-reports', { includeSuperseded }]` | useTaxReports | — |
 | `['tax-reports', id ?? 'none']` | useTaxReportDetail | — |
-| `['tax-reports']` | useTaxReports, useGenerateTaxReport, useDeleteTaxReport | useGenerateTaxReport, useDeleteTaxReport |
+| `['tax-reports']` | useGenerateTaxReport, useDeleteTaxReport | useGenerateTaxReport, useDeleteTaxReport |
 | `['trading-accounts', includeClosed ? 'all' : 'active']` | useTradingAccounts | — |
 | `['trading-accounts']` | useCreateAccount, useDeleteAccount, useCloseAccount, useReopenAccount, useUpdateAccount | useCreateAccount, useDeleteAccount, useCloseAccount, useReopenAccount, useUpdateAccount |
 | `['upcoming-dividends', key]` | useUpcomingDividends | — |

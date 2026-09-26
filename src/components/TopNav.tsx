@@ -7,11 +7,11 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
 import { useCurrentUser, useLogout } from '@/hooks/api';
 import {
-  clearQueuedWrites,
   getQueuedWritesCount,
   OFFLINE_WRITE_QUEUE_CHANGED_EVENT,
   syncQueuedWritesNow,
 } from '@/lib/offline-write-queue';
+import { clearClientSession } from '@/lib/session';
 import { useToast } from '@/lib/toast-context';
 
 export default function TopNav() {
@@ -69,28 +69,13 @@ export default function TopNav() {
   })();
 
   const handleSignOut = async () => {
-    const sensitiveCachePrefixes = ['apis', 'pages', 'pages-rsc', 'next-data'];
     const refreshToken = localStorage.getItem('refreshToken');
 
     if (refreshToken) {
       await logout(refreshToken).catch(() => undefined);
     }
 
-    clearQueuedWrites();
-    localStorage.removeItem('authToken');
-    localStorage.removeItem('refreshToken');
-    queryClient.clear();
-
-    if (typeof window !== 'undefined' && 'caches' in window) {
-      const cacheNames = await caches.keys();
-      await Promise.all(
-        cacheNames
-          .filter(cacheName =>
-            sensitiveCachePrefixes.some(prefix => cacheName.startsWith(prefix))
-          )
-          .map(cacheName => caches.delete(cacheName))
-      );
-    }
+    await clearClientSession(queryClient);
 
     router.replace('/auth/login');
   };

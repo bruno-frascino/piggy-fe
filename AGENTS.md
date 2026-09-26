@@ -37,7 +37,8 @@ lockfiles. Env var: `NEXT_PUBLIC_API_URL` (default `http://localhost:4000/api`).
    conventions before changing dashboard flow.
 7. PWA/offline: read-only views (portfolio, history) show cached last-successful data plus a
    stale-data indicator when offline; do not queue or auto-retry offline mutations. Never cache
-   authenticated `/api` responses in the service worker; clear client/query caches on sign-out.
+   authenticated `/api` responses in the service worker; clear client/query caches on sign-out **and
+   on account deletion** — both go through `clearClientSession` in `src/lib/session.ts`.
 8. Every feature/bugfix ships with tests in the same change set (`@testing-library/react` for
    components, mocked Axios + `QueryClientProvider` for hooks).
 9. Light-mode-only design system (`--tr-*` tokens in `globals.css`) — no dark mode, no rebrand, per
@@ -57,7 +58,11 @@ lockfiles. Env var: `NEXT_PUBLIC_API_URL` (default `http://localhost:4000/api`).
   enforced by an ESLint `no-restricted-imports` rule) and `context/contract-drift.md` (warning-only
   report vs. `src/lib/types.ts`).
 - **Why decisions were made**: `../docs/adr` is per-repo; see `docs/adr/` in this repo and
-  cross-references to `piggy-api/docs/adr/` for shared decisions.
+  cross-references to `piggy-api/docs/adr/` for shared decisions. Two backend decisions shape UI
+  here: tax reports are append-only revisions (`piggy-api/docs/adr/0010-...`, so the reports page
+  must surface version/superseded state) and user accounts are soft-deleted with a 30-day grace
+  period (`piggy-api/docs/adr/0011-...`, so login must handle the `accountPendingDeletion` 403 and
+  offer restore).
 - **Scoped conventions**: `.github/instructions/*.instructions.md` (applyTo globs for components,
   hooks/api modules, tests, PWA/offline).
 
@@ -75,6 +80,8 @@ src/
     api-client.ts     # thin facade re-exporting src/lib/api/* (http, mappers, auth,
                        # accounts, user, portfolio, positions, stocks, tax-reports)
     types.ts          # manually mirrored TypeScript interfaces
+    session.ts        # clearClientSession() — tears down tokens, query cache and SW
+                       # caches; shared by sign-out and account deletion
    format.ts          # formatCurrency / formatPct / returnClass (shared formatting)
 ```
 

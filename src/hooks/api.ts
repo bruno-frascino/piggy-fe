@@ -173,6 +173,20 @@ export const useLogout = () => {
   });
 };
 
+export const useDeleteCurrentUser = () => {
+  return useMutation({
+    mutationFn: (currentPassword: string) =>
+      apiClient.deleteCurrentUser(currentPassword),
+  });
+};
+
+export const useRestoreAccount = () => {
+  return useMutation({
+    mutationFn: ({ email, password }: { email: string; password: string }) =>
+      apiClient.restoreAccount(email, password),
+  });
+};
+
 export const useCurrentUser = () => {
   return useQuery({
     queryKey: ['current-user'],
@@ -365,10 +379,10 @@ export const useStockSearch = (query: string, limit = 10) => {
 };
 
 // Tax report hooks
-export const useTaxReports = () => {
+export const useTaxReports = (includeSuperseded = false) => {
   return useQuery({
-    queryKey: ['tax-reports'],
-    queryFn: () => apiClient.getTaxReports(),
+    queryKey: ['tax-reports', { includeSuperseded }],
+    queryFn: () => apiClient.getTaxReports(includeSuperseded),
   });
 };
 

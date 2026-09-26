@@ -29,7 +29,7 @@ describe('AccountActionDialog', () => {
     ).toBeInTheDocument();
     expect(
       screen.getByText(
-        'This permanently removes the account from the app. It only works when the account has no positions or snapshots.'
+        'This permanently removes the account and its performance history from the app. It only works when the account has no positions and is not used by a generated tax report.'
       )
     ).toBeInTheDocument();
 

@@ -117,6 +117,11 @@ export interface TaxReport {
   financialYearStartYear: number;
   financialYearLabel: string;
   accountIds: string[];
+  // Reports are append-only: regenerating supersedes the previous revision
+  // rather than overwriting it, so an already-lodged PDF stays downloadable.
+  version: number;
+  supersededAt: string | null;
+  isCurrent: boolean;
   generatedAt: string;
   totalProceedsAud: number;
   totalCostBaseAud: number;

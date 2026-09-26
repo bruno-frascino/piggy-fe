@@ -9,19 +9,39 @@ import { Password } from 'primereact/password';
 import { Button } from 'primereact/button';
 import { Message } from 'primereact/message';
 import { Divider } from 'primereact/divider';
-import { useLogin } from '@/hooks/api';
+import { useLogin, useRestoreAccount } from '@/hooks/api';
 import CoreHeader from '@/components/CoreHeader';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [pendingDeletionPurgeAfter, setPendingDeletionPurgeAfter] = useState<
+    string | null
+  >(null);
   const router = useRouter();
   const login = useLogin();
+  const restore = useRestoreAccount();
+
+  const handleRestore = async () => {
+    setError('');
+
+    try {
+      await restore.mutateAsync({ email, password });
+      router.push('/');
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { message?: string } } };
+      setError(
+        error.response?.data?.message ||
+          'Could not restore your account. Please try again.'
+      );
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setPendingDeletionPurgeAfter(null);
 
     if (!email.trim()) {
       setError('Email address is required');
@@ -42,7 +62,22 @@ export default function LoginPage() {
       await login.mutateAsync({ email, password });
       router.push('/');
     } catch (err: unknown) {
-      const error = err as { response?: { data?: { message?: string } } };
+      const error = err as {
+        response?: {
+          status?: number;
+          data?: {
+            message?: string;
+            code?: string;
+            purgeAfter?: string | null;
+          };
+        };
+      };
+
+      if (error.response?.data?.code === 'accountPendingDeletion') {
+        setPendingDeletionPurgeAfter(error.response.data.purgeAfter ?? '');
+        return;
+      }
+
       setError(
         error.response?.data?.message || 'Login failed. Please try again.'
       );
@@ -61,6 +96,31 @@ export default function LoginPage() {
             {/* Error Message */}
             {error && (
               <Message severity='error' text={error} className='w-full' />
+            )}
+
+            {pendingDeletionPurgeAfter !== null && (
+              <div className='rounded-xl border border-amber-200 bg-amber-50 p-4 space-y-3'>
+                <p className='text-sm font-semibold text-amber-950'>
+                  This account is scheduled for deletion
+                </p>
+                <p className='text-sm leading-6 text-amber-900'>
+                  {pendingDeletionPurgeAfter
+                    ? `All your data will be permanently erased on ${new Date(
+                        pendingDeletionPurgeAfter
+                      ).toLocaleDateString('en-AU')}.`
+                    : 'All your data will be permanently erased when the grace period ends.'}{' '}
+                  Restore it now to keep everything.
+                </p>
+                <Button
+                  type='button'
+                  label='Restore my account'
+                  icon='pi pi-refresh'
+                  severity='warning'
+                  size='small'
+                  loading={restore.isPending}
+                  onClick={handleRestore}
+                />
+              </div>
             )}
 
             {/* Email Field */}

@@ -1,13 +1,21 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { useQueryClient } from '@tanstack/react-query';
 import { Card } from 'primereact/card';
 import { InputText } from 'primereact/inputtext';
 import { Dropdown } from 'primereact/dropdown';
 import { Password } from 'primereact/password';
 import { Button } from 'primereact/button';
 import { Message } from 'primereact/message';
-import { useCurrentUser, useUpdateCurrentUser } from '@/hooks/api';
+import DeleteAccountDialog from '@/components/DeleteAccountDialog';
+import { clearClientSession } from '@/lib/session';
+import {
+  useCurrentUser,
+  useDeleteCurrentUser,
+  useUpdateCurrentUser,
+} from '@/hooks/api';
 
 const POPULAR_CURRENCY_OPTIONS = [
   { label: 'USD - US Dollar', value: 'USD' },
@@ -23,8 +31,14 @@ const POPULAR_CURRENCY_OPTIONS = [
 ];
 
 export default function AccountPage() {
+  const router = useRouter();
+  const queryClient = useQueryClient();
   const { data: user, isLoading } = useCurrentUser();
   const updateUser = useUpdateCurrentUser();
+  const deleteUser = useDeleteCurrentUser();
+
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [deleteError, setDeleteError] = useState('');
 
   const [name, setName] = useState('');
   const [baseCurrency, setBaseCurrency] = useState('AUD');
@@ -118,6 +132,27 @@ export default function AccountPage() {
       const error = err as { response?: { data?: { message?: string } } };
       setPasswordError(
         error.response?.data?.message || 'Unable to update password.'
+      );
+    }
+  };
+
+  const onDeleteAccount = async (password: string) => {
+    setDeleteError('');
+
+    try {
+      await deleteUser.mutateAsync(password);
+      await clearClientSession(queryClient);
+      router.replace('/auth/login?deleted=1');
+    } catch (err: unknown) {
+      const error = err as {
+        response?: { status?: number; data?: { message?: string } };
+      };
+      const status = error.response?.status ?? 0;
+      setDeleteError(
+        status >= 500
+          ? 'Could not delete your account. Please try again.'
+          : (error.response?.data?.message ??
+              'Could not delete your account. Please try again.')
       );
     }
   };
@@ -282,6 +317,38 @@ export default function AccountPage() {
           </form>
         </Card>
       </div>
+
+      {user && (
+        <Card>
+          <h3 className='text-lg font-semibold text-red-700 mb-1'>
+            Delete Account
+          </h3>
+          <p className='text-sm text-gray-600 mb-4'>
+            Permanently remove your Truffles account and everything in it. You
+            can restore it by signing in within 30 days.
+          </p>
+          <Button
+            type='button'
+            label='Delete account'
+            icon='pi pi-trash'
+            severity='danger'
+            outlined
+            onClick={() => {
+              setDeleteError('');
+              setShowDeleteDialog(true);
+            }}
+          />
+        </Card>
+      )}
+
+      <DeleteAccountDialog
+        visible={showDeleteDialog && !!user}
+        email={user?.email ?? ''}
+        loading={deleteUser.isPending}
+        error={deleteError}
+        onCancel={() => setShowDeleteDialog(false)}
+        onConfirm={onDeleteAccount}
+      />
     </main>
   );
 }

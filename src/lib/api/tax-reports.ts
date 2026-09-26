@@ -6,14 +6,18 @@ const USE_MOCK_API = process.env.NEXT_PUBLIC_USE_MOCK_API === 'true';
 
 export function createTaxReportsApi(client: AxiosInstance) {
   return {
-    async getTaxReports(): Promise<TaxReport[]> {
+    async getTaxReports(includeSuperseded = false): Promise<TaxReport[]> {
       if (USE_MOCK_API) {
         // Not implemented in mock mode — tax reports require real backend
         // computation against persisted positions/transactions.
         return [];
       }
 
-      const response = await client.get('/tax-reports');
+      const response = await client.get('/tax-reports', {
+        params: {
+          includeSuperseded: includeSuperseded ? 'true' : 'false',
+        },
+      });
       return unwrapArray<TaxReport>(response.data);
     },
 

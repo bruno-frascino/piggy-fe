@@ -168,6 +168,22 @@ describe('api-client', () => {
     expect(axiosClientMock.delete).toHaveBeenCalledWith('/accounts/a2');
   });
 
+  it('scopes tax report listing to current revisions unless asked otherwise', async () => {
+    const apiClient = await loadClient();
+
+    axiosClientMock.get.mockResolvedValue({ data: { data: [] } });
+
+    await apiClient.getTaxReports();
+    await apiClient.getTaxReports(true);
+
+    expect(axiosClientMock.get).toHaveBeenNthCalledWith(1, '/tax-reports', {
+      params: { includeSuperseded: 'false' },
+    });
+    expect(axiosClientMock.get).toHaveBeenNthCalledWith(2, '/tax-reports', {
+      params: { includeSuperseded: 'true' },
+    });
+  });
+
   it('normalizes user profile payloads', async () => {
     const apiClient = await loadClient();
 

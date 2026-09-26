@@ -73,6 +73,19 @@
 - API hooks used: useCloseAccount, useCreateAccount, useDeleteAccount, useReopenAccount, useTradingAccounts, useUpdateAccount
 - Other hooks used: useAccountSelection, useEffect, useExchangeDiscovery, useMemo, useState
 
+## `DeleteAccountDialog`
+
+- File: [src/components/DeleteAccountDialog.tsx](../src/components/DeleteAccountDialog.tsx) (150 lines)
+- API hooks used: —
+- Other hooks used: useState
+- Props:
+  - `visible: boolean`
+  - `email: string`
+  - `loading?: boolean`
+  - `error?: string`
+  - `onCancel: () => void`
+  - `onConfirm: (currentPassword: string) => void`
+
 ## `EditClosedTradeDialog`
 
 - File: [src/components/EditClosedTradeDialog.tsx](../src/components/EditClosedTradeDialog.tsx) (364 lines)
@@ -136,7 +149,7 @@
 
 ## `ReportsView`
 
-- File: [src/components/ReportsView.tsx](../src/components/ReportsView.tsx) (182 lines)
+- File: [src/components/ReportsView.tsx](../src/components/ReportsView.tsx) (219 lines)
 - API hooks used: useDownloadTaxReportPdf, useTaxReports, useTradingAccounts
 - Other hooks used: useState, useToast
 
@@ -173,7 +186,7 @@
 
 ## `TopNav`
 
-- File: [src/components/TopNav.tsx](../src/components/TopNav.tsx) (256 lines)
+- File: [src/components/TopNav.tsx](../src/components/TopNav.tsx) (241 lines)
 - API hooks used: useCurrentUser, useLogout
 - Other hooks used: useEffect, usePathname, useQueryClient, useRouter, useState, useToast
 
