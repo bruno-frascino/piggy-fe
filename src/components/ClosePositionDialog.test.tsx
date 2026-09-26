@@ -5,6 +5,15 @@ import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import ClosePositionDialog from './ClosePositionDialog';
 
+vi.mock('@/lib/privacy-context', () => ({
+  usePrivacy: () => ({
+    hidden: false,
+    toggle: vi.fn(),
+    hide: vi.fn(),
+    mask: (v: string) => v,
+  }),
+}));
+
 afterEach(() => {
   cleanup();
 });

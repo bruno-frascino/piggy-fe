@@ -24,6 +24,7 @@ import {
   type HistoryPeriodPreset,
 } from '@/lib/date';
 import { formatCurrency, formatPct, returnClass } from '@/lib/format';
+import { usePrivacy } from '@/lib/privacy-context';
 import { useToast } from '@/lib/toast-context';
 
 const PERIOD_PRESETS: { label: string; value: HistoryPeriodPreset }[] = [
@@ -66,6 +67,7 @@ function ExchangeTable({
   const totals = calcTotals(trades);
   const plPct = totals.open > 0 ? totals.pl / totals.open : 0;
   const groupCurrency = trades[0]?.baseCurrency ?? 'USD';
+  const { mask } = usePrivacy();
 
   return (
     <Card>
@@ -169,7 +171,7 @@ function ExchangeTable({
         />
         <Column
           header='Units Closed'
-          body={(r: ClosedTrade) => r.unitsClosed.toFixed(3)}
+          body={(r: ClosedTrade) => mask(r.unitsClosed.toFixed(3))}
           style={{ minWidth: '130px' }}
         />
         <Column
@@ -189,44 +191,48 @@ function ExchangeTable({
         <Column
           header='Buy Fee'
           body={(r: ClosedTrade) =>
-            formatCurrency(r.buyFee, r.baseCurrency ?? groupCurrency)
+            mask(formatCurrency(r.buyFee, r.baseCurrency ?? groupCurrency))
           }
           style={{ minWidth: '110px' }}
         />
         <Column
           header='Sell Fee'
           body={(r: ClosedTrade) =>
-            formatCurrency(r.sellFee, r.baseCurrency ?? groupCurrency)
+            mask(formatCurrency(r.sellFee, r.baseCurrency ?? groupCurrency))
           }
           style={{ minWidth: '110px' }}
         />
         <Column
           header='Open Position'
           body={(r: ClosedTrade) =>
-            formatCurrency(
-              r.unitsClosed * r.buyPrice + r.buyFee,
-              r.baseCurrency ?? groupCurrency
+            mask(
+              formatCurrency(
+                r.unitsClosed * r.buyPrice + r.buyFee,
+                r.baseCurrency ?? groupCurrency
+              )
             )
           }
           style={{ minWidth: '150px' }}
           footer={
             <span className='font-semibold text-gray-900'>
-              {formatCurrency(totals.open, groupCurrency)}
+              {mask(formatCurrency(totals.open, groupCurrency))}
             </span>
           }
         />
         <Column
           header='Close Position'
           body={(r: ClosedTrade) =>
-            formatCurrency(
-              r.unitsClosed * r.sellPrice - r.sellFee,
-              r.baseCurrency ?? groupCurrency
+            mask(
+              formatCurrency(
+                r.unitsClosed * r.sellPrice - r.sellFee,
+                r.baseCurrency ?? groupCurrency
+              )
             )
           }
           style={{ minWidth: '150px' }}
           footer={
             <span className='font-semibold text-gray-900'>
-              {formatCurrency(totals.close, groupCurrency)}
+              {mask(formatCurrency(totals.close, groupCurrency))}
             </span>
           }
         />
@@ -239,14 +245,14 @@ function ExchangeTable({
               (r.unitsClosed * r.buyPrice + r.buyFee);
             return (
               <span className={returnClass(pl)}>
-                {formatCurrency(pl, r.baseCurrency ?? groupCurrency)}
+                {mask(formatCurrency(pl, r.baseCurrency ?? groupCurrency))}
               </span>
             );
           }}
           style={{ minWidth: '130px' }}
           footer={
             <span className={returnClass(totals.pl)}>
-              {formatCurrency(totals.pl, groupCurrency)}
+              {mask(formatCurrency(totals.pl, groupCurrency))}
             </span>
           }
         />

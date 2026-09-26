@@ -4,9 +4,24 @@ import '@testing-library/jest-dom/vitest';
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { ClosedTrade } from '@/lib/types';
+import { MASKED_VALUE } from '@/lib/format';
 import EditClosedTradeDialog from './EditClosedTradeDialog';
 
-afterEach(cleanup);
+const privacyState = { hidden: false };
+
+vi.mock('@/lib/privacy-context', () => ({
+  usePrivacy: () => ({
+    hidden: privacyState.hidden,
+    toggle: vi.fn(),
+    hide: vi.fn(),
+    mask: (v: string) => (privacyState.hidden ? MASKED_VALUE : v),
+  }),
+}));
+
+afterEach(() => {
+  cleanup();
+  privacyState.hidden = false;
+});
 
 const trade: ClosedTrade = {
   id: 'close-1',
@@ -92,5 +107,23 @@ describe('EditClosedTradeDialog', () => {
     expect(
       screen.getByText(/FY2025-26 tax report was generated/)
     ).toBeInTheDocument();
+  });
+});
+
+describe('EditClosedTradeDialog privacy mode', () => {
+  it('masks the summary strip and units/fee fields when values are hidden', () => {
+    privacyState.hidden = true;
+
+    render(
+      <EditClosedTradeDialog
+        trade={trade}
+        onHide={vi.fn()}
+        onSave={vi.fn()}
+        onDeletePosition={vi.fn()}
+      />
+    );
+
+    expect(screen.getAllByText(MASKED_VALUE).length).toBeGreaterThan(0);
+    expect(screen.queryByText('5.000')).not.toBeInTheDocument();
   });
 });

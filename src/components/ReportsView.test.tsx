@@ -3,6 +3,7 @@
 import '@testing-library/jest-dom/vitest';
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { MASKED_VALUE } from '@/lib/format';
 
 const {
   useTaxReportsMock,
@@ -11,6 +12,7 @@ const {
   useGenerateTaxReportMock,
   useDownloadTaxReportPdfMock,
   downloadTaxReportPdfMock,
+  privacyState,
 } = vi.hoisted(() => ({
   useTaxReportsMock: vi.fn(),
   useTradingAccountsMock: vi.fn(),
@@ -18,6 +20,7 @@ const {
   useGenerateTaxReportMock: vi.fn(),
   useDownloadTaxReportPdfMock: vi.fn(),
   downloadTaxReportPdfMock: vi.fn(),
+  privacyState: { hidden: false },
 }));
 
 const STABLE_ACCOUNTS = [{ id: 'acc-1', name: 'My Portfolio' }];
@@ -55,10 +58,20 @@ vi.mock('@/lib/toast-context', () => ({
   useToast: () => ({ show: vi.fn() }),
 }));
 
+vi.mock('@/lib/privacy-context', () => ({
+  usePrivacy: () => ({
+    hidden: privacyState.hidden,
+    toggle: vi.fn(),
+    hide: vi.fn(),
+    mask: (v: string) => (privacyState.hidden ? MASKED_VALUE : v),
+  }),
+}));
+
 import ReportsView from './ReportsView';
 
 afterEach(() => {
   cleanup();
+  privacyState.hidden = false;
 });
 
 beforeEach(() => {
@@ -169,5 +182,20 @@ describe('ReportsView', () => {
 
     await screen.findByRole('button', { name: 'Download PDF' });
     expect(downloadTaxReportPdfMock).toHaveBeenCalledWith('r1');
+  });
+});
+
+describe('ReportsView privacy mode', () => {
+  it('masks the net capital gain amount when values are hidden', () => {
+    privacyState.hidden = true;
+    useTaxReportsMock.mockReturnValue({
+      data: STABLE_REPORTS,
+      isLoading: false,
+    });
+
+    render(<ReportsView />);
+
+    expect(screen.queryByText('$235.00')).not.toBeInTheDocument();
+    expect(screen.getAllByText(MASKED_VALUE).length).toBeGreaterThan(0);
   });
 });

@@ -8,6 +8,7 @@ import { InputTextarea } from 'primereact/inputtextarea';
 import { Button } from 'primereact/button';
 import { Message } from 'primereact/message';
 import { ConfirmDialog, confirmDialog } from 'primereact/confirmdialog';
+import { usePrivacy } from '@/lib/privacy-context';
 import type { ClosedTrade, TaxReportUsage } from '@/lib/types';
 
 interface Props {
@@ -47,6 +48,7 @@ export default function EditClosedTradeDialog({
 }: Props) {
   const [form, setForm] = useState<ClosedTrade>(trade);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const { mask } = usePrivacy();
 
   useEffect(() => {
     setForm(trade);
@@ -180,18 +182,22 @@ export default function EditClosedTradeDialog({
         <div className='grid grid-cols-2 md:grid-cols-4 gap-3 text-center bg-blue-50 rounded-md p-3 text-sm'>
           <div>
             <p className='text-gray-600'>Open Position</p>
-            <p className='font-semibold'>{formatCurrency(openPosition)}</p>
+            <p className='font-semibold'>
+              {mask(formatCurrency(openPosition))}
+            </p>
           </div>
           <div>
             <p className='text-gray-600'>Close Position</p>
-            <p className='font-semibold'>{formatCurrency(closePosition)}</p>
+            <p className='font-semibold'>
+              {mask(formatCurrency(closePosition))}
+            </p>
           </div>
           <div>
             <p className='text-gray-600'>P/L</p>
             <p
               className={`font-semibold ${pl >= 0 ? 'text-green-600' : 'text-red-600'}`}
             >
-              {formatCurrency(pl)}
+              {mask(formatCurrency(pl))}
             </p>
           </div>
           <div>
@@ -248,7 +254,7 @@ export default function EditClosedTradeDialog({
           <div className='col-span-12 md:col-span-4'>
             <ReadOnlyField
               label='Units Closed'
-              value={form.unitsClosed.toFixed(3)}
+              value={mask(form.unitsClosed.toFixed(3))}
             />
           </div>
         </div>
@@ -263,7 +269,7 @@ export default function EditClosedTradeDialog({
           <div className='col-span-12 md:col-span-3'>
             <ReadOnlyField
               label='Buy Fee'
-              value={formatCurrency(form.buyFee)}
+              value={mask(formatCurrency(form.buyFee))}
             />
           </div>
           <div className='col-span-12 md:col-span-3'>

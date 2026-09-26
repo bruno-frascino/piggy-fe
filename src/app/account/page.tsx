@@ -11,6 +11,7 @@ import { Button } from 'primereact/button';
 import { Message } from 'primereact/message';
 import DeleteAccountDialog from '@/components/DeleteAccountDialog';
 import { clearClientSession } from '@/lib/session';
+import { usePrivacy } from '@/lib/privacy-context';
 import {
   useCurrentUser,
   useDeleteCurrentUser,
@@ -33,6 +34,7 @@ const POPULAR_CURRENCY_OPTIONS = [
 export default function AccountPage() {
   const router = useRouter();
   const queryClient = useQueryClient();
+  const { hide: hidePrivacy } = usePrivacy();
   const { data: user, isLoading } = useCurrentUser();
   const updateUser = useUpdateCurrentUser();
   const deleteUser = useDeleteCurrentUser();
@@ -141,6 +143,7 @@ export default function AccountPage() {
 
     try {
       await deleteUser.mutateAsync(password);
+      hidePrivacy();
       await clearClientSession(queryClient);
       router.replace('/auth/login?deleted=1');
     } catch (err: unknown) {

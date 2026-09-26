@@ -13,6 +13,7 @@ import {
 } from '@/lib/offline-write-queue';
 import { clearClientSession } from '@/lib/session';
 import { useToast } from '@/lib/toast-context';
+import { usePrivacy } from '@/lib/privacy-context';
 
 export default function TopNav() {
   const pathname = usePathname();
@@ -21,6 +22,7 @@ export default function TopNav() {
   const { show: showToast } = useToast();
   const { data: currentUser } = useCurrentUser();
   const { mutateAsync: logout } = useLogout();
+  const { hidden, toggle: togglePrivacy, hide: hidePrivacy } = usePrivacy();
   const [queuedWritesCount, setQueuedWritesCount] = useState(0);
   const [syncingNow, setSyncingNow] = useState(false);
   const isActive = (href: string) => pathname === href;
@@ -75,6 +77,7 @@ export default function TopNav() {
       await logout(refreshToken).catch(() => undefined);
     }
 
+    hidePrivacy();
     await clearClientSession(queryClient);
 
     router.replace('/auth/login');
@@ -216,6 +219,18 @@ export default function TopNav() {
 
         {/* Right: User + Sign out */}
         <div className='flex items-center gap-2 sm:gap-3 shrink-0'>
+          <button
+            onClick={togglePrivacy}
+            aria-pressed={hidden}
+            className='flex items-center justify-center h-9 w-9 rounded-lg transition-colors nav-link'
+            title={hidden ? 'Show values' : 'Hide values'}
+            aria-label={hidden ? 'Show values' : 'Hide values'}
+          >
+            <i
+              className={`pi ${hidden ? 'pi-eye-slash' : 'pi-eye'} text-base`}
+              aria-hidden
+            />
+          </button>
           <Link
             href='/account'
             className='h-9 w-9 rounded-full user-badge flex items-center justify-center text-xs font-semibold'

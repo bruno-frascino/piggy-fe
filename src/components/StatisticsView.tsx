@@ -40,6 +40,7 @@ import { useExchangeDiscovery } from '@/hooks/useExchangeDiscovery';
 import PageHeader from '@/components/PageHeader';
 import { formatDateDDMMYYYY, toLocalDateString } from '@/lib/date';
 import { formatCurrency, formatPct, returnClass } from '@/lib/format';
+import { usePrivacy } from '@/lib/privacy-context';
 
 type DateValue = Date | null;
 type DatePreset = '90D' | 'YTD' | '12M' | 'CUSTOM';
@@ -131,6 +132,8 @@ function sortDirectionForHeader(
 }
 
 function BreakdownList({ rows }: { rows: StatisticsBreakdownRow[] }) {
+  const { mask } = usePrivacy();
+
   if (rows.length === 0) {
     return (
       <p className='text-sm' style={{ color: 'var(--tr-text-2)' }}>
@@ -148,7 +151,7 @@ function BreakdownList({ rows }: { rows: StatisticsBreakdownRow[] }) {
             <div className='flex items-center justify-between text-sm mb-1'>
               <span style={{ color: 'var(--tr-text)' }}>{row.label}</span>
               <span className={returnClass(row.value)}>
-                {formatCurrency(row.value)}
+                {mask(formatCurrency(row.value))}
               </span>
             </div>
             <div
@@ -198,6 +201,7 @@ export default function StatisticsView() {
   const { selectedAccountId, selectedAccount } = useAccountSelection(accounts);
   const { selected: selectedExchangeCode } =
     useExchangeDiscovery(selectedAccountId);
+  const { hidden: valuesHidden, mask } = usePrivacy();
 
   const filters = useMemo(
     () => ({
@@ -472,6 +476,17 @@ export default function StatisticsView() {
       maintainAspectRatio: false,
       plugins: {
         legend: { display: compareEnabled },
+        tooltip: {
+          callbacks: {
+            label: (ctx: {
+              dataset: { label?: string };
+              parsed: { y: number | null };
+            }) =>
+              valuesHidden || ctx.parsed.y == null
+                ? `${ctx.dataset.label ?? ''}: ${mask('')}`
+                : `${ctx.dataset.label ?? ''}: ${formatCurrency(ctx.parsed.y)}`,
+          },
+        },
       },
       scales: {
         x: {
@@ -480,10 +495,14 @@ export default function StatisticsView() {
         },
         y: {
           grid: { color: 'rgba(148, 163, 184, 0.18)' },
+          ticks: {
+            callback: (value: number | string) =>
+              valuesHidden ? mask('') : formatCurrency(Number(value)),
+          },
         },
       },
     }),
-    [compareEnabled]
+    [compareEnabled, valuesHidden, mask]
   );
 
   const distributionChartData = useMemo(() => {
@@ -494,8 +513,10 @@ export default function StatisticsView() {
           ? (distributions?.returnPctHistogram ?? [])
           : (distributions?.holdingDaysHistogram ?? []);
 
-    const labels = source.map(
-      bucket => `${bucket.min.toFixed(1)} to ${bucket.max.toFixed(1)}`
+    const labels = source.map(bucket =>
+      distributionMetric === 'pnl'
+        ? mask(`${bucket.min.toFixed(1)} to ${bucket.max.toFixed(1)}`)
+        : `${bucket.min.toFixed(1)} to ${bucket.max.toFixed(1)}`
     );
 
     return {
@@ -515,7 +536,7 @@ export default function StatisticsView() {
         },
       ],
     };
-  }, [distributions, distributionMetric]);
+  }, [distributions, distributionMetric, mask]);
 
   const distributionChartOptions = useMemo(
     () => ({
@@ -684,13 +705,15 @@ export default function StatisticsView() {
             >
               {summaryLoading
                 ? 'Loading...'
-                : formatCurrency(summary?.totalPnL ?? 0)}
+                : mask(formatCurrency(summary?.totalPnL ?? 0))}
             </p>
             {compareEnabled && previousSummary && (
               <p className='text-xs mt-1' style={{ color: 'var(--tr-text-2)' }}>
-                vs previous: {formatCurrency(previousSummary.totalPnL)} (
-                {formatDeltaNumber(
-                  (summary?.totalPnL ?? 0) - previousSummary.totalPnL
+                vs previous: {mask(formatCurrency(previousSummary.totalPnL))} (
+                {mask(
+                  formatDeltaNumber(
+                    (summary?.totalPnL ?? 0) - previousSummary.totalPnL
+                  )
                 )}
                 )
               </p>
@@ -924,7 +947,7 @@ export default function StatisticsView() {
                 }
                 body={row => (
                   <span className={returnClass(row.pnl)}>
-                    {formatCurrency(row.pnl, row.currency)}
+                    {mask(formatCurrency(row.pnl, row.currency))}
                   </span>
                 )}
               />
@@ -1020,7 +1043,7 @@ export default function StatisticsView() {
                   <p className='text-xs' style={{ color: 'var(--tr-text-2)' }}>
                     Units Closed
                   </p>
-                  <p>{selectedTrade.unitsClosed.toFixed(3)}</p>
+                  <p>{mask(selectedTrade.unitsClosed.toFixed(3))}</p>
                 </div>
                 <div>
                   <p className='text-xs' style={{ color: 'var(--tr-text-2)' }}>
@@ -1038,7 +1061,9 @@ export default function StatisticsView() {
                   <p
                     className={`font-semibold ${returnClass(selectedTrade.pnl)}`}
                   >
-                    {formatCurrency(selectedTrade.pnl, selectedTrade.currency)}
+                    {mask(
+                      formatCurrency(selectedTrade.pnl, selectedTrade.currency)
+                    )}
                   </p>
                 </div>
                 <div>

@@ -12,6 +12,7 @@ import PageHeader from '@/components/PageHeader';
 import GenerateReportDialog from '@/components/GenerateReportDialog';
 import ReportDetailDialog from '@/components/ReportDetailDialog';
 import { useToast } from '@/lib/toast-context';
+import { usePrivacy } from '@/lib/privacy-context';
 import type { TaxReport } from '@/lib/types';
 
 function formatAud(n: number): string {
@@ -27,6 +28,7 @@ export default function ReportsView() {
   const { data: accounts = [] } = useTradingAccounts(true);
   const { mutateAsync: downloadTaxReportPdf } = useDownloadTaxReportPdf();
   const { show: showToast } = useToast();
+  const { mask } = usePrivacy();
   const [showGenerateDialog, setShowGenerateDialog] = useState(false);
   const [detailReportId, setDetailReportId] = useState<string | null>(null);
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
@@ -170,7 +172,7 @@ export default function ReportsView() {
                       : 'text-red-600'
                   }`}
                 >
-                  {formatAud(report.netCapitalGainAud)}
+                  {mask(formatAud(report.netCapitalGainAud))}
                 </span>
               </div>
 
@@ -178,9 +180,9 @@ export default function ReportsView() {
                 Generated{' '}
                 {new Date(report.generatedAt).toLocaleDateString('en-AU')}
                 {report.discountAppliedAud > 0 &&
-                  ` · ${formatAud(report.discountAppliedAud)} discount applied`}
+                  ` · ${mask(formatAud(report.discountAppliedAud))} discount applied`}
                 {report.carriedForwardLossClosingAud > 0 &&
-                  ` · ${formatAud(report.carriedForwardLossClosingAud)} loss carried forward`}
+                  ` · ${mask(formatAud(report.carriedForwardLossClosingAud))} loss carried forward`}
               </p>
 
               <div className='flex gap-2'>

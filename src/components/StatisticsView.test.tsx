@@ -10,7 +10,7 @@ import {
   within,
 } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { formatCurrency } from '@/lib/format';
+import { formatCurrency, MASKED_VALUE } from '@/lib/format';
 
 const {
   useTradingAccountsMock,
@@ -22,6 +22,7 @@ const {
   useStatisticsClosedTradesMock,
   useAccountSelectionMock,
   useExchangeDiscoveryMock,
+  privacyState,
 } = vi.hoisted(() => ({
   useTradingAccountsMock: vi.fn(),
   useStatisticsSummaryMock: vi.fn(),
@@ -32,6 +33,7 @@ const {
   useStatisticsClosedTradesMock: vi.fn(),
   useAccountSelectionMock: vi.fn(),
   useExchangeDiscoveryMock: vi.fn(),
+  privacyState: { hidden: false },
 }));
 
 vi.mock('react-chartjs-2', () => ({
@@ -57,10 +59,20 @@ vi.mock('@/hooks/useExchangeDiscovery', () => ({
   useExchangeDiscovery: useExchangeDiscoveryMock,
 }));
 
+vi.mock('@/lib/privacy-context', () => ({
+  usePrivacy: () => ({
+    hidden: privacyState.hidden,
+    toggle: vi.fn(),
+    hide: vi.fn(),
+    mask: (v: string) => (privacyState.hidden ? MASKED_VALUE : v),
+  }),
+}));
+
 import StatisticsView from './StatisticsView';
 
 afterEach(() => {
   cleanup();
+  privacyState.hidden = false;
 });
 
 beforeEach(() => {
@@ -351,5 +363,19 @@ describe('StatisticsView', () => {
       expect(screen.getByText('Trade Details · TSLA')).toBeInTheDocument();
       expect(screen.getByText('p-2')).toBeInTheDocument();
     });
+  });
+});
+
+describe('StatisticsView privacy mode', () => {
+  it('masks Total P/L and closed-trade P/L but keeps Return % visible', () => {
+    privacyState.hidden = true;
+
+    render(<StatisticsView />);
+
+    expect(
+      screen.queryByText(formatCurrency(20, 'AUD'))
+    ).not.toBeInTheDocument();
+    expect(screen.getAllByText(MASKED_VALUE).length).toBeGreaterThan(0);
+    expect(screen.getByText('+10.00%')).toBeInTheDocument();
   });
 });

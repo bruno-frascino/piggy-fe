@@ -284,9 +284,9 @@
       "types": [
         {
           "col": 18,
-          "line": 59,
+          "line": 60,
           "name": "ExchangeDefinition",
-          "pos": 1659
+          "pos": 1711
         }
       ],
       "unlisted": [],

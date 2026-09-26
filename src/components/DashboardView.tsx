@@ -37,6 +37,7 @@ import {
   toLocalDateString,
   type ChartTimeframe,
 } from '@/lib/date';
+import { usePrivacy } from '@/lib/privacy-context';
 
 ChartJS.register(
   CategoryScale,
@@ -114,6 +115,7 @@ export default function DashboardView() {
   } = useExchangeDiscovery(selectedAccountId);
 
   const numberFormatter = useMemo(() => new Intl.NumberFormat('en-US'), []);
+  const { hidden: valuesHidden, mask } = usePrivacy();
 
   const [liveTotals, setLiveTotals] = useState<{
     totalEquity: number;
@@ -316,13 +318,31 @@ export default function DashboardView() {
       responsive: true,
       maintainAspectRatio: false,
       interaction: { mode: 'index' as const, intersect: false },
-      plugins: { legend: { display: false } },
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: (ctx: { parsed: { y: number | null } }) =>
+              valuesHidden || ctx.parsed.y == null
+                ? mask('')
+                : `$${numberFormatter.format(ctx.parsed.y)}`,
+          },
+        },
+      },
       scales: {
         x: { grid: { display: false }, ticks: { maxTicksLimit: 6 } },
-        y: { grid: { color: 'rgba(0,0,0,0.06)' } },
+        y: {
+          grid: { color: 'rgba(0,0,0,0.06)' },
+          ticks: {
+            callback: (value: number | string) =>
+              valuesHidden
+                ? mask('')
+                : `$${numberFormatter.format(Number(value))}`,
+          },
+        },
       },
     }),
-    []
+    [valuesHidden, mask, numberFormatter]
   );
 
   if (isAccountsLoading) {
@@ -571,7 +591,7 @@ export default function DashboardView() {
                       className='text-2xl font-bold'
                       style={{ color: 'var(--tr-text)' }}
                     >
-                      ${numberFormatter.format(stats.totalEquity)}
+                      {mask(`$${numberFormatter.format(stats.totalEquity)}`)}
                     </p>
                   </Card>
                   <Card className='text-center'>
@@ -590,8 +610,9 @@ export default function DashboardView() {
                             : 'var(--tr-danger)',
                       }}
                     >
-                      {stats.totalPL >= 0 ? '+' : ''}$
-                      {numberFormatter.format(Math.abs(stats.totalPL))}
+                      {mask(
+                        `${stats.totalPL >= 0 ? '+' : ''}$${numberFormatter.format(Math.abs(stats.totalPL))}`
+                      )}
                     </p>
                   </Card>
                   <Card className='text-center'>
@@ -610,8 +631,9 @@ export default function DashboardView() {
                             : 'var(--tr-danger)',
                       }}
                     >
-                      {stats.dayPL >= 0 ? '+' : ''}$
-                      {numberFormatter.format(Math.abs(stats.dayPL))}
+                      {mask(
+                        `${stats.dayPL >= 0 ? '+' : ''}$${numberFormatter.format(Math.abs(stats.dayPL))}`
+                      )}
                     </p>
                   </Card>
                 </div>

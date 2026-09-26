@@ -48,6 +48,23 @@
           "exoticallyRequired": false,
           "followable": true,
           "matchesDoNotFollow": false,
+          "module": "@/lib/privacy-context",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/privacy-context.tsx",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
           "module": "@/lib/session",
           "moduleSystem": "es6",
           "resolved": "src/lib/session.ts",
@@ -700,6 +717,65 @@
           "coreModule": false,
           "couldNotResolve": false,
           "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/lib/format",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/format.ts",
+          "valid": true
+        }
+      ],
+      "dependents": [
+        "src/app/account/page.tsx",
+        "src/app/history/page.tsx",
+        "src/components/EditClosedTradeDialog.tsx",
+        "src/app/providers.tsx",
+        "src/components/TopNav.tsx",
+        "src/components/DashboardView.tsx",
+        "src/components/HoldingsTable.tsx",
+        "src/components/ClosePositionDialog.tsx",
+        "src/components/ReportsView.tsx",
+        "src/components/ReportDetailDialog.tsx",
+        "src/components/StatisticsView.tsx",
+        "src/components/TopNav.test.tsx",
+        "src/lib/privacy-context.test.tsx"
+      ],
+      "orphan": false,
+      "source": "src/lib/privacy-context.tsx",
+      "valid": true
+    },
+    {
+      "dependencies": [],
+      "dependents": [
+        "src/lib/privacy-context.tsx",
+        "src/app/history/page.test.tsx",
+        "src/app/history/page.tsx",
+        "src/components/HoldingsTable.tsx",
+        "src/components/StatisticsView.tsx",
+        "src/components/DashboardView.test.tsx",
+        "src/components/EditClosedTradeDialog.test.tsx",
+        "src/components/HoldingsTable.test.tsx",
+        "src/components/ReportsView.test.tsx",
+        "src/components/StatisticsView.test.tsx",
+        "src/lib/format.test.ts",
+        "src/lib/privacy-context.test.tsx"
+      ],
+      "orphan": false,
+      "source": "src/lib/format.ts",
+      "valid": true
+    },
+    {
+      "dependencies": [
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
             "local",
             "import"
           ],
@@ -950,6 +1026,23 @@
           "moduleSystem": "es6",
           "resolved": "src/app/history/page.tsx",
           "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/lib/format",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/format.ts",
+          "valid": true
         }
       ],
       "dependents": [],
@@ -1056,6 +1149,23 @@
           "exoticallyRequired": false,
           "followable": true,
           "matchesDoNotFollow": false,
+          "module": "@/lib/privacy-context",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/privacy-context.tsx",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
           "module": "@/lib/toast-context",
           "moduleSystem": "es6",
           "resolved": "src/lib/toast-context.tsx",
@@ -1070,7 +1180,25 @@
       "valid": true
     },
     {
-      "dependencies": [],
+      "dependencies": [
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/lib/privacy-context",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/privacy-context.tsx",
+          "valid": true
+        }
+      ],
       "dependents": [
         "src/app/history/page.tsx",
         "src/components/EditClosedTradeDialog.test.tsx"
@@ -1102,19 +1230,6 @@
       ],
       "orphan": false,
       "source": "src/lib/date.ts",
-      "valid": true
-    },
-    {
-      "dependencies": [],
-      "dependents": [
-        "src/app/history/page.tsx",
-        "src/components/HoldingsTable.tsx",
-        "src/components/StatisticsView.tsx",
-        "src/components/StatisticsView.test.tsx",
-        "src/lib/format.test.ts"
-      ],
-      "orphan": false,
-      "source": "src/lib/format.ts",
       "valid": true
     },
     {
@@ -1258,6 +1373,23 @@
           "exoticallyRequired": false,
           "followable": true,
           "matchesDoNotFollow": false,
+          "module": "@/lib/privacy-context",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/privacy-context.tsx",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
           "module": "@/lib/toast-context",
           "moduleSystem": "es6",
           "resolved": "src/lib/toast-context.tsx",
@@ -1372,6 +1504,23 @@
           "exoticallyRequired": false,
           "followable": true,
           "matchesDoNotFollow": false,
+          "module": "@/lib/privacy-context",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/privacy-context.tsx",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
           "module": "@/lib/session",
           "moduleSystem": "es6",
           "resolved": "src/lib/session.ts",
@@ -1396,7 +1545,8 @@
         }
       ],
       "dependents": [
-        "src/components/TopNavGate.tsx"
+        "src/components/TopNavGate.tsx",
+        "src/components/TopNav.test.tsx"
       ],
       "orphan": false,
       "source": "src/components/TopNav.tsx",
@@ -1598,6 +1748,23 @@
           "moduleSystem": "es6",
           "resolved": "src/lib/date.ts",
           "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/lib/privacy-context",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/privacy-context.tsx",
+          "valid": true
         }
       ],
       "dependents": [
@@ -1754,6 +1921,23 @@
           "exoticallyRequired": false,
           "followable": true,
           "matchesDoNotFollow": false,
+          "module": "@/lib/privacy-context",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/privacy-context.tsx",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
           "module": "@/lib/toast-context",
           "moduleSystem": "es6",
           "resolved": "src/lib/toast-context.tsx",
@@ -1885,6 +2069,23 @@
           "module": "@/lib/date",
           "moduleSystem": "es6",
           "resolved": "src/lib/date.ts",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/lib/privacy-context",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/privacy-context.tsx",
           "valid": true
         }
       ],
@@ -2068,6 +2269,23 @@
           "exoticallyRequired": false,
           "followable": true,
           "matchesDoNotFollow": false,
+          "module": "@/lib/privacy-context",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/privacy-context.tsx",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
           "module": "@/lib/toast-context",
           "moduleSystem": "es6",
           "resolved": "src/lib/toast-context.tsx",
@@ -2144,6 +2362,23 @@
           "module": "@/hooks/api",
           "moduleSystem": "es6",
           "resolved": "src/hooks/api.ts",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/lib/privacy-context",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/privacy-context.tsx",
           "valid": true
         }
       ],
@@ -2591,6 +2826,23 @@
           "moduleSystem": "es6",
           "resolved": "src/lib/format.ts",
           "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/lib/privacy-context",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/privacy-context.tsx",
+          "valid": true
         }
       ],
       "dependents": [
@@ -2744,6 +2996,23 @@
           "moduleSystem": "es6",
           "resolved": "src/components/DashboardView.tsx",
           "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/lib/format",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/format.ts",
+          "valid": true
         }
       ],
       "dependents": [],
@@ -2793,6 +3062,23 @@
           "module": "./EditClosedTradeDialog",
           "moduleSystem": "es6",
           "resolved": "src/components/EditClosedTradeDialog.tsx",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/lib/format",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/format.ts",
           "valid": true
         }
       ],
@@ -2869,6 +3155,23 @@
           "moduleSystem": "es6",
           "resolved": "src/components/HoldingsTable.tsx",
           "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/lib/format",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/format.ts",
+          "valid": true
         }
       ],
       "dependents": [],
@@ -2893,6 +3196,23 @@
           "module": "./ReportsView",
           "moduleSystem": "es6",
           "resolved": "src/components/ReportsView.tsx",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/lib/format",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/format.ts",
           "valid": true
         }
       ],
@@ -3016,6 +3336,48 @@
       "dependents": [],
       "orphan": false,
       "source": "src/components/StatisticsView.test.tsx",
+      "valid": true
+    },
+    {
+      "dependencies": [
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "local",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "./TopNav",
+          "moduleSystem": "es6",
+          "resolved": "src/components/TopNav.tsx",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/lib/privacy-context",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/privacy-context.tsx",
+          "valid": true
+        }
+      ],
+      "dependents": [],
+      "orphan": false,
+      "source": "src/components/TopNav.test.tsx",
       "valid": true
     },
     {
@@ -3297,6 +3659,48 @@
           "exoticallyRequired": false,
           "followable": true,
           "matchesDoNotFollow": false,
+          "module": "./format",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/format.ts",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "local",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "./privacy-context",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/privacy-context.tsx",
+          "valid": true
+        }
+      ],
+      "dependents": [],
+      "orphan": false,
+      "source": "src/lib/privacy-context.test.tsx",
+      "valid": true
+    },
+    {
+      "dependencies": [
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "local",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
           "module": "./session",
           "moduleSystem": "es6",
           "resolved": "src/lib/session.ts",
@@ -3393,8 +3797,8 @@
         }
       ]
     },
-    "totalCruised": 98,
-    "totalDependenciesCruised": 138,
+    "totalCruised": 101,
+    "totalDependenciesCruised": 159,
     "violations": [],
     "warn": 0
   }

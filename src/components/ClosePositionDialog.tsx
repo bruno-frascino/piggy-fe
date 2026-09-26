@@ -9,6 +9,7 @@ import { InputTextarea } from 'primereact/inputtextarea';
 import { Button } from 'primereact/button';
 import type { LocalHolding } from '@/components/AddHoldingsDialog';
 import { formatDateDDMMYYYY } from '@/lib/date';
+import { usePrivacy } from '@/lib/privacy-context';
 
 export interface ClosePositionPayload {
   closeDate: string; // ISO YYYY-MM-DD
@@ -37,6 +38,7 @@ export default function ClosePositionDialog({
     comments: '',
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const { mask } = usePrivacy();
 
   const parseIsoDate = (value: string) => {
     const parts = value.split('-').map(Number);
@@ -242,7 +244,7 @@ export default function ClosePositionDialog({
               Closing Position
             </label>
             <InputText
-              value={closingPosition.toFixed(6)}
+              value={mask(closingPosition.toFixed(6))}
               readOnly
               className='w-full'
             />

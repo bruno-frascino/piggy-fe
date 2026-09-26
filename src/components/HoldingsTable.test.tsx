@@ -4,6 +4,7 @@ import '@testing-library/jest-dom/vitest';
 import { cleanup, render, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { MASKED_VALUE } from '@/lib/format';
 
 // Characterization tests for HoldingsTable's two riskiest, untested effects:
 //  1. Live-quote-driven row/total computation (effectivePrice, currentPosition,
@@ -24,6 +25,7 @@ const {
   recalculateDrawdownMock,
   mutationMock,
   showToastMock,
+  privacyState,
 } = vi.hoisted(() => ({
   useHoldingsMock: vi.fn(),
   useQuotesMock: vi.fn(),
@@ -32,6 +34,7 @@ const {
   recalculateDrawdownMock: vi.fn(),
   mutationMock: vi.fn(),
   showToastMock: vi.fn(),
+  privacyState: { hidden: false },
 }));
 
 vi.mock('@/hooks/api', () => ({
@@ -54,6 +57,15 @@ vi.mock('@/lib/offline-write-queue', () => ({
 
 vi.mock('@/lib/toast-context', () => ({
   useToast: () => ({ show: showToastMock }),
+}));
+
+vi.mock('@/lib/privacy-context', () => ({
+  usePrivacy: () => ({
+    hidden: privacyState.hidden,
+    toggle: vi.fn(),
+    hide: vi.fn(),
+    mask: (v: string) => (privacyState.hidden ? MASKED_VALUE : v),
+  }),
 }));
 
 import HoldingsTable from './HoldingsTable';
@@ -110,6 +122,7 @@ beforeEach(() => {
 afterEach(() => {
   cleanup();
   vi.clearAllMocks();
+  privacyState.hidden = false;
 });
 
 describe('HoldingsTable row/total computation', () => {
@@ -261,5 +274,20 @@ describe('HoldingsTable max-drawdown ratchet effect', () => {
 
     await new Promise(resolve => setTimeout(resolve, 50));
     expect(updatePositionMock).not.toHaveBeenCalled();
+  });
+});
+
+describe('HoldingsTable privacy mode', () => {
+  it('masks units and money amounts but keeps prices and percentages visible', () => {
+    privacyState.hidden = true;
+    setHoldings([{ ...baseHolding }]);
+    setQuotes([]);
+
+    renderTable();
+
+    // Units (mobile card) and Buy price (desktop column) render side by side —
+    // units must be masked, the per-unit buy price must not.
+    expect(screen.getAllByText(MASKED_VALUE).length).toBeGreaterThan(0);
+    expect(screen.getAllByText('$100.00').length).toBeGreaterThan(0);
   });
 });

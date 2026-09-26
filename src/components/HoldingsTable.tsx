@@ -20,6 +20,7 @@ import {
 } from '@/lib/offline-write-queue';
 import { useToast } from '@/lib/toast-context';
 import { formatCurrency, formatPct, returnClass } from '@/lib/format';
+import { usePrivacy } from '@/lib/privacy-context';
 import { useHoldingRows, type HoldingRow } from '@/hooks/useHoldingRows';
 import {
   useClosePosition,
@@ -55,6 +56,7 @@ export default function HoldingsTable({
 }) {
   const queryClient = useQueryClient();
   const { show: showToast } = useToast();
+  const { mask } = usePrivacy();
   const { mutateAsync: createPosition } = useCreatePosition();
   const { mutateAsync: updatePosition } = useUpdatePosition();
   const { mutateAsync: closePosition } = useClosePosition();
@@ -322,7 +324,7 @@ export default function HoldingsTable({
                         {r.symbol}
                       </button>
                       <span className='text-gray-400 block text-[10px]'>
-                        {formatNumber(r.units)}
+                        {mask(formatNumber(r.units))}
                       </span>
                     </div>
                     {/* Col 2: Current Position */}
@@ -347,7 +349,7 @@ export default function HoldingsTable({
                           setShowCloseDialog(true);
                         }}
                       >
-                        {formatCurrency(r.currentPosition, currency)}
+                        {mask(formatCurrency(r.currentPosition, currency))}
                       </button>
                     </div>
                     {/* Col 3: Day Change */}
@@ -355,7 +357,7 @@ export default function HoldingsTable({
                       {dayAbs !== null ? (
                         <span className={`text-xs ${returnClass(dayAbs)}`}>
                           <span className='block truncate'>
-                            {formatCurrency(dayAbs, currency)}
+                            {mask(formatCurrency(dayAbs, currency))}
                           </span>
                           {dayPct !== null && (
                             <span className='text-[10px] opacity-75'>
@@ -374,7 +376,7 @@ export default function HoldingsTable({
                         className={`text-xs ${returnClass(r.currentReturnAbs)}`}
                       >
                         <span className='block truncate'>
-                          {formatCurrency(r.currentReturnAbs, currency)}
+                          {mask(formatCurrency(r.currentReturnAbs, currency))}
                         </span>
                         <span className='text-[10px] opacity-75'>
                           {formatPct(r.currentReturnPct)}
@@ -400,7 +402,7 @@ export default function HoldingsTable({
               </div>
               <div className='text-right min-w-0'>
                 <span className='font-semibold text-gray-900 text-xs block truncate'>
-                  {formatCurrency(totals.totalCurrent, currency)}
+                  {mask(formatCurrency(totals.totalCurrent, currency))}
                 </span>
               </div>
               <div className='text-right min-w-0'>
@@ -408,7 +410,7 @@ export default function HoldingsTable({
                   <span
                     className={`text-xs font-semibold ${returnClass(totals.dayPL)} block truncate`}
                   >
-                    {formatCurrency(totals.dayPL, currency)}
+                    {mask(formatCurrency(totals.dayPL, currency))}
                   </span>
                 ) : (
                   <span className='text-gray-400 text-xs'>—</span>
@@ -419,7 +421,7 @@ export default function HoldingsTable({
                   className={`text-xs font-semibold ${returnClass(totals.currentReturnAbs)}`}
                 >
                   <span className='block truncate'>
-                    {formatCurrency(totals.currentReturnAbs, currency)}
+                    {mask(formatCurrency(totals.currentReturnAbs, currency))}
                   </span>
                   <span className='text-[10px] opacity-75'>
                     {formatPct(totals.currentReturnPct)}
@@ -486,7 +488,7 @@ export default function HoldingsTable({
               />
               <Column
                 header='Units'
-                body={(r: HoldingRow) => formatNumber(r.units)}
+                body={(r: HoldingRow) => mask(formatNumber(r.units))}
                 style={{ minWidth: '110px' }}
               />
               <Column
@@ -497,13 +499,13 @@ export default function HoldingsTable({
               <Column
                 header='Open'
                 body={(r: HoldingRow) =>
-                  formatCurrency(r.openPosition, currency)
+                  mask(formatCurrency(r.openPosition, currency))
                 }
                 style={{ minWidth: '140px' }}
                 footer={
                   <span>
                     <span className='font-semibold text-gray-900'>
-                      {formatCurrency(totals.totalOpen, currency)}
+                      {mask(formatCurrency(totals.totalOpen, currency))}
                     </span>
                   </span>
                 }
@@ -533,7 +535,7 @@ export default function HoldingsTable({
                   const pct = q.changePercent ?? 0;
                   return (
                     <span className={returnClass(dayAbs)}>
-                      {formatCurrency(dayAbs, currency)}{' '}
+                      {mask(formatCurrency(dayAbs, currency))}{' '}
                       <span className='text-xs opacity-75'>
                         ({pct >= 0 ? '+' : ''}
                         {pct.toFixed(2)}%)
@@ -547,7 +549,7 @@ export default function HoldingsTable({
                     <span
                       className={`font-semibold ${returnClass(totals.dayPL)}`}
                     >
-                      {formatCurrency(totals.dayPL, currency)}
+                      {mask(formatCurrency(totals.dayPL, currency))}
                     </span>
                   ) : null
                 }
@@ -575,14 +577,14 @@ export default function HoldingsTable({
                       setShowCloseDialog(true);
                     }}
                   >
-                    {formatCurrency(r.currentPosition, currency)}
+                    {mask(formatCurrency(r.currentPosition, currency))}
                   </button>
                 )}
                 style={{ minWidth: '150px' }}
                 footer={
                   <span>
                     <span className='font-semibold text-gray-900'>
-                      {formatCurrency(totals.totalCurrent, currency)}
+                      {mask(formatCurrency(totals.totalCurrent, currency))}
                     </span>
                   </span>
                 }
@@ -591,7 +593,7 @@ export default function HoldingsTable({
                 header='Return'
                 body={(r: HoldingRow) => (
                   <span className={returnClass(r.currentReturnAbs)}>
-                    {formatCurrency(r.currentReturnAbs, currency)}
+                    {mask(formatCurrency(r.currentReturnAbs, currency))}
                   </span>
                 )}
                 style={{ minWidth: '130px' }}
@@ -600,7 +602,7 @@ export default function HoldingsTable({
                     <span
                       className={`font-semibold ${returnClass(totals.currentReturnAbs)}`}
                     >
-                      {formatCurrency(totals.currentReturnAbs, currency)}
+                      {mask(formatCurrency(totals.currentReturnAbs, currency))}
                     </span>
                   </span>
                 }
@@ -667,7 +669,7 @@ export default function HoldingsTable({
                     body={(r: HoldingRow) =>
                       isNaN(r.stopLossPosition)
                         ? ''
-                        : formatCurrency(r.stopLossPosition, currency)
+                        : mask(formatCurrency(r.stopLossPosition, currency))
                     }
                     style={{ minWidth: '130px' }}
                   />

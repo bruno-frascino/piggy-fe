@@ -9,6 +9,7 @@ import {
   waitFor,
 } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { MASKED_VALUE } from '@/lib/format';
 
 const {
   rows,
@@ -16,6 +17,7 @@ const {
   updatePositionMock,
   deletePositionMock,
   showToastMock,
+  privacyState,
 } = vi.hoisted(() => ({
   rows: [
     {
@@ -39,6 +41,7 @@ const {
   updatePositionMock: vi.fn(),
   deletePositionMock: vi.fn(),
   showToastMock: vi.fn(),
+  privacyState: { hidden: false },
 }));
 
 vi.mock('@/lib/toast-context', () => ({
@@ -101,6 +104,15 @@ vi.mock('@/components/EditClosedTradeDialog', () => ({
   ),
 }));
 
+vi.mock('@/lib/privacy-context', () => ({
+  usePrivacy: () => ({
+    hidden: privacyState.hidden,
+    toggle: vi.fn(),
+    hide: vi.fn(),
+    mask: (v: string) => (privacyState.hidden ? MASKED_VALUE : v),
+  }),
+}));
+
 import HistoryPage from './page';
 
 beforeEach(() => {
@@ -109,7 +121,10 @@ beforeEach(() => {
   updateCloseEventMock.mockResolvedValue({ success: true });
 });
 
-afterEach(cleanup);
+afterEach(() => {
+  cleanup();
+  privacyState.hidden = false;
+});
 
 describe('HistoryPage', () => {
   it('persists edited open-side and close-side fields to their owning records', async () => {
@@ -180,5 +195,18 @@ describe('HistoryPage', () => {
     expect(
       screen.getByRole('button', { name: 'Save edited dates' })
     ).toBeInTheDocument();
+  });
+});
+
+describe('HistoryPage privacy mode', () => {
+  it('masks fees and position totals but keeps buy/sell price visible', () => {
+    privacyState.hidden = true;
+
+    render(<HistoryPage />);
+
+    expect(screen.getAllByText(MASKED_VALUE).length).toBeGreaterThan(0);
+    // Buy price ($100.00) is a per-unit price and stays visible.
+    expect(screen.getByText('$100.00')).toBeInTheDocument();
+    expect(screen.queryByText('$98.00')).not.toBeInTheDocument();
   });
 });

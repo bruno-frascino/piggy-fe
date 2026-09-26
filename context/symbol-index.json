@@ -1,12 +1,12 @@
 [
   {
-    "endLine": 354,
+    "endLine": 357,
     "file": "src/app/account/page.tsx",
     "jsdoc": "",
     "kind": "FunctionDeclaration",
     "name": "default",
     "signature": "export default function AccountPage()",
-    "startLine": 33
+    "startLine": 34
   },
   {
     "endLine": 149,
@@ -45,13 +45,13 @@
     "startLine": 14
   },
   {
-    "endLine": 642,
+    "endLine": 648,
     "file": "src/app/history/page.tsx",
     "jsdoc": "",
     "kind": "FunctionDeclaration",
     "name": "default",
     "signature": "export default function HistoryPage()",
-    "startLine": 294
+    "startLine": 300
   },
   {
     "endLine": 37,
@@ -117,13 +117,13 @@
     "startLine": 8
   },
   {
-    "endLine": 28,
+    "endLine": 31,
     "file": "src/app/providers.tsx",
     "jsdoc": "",
     "kind": "FunctionDeclaration",
     "name": "Providers",
     "signature": "export function Providers(",
-    "startLine": 8
+    "startLine": 9
   },
   {
     "endLine": 5,
@@ -198,22 +198,22 @@
     "startLine": 22
   },
   {
-    "endLine": 19,
+    "endLine": 20,
     "file": "src/components/ClosePositionDialog.tsx",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "ClosePositionPayload",
     "signature": "export interface ClosePositionPayload",
-    "startLine": 13
+    "startLine": 14
   },
   {
-    "endLine": 284,
+    "endLine": 286,
     "file": "src/components/ClosePositionDialog.tsx",
     "jsdoc": "",
     "kind": "FunctionDeclaration",
     "name": "default",
     "signature": "export default function ClosePositionDialog(",
-    "startLine": 21
+    "startLine": 22
   },
   {
     "endLine": 45,
@@ -225,22 +225,22 @@
     "startLine": 10
   },
   {
-    "endLine": 65,
+    "endLine": 66,
     "file": "src/components/DashboardView.tsx",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "ExchangeDefinition",
     "signature": "export interface ExchangeDefinition",
-    "startLine": 59
+    "startLine": 60
   },
   {
-    "endLine": 697,
+    "endLine": 719,
     "file": "src/components/DashboardView.tsx",
     "jsdoc": "",
     "kind": "FunctionDeclaration",
     "name": "default",
     "signature": "export default function DashboardView()",
-    "startLine": 75
+    "startLine": 76
   },
   {
     "endLine": 149,
@@ -252,13 +252,13 @@
     "startLine": 19
   },
   {
-    "endLine": 363,
+    "endLine": 369,
     "file": "src/components/EditClosedTradeDialog.tsx",
     "jsdoc": "",
     "kind": "FunctionDeclaration",
     "name": "default",
     "signature": "export default function EditClosedTradeDialog(",
-    "startLine": 41
+    "startLine": 42
   },
   {
     "endLine": 31,
@@ -279,13 +279,13 @@
     "startLine": 28
   },
   {
-    "endLine": 896,
+    "endLine": 898,
     "file": "src/components/HoldingsTable.tsx",
     "jsdoc": "",
     "kind": "FunctionDeclaration",
     "name": "default",
     "signature": "export default function HoldingsTable(",
-    "startLine": 37
+    "startLine": 38
   },
   {
     "endLine": 41,
@@ -306,22 +306,22 @@
     "startLine": 15
   },
   {
-    "endLine": 131,
+    "endLine": 137,
     "file": "src/components/ReportDetailDialog.tsx",
     "jsdoc": "",
     "kind": "FunctionDeclaration",
     "name": "default",
     "signature": "export default function ReportDetailDialog(",
-    "startLine": 22
+    "startLine": 23
   },
   {
-    "endLine": 218,
+    "endLine": 220,
     "file": "src/components/ReportsView.tsx",
     "jsdoc": "",
     "kind": "FunctionDeclaration",
     "name": "default",
     "signature": "export default function ReportsView()",
-    "startLine": 24
+    "startLine": 25
   },
   {
     "endLine": 294,
@@ -351,22 +351,22 @@
     "startLine": 41
   },
   {
-    "endLine": 1089,
+    "endLine": 1114,
     "file": "src/components/StatisticsView.tsx",
     "jsdoc": "",
     "kind": "FunctionDeclaration",
     "name": "default",
     "signature": "export default function StatisticsView()",
-    "startLine": 173
+    "startLine": 176
   },
   {
-    "endLine": 240,
+    "endLine": 255,
     "file": "src/components/TopNav.tsx",
     "jsdoc": "",
     "kind": "FunctionDeclaration",
     "name": "default",
     "signature": "export default function TopNav()",
-    "startLine": 17
+    "startLine": 18
   },
   {
     "endLine": 17,
@@ -1188,31 +1188,40 @@
     "startLine": 84
   },
   {
-    "endLine": 7,
+    "endLine": 2,
+    "file": "src/lib/format.ts",
+    "jsdoc": "",
+    "kind": "VariableDeclaration",
+    "name": "MASKED_VALUE",
+    "signature": "MASKED_VALUE = '••••••'",
+    "startLine": 2
+  },
+  {
+    "endLine": 10,
     "file": "src/lib/format.ts",
     "jsdoc": "",
     "kind": "FunctionDeclaration",
     "name": "formatCurrency",
     "signature": "export function formatCurrency(n: number, currency: string = 'USD')",
-    "startLine": 1
-  },
-  {
-    "endLine": 12,
-    "file": "src/lib/format.ts",
-    "jsdoc": "",
-    "kind": "FunctionDeclaration",
-    "name": "formatPct",
-    "signature": "export function formatPct(v: number)",
-    "startLine": 9
+    "startLine": 4
   },
   {
     "endLine": 15,
     "file": "src/lib/format.ts",
     "jsdoc": "",
+    "kind": "FunctionDeclaration",
+    "name": "formatPct",
+    "signature": "export function formatPct(v: number)",
+    "startLine": 12
+  },
+  {
+    "endLine": 18,
+    "file": "src/lib/format.ts",
+    "jsdoc": "",
     "kind": "VariableDeclaration",
     "name": "returnClass",
     "signature": "returnClass = (v: number) => v >= 0 ? 'text-green-600' : 'text-red-600'",
-    "startLine": 14
+    "startLine": 17
   },
   {
     "endLine": 2880,
@@ -1474,6 +1483,24 @@
     "name": "calculateReturnPctPerWeek",
     "signature": "export function calculateReturnPctPerWeek( returnPct: number, daysOpen: number ): number | null",
     "startLine": 18
+  },
+  {
+    "endLine": 46,
+    "file": "src/lib/privacy-context.tsx",
+    "jsdoc": "",
+    "kind": "FunctionDeclaration",
+    "name": "PrivacyProvider",
+    "signature": "export function PrivacyProvider(",
+    "startLine": 22
+  },
+  {
+    "endLine": 54,
+    "file": "src/lib/privacy-context.tsx",
+    "jsdoc": "",
+    "kind": "FunctionDeclaration",
+    "name": "usePrivacy",
+    "signature": "export function usePrivacy(): PrivacyContextValue",
+    "startLine": 48
   },
   {
     "endLine": 18,

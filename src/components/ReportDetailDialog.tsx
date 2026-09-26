@@ -5,6 +5,7 @@ import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Message } from 'primereact/message';
 import { useTaxReportDetail } from '@/hooks/api';
+import { usePrivacy } from '@/lib/privacy-context';
 import type { TaxReportLineItem } from '@/lib/types';
 
 function formatAud(n: number): string {
@@ -21,6 +22,7 @@ interface Props {
 
 export default function ReportDetailDialog({ reportId, onHide }: Props) {
   const { data: report, isLoading } = useTaxReportDetail(reportId ?? undefined);
+  const { mask } = usePrivacy();
 
   return (
     <Dialog
@@ -52,36 +54,36 @@ export default function ReportDetailDialog({ reportId, onHide }: Props) {
           <div className='grid grid-cols-2 md:grid-cols-4 gap-3 text-sm'>
             <SummaryStat
               label='Total proceeds'
-              value={formatAud(report.totalProceedsAud)}
+              value={mask(formatAud(report.totalProceedsAud))}
             />
             <SummaryStat
               label='Total cost base'
-              value={formatAud(report.totalCostBaseAud)}
+              value={mask(formatAud(report.totalCostBaseAud))}
             />
             <SummaryStat
               label='Gross capital gain'
-              value={formatAud(report.totalCapitalGainGrossAud)}
+              value={mask(formatAud(report.totalCapitalGainGrossAud))}
             />
             <SummaryStat
               label='Capital losses'
-              value={formatAud(report.totalCapitalLossAud)}
+              value={mask(formatAud(report.totalCapitalLossAud))}
             />
             <SummaryStat
               label='Carried-forward loss (opening)'
-              value={formatAud(report.carriedForwardLossOpeningAud)}
+              value={mask(formatAud(report.carriedForwardLossOpeningAud))}
             />
             <SummaryStat
               label='CGT discount applied'
-              value={formatAud(report.discountAppliedAud)}
+              value={mask(formatAud(report.discountAppliedAud))}
             />
             <SummaryStat
               label='Net capital gain / (loss)'
-              value={formatAud(report.netCapitalGainAud)}
+              value={mask(formatAud(report.netCapitalGainAud))}
               highlight
             />
             <SummaryStat
               label='Carried-forward loss (closing)'
-              value={formatAud(report.carriedForwardLossClosingAud)}
+              value={mask(formatAud(report.carriedForwardLossClosingAud))}
             />
           </div>
 
@@ -96,14 +98,18 @@ export default function ReportDetailDialog({ reportId, onHide }: Props) {
             <Column field='accountName' header='Account' />
             <Column field='acquireDate' header='Acquired' />
             <Column field='disposeDate' header='Disposed' />
-            <Column field='quantity' header='Qty' />
+            <Column
+              field='quantity'
+              header='Qty'
+              body={(l: TaxReportLineItem) => mask(String(l.quantity))}
+            />
             <Column
               header='Proceeds (AUD)'
-              body={(l: TaxReportLineItem) => formatAud(l.proceedsAud)}
+              body={(l: TaxReportLineItem) => mask(formatAud(l.proceedsAud))}
             />
             <Column
               header='Cost base (AUD)'
-              body={(l: TaxReportLineItem) => formatAud(l.costBaseAud)}
+              body={(l: TaxReportLineItem) => mask(formatAud(l.costBaseAud))}
             />
             <Column
               header='Gain/(Loss)'
@@ -113,7 +119,7 @@ export default function ReportDetailDialog({ reportId, onHide }: Props) {
                     l.capitalGainAud >= 0 ? 'text-green-600' : 'text-red-600'
                   }
                 >
-                  {formatAud(l.capitalGainAud)}
+                  {mask(formatAud(l.capitalGainAud))}
                 </span>
               )}
             />

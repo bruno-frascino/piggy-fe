@@ -3,6 +3,7 @@
 import '@testing-library/jest-dom/vitest';
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import { MASKED_VALUE } from '@/lib/format';
 
 const mockAccounts = [
   { id: 'acc-1', name: 'Account 1', status: 'ACTIVE' as const },
@@ -15,12 +16,14 @@ const {
   emptyPortfolio,
   emptyHistory,
   useTradingAccountsMock,
+  privacyState,
 } = vi.hoisted(() => ({
   mockRouter: { replace: vi.fn() },
   mockSearchParams: new URLSearchParams(),
   emptyPortfolio: [] as unknown[],
   emptyHistory: [] as unknown[],
   useTradingAccountsMock: vi.fn(),
+  privacyState: { hidden: false },
 }));
 
 vi.mock('@/hooks/api', () => ({
@@ -53,12 +56,22 @@ vi.mock('@/components/HoldingsTable', () => ({
   default: () => <div data-testid='holdings-table-stub' />,
 }));
 
+vi.mock('@/lib/privacy-context', () => ({
+  usePrivacy: () => ({
+    hidden: privacyState.hidden,
+    toggle: vi.fn(),
+    hide: vi.fn(),
+    mask: (v: string) => (privacyState.hidden ? MASKED_VALUE : v),
+  }),
+}));
+
 import DashboardView from './DashboardView';
 
 afterEach(() => {
   cleanup();
   vi.clearAllMocks();
   localStorage.clear();
+  privacyState.hidden = false;
   useTradingAccountsMock.mockReturnValue({
     data: mockAccounts,
     isLoading: false,
@@ -165,5 +178,16 @@ describe('DashboardView empty state', () => {
     );
 
     expect(screen.getByText('Add Account')).toBeInTheDocument();
+  });
+});
+
+describe('DashboardView privacy mode', () => {
+  it('masks the equity/P&L summary cards when values are hidden', () => {
+    privacyState.hidden = true;
+
+    render(<DashboardView />);
+
+    expect(screen.getAllByText(MASKED_VALUE).length).toBeGreaterThan(0);
+    expect(screen.queryByText('$0')).not.toBeInTheDocument();
   });
 });

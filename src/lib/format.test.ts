@@ -1,5 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { formatCurrency, formatPct, returnClass } from './format';
+import { formatCurrency, formatPct, returnClass, MASKED_VALUE } from './format';
+
+describe('MASKED_VALUE', () => {
+  it('is a fixed placeholder independent of any real figure', () => {
+    expect(MASKED_VALUE).toBe('••••••');
+  });
+});
 
 describe('formatCurrency', () => {
   it('formats a positive number with the default USD currency', () => {
