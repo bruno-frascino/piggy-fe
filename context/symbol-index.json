@@ -45,13 +45,13 @@
     "startLine": 14
   },
   {
-    "endLine": 648,
+    "endLine": 653,
     "file": "src/app/history/page.tsx",
     "jsdoc": "",
     "kind": "FunctionDeclaration",
     "name": "default",
     "signature": "export default function HistoryPage()",
-    "startLine": 300
+    "startLine": 305
   },
   {
     "endLine": 37,
@@ -279,7 +279,7 @@
     "startLine": 28
   },
   {
-    "endLine": 898,
+    "endLine": 907,
     "file": "src/components/HoldingsTable.tsx",
     "jsdoc": "",
     "kind": "FunctionDeclaration",
@@ -306,7 +306,7 @@
     "startLine": 15
   },
   {
-    "endLine": 137,
+    "endLine": 142,
     "file": "src/components/ReportDetailDialog.tsx",
     "jsdoc": "",
     "kind": "FunctionDeclaration",
@@ -315,7 +315,7 @@
     "startLine": 23
   },
   {
-    "endLine": 220,
+    "endLine": 222,
     "file": "src/components/ReportsView.tsx",
     "jsdoc": "",
     "kind": "FunctionDeclaration",
@@ -351,7 +351,7 @@
     "startLine": 41
   },
   {
-    "endLine": 1114,
+    "endLine": 1117,
     "file": "src/components/StatisticsView.tsx",
     "jsdoc": "",
     "kind": "FunctionDeclaration",
@@ -1215,13 +1215,13 @@
     "startLine": 12
   },
   {
-    "endLine": 18,
+    "endLine": 19,
     "file": "src/lib/format.ts",
     "jsdoc": "",
     "kind": "VariableDeclaration",
     "name": "returnClass",
-    "signature": "returnClass = (v: number) => v >= 0 ? 'text-green-600' : 'text-red-600'",
-    "startLine": 17
+    "signature": "returnClass = (v: number, neutral = false) => neutral ? 'text-gray-500' : v >= 0 ? 'text-green-600' : 'text-red-600'",
+    "startLine": 18
   },
   {
     "endLine": 2880,

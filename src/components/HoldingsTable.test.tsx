@@ -290,4 +290,15 @@ describe('HoldingsTable privacy mode', () => {
     expect(screen.getAllByText(MASKED_VALUE).length).toBeGreaterThan(0);
     expect(screen.getAllByText('$100.00').length).toBeGreaterThan(0);
   });
+
+  it('uses no green or red colours while hidden', () => {
+    privacyState.hidden = true;
+    setHoldings([{ ...baseHolding }]);
+    setQuotes([]);
+
+    const { container } = renderTable();
+
+    expect(container.querySelector('.text-green-600')).toBeNull();
+    expect(container.querySelector('.text-red-600')).toBeNull();
+  });
 });

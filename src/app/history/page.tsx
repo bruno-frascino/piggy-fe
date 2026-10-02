@@ -67,7 +67,7 @@ function ExchangeTable({
   const totals = calcTotals(trades);
   const plPct = totals.open > 0 ? totals.pl / totals.open : 0;
   const groupCurrency = trades[0]?.baseCurrency ?? 'USD';
-  const { mask } = usePrivacy();
+  const { mask, hidden } = usePrivacy();
 
   return (
     <Card>
@@ -100,6 +100,7 @@ function ExchangeTable({
         scrollHeight='400px'
         stripedRows
         className='holdings-table'
+        cellMemo={false}
       >
         <Column
           header='Symbol'
@@ -244,14 +245,14 @@ function ExchangeTable({
               r.sellFee -
               (r.unitsClosed * r.buyPrice + r.buyFee);
             return (
-              <span className={returnClass(pl)}>
+              <span className={returnClass(pl, hidden)}>
                 {mask(formatCurrency(pl, r.baseCurrency ?? groupCurrency))}
               </span>
             );
           }}
           style={{ minWidth: '130px' }}
           footer={
-            <span className={returnClass(totals.pl)}>
+            <span className={returnClass(totals.pl, hidden)}>
               {mask(formatCurrency(totals.pl, groupCurrency))}
             </span>
           }
@@ -262,18 +263,22 @@ function ExchangeTable({
             const open = r.unitsClosed * r.buyPrice + r.buyFee;
             const pl = r.unitsClosed * r.sellPrice - r.sellFee - open;
             const pct = open > 0 ? pl / open : 0;
-            return <span className={returnClass(pct)}>{formatPct(pct)}</span>;
+            return (
+              <span className={returnClass(pct, hidden)}>{formatPct(pct)}</span>
+            );
           }}
           style={{ minWidth: '130px' }}
           footer={
-            <span className={returnClass(plPct)}>{formatPct(plPct)}</span>
+            <span className={returnClass(plPct, hidden)}>
+              {formatPct(plPct)}
+            </span>
           }
         />
         <Column
           header='Max Drawdown %'
           body={(r: ClosedTrade) =>
             r.maxDrawdownPercent != null && r.maxDrawdownPercent > 0 ? (
-              <span className='text-red-600'>
+              <span className={hidden ? 'text-gray-500' : 'text-red-600'}>
                 -{r.maxDrawdownPercent.toFixed(2)}%
               </span>
             ) : (

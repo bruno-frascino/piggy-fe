@@ -28,7 +28,7 @@ export default function ReportsView() {
   const { data: accounts = [] } = useTradingAccounts(true);
   const { mutateAsync: downloadTaxReportPdf } = useDownloadTaxReportPdf();
   const { show: showToast } = useToast();
-  const { mask } = usePrivacy();
+  const { mask, hidden } = usePrivacy();
   const [showGenerateDialog, setShowGenerateDialog] = useState(false);
   const [detailReportId, setDetailReportId] = useState<string | null>(null);
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
@@ -167,9 +167,11 @@ export default function ReportsView() {
                 </div>
                 <span
                   className={`text-sm font-semibold ${
-                    report.netCapitalGainAud >= 0
-                      ? 'text-green-600'
-                      : 'text-red-600'
+                    hidden
+                      ? 'text-gray-500'
+                      : report.netCapitalGainAud >= 0
+                        ? 'text-green-600'
+                        : 'text-red-600'
                   }`}
                 >
                   {mask(formatAud(report.netCapitalGainAud))}

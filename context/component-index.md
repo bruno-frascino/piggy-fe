@@ -118,7 +118,7 @@
 
 ## `HoldingsTable`
 
-- File: [src/components/HoldingsTable.tsx](../src/components/HoldingsTable.tsx) (899 lines)
+- File: [src/components/HoldingsTable.tsx](../src/components/HoldingsTable.tsx) (908 lines)
 - API hooks used: useClosePosition, useCreatePosition, useDeletePosition, useUpdatePosition
 - Other hooks used: useCallback, useEffect, useHoldingRows, usePrivacy, useQueryClient, useRef, useState, useToast
 
@@ -140,7 +140,7 @@
 
 ## `ReportDetailDialog`
 
-- File: [src/components/ReportDetailDialog.tsx](../src/components/ReportDetailDialog.tsx) (168 lines)
+- File: [src/components/ReportDetailDialog.tsx](../src/components/ReportDetailDialog.tsx) (173 lines)
 - API hooks used: useTaxReportDetail
 - Other hooks used: usePrivacy
 - Props:
@@ -149,7 +149,7 @@
 
 ## `ReportsView`
 
-- File: [src/components/ReportsView.tsx](../src/components/ReportsView.tsx) (221 lines)
+- File: [src/components/ReportsView.tsx](../src/components/ReportsView.tsx) (223 lines)
 - API hooks used: useDownloadTaxReportPdf, useTaxReports, useTradingAccounts
 - Other hooks used: usePrivacy, useState, useToast
 
@@ -180,7 +180,7 @@
 
 ## `StatisticsView`
 
-- File: [src/components/StatisticsView.tsx](../src/components/StatisticsView.tsx) (1115 lines)
+- File: [src/components/StatisticsView.tsx](../src/components/StatisticsView.tsx) (1118 lines)
 - API hooks used: useStatisticsBreakdowns, useStatisticsClosedTrades, useStatisticsDistributions, useStatisticsRisk, useStatisticsSummary, useStatisticsTimeSeries, useTradingAccounts
 - Other hooks used: useAccountSelection, useExchangeDiscovery, useMemo, usePrivacy, useState
 

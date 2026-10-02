@@ -56,7 +56,7 @@ export default function HoldingsTable({
 }) {
   const queryClient = useQueryClient();
   const { show: showToast } = useToast();
-  const { mask } = usePrivacy();
+  const { mask, hidden } = usePrivacy();
   const { mutateAsync: createPosition } = useCreatePosition();
   const { mutateAsync: updatePosition } = useUpdatePosition();
   const { mutateAsync: closePosition } = useClosePosition();
@@ -355,7 +355,9 @@ export default function HoldingsTable({
                     {/* Col 3: Day Change */}
                     <div className='text-right min-w-0'>
                       {dayAbs !== null ? (
-                        <span className={`text-xs ${returnClass(dayAbs)}`}>
+                        <span
+                          className={`text-xs ${returnClass(dayAbs, hidden)}`}
+                        >
                           <span className='block truncate'>
                             {mask(formatCurrency(dayAbs, currency))}
                           </span>
@@ -373,7 +375,7 @@ export default function HoldingsTable({
                     {/* Col 4: Total Return */}
                     <div className='text-right min-w-0'>
                       <span
-                        className={`text-xs ${returnClass(r.currentReturnAbs)}`}
+                        className={`text-xs ${returnClass(r.currentReturnAbs, hidden)}`}
                       >
                         <span className='block truncate'>
                           {mask(formatCurrency(r.currentReturnAbs, currency))}
@@ -408,7 +410,7 @@ export default function HoldingsTable({
               <div className='text-right min-w-0'>
                 {totals.dayPL !== 0 ? (
                   <span
-                    className={`text-xs font-semibold ${returnClass(totals.dayPL)} block truncate`}
+                    className={`text-xs font-semibold ${returnClass(totals.dayPL, hidden)} block truncate`}
                   >
                     {mask(formatCurrency(totals.dayPL, currency))}
                   </span>
@@ -418,7 +420,7 @@ export default function HoldingsTable({
               </div>
               <div className='text-right min-w-0'>
                 <span
-                  className={`text-xs font-semibold ${returnClass(totals.currentReturnAbs)}`}
+                  className={`text-xs font-semibold ${returnClass(totals.currentReturnAbs, hidden)}`}
                 >
                   <span className='block truncate'>
                     {mask(formatCurrency(totals.currentReturnAbs, currency))}
@@ -441,6 +443,7 @@ export default function HoldingsTable({
               rowHover
               stripedRows
               className='holdings-table'
+              cellMemo={false}
             >
               <Column
                 header='Symbol'
@@ -534,7 +537,7 @@ export default function HoldingsTable({
                   const dayAbs = q.change * r.units;
                   const pct = q.changePercent ?? 0;
                   return (
-                    <span className={returnClass(dayAbs)}>
+                    <span className={returnClass(dayAbs, hidden)}>
                       {mask(formatCurrency(dayAbs, currency))}{' '}
                       <span className='text-xs opacity-75'>
                         ({pct >= 0 ? '+' : ''}
@@ -547,7 +550,7 @@ export default function HoldingsTable({
                 footer={
                   totals.dayPL !== 0 ? (
                     <span
-                      className={`font-semibold ${returnClass(totals.dayPL)}`}
+                      className={`font-semibold ${returnClass(totals.dayPL, hidden)}`}
                     >
                       {mask(formatCurrency(totals.dayPL, currency))}
                     </span>
@@ -592,7 +595,7 @@ export default function HoldingsTable({
               <Column
                 header='Return'
                 body={(r: HoldingRow) => (
-                  <span className={returnClass(r.currentReturnAbs)}>
+                  <span className={returnClass(r.currentReturnAbs, hidden)}>
                     {mask(formatCurrency(r.currentReturnAbs, currency))}
                   </span>
                 )}
@@ -600,7 +603,7 @@ export default function HoldingsTable({
                 footer={
                   <span>
                     <span
-                      className={`font-semibold ${returnClass(totals.currentReturnAbs)}`}
+                      className={`font-semibold ${returnClass(totals.currentReturnAbs, hidden)}`}
                     >
                       {mask(formatCurrency(totals.currentReturnAbs, currency))}
                     </span>
@@ -610,13 +613,15 @@ export default function HoldingsTable({
               <Column
                 header='Return %'
                 body={(r: HoldingRow) => (
-                  <span className={returnClass(r.currentReturnPct)}>
+                  <span className={returnClass(r.currentReturnPct, hidden)}>
                     {formatPct(r.currentReturnPct)}
                   </span>
                 )}
                 style={{ minWidth: '150px' }}
                 footer={
-                  <span className={returnClass(totals.currentReturnPct)}>
+                  <span
+                    className={returnClass(totals.currentReturnPct, hidden)}
+                  >
                     {formatPct(totals.currentReturnPct)}
                   </span>
                 }
@@ -628,7 +633,9 @@ export default function HoldingsTable({
                     {r.maxDrawdownPercent != null &&
                     r.maxDrawdownPercent > 0 ? (
                       <>
-                        <span className='text-red-600'>
+                        <span
+                          className={hidden ? 'text-gray-500' : 'text-red-600'}
+                        >
                           -{r.maxDrawdownPercent.toFixed(2)}%
                         </span>
                         <button
@@ -679,7 +686,9 @@ export default function HoldingsTable({
                       isNaN(r.stopLossReturnPct) ? (
                         ''
                       ) : (
-                        <span className={returnClass(r.stopLossReturnPct)}>
+                        <span
+                          className={returnClass(r.stopLossReturnPct, hidden)}
+                        >
                           {formatPct(r.stopLossReturnPct)}
                         </span>
                       )

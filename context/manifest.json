@@ -10,7 +10,7 @@
     },
     "component-index.md": {
       "path": "context/component-index.md",
-      "sha256": "edce76d5da0e204418e30c1c92ec81c0a492af98d968258cce0b18b85cea7032"
+      "sha256": "91ee2d5f460f5625e70dcf815e79eb2d305f2f2ebc95cc60d30b2b50f5044439"
     },
     "contract-drift.md": {
       "path": "context/contract-drift.md",
@@ -34,13 +34,13 @@
     },
     "symbol-index.json": {
       "path": "context/symbol-index.json",
-      "sha256": "b85a8cd70271645ddcf86c12534a5bdbc13faa5bab17bf206590ae8ab16e29de"
+      "sha256": "ba1c84deb8736d0e07ba99da589230c6c5e9e2e8b2e8b10e3f3ebf1132674a35"
     },
     "unused.json": {
       "path": "context/unused.json",
       "sha256": "60a009fddf6241890a97bcecf38b7160f1b19f4fe6a8ce1e5d475294612aea71"
     }
   },
-  "generatedAt": "2026-09-26T21:40:14.371Z",
+  "generatedAt": "2026-10-02T20:20:59.711Z",
   "generatorVersion": 1
 }

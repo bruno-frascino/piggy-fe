@@ -22,7 +22,7 @@ interface Props {
 
 export default function ReportDetailDialog({ reportId, onHide }: Props) {
   const { data: report, isLoading } = useTaxReportDetail(reportId ?? undefined);
-  const { mask } = usePrivacy();
+  const { mask, hidden } = usePrivacy();
 
   return (
     <Dialog
@@ -93,6 +93,7 @@ export default function ReportDetailDialog({ reportId, onHide }: Props) {
             scrollable
             scrollHeight='320px'
             stripedRows
+            cellMemo={false}
           >
             <Column field='symbol' header='Symbol' />
             <Column field='accountName' header='Account' />
@@ -116,7 +117,11 @@ export default function ReportDetailDialog({ reportId, onHide }: Props) {
               body={(l: TaxReportLineItem) => (
                 <span
                   className={
-                    l.capitalGainAud >= 0 ? 'text-green-600' : 'text-red-600'
+                    hidden
+                      ? 'text-gray-500'
+                      : l.capitalGainAud >= 0
+                        ? 'text-green-600'
+                        : 'text-red-600'
                   }
                 >
                   {mask(formatAud(l.capitalGainAud))}

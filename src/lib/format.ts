@@ -14,5 +14,6 @@ export function formatPct(v: number) {
   return `${p >= 0 ? '+' : ''}${p.toFixed(2)}%`;
 }
 
-export const returnClass = (v: number) =>
-  v >= 0 ? 'text-green-600' : 'text-red-600';
+// `neutral` (privacy mode) drops the green/red so the sign isn't leaked by colour.
+export const returnClass = (v: number, neutral = false) =>
+  neutral ? 'text-gray-500' : v >= 0 ? 'text-green-600' : 'text-red-600';

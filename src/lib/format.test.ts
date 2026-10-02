@@ -37,4 +37,9 @@ describe('returnClass', () => {
   it('returns the red class for negative values', () => {
     expect(returnClass(-0.01)).toBe('text-red-600');
   });
+
+  it('returns gray regardless of sign when neutral (privacy mode)', () => {
+    expect(returnClass(5, true)).toBe('text-gray-500');
+    expect(returnClass(-5, true)).toBe('text-gray-500');
+  });
 });

@@ -132,7 +132,7 @@ function sortDirectionForHeader(
 }
 
 function BreakdownList({ rows }: { rows: StatisticsBreakdownRow[] }) {
-  const { mask } = usePrivacy();
+  const { mask, hidden } = usePrivacy();
 
   if (rows.length === 0) {
     return (
@@ -150,7 +150,7 @@ function BreakdownList({ rows }: { rows: StatisticsBreakdownRow[] }) {
           <div key={row.key}>
             <div className='flex items-center justify-between text-sm mb-1'>
               <span style={{ color: 'var(--tr-text)' }}>{row.label}</span>
-              <span className={returnClass(row.value)}>
+              <span className={returnClass(row.value, hidden)}>
                 {mask(formatCurrency(row.value))}
               </span>
             </div>
@@ -701,7 +701,7 @@ export default function StatisticsView() {
               Total P/L
             </p>
             <p
-              className={`text-2xl font-semibold ${returnClass(summary?.totalPnL ?? 0)}`}
+              className={`text-2xl font-semibold ${returnClass(summary?.totalPnL ?? 0, valuesHidden)}`}
             >
               {summaryLoading
                 ? 'Loading...'
@@ -773,7 +773,9 @@ export default function StatisticsView() {
             <p className='text-sm' style={{ color: 'var(--tr-text-2)' }}>
               Max Drawdown
             </p>
-            <p className='text-2xl font-semibold text-red-600'>
+            <p
+              className={`text-2xl font-semibold ${valuesHidden ? 'text-gray-500' : 'text-red-600'}`}
+            >
               {riskLoading
                 ? 'Loading...'
                 : risk?.maxDrawdownPct == null
@@ -900,6 +902,7 @@ export default function StatisticsView() {
               size='small'
               stripedRows
               className='holdings-table'
+              cellMemo={false}
               paginator
               lazy
               first={pageFirst}
@@ -946,7 +949,7 @@ export default function StatisticsView() {
                   </button>
                 }
                 body={row => (
-                  <span className={returnClass(row.pnl)}>
+                  <span className={returnClass(row.pnl, valuesHidden)}>
                     {mask(formatCurrency(row.pnl, row.currency))}
                   </span>
                 )}
@@ -963,7 +966,7 @@ export default function StatisticsView() {
                   </button>
                 }
                 body={row => (
-                  <span className={returnClass(row.returnPct)}>
+                  <span className={returnClass(row.returnPct, valuesHidden)}>
                     {formatSignedPctValue(row.returnPct)}
                   </span>
                 )}
@@ -1059,7 +1062,7 @@ export default function StatisticsView() {
                     P/L
                   </p>
                   <p
-                    className={`font-semibold ${returnClass(selectedTrade.pnl)}`}
+                    className={`font-semibold ${returnClass(selectedTrade.pnl, valuesHidden)}`}
                   >
                     {mask(
                       formatCurrency(selectedTrade.pnl, selectedTrade.currency)
@@ -1071,7 +1074,7 @@ export default function StatisticsView() {
                     Return %
                   </p>
                   <p
-                    className={`font-semibold ${returnClass(selectedTrade.returnPct)}`}
+                    className={`font-semibold ${returnClass(selectedTrade.returnPct, valuesHidden)}`}
                   >
                     {formatSignedPctValue(selectedTrade.returnPct)}
                   </p>
