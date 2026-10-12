@@ -118,13 +118,19 @@
       "enumMembers": [],
       "exports": [
         {
-          "col": 17,
-          "line": 24,
-          "name": "focusFirstField",
-          "pos": 776
+          "col": 14,
+          "line": 421,
+          "name": "useDeleteTaxReport",
+          "pos": 11905
+        },
+        {
+          "col": 14,
+          "line": 547,
+          "name": "useUpcomingDividends",
+          "pos": 15096
         }
       ],
-      "file": "src/components/AppDialog.tsx",
+      "file": "src/hooks/api.ts",
       "files": [],
       "namespaceMembers": [],
       "optionalPeerDependencies": [],
@@ -142,18 +148,35 @@
       "exports": [
         {
           "col": 14,
-          "line": 421,
-          "name": "useDeleteTaxReport",
-          "pos": 11905
-        },
-        {
-          "col": 14,
-          "line": 539,
-          "name": "useUpcomingDividends",
-          "pos": 14902
+          "line": 4,
+          "name": "DEFAULT_STATISTICS_CURRENCY",
+          "pos": 112
         }
       ],
-      "file": "src/hooks/api.ts",
+      "file": "src/hooks/useStatisticsExchanges.ts",
+      "files": [],
+      "namespaceMembers": [],
+      "optionalPeerDependencies": [],
+      "types": [],
+      "unlisted": [],
+      "unresolved": []
+    },
+    {
+      "binaries": [],
+      "catalog": [],
+      "dependencies": [],
+      "devDependencies": [],
+      "duplicates": [],
+      "enumMembers": [],
+      "exports": [
+        {
+          "col": 17,
+          "line": 24,
+          "name": "focusFirstField",
+          "pos": 776
+        }
+      ],
+      "file": "src/components/AppDialog.tsx",
       "files": [],
       "namespaceMembers": [],
       "optionalPeerDependencies": [],

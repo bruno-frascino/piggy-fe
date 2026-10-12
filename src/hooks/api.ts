@@ -467,11 +467,15 @@ export const useStatisticsTimeSeries = (params: {
   });
 };
 
-export const useStatisticsDistributions = (filters: StatisticsFilters = {}) => {
+export const useStatisticsDistributions = (
+  filters: StatisticsFilters = {},
+  options?: { enabled?: boolean }
+) => {
   return useQuery({
     queryKey: ['statistics-distributions', filters],
     queryFn: () => apiClient.getStatisticsDistributions(filters),
     staleTime: 60_000,
+    enabled: options?.enabled ?? true,
   });
 };
 
@@ -491,6 +495,7 @@ export const useStatisticsBreakdowns = (params: {
   filters?: StatisticsFilters;
   by: StatisticsBreakdownBy;
   metric: StatisticsBreakdownMetric;
+  enabled?: boolean;
 }) => {
   return useQuery({
     queryKey: [
@@ -501,6 +506,7 @@ export const useStatisticsBreakdowns = (params: {
     ],
     queryFn: () => apiClient.getStatisticsBreakdowns(params),
     staleTime: 60_000,
+    enabled: params.enabled ?? true,
   });
 };
 
@@ -510,6 +516,7 @@ export const useStatisticsClosedTrades = (params: {
   offset?: number;
   sortBy?: StatisticsClosedTradesSortBy;
   sortDir?: StatisticsClosedTradesSortDir;
+  enabled?: boolean;
 }) => {
   return useQuery({
     queryKey: [
@@ -522,6 +529,7 @@ export const useStatisticsClosedTrades = (params: {
     ],
     queryFn: () => apiClient.getStatisticsClosedTrades(params),
     staleTime: 60_000,
+    enabled: params.enabled ?? true,
   });
 };
 

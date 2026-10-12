@@ -6,6 +6,7 @@ import { Calendar } from 'primereact/calendar';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Button } from 'primereact/button';
+import { Dropdown } from 'primereact/dropdown';
 import Dialog from './AppDialog';
 import { Bar, Line } from 'react-chartjs-2';
 import {
@@ -36,7 +37,10 @@ import {
   useTradingAccounts,
 } from '@/hooks/api';
 import { useAccountSelection } from '@/hooks/useAccountSelection';
-import { useExchangeDiscovery } from '@/hooks/useExchangeDiscovery';
+import {
+  useStatisticsExchanges,
+  type StatisticsExchangeOption,
+} from '@/hooks/useStatisticsExchanges';
 import PageHeader from '@/components/PageHeader';
 import { formatDateDDMMYYYY, toLocalDateString } from '@/lib/date';
 import { formatCurrency, formatPct, returnClass } from '@/lib/format';
@@ -131,7 +135,13 @@ function sortDirectionForHeader(
   return activeDir === 'asc' ? ' ▲' : ' ▼';
 }
 
-function BreakdownList({ rows }: { rows: StatisticsBreakdownRow[] }) {
+function BreakdownList({
+  rows,
+  currency,
+}: {
+  rows: StatisticsBreakdownRow[];
+  currency: string;
+}) {
   const { mask, hidden } = usePrivacy();
 
   if (rows.length === 0) {
@@ -151,7 +161,7 @@ function BreakdownList({ rows }: { rows: StatisticsBreakdownRow[] }) {
             <div className='flex items-center justify-between text-sm mb-1'>
               <span style={{ color: 'var(--tr-text)' }}>{row.label}</span>
               <span className={returnClass(row.value, hidden)}>
-                {mask(formatCurrency(row.value))}
+                {mask(formatCurrency(row.value, currency))}
               </span>
             </div>
             <div
@@ -196,11 +206,18 @@ export default function StatisticsView() {
   >('pnl');
 
   const { data: accounts = [] } = useTradingAccounts(true);
-  // Reuses the dashboard's account + exchange selection so statistics stay in a single
-  // currency without needing FX conversion.
+  // The account follows the dashboard selection; the exchange is chosen here from the
+  // exchanges that account trades on. The exchange fixes the currency, so statistics
+  // never need FX conversion.
   const { selectedAccountId, selectedAccount } = useAccountSelection(accounts);
-  const { selected: selectedExchangeCode } =
-    useExchangeDiscovery(selectedAccountId);
+  const {
+    exchanges,
+    selectedExchangeCode,
+    setSelectedExchangeCode,
+    currency,
+    isLoading: exchangesLoading,
+  } = useStatisticsExchanges(selectedAccountId);
+  const scopeReady = !!selectedAccountId && !!selectedExchangeCode;
   const { hidden: valuesHidden, mask } = usePrivacy();
 
   const filters = useMemo(
@@ -213,28 +230,36 @@ export default function StatisticsView() {
     [selectedAccountId, selectedExchangeCode, fromDate, toDate]
   );
 
-  const { data: summary, isLoading: summaryLoading } =
-    useStatisticsSummary(filters);
-  const { data: risk, isLoading: riskLoading } = useStatisticsRisk(filters);
-  const { data: distributions } = useStatisticsDistributions(filters);
+  const { data: summary, isLoading: summaryLoading } = useStatisticsSummary(
+    filters,
+    { enabled: scopeReady }
+  );
+  const { data: risk, isLoading: riskLoading } = useStatisticsRisk(filters, {
+    enabled: scopeReady,
+  });
+  const { data: distributions } = useStatisticsDistributions(filters, {
+    enabled: scopeReady,
+  });
   const { data: equitySeries, isLoading: equitySeriesLoading } =
     useStatisticsTimeSeries({
       filters,
       metric: 'equity',
       granularity: 'month',
+      enabled: scopeReady,
     });
   const { data: realizedSeries, isLoading: realizedSeriesLoading } =
     useStatisticsTimeSeries({
       filters,
       metric: 'realizedPnL',
       granularity: 'month',
+      enabled: scopeReady,
     });
 
   const previousFilters = useMemo(
     () => buildPreviousFilters(filters),
     [filters]
   );
-  const compareEnabled = compareMode && previousFilters !== null;
+  const compareEnabled = scopeReady && compareMode && previousFilters !== null;
 
   const { data: previousSummary } = useStatisticsSummary(
     previousFilters ?? {},
@@ -259,6 +284,7 @@ export default function StatisticsView() {
     filters,
     by: 'assetType',
     metric: 'marketValue',
+    enabled: scopeReady,
   });
   const { data: closedTrades, isLoading: closedTradesLoading } =
     useStatisticsClosedTrades({
@@ -267,6 +293,7 @@ export default function StatisticsView() {
       offset: pageFirst,
       sortBy,
       sortDir,
+      enabled: scopeReady,
     });
 
   const closedTradeRows = closedTrades?.rows ?? [];
@@ -293,9 +320,8 @@ export default function StatisticsView() {
         ? `${selectedAccount.name} (Demo)`
         : selectedAccount.name
       : 'No account selected';
-    const exchangeLabel = selectedExchangeCode ?? 'No exchange selected';
-    return `${accountLabel} · ${exchangeLabel}`;
-  }, [selectedAccount, selectedExchangeCode]);
+    return accountLabel;
+  }, [selectedAccount]);
 
   const handleSort = (nextSortBy: StatisticsClosedTradesSortBy) => {
     if (sortBy !== nextSortBy) {
@@ -373,7 +399,7 @@ export default function StatisticsView() {
           <h1>Statistics Snapshot</h1>
           <div class="meta">Exported ${esc(openedAtLabel)} · Range ${esc(fromLabel)} to ${esc(toLabel)} · ${esc(scopeLabel)}</div>
           <div class="grid">
-            <div class="card"><div class="label">Total P/L</div><div class="value">${esc(formatCurrency(summary?.totalPnL ?? 0))}</div></div>
+            <div class="card"><div class="label">Total P/L</div><div class="value">${esc(formatCurrency(summary?.totalPnL ?? 0, currency))}</div></div>
             <div class="card"><div class="label">Win Rate</div><div class="value">${esc(formatPct(summary?.winRate ?? 0))}</div></div>
             <div class="card"><div class="label">Sharpe Ratio</div><div class="value">${esc(risk?.sharpeRatio == null ? 'N/A' : risk.sharpeRatio.toFixed(2))}</div></div>
             <div class="card"><div class="label">Max Drawdown</div><div class="value">${esc(risk?.maxDrawdownPct == null ? 'N/A' : `-${risk.maxDrawdownPct.toFixed(2)}%`)}</div></div>
@@ -488,7 +514,7 @@ export default function StatisticsView() {
             }) =>
               valuesHidden || ctx.parsed.y == null
                 ? `${ctx.dataset.label ?? ''}: ${mask('')}`
-                : `${ctx.dataset.label ?? ''}: ${formatCurrency(ctx.parsed.y)}`,
+                : `${ctx.dataset.label ?? ''}: ${formatCurrency(ctx.parsed.y, currency)}`,
           },
         },
       },
@@ -501,12 +527,12 @@ export default function StatisticsView() {
           grid: { color: 'rgba(148, 163, 184, 0.18)' },
           ticks: {
             callback: (value: number | string) =>
-              valuesHidden ? mask('') : formatCurrency(Number(value)),
+              valuesHidden ? mask('') : formatCurrency(Number(value), currency),
           },
         },
       },
     }),
-    [compareEnabled, valuesHidden, mask]
+    [compareEnabled, valuesHidden, mask, currency]
   );
 
   const distributionChartData = useMemo(() => {
@@ -596,7 +622,7 @@ export default function StatisticsView() {
         )}
 
         <Card>
-          <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
+          <div className='grid grid-cols-1 md:grid-cols-4 gap-4'>
             <div>
               <label
                 className='block text-sm mb-1'
@@ -650,7 +676,7 @@ export default function StatisticsView() {
                 className='block text-sm mb-1'
                 style={{ color: 'var(--tr-text-2)' }}
               >
-                Scope
+                Account
               </label>
               <div
                 className='w-full rounded-md border px-3 py-2 text-sm'
@@ -661,6 +687,44 @@ export default function StatisticsView() {
               >
                 {scopeLabel}
               </div>
+              <p className='text-xs mt-1' style={{ color: 'var(--tr-text-2)' }}>
+                Switch accounts from the dashboard.
+              </p>
+            </div>
+            <div>
+              <label
+                htmlFor='statistics-exchange'
+                className='block text-sm mb-1'
+                style={{ color: 'var(--tr-text-2)' }}
+              >
+                Exchange
+              </label>
+              <Dropdown
+                inputId='statistics-exchange'
+                value={selectedExchangeCode || null}
+                options={exchanges}
+                optionValue='code'
+                optionLabel='code'
+                itemTemplate={(option: StatisticsExchangeOption) =>
+                  `${option.code} · ${option.currency}`
+                }
+                valueTemplate={(
+                  option: StatisticsExchangeOption | null | undefined
+                ) =>
+                  option
+                    ? `${option.code} · ${option.currency}`
+                    : exchangesLoading
+                      ? 'Loading...'
+                      : 'No exchanges'
+                }
+                onChange={e => {
+                  setSelectedExchangeCode(e.value as string);
+                  setPageFirst(0);
+                }}
+                disabled={exchanges.length === 0}
+                placeholder={exchangesLoading ? 'Loading...' : 'No exchanges'}
+                className='w-full'
+              />
             </div>
           </div>
           <div className='flex flex-wrap gap-2 mt-4'>
@@ -709,11 +773,12 @@ export default function StatisticsView() {
             >
               {summaryLoading
                 ? 'Loading...'
-                : mask(formatCurrency(summary?.totalPnL ?? 0))}
+                : mask(formatCurrency(summary?.totalPnL ?? 0, currency))}
             </p>
             {compareEnabled && previousSummary && (
               <p className='text-xs mt-1' style={{ color: 'var(--tr-text-2)' }}>
-                vs previous: {mask(formatCurrency(previousSummary.totalPnL))} (
+                vs previous:{' '}
+                {mask(formatCurrency(previousSummary.totalPnL, currency))} (
                 {mask(
                   formatDeltaNumber(
                     (summary?.totalPnL ?? 0) - previousSummary.totalPnL
@@ -841,7 +906,7 @@ export default function StatisticsView() {
 
         <div className='grid grid-cols-1 xl:grid-cols-2 gap-4'>
           <Card title='Allocation (Market Value)'>
-            <BreakdownList rows={breakdowns?.rows ?? []} />
+            <BreakdownList rows={breakdowns?.rows ?? []} currency={currency} />
           </Card>
           <Card title='Distribution Snapshot'>
             <p className='text-sm mb-2' style={{ color: 'var(--tr-text-2)' }}>

@@ -266,6 +266,7 @@ export interface StatisticsBreakdownRow {
   label: string;
   value: number;
   weight: number;
+  currency?: string; // ISO 4217 code; only set for `by=exchange` rows
 }
 
 export interface StatisticsBreakdownsResponse {

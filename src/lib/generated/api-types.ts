@@ -1668,7 +1668,7 @@ export interface paths {
             };
             requestBody?: never;
             responses: {
-                /** @description Grouped rows with weights */
+                /** @description Grouped rows with weights. Rows for `by=exchange` also include the exchange's ISO 4217 `currency`. */
                 200: {
                     headers: {
                         [name: string]: unknown;
@@ -1965,7 +1965,7 @@ export interface paths {
             };
             requestBody?: never;
             responses: {
-                /** @description Aggregated time-series points */
+                /** @description Aggregated time-series points. `currency` is the ISO 4217 code shared by the scoped exchanges (USD when the scope spans several currencies or no exchange filter is given). */
                 200: {
                     headers: {
                         [name: string]: unknown;

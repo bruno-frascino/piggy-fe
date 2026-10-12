@@ -21,7 +21,7 @@ const {
   useStatisticsTimeSeriesMock,
   useStatisticsClosedTradesMock,
   useAccountSelectionMock,
-  useExchangeDiscoveryMock,
+  useStatisticsExchangesMock,
   privacyState,
 } = vi.hoisted(() => ({
   useTradingAccountsMock: vi.fn(),
@@ -32,7 +32,7 @@ const {
   useStatisticsTimeSeriesMock: vi.fn(),
   useStatisticsClosedTradesMock: vi.fn(),
   useAccountSelectionMock: vi.fn(),
-  useExchangeDiscoveryMock: vi.fn(),
+  useStatisticsExchangesMock: vi.fn(),
   privacyState: { hidden: false },
 }));
 
@@ -55,8 +55,8 @@ vi.mock('@/hooks/useAccountSelection', () => ({
   useAccountSelection: useAccountSelectionMock,
 }));
 
-vi.mock('@/hooks/useExchangeDiscovery', () => ({
-  useExchangeDiscovery: useExchangeDiscoveryMock,
+vi.mock('@/hooks/useStatisticsExchanges', () => ({
+  useStatisticsExchanges: useStatisticsExchangesMock,
 }));
 
 vi.mock('@/lib/privacy-context', () => ({
@@ -87,17 +87,12 @@ beforeEach(() => {
     closedAccounts: [],
     selectedAccount: { id: 'acc-1', name: 'Main' },
   });
-  useExchangeDiscoveryMock.mockReturnValue({
-    selected: 'NASDAQ',
-    setSelected: vi.fn(),
-    exchangeList: [{ name: 'NASDAQ', equitySeries: [] }],
-    exchange: { name: 'NASDAQ', equitySeries: [] },
-    isPortfolioLoading: false,
-    seededFromPortfolio: true,
-    portfolioHistory: [],
-    isHistoryFetched: true,
-    isCreatingSnapshot: false,
-    handleExchangeDetected: vi.fn(),
+  useStatisticsExchangesMock.mockReturnValue({
+    exchanges: [{ code: 'NASDAQ', currency: 'USD' }],
+    selectedExchangeCode: 'NASDAQ',
+    setSelectedExchangeCode: vi.fn(),
+    currency: 'USD',
+    isLoading: false,
   });
   useStatisticsSummaryMock.mockReturnValue({
     data: {
@@ -233,16 +228,72 @@ describe('StatisticsView', () => {
     });
   });
 
-  it('scopes statistics queries to the dashboard-selected account and exchange', () => {
+  it('scopes statistics queries to the dashboard-selected account and the selected exchange', () => {
     render(<StatisticsView />);
 
     expect(useStatisticsSummaryMock).toHaveBeenCalledWith(
       expect.objectContaining({
         accountIds: ['acc-1'],
         exchangeCodes: ['NASDAQ'],
-      })
+      }),
+      { enabled: true }
     );
-    expect(screen.getByText('Main · NASDAQ')).toBeInTheDocument();
+    expect(screen.getByText('Main')).toBeInTheDocument();
+    expect(screen.getByText('NASDAQ · USD')).toBeInTheDocument();
+  });
+
+  it('formats totals in the selected exchange currency', () => {
+    useStatisticsExchangesMock.mockReturnValue({
+      exchanges: [{ code: 'ASX', currency: 'AUD' }],
+      selectedExchangeCode: 'ASX',
+      setSelectedExchangeCode: vi.fn(),
+      currency: 'AUD',
+      isLoading: false,
+    });
+
+    render(<StatisticsView />);
+
+    expect(screen.getByText('ASX · AUD')).toBeInTheDocument();
+    expect(screen.getByText(formatCurrency(150, 'AUD'))).toBeInTheDocument();
+  });
+
+  it('lets the user switch between the account exchanges', () => {
+    const setSelectedExchangeCode = vi.fn();
+    useStatisticsExchangesMock.mockReturnValue({
+      exchanges: [
+        { code: 'ASX', currency: 'AUD' },
+        { code: 'NASDAQ', currency: 'USD' },
+      ],
+      selectedExchangeCode: 'ASX',
+      setSelectedExchangeCode,
+      currency: 'AUD',
+      isLoading: false,
+    });
+
+    render(<StatisticsView />);
+
+    fireEvent.click(document.querySelector('.p-dropdown') as HTMLElement);
+    fireEvent.click(screen.getByText('NASDAQ · USD'));
+
+    expect(setSelectedExchangeCode).toHaveBeenCalledWith('NASDAQ');
+  });
+
+  it('does not fetch statistics until the account has a selectable exchange', () => {
+    useStatisticsExchangesMock.mockReturnValue({
+      exchanges: [],
+      selectedExchangeCode: '',
+      setSelectedExchangeCode: vi.fn(),
+      currency: 'USD',
+      isLoading: false,
+    });
+
+    render(<StatisticsView />);
+
+    expect(useStatisticsSummaryMock).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({ enabled: false })
+    );
+    expect(screen.getAllByText('No exchanges').length).toBeGreaterThan(0);
   });
 
   it('scopes to an explicitly selected demo account and labels it as Demo', () => {
@@ -258,9 +309,10 @@ describe('StatisticsView', () => {
     render(<StatisticsView />);
 
     expect(useStatisticsSummaryMock).toHaveBeenCalledWith(
-      expect.objectContaining({ accountIds: ['demo-1'] })
+      expect.objectContaining({ accountIds: ['demo-1'] }),
+      { enabled: true }
     );
-    expect(screen.getByText('Practice (Demo) · NASDAQ')).toBeInTheDocument();
+    expect(screen.getByText('Practice (Demo)')).toBeInTheDocument();
   });
 
   it('updates closed-trades hook params when clicking sort headers', async () => {
@@ -326,9 +378,9 @@ describe('StatisticsView', () => {
     await waitFor(() => {
       const hasYtdCall = useStatisticsSummaryMock.mock.calls.some(call => {
         const firstArg = call[0] as { dateFrom?: string } | undefined;
-        const secondArg = call[1];
+        const secondArg = call[1] as { enabled?: boolean } | undefined;
         return (
-          secondArg === undefined &&
+          secondArg?.enabled === true &&
           firstArg?.dateFrom === `${currentYear}-01-01`
         );
       });

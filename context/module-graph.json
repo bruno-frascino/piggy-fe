@@ -168,6 +168,7 @@
         "src/components/ScreenerFiltersForm.tsx",
         "src/components/WatchlistsPanel.tsx",
         "src/components/StatisticsView.tsx",
+        "src/hooks/useStatisticsExchanges.ts",
         "src/hooks/api.test.tsx",
         "src/hooks/screener-watchlist-api.test.tsx"
       ],
@@ -2344,8 +2345,7 @@
         }
       ],
       "dependents": [
-        "src/components/DashboardView.tsx",
-        "src/components/StatisticsView.tsx"
+        "src/components/DashboardView.tsx"
       ],
       "orphan": false,
       "source": "src/hooks/useExchangeDiscovery.ts",
@@ -3079,9 +3079,9 @@
           "exoticallyRequired": false,
           "followable": true,
           "matchesDoNotFollow": false,
-          "module": "@/hooks/useExchangeDiscovery",
+          "module": "@/hooks/useStatisticsExchanges",
           "moduleSystem": "es6",
-          "resolved": "src/hooks/useExchangeDiscovery.ts",
+          "resolved": "src/hooks/useStatisticsExchanges.ts",
           "valid": true
         },
         {
@@ -3142,6 +3142,34 @@
       ],
       "orphan": false,
       "source": "src/components/StatisticsView.tsx",
+      "valid": true
+    },
+    {
+      "dependencies": [
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/hooks/api",
+          "moduleSystem": "es6",
+          "resolved": "src/hooks/api.ts",
+          "valid": true
+        }
+      ],
+      "dependents": [
+        "src/components/StatisticsView.tsx",
+        "src/hooks/useStatisticsExchanges.test.tsx"
+      ],
+      "orphan": false,
+      "source": "src/hooks/useStatisticsExchanges.ts",
       "valid": true
     },
     {
@@ -3828,6 +3856,31 @@
           "couldNotResolve": false,
           "dependencyTypes": [
             "local",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "./useStatisticsExchanges",
+          "moduleSystem": "es6",
+          "resolved": "src/hooks/useStatisticsExchanges.ts",
+          "valid": true
+        }
+      ],
+      "dependents": [],
+      "orphan": false,
+      "source": "src/hooks/useStatisticsExchanges.test.tsx",
+      "valid": true
+    },
+    {
+      "dependencies": [
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "local",
             "dynamic-import"
           ],
           "dynamic": true,
@@ -4138,8 +4191,8 @@
         }
       ]
     },
-    "totalCruised": 105,
-    "totalDependenciesCruised": 176,
+    "totalCruised": 107,
+    "totalDependenciesCruised": 178,
     "violations": [],
     "warn": 0
   }

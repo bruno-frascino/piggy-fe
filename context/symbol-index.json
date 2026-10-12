@@ -378,13 +378,13 @@
     "startLine": 41
   },
   {
-    "endLine": 1121,
+    "endLine": 1186,
     "file": "src/components/StatisticsView.tsx",
     "jsdoc": "",
     "kind": "FunctionDeclaration",
     "name": "default",
     "signature": "export default function StatisticsView()",
-    "startLine": 176
+    "startLine": 186
   },
   {
     "endLine": 255,
@@ -747,148 +747,148 @@
     "startLine": 451
   },
   {
-    "endLine": 476,
+    "endLine": 480,
     "file": "src/hooks/api.ts",
     "jsdoc": "",
     "kind": "VariableDeclaration",
     "name": "useStatisticsDistributions",
-    "signature": "useStatisticsDistributions = (filters: StatisticsFilters =",
+    "signature": "useStatisticsDistributions = ( filters: StatisticsFilters =",
     "startLine": 470
   },
   {
-    "endLine": 488,
+    "endLine": 492,
     "file": "src/hooks/api.ts",
     "jsdoc": "",
     "kind": "VariableDeclaration",
     "name": "useStatisticsRisk",
     "signature": "useStatisticsRisk = ( filters: StatisticsFilters =",
-    "startLine": 478
+    "startLine": 482
   },
   {
-    "endLine": 505,
+    "endLine": 511,
     "file": "src/hooks/api.ts",
     "jsdoc": "",
     "kind": "VariableDeclaration",
     "name": "useStatisticsBreakdowns",
     "signature": "useStatisticsBreakdowns = (params:",
-    "startLine": 490
+    "startLine": 494
   },
   {
-    "endLine": 526,
+    "endLine": 534,
     "file": "src/hooks/api.ts",
     "jsdoc": "",
     "kind": "VariableDeclaration",
     "name": "useStatisticsClosedTrades",
     "signature": "useStatisticsClosedTrades = (params:",
-    "startLine": 507
+    "startLine": 513
   },
   {
-    "endLine": 537,
+    "endLine": 545,
     "file": "src/hooks/api.ts",
     "jsdoc": "",
     "kind": "VariableDeclaration",
     "name": "useScreener",
     "signature": "useScreener = (filters: ScreenerFilters, enabled = true) =>",
-    "startLine": 529
-  },
-  {
-    "endLine": 547,
-    "file": "src/hooks/api.ts",
-    "jsdoc": "",
-    "kind": "VariableDeclaration",
-    "name": "useUpcomingDividends",
-    "signature": "useUpcomingDividends = (symbols: string[], enabled = true) =>",
-    "startLine": 539
+    "startLine": 537
   },
   {
     "endLine": 555,
     "file": "src/hooks/api.ts",
     "jsdoc": "",
     "kind": "VariableDeclaration",
-    "name": "useSavedScreens",
-    "signature": "useSavedScreens = () =>",
-    "startLine": 549
+    "name": "useUpcomingDividends",
+    "signature": "useUpcomingDividends = (symbols: string[], enabled = true) =>",
+    "startLine": 547
   },
   {
-    "endLine": 571,
+    "endLine": 563,
+    "file": "src/hooks/api.ts",
+    "jsdoc": "",
+    "kind": "VariableDeclaration",
+    "name": "useSavedScreens",
+    "signature": "useSavedScreens = () =>",
+    "startLine": 557
+  },
+  {
+    "endLine": 579,
     "file": "src/hooks/api.ts",
     "jsdoc": "",
     "kind": "VariableDeclaration",
     "name": "useCreateSavedScreen",
     "signature": "useCreateSavedScreen = () =>",
-    "startLine": 557
+    "startLine": 565
   },
   {
-    "endLine": 581,
+    "endLine": 589,
     "file": "src/hooks/api.ts",
     "jsdoc": "",
     "kind": "VariableDeclaration",
     "name": "useDeleteSavedScreen",
     "signature": "useDeleteSavedScreen = () =>",
-    "startLine": 573
+    "startLine": 581
   },
   {
-    "endLine": 590,
+    "endLine": 598,
     "file": "src/hooks/api.ts",
     "jsdoc": "",
     "kind": "VariableDeclaration",
     "name": "useWatchlists",
     "signature": "useWatchlists = () =>",
-    "startLine": 584
+    "startLine": 592
   },
   {
-    "endLine": 599,
+    "endLine": 607,
     "file": "src/hooks/api.ts",
     "jsdoc": "",
     "kind": "VariableDeclaration",
     "name": "useWatchlistDetail",
     "signature": "useWatchlistDetail = (id?: string) =>",
-    "startLine": 592
+    "startLine": 600
   },
   {
-    "endLine": 609,
+    "endLine": 617,
     "file": "src/hooks/api.ts",
     "jsdoc": "",
     "kind": "VariableDeclaration",
     "name": "useCreateWatchlist",
     "signature": "useCreateWatchlist = () =>",
-    "startLine": 601
+    "startLine": 609
   },
   {
-    "endLine": 621,
+    "endLine": 629,
     "file": "src/hooks/api.ts",
     "jsdoc": "",
     "kind": "VariableDeclaration",
     "name": "useRenameWatchlist",
     "signature": "useRenameWatchlist = () =>",
-    "startLine": 611
+    "startLine": 619
   },
   {
-    "endLine": 631,
+    "endLine": 639,
     "file": "src/hooks/api.ts",
     "jsdoc": "",
     "kind": "VariableDeclaration",
     "name": "useDeleteWatchlist",
     "signature": "useDeleteWatchlist = () =>",
-    "startLine": 623
+    "startLine": 631
   },
   {
-    "endLine": 651,
+    "endLine": 659,
     "file": "src/hooks/api.ts",
     "jsdoc": "",
     "kind": "VariableDeclaration",
     "name": "useAddWatchlistItem",
     "signature": "useAddWatchlistItem = () =>",
-    "startLine": 633
+    "startLine": 641
   },
   {
-    "endLine": 671,
+    "endLine": 679,
     "file": "src/hooks/api.ts",
     "jsdoc": "",
     "kind": "VariableDeclaration",
     "name": "useRemoveWatchlistItem",
     "signature": "useRemoveWatchlistItem = () =>",
-    "startLine": 653
+    "startLine": 661
   },
   {
     "endLine": 47,
@@ -952,6 +952,33 @@
     "name": "useLongPress",
     "signature": "export function useLongPress<T extends Element = Element>( onLongPress: () => void, opts: LongPressOptions =",
     "startLine": 10
+  },
+  {
+    "endLine": 4,
+    "file": "src/hooks/useStatisticsExchanges.ts",
+    "jsdoc": "",
+    "kind": "VariableDeclaration",
+    "name": "DEFAULT_STATISTICS_CURRENCY",
+    "signature": "DEFAULT_STATISTICS_CURRENCY = 'USD'",
+    "startLine": 4
+  },
+  {
+    "endLine": 9,
+    "file": "src/hooks/useStatisticsExchanges.ts",
+    "jsdoc": "",
+    "kind": "InterfaceDeclaration",
+    "name": "StatisticsExchangeOption",
+    "signature": "export interface StatisticsExchangeOption",
+    "startLine": 6
+  },
+  {
+    "endLine": 72,
+    "file": "src/hooks/useStatisticsExchanges.ts",
+    "jsdoc": "Exchange scope for the statistics page. Options are the exchanges the given account has positions on (any status, so closed-only exchanges are included), and the currency is the selected exchange's currency — statistics are never FX-converted. The initial exchange follows the dashboard's last selection when valid for the account, otherwise the first option.",
+    "kind": "FunctionDeclaration",
+    "name": "useStatisticsExchanges",
+    "signature": "export function useStatisticsExchanges(accountId: string)",
+    "startLine": 27
   },
   {
     "endLine": 69,
@@ -1818,7 +1845,7 @@
     "startLine": 259
   },
   {
-    "endLine": 269,
+    "endLine": 270,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
@@ -1827,129 +1854,129 @@
     "startLine": 264
   },
   {
-    "endLine": 274,
+    "endLine": 275,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "StatisticsBreakdownsResponse",
     "signature": "export interface StatisticsBreakdownsResponse",
-    "startLine": 271
+    "startLine": 272
   },
   {
-    "endLine": 289,
+    "endLine": 290,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "StatisticsClosedTradeRow",
     "signature": "export interface StatisticsClosedTradeRow",
-    "startLine": 276
+    "startLine": 277
   },
   {
-    "endLine": 295,
+    "endLine": 296,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "TypeAliasDeclaration",
     "name": "StatisticsClosedTradesSortBy",
     "signature": "export type StatisticsClosedTradesSortBy = | 'closeDate' | 'pnl' | 'returnPct' | 'holdingDays';",
-    "startLine": 291
+    "startLine": 292
   },
   {
-    "endLine": 297,
+    "endLine": 298,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "TypeAliasDeclaration",
     "name": "StatisticsClosedTradesSortDir",
     "signature": "export type StatisticsClosedTradesSortDir = 'asc' | 'desc';",
-    "startLine": 297
+    "startLine": 298
   },
   {
-    "endLine": 306,
+    "endLine": 307,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "StatisticsClosedTradesResponse",
     "signature": "export interface StatisticsClosedTradesResponse",
-    "startLine": 299
+    "startLine": 300
   },
   {
-    "endLine": 323,
+    "endLine": 324,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "ScreenerResult",
     "signature": "export interface ScreenerResult",
-    "startLine": 310
+    "startLine": 311
   },
   {
-    "endLine": 325,
+    "endLine": 326,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "TypeAliasDeclaration",
     "name": "ScreenerMode",
     "signature": "export type ScreenerMode = 'symbol' | 'filter';",
-    "startLine": 325
+    "startLine": 326
   },
   {
-    "endLine": 338,
+    "endLine": 339,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "ScreenerFilters",
     "signature": "export interface ScreenerFilters",
-    "startLine": 327
+    "startLine": 328
   },
   {
-    "endLine": 347,
+    "endLine": 348,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "UpcomingDividend",
     "signature": "export interface UpcomingDividend",
-    "startLine": 340
+    "startLine": 341
   },
   {
-    "endLine": 355,
+    "endLine": 356,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "SavedScreen",
     "signature": "export interface SavedScreen",
-    "startLine": 349
+    "startLine": 350
   },
   {
-    "endLine": 363,
+    "endLine": 364,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "Watchlist",
     "signature": "export interface Watchlist",
-    "startLine": 357
+    "startLine": 358
   },
   {
-    "endLine": 375,
+    "endLine": 376,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "WatchlistItem",
     "signature": "export interface WatchlistItem",
-    "startLine": 365
+    "startLine": 366
   },
   {
-    "endLine": 379,
+    "endLine": 380,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "WatchlistDetail",
     "signature": "export interface WatchlistDetail extends Watchlist",
-    "startLine": 377
+    "startLine": 378
   },
   {
-    "endLine": 389,
+    "endLine": 390,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "AddWatchlistItemPayload",
     "signature": "export interface AddWatchlistItemPayload",
-    "startLine": 381
+    "startLine": 382
   }
 ]
