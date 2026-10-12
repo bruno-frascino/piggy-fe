@@ -70,7 +70,7 @@ vi.mock('@/lib/privacy-context', () => ({
 
 import HoldingsTable from './HoldingsTable';
 
-function renderTable(onLiveTotals?: (t: unknown) => void) {
+function renderTable(onLiveTotals?: (t: unknown) => void, isDemo = false) {
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
   });
@@ -79,6 +79,7 @@ function renderTable(onLiveTotals?: (t: unknown) => void) {
       <HoldingsTable
         selectedAccountId='acc-1'
         selectedAccountName='Main'
+        isDemo={isDemo}
         onLiveTotals={onLiveTotals}
       />
     </QueryClientProvider>
@@ -181,6 +182,179 @@ describe('HoldingsTable row/total computation', () => {
     expect(lastCall.totalEquity).toBeCloseTo(1000);
     expect(lastCall.totalPL).toBeCloseTo(1000 - 1005);
     expect(lastCall.dayPL).toBeCloseTo(0);
+  });
+});
+
+describe('HoldingsTable demo gain highlight', () => {
+  const quote = (price: number) => ({
+    symbol: 'AAPL',
+    price,
+    change: 0,
+    changePercent: 0,
+    currency: 'USD',
+  });
+
+  const gainRows = (container: HTMLElement) => ({
+    desktop: container.querySelectorAll('tr.position-in-gain'),
+    mobile: container.querySelectorAll(
+      '.holdings-portrait-cards .position-in-gain'
+    ),
+  });
+
+  it('highlights positions in gain for a demo account', () => {
+    setHoldings([{ ...baseHolding }]);
+    setQuotes([quote(120)]);
+
+    const { container } = renderTable(undefined, true);
+
+    expect(gainRows(container).desktop).toHaveLength(1);
+    expect(gainRows(container).mobile).toHaveLength(1);
+  });
+
+  it('does not highlight gains for a non-demo account', () => {
+    setHoldings([{ ...baseHolding }]);
+    setQuotes([quote(120)]);
+
+    const { container } = renderTable();
+
+    expect(gainRows(container).desktop).toHaveLength(0);
+    expect(gainRows(container).mobile).toHaveLength(0);
+  });
+
+  it('leaves losing positions that have not hit the stop loss untouched', () => {
+    setHoldings([{ ...baseHolding, stopLoss: 80 }]);
+    setQuotes([quote(90)]);
+
+    const { container } = renderTable(undefined, true);
+
+    expect(gainRows(container).desktop).toHaveLength(0);
+    expect(container.querySelectorAll('tr.stop-loss-triggered')).toHaveLength(
+      0
+    );
+  });
+
+  it('tints a triggered stop as a gain when the position is still above entry', () => {
+    setHoldings([{ ...baseHolding, stopLoss: 115 }]);
+    setQuotes([quote(110)]);
+
+    const { container } = renderTable(undefined, true);
+
+    expect(gainRows(container).desktop).toHaveLength(1);
+    expect(gainRows(container).mobile).toHaveLength(1);
+    expect(container.querySelectorAll('tr.stop-loss-triggered')).toHaveLength(
+      0
+    );
+    const icons = screen.getAllByRole('img', { name: 'Stop loss triggered' });
+    expect(icons.length).toBe(2);
+    icons.forEach(icon => expect(icon).toHaveClass('stop-loss-in-gain-icon'));
+  });
+
+  it('keeps the stop-loss tint when a triggered stop is below entry', () => {
+    setHoldings([{ ...baseHolding, stopLoss: 95 }]);
+    setQuotes([quote(90)]);
+
+    const { container } = renderTable(undefined, true);
+
+    expect(container.querySelectorAll('tr.stop-loss-triggered')).toHaveLength(
+      1
+    );
+    expect(gainRows(container).desktop).toHaveLength(0);
+  });
+});
+
+describe('HoldingsTable stop-loss highlight', () => {
+  const quote = (price: number) => ({
+    symbol: 'AAPL',
+    price,
+    change: 0,
+    changePercent: 0,
+    currency: 'USD',
+  });
+
+  function triggeredRows(container: HTMLElement) {
+    return {
+      desktop: container.querySelectorAll('tr.stop-loss-triggered'),
+      mobile: container.querySelectorAll(
+        '.holdings-portrait-cards .stop-loss-triggered'
+      ),
+    };
+  }
+
+  it('highlights desktop and mobile rows when the live price is below the stop loss', () => {
+    setHoldings([{ ...baseHolding, stopLoss: 95 }]);
+    setQuotes([quote(90)]);
+
+    const { container } = renderTable();
+
+    const { desktop, mobile } = triggeredRows(container);
+    expect(desktop).toHaveLength(1);
+    expect(mobile).toHaveLength(1);
+    expect(
+      screen.getAllByRole('img', { name: 'Stop loss triggered' }).length
+    ).toBe(2);
+  });
+
+  it('highlights when the price exactly equals the stop loss', () => {
+    setHoldings([{ ...baseHolding, stopLoss: 95 }]);
+    setQuotes([quote(95)]);
+
+    const { container } = renderTable();
+
+    expect(triggeredRows(container).desktop).toHaveLength(1);
+  });
+
+  it('does not highlight when the price is above the stop loss', () => {
+    setHoldings([{ ...baseHolding, stopLoss: 95 }]);
+    setQuotes([quote(96)]);
+
+    const { container } = renderTable();
+
+    const { desktop, mobile } = triggeredRows(container);
+    expect(desktop).toHaveLength(0);
+    expect(mobile).toHaveLength(0);
+    expect(
+      screen.queryByRole('img', { name: 'Stop loss triggered' })
+    ).not.toBeInTheDocument();
+  });
+
+  it.each([undefined, 0])(
+    'does not highlight when no stop loss is set (%s)',
+    stopLoss => {
+      setHoldings([{ ...baseHolding, stopLoss }]);
+      setQuotes([quote(1)]);
+
+      const { container } = renderTable();
+
+      const { desktop, mobile } = triggeredRows(container);
+      expect(desktop).toHaveLength(0);
+      expect(mobile).toHaveLength(0);
+    }
+  );
+
+  it('falls back to the stored price when no live quote exists', () => {
+    setHoldings([{ ...baseHolding, stopLoss: 105, currentPrice: 100 }]);
+    setQuotes([]);
+
+    const { container } = renderTable();
+
+    expect(triggeredRows(container).desktop).toHaveLength(1);
+  });
+
+  it('shows a dash instead of $0.00 in the Stop Loss column when unset', () => {
+    setHoldings([
+      { ...baseHolding, stopLoss: 95 },
+      { ...baseHolding, id: 'p2', symbol: 'MSFT', stopLoss: undefined },
+    ]);
+    setQuotes([]);
+
+    const { container } = renderTable();
+
+    const cells = Array.from(
+      container.querySelectorAll('.holdings-table tbody tr')
+    ).map(tr => tr.textContent ?? '');
+    expect(cells.some(text => text.includes('$95.00'))).toBe(true);
+    expect(cells.some(text => text.includes('—'))).toBe(true);
+    expect(container.textContent).not.toContain('$0.00 ');
   });
 });
 

@@ -1659,6 +1659,23 @@
           "exoticallyRequired": false,
           "followable": true,
           "matchesDoNotFollow": false,
+          "module": "@/components/DemoBadge",
+          "moduleSystem": "es6",
+          "resolved": "src/components/DemoBadge.tsx",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
           "module": "@/components/EmptyAccountsState",
           "moduleSystem": "es6",
           "resolved": "src/components/EmptyAccountsState.tsx",
@@ -1786,13 +1803,41 @@
       "valid": true
     },
     {
-      "dependencies": [],
+      "dependencies": [
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/components/DemoBadge",
+          "moduleSystem": "es6",
+          "resolved": "src/components/DemoBadge.tsx",
+          "valid": true
+        }
+      ],
       "dependents": [
         "src/components/DashboardView.tsx",
         "src/components/AccountsBar.test.tsx"
       ],
       "orphan": false,
       "source": "src/components/AccountsBar.tsx",
+      "valid": true
+    },
+    {
+      "dependencies": [],
+      "dependents": [
+        "src/components/DashboardView.tsx",
+        "src/components/AccountsBar.tsx"
+      ],
+      "orphan": false,
+      "source": "src/components/DemoBadge.tsx",
       "valid": true
     },
     {
@@ -1946,6 +1991,7 @@
       ],
       "dependents": [
         "src/components/DashboardView.tsx",
+        "src/components/HoldingsTable.create-stop-loss.test.tsx",
         "src/components/HoldingsTable.test.tsx"
       ],
       "orphan": false,
@@ -3155,6 +3201,31 @@
           "moduleSystem": "es6",
           "resolved": "src/components/HoldingsTable.tsx",
           "valid": true
+        }
+      ],
+      "dependents": [],
+      "orphan": false,
+      "source": "src/components/HoldingsTable.create-stop-loss.test.tsx",
+      "valid": true
+    },
+    {
+      "dependencies": [
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "local",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "./HoldingsTable",
+          "moduleSystem": "es6",
+          "resolved": "src/components/HoldingsTable.tsx",
+          "valid": true
         },
         {
           "circular": false,
@@ -3797,8 +3868,8 @@
         }
       ]
     },
-    "totalCruised": 101,
-    "totalDependenciesCruised": 159,
+    "totalCruised": 103,
+    "totalDependenciesCruised": 162,
     "violations": [],
     "warn": 0
   }

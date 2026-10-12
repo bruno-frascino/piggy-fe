@@ -1,7 +1,13 @@
 // @vitest-environment jsdom
 
 import '@testing-library/jest-dom/vitest';
-import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import {
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { MASKED_VALUE } from '@/lib/format';
 
@@ -16,6 +22,7 @@ const {
   emptyPortfolio,
   emptyHistory,
   useTradingAccountsMock,
+  createAccountMock,
   privacyState,
 } = vi.hoisted(() => ({
   mockRouter: { replace: vi.fn() },
@@ -23,12 +30,16 @@ const {
   emptyPortfolio: [] as unknown[],
   emptyHistory: [] as unknown[],
   useTradingAccountsMock: vi.fn(),
+  createAccountMock: vi.fn(),
   privacyState: { hidden: false },
 }));
 
 vi.mock('@/hooks/api', () => ({
   useTradingAccounts: useTradingAccountsMock,
-  useCreateAccount: () => ({ mutateAsync: vi.fn(), isPending: false }),
+  useCreateAccount: () => ({
+    mutateAsync: createAccountMock,
+    isPending: false,
+  }),
   useCloseAccount: () => ({ mutateAsync: vi.fn(), isPending: false }),
   useDeleteAccount: () => ({ mutateAsync: vi.fn(), isPending: false }),
   useReopenAccount: () => ({ mutateAsync: vi.fn(), isPending: false }),
@@ -178,6 +189,74 @@ describe('DashboardView empty state', () => {
     );
 
     expect(screen.getByText('Add Account')).toBeInTheDocument();
+  });
+});
+
+describe('DashboardView demo accounts', () => {
+  it('creates a real account by default (no isDemo flag)', async () => {
+    useTradingAccountsMock.mockReturnValue({ data: [], isLoading: false });
+    createAccountMock.mockResolvedValue({ id: 'new' });
+
+    render(<DashboardView />);
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Create your first account' })
+    );
+    fireEvent.change(screen.getByPlaceholderText(/Account name/), {
+      target: { value: 'Real' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Create Account' }));
+
+    await waitFor(() =>
+      expect(createAccountMock).toHaveBeenCalledWith({ name: 'Real' })
+    );
+  });
+
+  it('sends isDemo when the demo checkbox is ticked', async () => {
+    useTradingAccountsMock.mockReturnValue({ data: [], isLoading: false });
+    createAccountMock.mockResolvedValue({ id: 'new' });
+
+    render(<DashboardView />);
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Create your first account' })
+    );
+    fireEvent.change(screen.getByPlaceholderText(/Account name/), {
+      target: { value: 'Practice' },
+    });
+    fireEvent.click(
+      screen.getByLabelText(/Demo account \(practice — excluded from tax/)
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Create Account' }));
+
+    await waitFor(() =>
+      expect(createAccountMock).toHaveBeenCalledWith({
+        name: 'Practice',
+        isDemo: true,
+      })
+    );
+  });
+
+  it('shows a Demo badge next to a selected demo account', () => {
+    useTradingAccountsMock.mockReturnValue({
+      data: [
+        { id: 'demo-1', name: 'Practice', status: 'ACTIVE', isDemo: true },
+      ],
+      isLoading: false,
+    });
+
+    render(<DashboardView />);
+
+    expect(screen.getAllByText('Demo').length).toBeGreaterThan(0);
+  });
+
+  it('does not offer the demo checkbox when renaming an account', () => {
+    render(<DashboardView />);
+
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Actions for account Account 1' })
+    );
+    fireEvent.click(screen.getByText('Rename'));
+
+    expect(screen.queryByLabelText(/Demo account/)).not.toBeInTheDocument();
   });
 });
 

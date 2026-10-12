@@ -36,7 +36,7 @@ export interface HoldingPosition {
   units: number;
   buyPrice: number;
   buyFee: number;
-  stopLoss: number;
+  stopLoss?: number; // undefined = no stop loss set
   industry: string;
   currentPrice: number;
   buyComments?: string;
@@ -64,6 +64,8 @@ export interface TradingAccount {
   name: string;
   status?: 'ACTIVE' | 'CLOSED';
   closedAt?: string | null;
+  /** Immutable practice-account flag (excluded from tax reports and "All accounts" aggregates). */
+  isDemo?: boolean;
 }
 
 export interface ApiErrorResponse {
@@ -164,6 +166,7 @@ export interface ClosedTrade {
 // Server-side scope for GET /positions/close-events. The close-date range bounds
 // the payload; account/exchange slicing stays client-side over the returned page.
 export interface ClosedTradesQuery {
+  accountId?: string; // omit for "All accounts" (server excludes demo accounts)
   dateFrom?: string; // YYYY-MM-DD, inclusive
   dateTo?: string; // YYYY-MM-DD, inclusive
   limit?: number;

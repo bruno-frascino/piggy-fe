@@ -2,15 +2,15 @@
   "artifacts": {
     "api-binding.md": {
       "path": "context/api-binding.md",
-      "sha256": "718df7c50dd6dd463d744a53c11fcbc0a9490afd226835a34796e89f9f225046"
+      "sha256": "9ddbdbc1f5b31351416279ec93084c3179d26250a9d1923aa5b6f076d05b01bb"
     },
     "api-types.ts": {
       "path": "src/lib/generated/api-types.ts",
-      "sha256": "8a582a42fe47c4f7633c30005b95e756a651eadda755551ce562da76eac3fb68"
+      "sha256": "66a10fecf88979995e483c85edcb843f7be24a2dd3c945b01bf26c018c18f574"
     },
     "component-index.md": {
       "path": "context/component-index.md",
-      "sha256": "91ee2d5f460f5625e70dcf815e79eb2d305f2f2ebc95cc60d30b2b50f5044439"
+      "sha256": "d49eaded772cbbe55689d2628555ac25e2a5d34b3c8e9b124372934957189ca9"
     },
     "contract-drift.md": {
       "path": "context/contract-drift.md",
@@ -18,15 +18,15 @@
     },
     "data-flow.md": {
       "path": "context/data-flow.md",
-      "sha256": "b1ec6fb4e5af20ac1ead3176ed194906b753cafdd041a677f163f99176db6aca"
+      "sha256": "dd76e0f9bd6d205c6022b020099413d5f71a1f5f66a4bc41b99174f21c337b4a"
     },
     "module-graph.json": {
       "path": "context/module-graph.json",
-      "sha256": "bc73584e1448e417aa8550d83962ce2a18877f5c20d616928504125e57dcee97"
+      "sha256": "5b89105e5e5a0b35addfa105fd48b2384f8719bd8eb37c37970f7791ea0e8d80"
     },
     "module-graph.md": {
       "path": "context/module-graph.md",
-      "sha256": "495f4722f19f5c0d18ca9c31efaa85a8b94cffeec9f67211311cddaef2ad7b1a"
+      "sha256": "966295fdbba436f32c566ec9937c02f179af939358547b9e9edcd62ad55c9b5b"
     },
     "route-map.md": {
       "path": "context/route-map.md",
@@ -34,13 +34,13 @@
     },
     "symbol-index.json": {
       "path": "context/symbol-index.json",
-      "sha256": "ba1c84deb8736d0e07ba99da589230c6c5e9e2e8b2e8b10e3f3ebf1132674a35"
+      "sha256": "34989862d614db37a8d709272961be8eba8fb6e14f00505664e49ad43da28756"
     },
     "unused.json": {
       "path": "context/unused.json",
-      "sha256": "60a009fddf6241890a97bcecf38b7160f1b19f4fe6a8ce1e5d475294612aea71"
+      "sha256": "999888c833415faab289ec4186badbfdbdd6966b77affd30e671ea7693254b52"
     }
   },
-  "generatedAt": "2026-10-02T20:20:59.711Z",
+  "generatedAt": "2026-10-12T00:10:51.665Z",
   "generatorVersion": 1
 }

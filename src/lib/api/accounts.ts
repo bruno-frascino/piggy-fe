@@ -33,6 +33,7 @@ export function createAccountsApi(client: AxiosInstance) {
 
     async createAccount(account: {
       name: string;
+      isDemo?: boolean;
     }): Promise<TradingAccount | null> {
       if (USE_MOCK_API) {
         return {
@@ -40,11 +41,13 @@ export function createAccountsApi(client: AxiosInstance) {
           name: account.name,
           status: 'ACTIVE',
           closedAt: null,
+          isDemo: account.isDemo === true,
         };
       }
 
       const response = await client.post('/accounts', {
         name: account.name,
+        ...(account.isDemo ? { isDemo: true } : {}),
       });
       const payload = isRecord(response.data)
         ? response.data.data

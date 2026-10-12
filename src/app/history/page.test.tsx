@@ -18,6 +18,8 @@ const {
   deletePositionMock,
   showToastMock,
   privacyState,
+  closedPositionsMock,
+  accounts,
 } = vi.hoisted(() => ({
   rows: [
     {
@@ -35,6 +37,7 @@ const {
       sellFee: 1,
       periodDays: 31,
       baseCurrency: 'USD',
+      buyComments: '',
     },
   ],
   updateCloseEventMock: vi.fn(),
@@ -42,6 +45,11 @@ const {
   deletePositionMock: vi.fn(),
   showToastMock: vi.fn(),
   privacyState: { hidden: false },
+  closedPositionsMock: vi.fn(),
+  accounts: [
+    { id: 'acc-1', name: 'Main', status: 'ACTIVE', isDemo: false },
+    { id: 'acc-demo', name: 'Practice', status: 'ACTIVE', isDemo: true },
+  ],
 }));
 
 vi.mock('@/lib/toast-context', () => ({
@@ -49,10 +57,11 @@ vi.mock('@/lib/toast-context', () => ({
 }));
 
 vi.mock('@/hooks/api', () => ({
-  useClosedPositions: () => ({
-    data: { trades: rows, total: rows.length },
-    isLoading: false,
-  }),
+  useClosedPositions: (params: unknown) => {
+    closedPositionsMock(params);
+    return { data: { trades: rows, total: rows.length }, isLoading: false };
+  },
+  useTradingAccounts: () => ({ data: accounts }),
   useUpdateCloseEvent: () => ({ mutateAsync: updateCloseEventMock }),
   useUpdatePosition: () => ({ mutateAsync: updatePositionMock }),
   useDeletePosition: () => ({ mutateAsync: deletePositionMock }),
@@ -195,6 +204,30 @@ describe('HistoryPage', () => {
     expect(
       screen.getByRole('button', { name: 'Save edited dates' })
     ).toBeInTheDocument();
+  });
+});
+
+describe('HistoryPage account scope', () => {
+  it('requests all accounts (no accountId) by default', () => {
+    render(<HistoryPage />);
+
+    expect(closedPositionsMock).toHaveBeenLastCalledWith(
+      expect.objectContaining({ accountId: undefined })
+    );
+  });
+
+  it('requests a demo account explicitly once it is selected', async () => {
+    const { container } = render(<HistoryPage />);
+
+    // Account is the first dropdown on the page.
+    fireEvent.click(container.querySelector('.p-dropdown')!);
+    fireEvent.click(await screen.findByText('Practice (Demo)'));
+
+    await waitFor(() =>
+      expect(closedPositionsMock).toHaveBeenLastCalledWith(
+        expect.objectContaining({ accountId: 'acc-demo' })
+      )
+    );
   });
 });
 

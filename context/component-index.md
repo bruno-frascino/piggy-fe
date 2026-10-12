@@ -4,13 +4,14 @@
 
 ## `AccountActionDialog`
 
-- File: [src/components/AccountActionDialog.tsx](../src/components/AccountActionDialog.tsx) (107 lines)
+- File: [src/components/AccountActionDialog.tsx](../src/components/AccountActionDialog.tsx) (113 lines)
 - API hooks used: —
 - Other hooks used: —
 - Props:
   - `visible: boolean`
   - `action: 'close' | 'delete'`
   - `accountName: string`
+  - `isDemo?: boolean`
   - `loading?: boolean`
   - `error?: string`
   - `onCancel: () => void`
@@ -18,7 +19,7 @@
 
 ## `AccountsBar`
 
-- File: [src/components/AccountsBar.tsx](../src/components/AccountsBar.tsx) (184 lines)
+- File: [src/components/AccountsBar.tsx](../src/components/AccountsBar.tsx) (187 lines)
 - API hooks used: —
 - Other hooks used: useRef, useState
 - Props:
@@ -36,7 +37,7 @@
 
 ## `LocalHolding`
 
-- File: [src/components/AddHoldingsDialog.tsx](../src/components/AddHoldingsDialog.tsx) (486 lines)
+- File: [src/components/AddHoldingsDialog.tsx](../src/components/AddHoldingsDialog.tsx) (493 lines)
 - API hooks used: —
 - Other hooks used: useAccountNameSuggestions, useEffect, useState, useSymbolSearch
 
@@ -69,7 +70,7 @@
 
 ## `ExchangeDefinition`
 
-- File: [src/components/DashboardView.tsx](../src/components/DashboardView.tsx) (720 lines)
+- File: [src/components/DashboardView.tsx](../src/components/DashboardView.tsx) (748 lines)
 - API hooks used: useCloseAccount, useCreateAccount, useDeleteAccount, useReopenAccount, useTradingAccounts, useUpdateAccount
 - Other hooks used: useAccountSelection, useEffect, useExchangeDiscovery, useMemo, usePrivacy, useState
 
@@ -85,6 +86,12 @@
   - `error?: string`
   - `onCancel: () => void`
   - `onConfirm: (currentPassword: string) => void`
+
+## `DemoBadge`
+
+- File: [src/components/DemoBadge.tsx](../src/components/DemoBadge.tsx) (11 lines)
+- API hooks used: —
+- Other hooks used: —
 
 ## `EditClosedTradeDialog`
 
@@ -108,7 +115,7 @@
 
 ## `GenerateReportDialog`
 
-- File: [src/components/GenerateReportDialog.tsx](../src/components/GenerateReportDialog.tsx) (167 lines)
+- File: [src/components/GenerateReportDialog.tsx](../src/components/GenerateReportDialog.tsx) (175 lines)
 - API hooks used: useGenerateTaxReport, useTradingAccounts
 - Other hooks used: useEffect, useState, useToast
 - Props:
@@ -118,7 +125,7 @@
 
 ## `HoldingsTable`
 
-- File: [src/components/HoldingsTable.tsx](../src/components/HoldingsTable.tsx) (908 lines)
+- File: [src/components/HoldingsTable.tsx](../src/components/HoldingsTable.tsx) (958 lines)
 - API hooks used: useClosePosition, useCreatePosition, useDeletePosition, useUpdatePosition
 - Other hooks used: useCallback, useEffect, useHoldingRows, usePrivacy, useQueryClient, useRef, useState, useToast
 
@@ -180,7 +187,7 @@
 
 ## `StatisticsView`
 
-- File: [src/components/StatisticsView.tsx](../src/components/StatisticsView.tsx) (1118 lines)
+- File: [src/components/StatisticsView.tsx](../src/components/StatisticsView.tsx) (1122 lines)
 - API hooks used: useStatisticsBreakdowns, useStatisticsClosedTrades, useStatisticsDistributions, useStatisticsRisk, useStatisticsSummary, useStatisticsTimeSeries, useTradingAccounts
 - Other hooks used: useAccountSelection, useExchangeDiscovery, useMemo, usePrivacy, useState
 

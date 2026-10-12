@@ -51,7 +51,7 @@ export function mapToTradingAccount(row: unknown): TradingAccount | null {
       : null;
 
   if (!id || !name) return null;
-  return { id, name, status, closedAt };
+  return { id, name, status, closedAt, isDemo: row.isDemo === true };
 }
 
 export function mapToUserProfile(row: unknown): UserProfile | null {
@@ -132,7 +132,11 @@ export function mapPositionToHolding(pos: unknown): HoldingPosition | null {
   const effectiveQty = sellQty > 0 ? remainingQty : quantity;
   const effectiveBuyFee =
     baseQty > 0 ? buyFees * (effectiveQty / baseQty) : buyFees;
-  const stopLoss = pos.stopLossPrice != null ? Number(pos.stopLossPrice) : 0;
+  const rawStopLoss =
+    pos.stopLossPrice != null ? Number(pos.stopLossPrice) : NaN;
+  // null / non-positive means "no stop loss".
+  const stopLoss =
+    Number.isFinite(rawStopLoss) && rawStopLoss > 0 ? rawStopLoss : undefined;
   const unrealizedPnL =
     pos.unrealizedPnL != null ? Number(pos.unrealizedPnL) : null;
   const currentPrice =

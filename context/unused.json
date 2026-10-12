@@ -119,15 +119,15 @@
       "exports": [
         {
           "col": 14,
-          "line": 418,
+          "line": 421,
           "name": "useDeleteTaxReport",
-          "pos": 11770
+          "pos": 11905
         },
         {
           "col": 14,
-          "line": 536,
+          "line": 539,
           "name": "useUpcomingDividends",
-          "pos": 14767
+          "pos": 14902
         }
       ],
       "file": "src/hooks/api.ts",
@@ -190,9 +190,9 @@
         },
         {
           "col": 17,
-          "line": 185,
+          "line": 189,
           "name": "toDateStr",
-          "pos": 5835
+          "pos": 6018
         }
       ],
       "file": "src/lib/api/mappers.ts",
@@ -284,9 +284,9 @@
       "types": [
         {
           "col": 18,
-          "line": 60,
+          "line": 62,
           "name": "ExchangeDefinition",
-          "pos": 1711
+          "pos": 1807
         }
       ],
       "unlisted": [],
@@ -313,21 +313,21 @@
         },
         {
           "col": 18,
-          "line": 69,
+          "line": 71,
           "name": "ApiErrorResponse",
-          "pos": 1504
+          "pos": 1657
         },
         {
           "col": 18,
-          "line": 213,
+          "line": 216,
           "name": "StatisticsTimeSeriesPoint",
-          "pos": 5493
+          "pos": 5727
         },
         {
           "col": 18,
-          "line": 225,
+          "line": 228,
           "name": "StatisticsHistogramBucket",
-          "pos": 5720
+          "pos": 5954
         }
       ],
       "unlisted": [],

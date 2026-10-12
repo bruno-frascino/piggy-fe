@@ -4,7 +4,7 @@
 
 | Query key | Read by | Invalidated by |
 | --------- | ------- | --------------- |
-| `['closed-positions', params.dateFrom ?? 'all', params.dateTo ?? 'all', params.limit ?? 'default', params.offset ?? 0,]` | useClosedPositions | — |
+| `['closed-positions', params.accountId ?? 'all-accounts', params.dateFrom ?? 'all', params.dateTo ?? 'all', params.limit ?? 'default', params.offset ?? 0,]` | useClosedPositions | — |
 | `['closed-positions']` | useDeleteAccount | useDeleteAccount |
 | `['current-user']` | useCurrentUser, useUpdateCurrentUser | useUpdateCurrentUser |
 | `['holdings', exchangeName ?? 'all', accountId ?? 'all']` | useHoldings | — |
@@ -13,6 +13,7 @@
 | `['portfolio-history']` | useDeleteAccount, useCloseAccount, useCreatePortfolioSnapshot | useDeleteAccount, useCloseAccount, useCreatePortfolioSnapshot |
 | `['quotes', key]` | useQuotes | — |
 | `['realized-pnl', accountId ?? 'none', exchangeCode ?? 'none']` | useRealizedPnL | — |
+| `['realized-pnl']` | useDeleteAccount | useDeleteAccount |
 | `['saved-screens']` | useSavedScreens, useCreateSavedScreen, useDeleteSavedScreen | useCreateSavedScreen, useDeleteSavedScreen |
 | `['screener', filters]` | useScreener | — |
 | `['screener']` | useAddWatchlistItem, useRemoveWatchlistItem | useAddWatchlistItem, useRemoveWatchlistItem |

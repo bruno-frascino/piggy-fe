@@ -29,6 +29,7 @@ describe('ClosePositionDialog', () => {
         initial={{
           symbol: 'AAPL',
           name: 'Apple Inc.',
+          industry: 'Technology',
           openDate: '2026-07-01',
           units: 10,
           buyPrice: 100,
@@ -58,6 +59,7 @@ describe('ClosePositionDialog', () => {
         initial={{
           symbol: 'AAPL',
           name: 'Apple Inc.',
+          industry: 'Technology',
           openDate: '2026-07-01',
           units: 10,
           buyPrice: 100,

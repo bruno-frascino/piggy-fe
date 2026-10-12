@@ -12,7 +12,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** List trading accounts for the authenticated user */
+        /**
+         * List trading accounts for the authenticated user
+         * @description Each account includes an immutable `isDemo` flag. Demo accounts are listed here but excluded from tax reports and "All accounts" aggregates.
+         */
         get: {
             parameters: {
                 query?: never;
@@ -50,6 +53,11 @@ export interface paths {
             requestBody: {
                 content: {
                     "application/json": {
+                        /**
+                         * @description Practice account. Chosen at creation only and immutable afterwards. Demo accounts are excluded from ATO tax reports and from "All accounts" aggregates. Ignored when an account with this name already exists.
+                         * @default false
+                         */
+                        isDemo?: boolean;
                         /** @example Main */
                         name: string;
                     };
@@ -104,7 +112,7 @@ export interface paths {
         post?: never;
         /**
          * Delete a trading account
-         * @description Permanently deletes a trading account owned by the authenticated user, along with its derived performance history (portfolio snapshots). Refuses to delete an account that still has positions, or one that is referenced by a generated tax report — close the account instead to preserve that history.
+         * @description Permanently deletes a trading account owned by the authenticated user, along with its derived performance history (portfolio snapshots). Demo accounts are deleted together with everything that belongs to them (positions, transactions, snapshots). For non-demo accounts, refuses to delete an account that still has positions, or one that is referenced by a generated tax report — close the account instead to preserve that history.
          */
         delete: {
             parameters: {
@@ -138,7 +146,7 @@ export interface paths {
                     };
                     content?: never;
                 };
-                /** @description Account has positions or is used by a tax report */
+                /** @description Non-demo account has positions or is used by a tax report */
                 409: {
                     headers: {
                         [name: string]: unknown;
@@ -151,7 +159,7 @@ export interface paths {
         head?: never;
         /**
          * Update a trading account
-         * @description Rename a trading account
+         * @description Rename a trading account. The `isDemo` flag is immutable; sending it returns 400.
          */
         patch: {
             parameters: {
@@ -173,6 +181,13 @@ export interface paths {
             responses: {
                 /** @description Account updated */
                 200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Validation error, or an attempt to change the immutable isDemo flag */
+                400: {
                     headers: {
                         [name: string]: unknown;
                     };
@@ -864,7 +879,7 @@ export interface paths {
                     assetType?: "EQUITY" | "ETF" | "CRYPTO";
                     /** @description Filter by exchange code (e.g. NYSE, ASX) */
                     exchangeCode?: string;
-                    /** @description Filter by trading account ID */
+                    /** @description Filter by trading account ID. When omitted, positions in demo accounts are excluded; pass a demo account's ID to list its positions. */
                     accountId?: string;
                     limit?: number;
                     offset?: number;
@@ -978,10 +993,15 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** List close events (SELL transactions) for the authenticated user */
+        /**
+         * List close events (SELL transactions) for the authenticated user
+         * @description Without `accountId`, close events from demo accounts are excluded. Pass a demo account's ID to list its history explicitly.
+         */
         get: {
             parameters: {
                 query?: {
+                    /** @description Only include close events for this trading account (demo accounts allowed) */
+                    accountId?: string;
                     /** @description Only include close events on or after this date */
                     dateFrom?: string;
                     /** @description Only include close events on or before this date */
@@ -1194,6 +1214,13 @@ export interface paths {
             responses: {
                 /** @description Position updated */
                 200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Validation error, or the target account is a demo account while the position's current account is real (or vice versa) — positions cannot be moved between demo and real accounts */
+                400: {
                     headers: {
                         [name: string]: unknown;
                     };
@@ -1623,7 +1650,7 @@ export interface paths {
                 query: {
                     by: "account" | "exchange" | "assetType" | "industry";
                     metric: "marketValue" | "realizedPnL" | "totalPnL";
-                    /** @description CSV trading account IDs */
+                    /** @description CSV trading account IDs. When omitted, demo accounts are excluded; pass a demo account's ID to include it. */
                     accountIds?: string;
                     /** @description CSV exchange codes (e.g. NASDAQ, ASX) */
                     exchangeCodes?: string;
@@ -1680,7 +1707,7 @@ export interface paths {
         get: {
             parameters: {
                 query?: {
-                    /** @description CSV trading account IDs */
+                    /** @description CSV trading account IDs. When omitted, demo accounts are excluded; pass a demo account's ID to include it. */
                     accountIds?: string;
                     /** @description CSV exchange codes (e.g. NASDAQ, ASX) */
                     exchangeCodes?: string;
@@ -1749,7 +1776,7 @@ export interface paths {
         get: {
             parameters: {
                 query?: {
-                    /** @description CSV trading account IDs */
+                    /** @description CSV trading account IDs. When omitted, demo accounts are excluded; pass a demo account's ID to include it. */
                     accountIds?: string;
                     /** @description CSV exchange codes (e.g. NASDAQ, ASX) */
                     exchangeCodes?: string;
@@ -1806,7 +1833,7 @@ export interface paths {
         get: {
             parameters: {
                 query?: {
-                    /** @description CSV trading account IDs */
+                    /** @description CSV trading account IDs. When omitted, demo accounts are excluded; pass a demo account's ID to include it. */
                     accountIds?: string;
                     /** @description CSV exchange codes (e.g. NASDAQ, ASX) */
                     exchangeCodes?: string;
@@ -1861,7 +1888,7 @@ export interface paths {
         get: {
             parameters: {
                 query?: {
-                    /** @description CSV trading account IDs */
+                    /** @description CSV trading account IDs. When omitted, demo accounts are excluded; pass a demo account's ID to include it. */
                     accountIds?: string;
                     /** @description CSV exchange codes (e.g. NASDAQ, ASX) */
                     exchangeCodes?: string;
@@ -1922,7 +1949,7 @@ export interface paths {
                 query: {
                     metric: "equity" | "totalPnL" | "realizedPnL";
                     granularity?: "day" | "week" | "month";
-                    /** @description CSV trading account IDs */
+                    /** @description CSV trading account IDs. When omitted, demo accounts are excluded; pass a demo account's ID to include it. */
                     accountIds?: string;
                     /** @description CSV exchange codes (e.g. NASDAQ, ASX) */
                     exchangeCodes?: string;
@@ -2159,7 +2186,7 @@ export interface paths {
                     };
                     content?: never;
                 };
-                /** @description Invalid input or no accounts selected */
+                /** @description Invalid input, no accounts selected, or a selected account is a demo account (demo accounts are never eligible for tax reports) */
                 400: {
                     headers: {
                         [name: string]: unknown;

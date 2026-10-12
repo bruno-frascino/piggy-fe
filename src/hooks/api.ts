@@ -44,7 +44,8 @@ export const useCreateAccount = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (account: { name: string }) => apiClient.createAccount(account),
+    mutationFn: (account: { name: string; isDemo?: boolean }) =>
+      apiClient.createAccount(account),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['trading-accounts'] });
     },
@@ -62,6 +63,7 @@ export const useDeleteAccount = () => {
       queryClient.invalidateQueries({ queryKey: ['portfolio-history'] });
       queryClient.invalidateQueries({ queryKey: ['holdings'] });
       queryClient.invalidateQueries({ queryKey: ['closed-positions'] });
+      queryClient.invalidateQueries({ queryKey: ['realized-pnl'] });
     },
   });
 };
@@ -265,6 +267,7 @@ export const useClosedPositions = (params: ClosedTradesQuery = {}) => {
   return useQuery({
     queryKey: [
       'closed-positions',
+      params.accountId ?? 'all-accounts',
       params.dateFrom ?? 'all',
       params.dateTo ?? 'all',
       params.limit ?? 'default',

@@ -29,6 +29,7 @@ export function createPositionsApi(client: AxiosInstance) {
       buyFees?: number;
       assetName?: string;
       industry?: string;
+      stopLossPrice?: number | null;
       notes?: string;
     }): Promise<void> {
       if (USE_MOCK_API) {
@@ -54,6 +55,10 @@ export function createPositionsApi(client: AxiosInstance) {
         quantity,
         buyFees,
         capitalAllocated: entryPrice * quantity + buyFees,
+        ...(typeof payload.stopLossPrice === 'number' &&
+        payload.stopLossPrice > 0
+          ? { stopLossPrice: payload.stopLossPrice }
+          : {}),
         ...(payload.notes?.trim() ? { openReason: payload.notes.trim() } : {}),
       });
     },
@@ -171,6 +176,7 @@ export function createPositionsApi(client: AxiosInstance) {
 
       const response = await client.get('/positions/close-events', {
         params: {
+          ...(params.accountId ? { accountId: params.accountId } : {}),
           ...(params.dateFrom ? { dateFrom: params.dateFrom } : {}),
           ...(params.dateTo ? { dateTo: params.dateTo } : {}),
           ...(params.limit !== undefined ? { limit: params.limit } : {}),

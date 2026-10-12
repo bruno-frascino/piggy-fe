@@ -288,7 +288,11 @@ export default function StatisticsView() {
   };
 
   const scopeLabel = useMemo(() => {
-    const accountLabel = selectedAccount?.name ?? 'No account selected';
+    const accountLabel = selectedAccount
+      ? selectedAccount.isDemo
+        ? `${selectedAccount.name} (Demo)`
+        : selectedAccount.name
+      : 'No account selected';
     const exchangeLabel = selectedExchangeCode ?? 'No exchange selected';
     return `${accountLabel} · ${exchangeLabel}`;
   }, [selectedAccount, selectedExchangeCode]);

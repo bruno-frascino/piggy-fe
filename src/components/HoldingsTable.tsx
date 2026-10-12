@@ -35,9 +35,38 @@ function formatNumber(n: number) {
   }).format(n);
 }
 
+function StopLossTriggeredMark({ inGain = false }: { inGain?: boolean }) {
+  return (
+    <i
+      className={`pi pi-exclamation-triangle text-xs stop-loss-triggered-icon${
+        inGain ? ' stop-loss-in-gain-icon' : ''
+      }`}
+      role='img'
+      title='Stop loss triggered'
+      aria-label='Stop loss triggered'
+    />
+  );
+}
+
+/** Gains are only tinted in demo accounts; otherwise a triggered stop gets the stop-loss tint. */
+function isGainHighlighted(r: HoldingRow, isDemo: boolean) {
+  return isDemo && r.currentReturnAbs > 0;
+}
+
+/**
+ * A stop triggered while the position is still above its entry (e.g. a trailing stop)
+ * is a locked-in gain, so the gain tint wins over the stop-loss tint.
+ */
+function rowHighlightClass(r: HoldingRow, isDemo: boolean) {
+  if (isGainHighlighted(r, isDemo)) return 'position-in-gain';
+  if (r.stopLossTriggered) return 'stop-loss-triggered';
+  return '';
+}
+
 export default function HoldingsTable({
   selectedAccountId,
   selectedAccountName,
+  isDemo = false,
   selectedExchange,
   onExchangeDetected,
   baseCurrency,
@@ -45,6 +74,7 @@ export default function HoldingsTable({
 }: {
   selectedAccountId: string;
   selectedAccountName?: string;
+  isDemo?: boolean;
   selectedExchange?: ExchangeKey;
   onExchangeDetected?: (exchange: string) => void;
   baseCurrency?: string;
@@ -293,7 +323,11 @@ export default function HoldingsTable({
                 return (
                   <div
                     key={`${r.symbol}-${r.openDate}-${cardIdx}`}
-                    className='grid grid-cols-4 gap-x-1 py-2 items-center min-w-0'
+                    className={`grid grid-cols-4 gap-x-1 py-2 items-center min-w-0${
+                      rowHighlightClass(r, isDemo)
+                        ? ` ${rowHighlightClass(r, isDemo)}`
+                        : ''
+                    }`}
                   >
                     {/* Col 1: Symbol + Units */}
                     <div className='min-w-0'>
@@ -323,6 +357,11 @@ export default function HoldingsTable({
                       >
                         {r.symbol}
                       </button>
+                      {r.stopLossTriggered && (
+                        <StopLossTriggeredMark
+                          inGain={isGainHighlighted(r, isDemo)}
+                        />
+                      )}
                       <span className='text-gray-400 block text-[10px]'>
                         {mask(formatNumber(r.units))}
                       </span>
@@ -442,38 +481,46 @@ export default function HoldingsTable({
               scrollHeight={tableScrollHeight}
               rowHover
               stripedRows
+              rowClassName={(r: HoldingRow) => rowHighlightClass(r, isDemo)}
               className='holdings-table'
               cellMemo={false}
             >
               <Column
                 header='Symbol'
                 body={(r: HoldingRow) => (
-                  <button
-                    className='font-semibold text-blue-600 hover:underline'
-                    onClick={() => {
-                      setMode('edit');
-                      setEditIdx(r.originalIndex);
-                      setDialogInitial({
-                        id: r.id,
-                        accountName: r.accountName,
-                        exchangeCode: r.exchangeCode,
-                        symbol: r.symbol,
-                        name: r.name,
-                        openDate: r.openDate,
-                        units: r.units,
-                        buyPrice: r.buyPrice,
-                        buyFee: r.buyFee,
-                        stopLoss: r.stopLoss,
-                        industry: r.industry,
-                        currentPrice: r.currentPrice ?? r.buyPrice,
-                        buyComments: r.buyComments,
-                        maxDrawdownPercent: r.maxDrawdownPercent,
-                      });
-                      setShowDialog(true);
-                    }}
-                  >
-                    {r.symbol}
-                  </button>
+                  <span className='inline-flex items-center gap-1'>
+                    <button
+                      className='font-semibold text-blue-600 hover:underline'
+                      onClick={() => {
+                        setMode('edit');
+                        setEditIdx(r.originalIndex);
+                        setDialogInitial({
+                          id: r.id,
+                          accountName: r.accountName,
+                          exchangeCode: r.exchangeCode,
+                          symbol: r.symbol,
+                          name: r.name,
+                          openDate: r.openDate,
+                          units: r.units,
+                          buyPrice: r.buyPrice,
+                          buyFee: r.buyFee,
+                          stopLoss: r.stopLoss,
+                          industry: r.industry,
+                          currentPrice: r.currentPrice ?? r.buyPrice,
+                          buyComments: r.buyComments,
+                          maxDrawdownPercent: r.maxDrawdownPercent,
+                        });
+                        setShowDialog(true);
+                      }}
+                    >
+                      {r.symbol}
+                    </button>
+                    {r.stopLossTriggered && (
+                      <StopLossTriggeredMark
+                        inGain={isGainHighlighted(r, isDemo)}
+                      />
+                    )}
+                  </span>
                 )}
                 frozen
                 alignFrozen='left'
@@ -661,41 +708,43 @@ export default function HoldingsTable({
                 style={{ minWidth: '170px' }}
               />
               {anyStopLoss && (
-                <>
-                  <Column
-                    header='Stop Loss'
-                    body={(r: HoldingRow) =>
-                      typeof r.stopLoss === 'number' && !isNaN(r.stopLoss)
-                        ? formatCurrency(r.stopLoss, currency)
-                        : ''
-                    }
-                    style={{ minWidth: '120px' }}
-                  />
-                  <Column
-                    header='SL Return'
-                    body={(r: HoldingRow) =>
-                      isNaN(r.stopLossPosition)
-                        ? ''
-                        : mask(formatCurrency(r.stopLossPosition, currency))
-                    }
-                    style={{ minWidth: '130px' }}
-                  />
-                  <Column
-                    header='SL Return %'
-                    body={(r: HoldingRow) =>
-                      isNaN(r.stopLossReturnPct) ? (
-                        ''
-                      ) : (
-                        <span
-                          className={returnClass(r.stopLossReturnPct, hidden)}
-                        >
-                          {formatPct(r.stopLossReturnPct)}
-                        </span>
-                      )
-                    }
-                    style={{ minWidth: '130px' }}
-                  />
-                </>
+                <Column
+                  header='Stop Loss'
+                  body={(r: HoldingRow) =>
+                    typeof r.stopLoss === 'number' && r.stopLoss > 0
+                      ? formatCurrency(r.stopLoss, currency)
+                      : '—'
+                  }
+                  style={{ minWidth: '120px' }}
+                />
+              )}
+              {anyStopLoss && (
+                <Column
+                  header='SL Return'
+                  body={(r: HoldingRow) =>
+                    isNaN(r.stopLossPosition)
+                      ? ''
+                      : mask(formatCurrency(r.stopLossPosition, currency))
+                  }
+                  style={{ minWidth: '130px' }}
+                />
+              )}
+              {anyStopLoss && (
+                <Column
+                  header='SL Return %'
+                  body={(r: HoldingRow) =>
+                    isNaN(r.stopLossReturnPct) ? (
+                      ''
+                    ) : (
+                      <span
+                        className={returnClass(r.stopLossReturnPct, hidden)}
+                      >
+                        {formatPct(r.stopLossReturnPct)}
+                      </span>
+                    )
+                  }
+                  style={{ minWidth: '130px' }}
+                />
               )}
               <Column
                 header='Days Open'
@@ -797,6 +846,7 @@ export default function HoldingsTable({
               entryPrice: newPos.buyPrice,
               quantity: newPos.units,
               buyFees: newPos.buyFee,
+              ...(newPos.stopLoss ? { stopLossPrice: newPos.stopLoss } : {}),
               notes: newPos.buyComments,
             };
 

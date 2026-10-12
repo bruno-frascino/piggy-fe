@@ -245,6 +245,24 @@ describe('StatisticsView', () => {
     expect(screen.getByText('Main · NASDAQ')).toBeInTheDocument();
   });
 
+  it('scopes to an explicitly selected demo account and labels it as Demo', () => {
+    const demo = { id: 'demo-1', name: 'Practice', isDemo: true };
+    useAccountSelectionMock.mockReturnValue({
+      selectedAccountId: 'demo-1',
+      setSelectedAccountId: vi.fn(),
+      activeAccounts: [demo],
+      closedAccounts: [],
+      selectedAccount: demo,
+    });
+
+    render(<StatisticsView />);
+
+    expect(useStatisticsSummaryMock).toHaveBeenCalledWith(
+      expect.objectContaining({ accountIds: ['demo-1'] })
+    );
+    expect(screen.getByText('Practice (Demo) · NASDAQ')).toBeInTheDocument();
+  });
+
   it('updates closed-trades hook params when clicking sort headers', async () => {
     render(<StatisticsView />);
 

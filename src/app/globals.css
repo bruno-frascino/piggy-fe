@@ -32,6 +32,12 @@
    ──────────────────────────────────────────────────────────────────────
    --tr-success     #0CAF60   Positive P/L, success toasts
    --tr-danger      #E5343A   Errors, destructive actions
+   --tr-danger-bg   #FDECEC   Soft rose row tint (stop loss triggered)
+   --tr-danger-bg-h #FBDADA   Same, on hover
+  --tr-success-bg  #E9F8F0   Soft green row tint (demo account positions in gain)
+  --tr-success-bg-h #D6F1E3  Same, on hover
+   --tr-demo-bg     #FEF3C7   Demo account badge background
+   --tr-demo-text   #92400E   Demo account badge text
    ──────────────────────────────────────────────────────────────────────
 */
 :root {
@@ -62,6 +68,12 @@
   /* Semantic */
   --tr-success: #0caf60;
   --tr-danger: #e5343a;
+  --tr-danger-bg: #fdecec;
+  --tr-danger-bg-h: #fbdada;
+  --tr-success-bg: #e9f8f0;
+  --tr-success-bg-h: #d6f1e3;
+  --tr-demo-bg: #fef3c7;
+  --tr-demo-text: #92400e;
 
   /* Legacy aliases (kept for Tailwind @theme resolution) */
   --background: var(--tr-surface);
@@ -136,6 +148,50 @@ body {
 .holdings-table tfoot > tr > td.p-frozen-column {
   background-color: var(--tr-brand-bg);
   z-index: 1;
+}
+
+/* Stop loss triggered: soft rose tint that wins over striping, hover and frozen-cell backgrounds */
+.holdings-table .p-datatable-tbody > tr.stop-loss-triggered > td {
+  background-color: var(--tr-danger-bg) !important;
+}
+.holdings-table .p-datatable-tbody > tr.stop-loss-triggered:hover > td {
+  background-color: var(--tr-danger-bg-h) !important;
+}
+.holdings-portrait-cards .stop-loss-triggered {
+  background-color: var(--tr-danger-bg);
+  border-radius: 0.375rem;
+}
+.stop-loss-triggered-icon {
+  color: var(--tr-danger);
+}
+.stop-loss-triggered-icon.stop-loss-in-gain-icon {
+  color: var(--tr-success);
+}
+
+/* Demo account positions in gain: soft green tint, same technique as stop loss */
+.holdings-table .p-datatable-tbody > tr.position-in-gain > td {
+  background-color: var(--tr-success-bg) !important;
+}
+.holdings-table .p-datatable-tbody > tr.position-in-gain:hover > td {
+  background-color: var(--tr-success-bg-h) !important;
+}
+.holdings-portrait-cards .position-in-gain {
+  background-color: var(--tr-success-bg);
+  border-radius: 0.375rem;
+}
+
+/* Demo account badge */
+.demo-badge {
+  display: inline-block;
+  padding: 0 0.375rem;
+  border-radius: 9999px;
+  background: var(--tr-demo-bg);
+  color: var(--tr-demo-text);
+  font-size: 0.625rem;
+  font-weight: 600;
+  line-height: 1.25rem;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
 }
 
 /* Improve readability by increasing row height in holdings/history tables */

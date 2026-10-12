@@ -6,6 +6,7 @@ import { Dialog } from 'primereact/dialog';
 import { Menu } from 'primereact/menu';
 import type { MenuItem } from 'primereact/menuitem';
 import type { TradingAccount } from '@/lib/types';
+import DemoBadge from '@/components/DemoBadge';
 
 interface AccountsBarProps {
   activeAccounts: TradingAccount[];
@@ -42,7 +43,7 @@ export default function AccountsBar({
     activeAccounts.find(account => account.id === selectedAccountId) ?? null;
 
   const switcherItems: MenuItem[] = activeAccounts.map(account => ({
-    label: account.name,
+    label: account.isDemo ? `${account.name} · Demo` : account.name,
     icon: account.id === selectedAccountId ? 'pi pi-check' : undefined,
     command: () => onSelectAccount(account.id),
   }));
@@ -75,6 +76,7 @@ export default function AccountsBar({
             <div className='inline-flex items-center rounded-full border bg-blue-600 text-white border-blue-600 transition select-none shrink-0 max-w-full'>
               <span className='min-h-11 pl-4 pr-2 flex items-center font-medium truncate'>
                 {selectedAccount.name}
+                {selectedAccount.isDemo && <DemoBadge className='ml-2' />}
               </span>
               {activeAccounts.length > 1 && (
                 <button
@@ -149,8 +151,9 @@ export default function AccountsBar({
                 key={account.id}
                 className='flex items-center justify-between py-3 gap-3'
               >
-                <span className='text-sm text-gray-700 line-through'>
-                  {account.name}
+                <span className='text-sm text-gray-700'>
+                  <span className='line-through'>{account.name}</span>
+                  {account.isDemo && <DemoBadge className='ml-2' />}
                 </span>
                 <div className='flex items-center gap-2'>
                   <Button

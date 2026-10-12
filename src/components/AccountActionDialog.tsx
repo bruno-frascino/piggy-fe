@@ -7,6 +7,7 @@ interface Props {
   visible: boolean;
   action: 'close' | 'delete';
   accountName: string;
+  isDemo?: boolean;
   loading?: boolean;
   error?: string;
   onCancel: () => void;
@@ -17,6 +18,7 @@ export default function AccountActionDialog({
   visible,
   action,
   accountName,
+  isDemo = false,
   loading = false,
   error = '',
   onCancel,
@@ -29,9 +31,17 @@ export default function AccountActionDialog({
   const title = isDelete
     ? `Delete ${accountName} permanently?`
     : `Close ${accountName}?`;
+  const deleteDetail = isDemo
+    ? 'This permanently deletes this demo account and everything in it — all positions, transactions and performance history. This cannot be undone.'
+    : 'This permanently removes the account and its performance history from the app. It only works when the account has no positions and is not used by a generated tax report.';
   const detail = isDelete
-    ? 'This permanently removes the account and its performance history from the app. It only works when the account has no positions and is not used by a generated tax report.'
+    ? deleteDetail
     : 'This archives the account. You can reopen it later and your history will be preserved.';
+  const footnote = isDelete
+    ? isDemo
+      ? ''
+      : 'If the account still has positions or tax reports, close it instead — that keeps every record intact and can be undone.'
+    : 'Use close when you want to keep the account around but stop using it for now.';
 
   return (
     <Dialog
@@ -73,11 +83,7 @@ export default function AccountActionDialog({
         </div>
 
         <div className='space-y-2'>
-          <p className='text-sm text-gray-600'>
-            {isDelete
-              ? 'If the account still has positions or tax reports, close it instead — that keeps every record intact and can be undone.'
-              : 'Use close when you want to keep the account around but stop using it for now.'}
-          </p>
+          {footnote && <p className='text-sm text-gray-600'>{footnote}</p>}
           {error && <p className='text-sm text-red-600'>{error}</p>}
         </div>
 

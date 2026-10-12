@@ -147,7 +147,11 @@ export default function AddHoldingsDialog({
       units: form.units!,
       buyPrice: form.buyPrice!,
       buyFee: form.buyFee ?? 0,
-      stopLoss: form.stopLoss,
+      // 0 / cleared both mean "no stop loss".
+      stopLoss:
+        typeof form.stopLoss === 'number' && form.stopLoss > 0
+          ? form.stopLoss
+          : undefined,
       accountName: form.accountName?.trim() || 'Main',
       exchangeCode: (
         form.exchangeCode?.trim() ||
@@ -421,9 +425,12 @@ export default function AddHoldingsDialog({
           <div className='col-span-12 md:col-span-4'>
             <label className='block text-sm font-medium mb-1'>Stop Loss</label>
             <InputNumber
-              value={form.stopLoss ?? 0}
+              value={form.stopLoss ?? null}
               onValueChange={e =>
-                setForm(f => ({ ...f, stopLoss: (e.value ?? 0) as number }))
+                setForm(f => ({
+                  ...f,
+                  stopLoss: typeof e.value === 'number' ? e.value : undefined,
+                }))
               }
               mode='decimal'
               minFractionDigits={0}

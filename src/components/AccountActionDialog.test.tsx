@@ -37,6 +37,26 @@ describe('AccountActionDialog', () => {
     expect(onConfirm).toHaveBeenCalledOnce();
   });
 
+  it('shows demo delete copy warning that everything is deleted', () => {
+    render(
+      <AccountActionDialog
+        visible
+        action='delete'
+        accountName='Demo1'
+        isDemo
+        onCancel={vi.fn()}
+        onConfirm={vi.fn()}
+      />
+    );
+
+    expect(
+      screen.getByText(
+        'This permanently deletes this demo account and everything in it — all positions, transactions and performance history. This cannot be undone.'
+      )
+    ).toBeInTheDocument();
+    expect(screen.queryByText(/close it instead/)).not.toBeInTheDocument();
+  });
+
   it('shows close copy and cancels the action', () => {
     const onCancel = vi.fn();
     const onConfirm = vi.fn();

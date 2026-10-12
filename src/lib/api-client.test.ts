@@ -140,16 +140,29 @@ describe('api-client', () => {
     const reopened = await apiClient.reopenAccount('a2');
 
     expect(accounts).toEqual([
-      { id: 'a1', name: 'Main', status: 'ACTIVE', closedAt: null },
+      {
+        id: 'a1',
+        name: 'Main',
+        status: 'ACTIVE',
+        closedAt: null,
+        isDemo: false,
+      },
     ]);
     expect(allAccounts).toEqual([
-      { id: 'a1', name: 'Main', status: 'CLOSED', closedAt: null },
+      {
+        id: 'a1',
+        name: 'Main',
+        status: 'CLOSED',
+        closedAt: null,
+        isDemo: false,
+      },
     ]);
     expect(created).toEqual({
       id: 'a2',
       name: 'Growth',
       status: 'ACTIVE',
       closedAt: null,
+      isDemo: false,
     });
     expect(deleted).toEqual({ success: true });
     expect(closed).toEqual({ success: true });
@@ -221,6 +234,58 @@ describe('api-client', () => {
       baseCurrency: 'USD',
     });
     expect(updated?.baseCurrency).toBe('AUD');
+  });
+
+  it('maps isDemo and sends it only when creating a demo account', async () => {
+    const apiClient = await loadClient();
+
+    axiosClientMock.get.mockResolvedValueOnce({
+      data: { data: [{ id: 'd1', name: 'Practice', isDemo: true }] },
+    });
+    axiosClientMock.post.mockResolvedValueOnce({
+      data: { data: { id: 'd2', name: 'Sandbox', isDemo: true } },
+    });
+
+    const accounts = await apiClient.getTradingAccounts();
+    const created = await apiClient.createAccount({
+      name: 'Sandbox',
+      isDemo: true,
+    });
+
+    expect(accounts[0].isDemo).toBe(true);
+    expect(created?.isDemo).toBe(true);
+    expect(axiosClientMock.post).toHaveBeenCalledWith('/accounts', {
+      name: 'Sandbox',
+      isDemo: true,
+    });
+  });
+
+  it('maps a null or zero stop loss to unset and a positive one to a number', async () => {
+    const apiClient = await loadClient();
+
+    const position = (id: string, stopLossPrice: unknown) => ({
+      id,
+      openDate: '2026-05-01T10:00:00.000Z',
+      entryPrice: 100,
+      quantity: 5,
+      buyFees: 0,
+      stopLossPrice,
+      account: { id: 'acc1', name: 'Main' },
+      asset: { symbol: 'AAPL', name: 'Apple', exchange: { code: 'NASDAQ' } },
+    });
+    axiosClientMock.get.mockResolvedValueOnce({
+      data: {
+        data: [
+          position('p1', null),
+          position('p2', '0'),
+          position('p3', '90.5'),
+        ],
+      },
+    });
+
+    const holdings = await apiClient.getHoldings('NASDAQ', 'acc1');
+
+    expect(holdings.map(h => h.stopLoss)).toEqual([undefined, undefined, 90.5]);
   });
 
   it('maps holdings from positions endpoint', async () => {
@@ -376,6 +441,53 @@ describe('api-client', () => {
       industry: 'Auto',
       openReason: 'Trim',
     });
+  });
+
+  it('sends stopLossPrice when creating a position with a stop loss', async () => {
+    const apiClient = await loadClient();
+
+    axiosClientMock.post.mockResolvedValueOnce({ data: { ok: true } });
+    axiosClientMock.post.mockResolvedValueOnce({ data: { ok: true } });
+
+    const base = {
+      symbol: 'aapl',
+      exchangeCode: 'nasdaq',
+      openDate: '2026-05-01',
+      entryPrice: 100,
+      quantity: 2,
+    };
+    await apiClient.createPosition({ ...base, stopLossPrice: 90 });
+    await apiClient.createPosition({ ...base, stopLossPrice: 0 });
+
+    expect(axiosClientMock.post).toHaveBeenNthCalledWith(
+      1,
+      '/positions',
+      expect.objectContaining({ stopLossPrice: 90 })
+    );
+    expect(axiosClientMock.post.mock.calls[1][1]).not.toHaveProperty(
+      'stopLossPrice'
+    );
+  });
+
+  it('passes accountId to the close-events request when scoped to an account', async () => {
+    const apiClient = await loadClient();
+
+    axiosClientMock.get.mockResolvedValueOnce({ data: { data: [] } });
+    axiosClientMock.get.mockResolvedValueOnce({ data: { data: [] } });
+
+    await apiClient.getClosedPositions({ accountId: 'demo1' });
+    await apiClient.getClosedPositions({});
+
+    expect(axiosClientMock.get).toHaveBeenNthCalledWith(
+      1,
+      '/positions/close-events',
+      { params: { accountId: 'demo1' } }
+    );
+    expect(axiosClientMock.get).toHaveBeenNthCalledWith(
+      2,
+      '/positions/close-events',
+      { params: {} }
+    );
   });
 
   it('sends null when clearing an opening comment', async () => {

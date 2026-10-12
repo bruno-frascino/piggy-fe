@@ -30,7 +30,10 @@ export default function GenerateReportDialog({
   onHide,
   onGenerated,
 }: Props) {
-  const { data: accounts = [] } = useTradingAccounts(true);
+  const { data: allAccounts = [] } = useTradingAccounts(true);
+  // Demo accounts are never eligible for tax reports.
+  const accounts = allAccounts.filter(a => !a.isDemo);
+  const hasDemoAccounts = allAccounts.some(a => a.isDemo);
   const generateReport = useGenerateTaxReport();
   const { show: showToast } = useToast();
 
@@ -134,6 +137,11 @@ export default function GenerateReportDialog({
             className='w-full'
             disabled={generateReport.isPending}
           />
+          {hasDemoAccounts && (
+            <p className='text-xs mt-1' style={{ color: 'var(--tr-text-2)' }}>
+              Demo accounts are excluded from tax reports.
+            </p>
+          )}
         </div>
 
         {error && <Message severity='error' text={error} />}

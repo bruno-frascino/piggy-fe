@@ -50,6 +50,23 @@ describe('AccountsBar', () => {
     ).toBeInTheDocument();
   });
 
+  it('shows a Demo badge for a selected demo account and labels it in the switcher', () => {
+    renderBar({
+      activeAccounts: [
+        { id: 'acc-1', name: 'Account 1', status: 'ACTIVE', isDemo: true },
+        { id: 'acc-2', name: 'Account 2', status: 'ACTIVE' },
+      ],
+    });
+
+    expect(screen.getByText('Demo')).toBeInTheDocument();
+  });
+
+  it('shows no Demo badge for real accounts', () => {
+    renderBar();
+
+    expect(screen.queryByText('Demo')).not.toBeInTheDocument();
+  });
+
   it('hides the switch-account button when there is only one active account', () => {
     renderBar({ activeAccounts: [activeAccounts[0]] });
 

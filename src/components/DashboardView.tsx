@@ -15,8 +15,10 @@ import { useAccountSelection } from '@/hooks/useAccountSelection';
 import { useExchangeDiscovery } from '@/hooks/useExchangeDiscovery';
 import { Button } from 'primereact/button';
 import { InputText } from 'primereact/inputtext';
+import { Checkbox } from 'primereact/checkbox';
 import { Dialog } from 'primereact/dialog';
 import HoldingsTable from '@/components/HoldingsTable';
+import DemoBadge from '@/components/DemoBadge';
 import AccountActionDialog from '@/components/AccountActionDialog';
 import AccountsBar from '@/components/AccountsBar';
 import EmptyAccountsState from '@/components/EmptyAccountsState';
@@ -89,6 +91,7 @@ export default function DashboardView() {
     selectedAccount,
   } = useAccountSelection(accountList);
   const [newAccountName, setNewAccountName] = useState('');
+  const [newAccountIsDemo, setNewAccountIsDemo] = useState(false);
   const [accountCreateError, setAccountCreateError] = useState('');
   const [accountActionError, setAccountActionError] = useState('');
   const [showAccountDialog, setShowAccountDialog] = useState(false);
@@ -163,8 +166,12 @@ export default function DashboardView() {
     }
 
     try {
-      const created = await createAccount.mutateAsync({ name });
+      const created = await createAccount.mutateAsync({
+        name,
+        ...(newAccountIsDemo ? { isDemo: true } : {}),
+      });
       setNewAccountName('');
+      setNewAccountIsDemo(false);
       setShowAccountDialog(false);
       if (created?.id) {
         setSelectedAccountId(created.id);
@@ -404,6 +411,7 @@ export default function DashboardView() {
         visible={accountActionDialog !== null}
         action={accountActionDialog?.action ?? 'close'}
         accountName={accountActionDialog?.account.name ?? ''}
+        isDemo={accountActionDialog?.account.isDemo ?? false}
         loading={closeAccount.isPending || deleteAccount.isPending}
         error={accountActionError}
         onCancel={() => setAccountActionDialog(null)}
@@ -486,6 +494,7 @@ export default function DashboardView() {
         onHide={() => {
           setShowAccountDialog(false);
           setAccountCreateError('');
+          setNewAccountIsDemo(false);
         }}
       >
         <form
@@ -508,6 +517,20 @@ export default function DashboardView() {
             className='w-full'
             autoFocus
           />
+          <div className='flex items-start gap-2'>
+            <Checkbox
+              inputId='new-account-demo'
+              checked={newAccountIsDemo}
+              onChange={e => setNewAccountIsDemo(e.checked === true)}
+            />
+            <label htmlFor='new-account-demo' className='text-sm'>
+              Demo account (practice — excluded from tax reports)
+              <span className='block text-xs text-gray-500'>
+                Cannot be changed later. Also left out of &quot;All
+                accounts&quot; totals.
+              </span>
+            </label>
+          </div>
           <div className='flex justify-end gap-2 pt-2'>
             <Button
               type='button'
@@ -517,6 +540,7 @@ export default function DashboardView() {
               onClick={() => {
                 setShowAccountDialog(false);
                 setAccountCreateError('');
+                setNewAccountIsDemo(false);
               }}
             />
             <Button
@@ -543,6 +567,9 @@ export default function DashboardView() {
                     >
                       Exchanges{' '}
                       {selectedAccount ? `· ${selectedAccount.name}` : ''}
+                      {selectedAccount?.isDemo && (
+                        <DemoBadge className='ml-2' />
+                      )}
                     </h3>
                   </div>
                   {exchangeList.length === 0 && (
@@ -688,6 +715,7 @@ export default function DashboardView() {
                 <HoldingsTable
                   selectedAccountId={selectedAccountId}
                   selectedAccountName={selectedAccount?.name}
+                  isDemo={selectedAccount?.isDemo === true}
                   selectedExchange={selected || undefined}
                   onExchangeDetected={handleExchangeDetected}
                   baseCurrency={exchange?.baseCurrency}

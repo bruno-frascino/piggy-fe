@@ -20,9 +20,17 @@ export type HoldingRow = LocalHolding & {
   priceDrawdownPct: number; // (effectivePrice - buyPrice) / buyPrice — used for max drawdown tracking
   stopLossPosition: number; // units * stopLoss
   stopLossReturnPct: number; // (stopLossPos - open)/open
+  stopLossTriggered: boolean; // stop loss set and effectivePrice <= stopLoss
   allocationPct: number; // openPosition / totalOpen
   originalIndex: number; // index in holdings array
 };
+
+/** A stop loss counts as set only when it is a finite price above zero. */
+function hasStopLoss(stopLoss: number | undefined): stopLoss is number {
+  return (
+    typeof stopLoss === 'number' && Number.isFinite(stopLoss) && stopLoss > 0
+  );
+}
 
 function isOnline() {
   if (typeof navigator === 'undefined') return true;
@@ -188,7 +196,7 @@ export function useHoldingRows({
       const currentReturnAbs = currentPosition - openPosition;
       const currentReturnPct =
         openPosition > 0 ? currentReturnAbs / openPosition : 0;
-      const hasStop = typeof h.stopLoss === 'number' && !isNaN(h.stopLoss);
+      const hasStop = hasStopLoss(h.stopLoss);
       const stopLossPrice = hasStop ? (h.stopLoss as number) : NaN;
       const stopLossPosition = hasStop ? h.units * stopLossPrice : NaN;
       const stopLossReturnPct =
@@ -218,6 +226,7 @@ export function useHoldingRows({
         priceDrawdownPct,
         stopLossPosition: hasStop ? stopLossPosition : NaN,
         stopLossReturnPct: hasStop ? stopLossReturnPct : NaN,
+        stopLossTriggered: hasStop && effectivePrice <= stopLossPrice,
         allocationPct,
         originalIndex: i,
       };
@@ -273,8 +282,7 @@ export function useHoldingRows({
   }, [rows.length]);
 
   const anyStopLoss = useMemo(
-    () =>
-      holdings.some(h => typeof h.stopLoss === 'number' && !isNaN(h.stopLoss)),
+    () => holdings.some(h => hasStopLoss(h.stopLoss)),
     [holdings]
   );
 

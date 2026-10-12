@@ -15,6 +15,7 @@ import {
   useClosedPositions,
   useDeletePosition,
   useTaxReportPositionUsage,
+  useTradingAccounts,
   useUpdateCloseEvent,
   useUpdatePosition,
 } from '@/hooks/api';
@@ -313,9 +314,12 @@ export default function HistoryPage() {
   const [startDate, setStartDate] = useState<string>(defaultStart);
   const [endDate, setEndDate] = useState<string>(defaultEnd);
 
-  // The close-date range is the server-side scope; account and exchange are
-  // sliced client-side so their dropdowns keep listing every option in range.
+  // Account and close-date range are the server-side scope ("All accounts" excludes
+  // demo accounts on the server); exchange is sliced client-side so its dropdown
+  // keeps listing every option in range.
+  const [accountFilter, setAccountFilter] = useState<string | null>(null);
   const { data, isLoading } = useClosedPositions({
+    accountId: accountFilter ?? undefined,
     dateFrom: startDate || undefined,
     dateTo: endDate || undefined,
   });
@@ -332,7 +336,6 @@ export default function HistoryPage() {
   const [activePreset, setActivePreset] = useState<HistoryPeriodPreset | null>(
     null
   );
-  const [accountFilter, setAccountFilter] = useState<string | null>(null);
   const [exchangeFilter, setExchangeFilter] = useState<string | null>(null);
   const [showDialog, setShowDialog] = useState(false);
   const [active, setActive] = useState<ClosedTrade | null>(null);
@@ -354,18 +357,19 @@ export default function HistoryPage() {
     setActivePreset(preset);
   };
 
-  const accountOptions = useMemo(() => {
-    const names = new Set<string>();
-    rows.forEach(r => {
-      if (r.accountName) names.add(r.accountName);
-    });
-    return [
-      { label: 'All accounts', value: null },
-      ...Array.from(names)
-        .sort()
-        .map(name => ({ label: name, value: name })),
-    ];
-  }, [rows]);
+  const { data: accounts = [] } = useTradingAccounts(true);
+  const accountOptions = useMemo(
+    () => [
+      { label: 'All accounts', value: null as string | null },
+      ...[...accounts]
+        .sort((a, b) => a.name.localeCompare(b.name))
+        .map(a => ({
+          label: a.isDemo ? `${a.name} (Demo)` : a.name,
+          value: a.id as string | null,
+        })),
+    ],
+    [accounts]
+  );
 
   const exchangeOptions = useMemo(() => {
     const names = new Set<string>();
@@ -380,13 +384,9 @@ export default function HistoryPage() {
 
   const filtered = useMemo(() => {
     return rows.filter(r => {
-      const matchesAccount =
-        !accountFilter || (r.accountName ?? undefined) === accountFilter;
-      const matchesExchange =
-        !exchangeFilter || (r.exchange ?? 'Unknown') === exchangeFilter;
-      return matchesAccount && matchesExchange;
+      return !exchangeFilter || (r.exchange ?? 'Unknown') === exchangeFilter;
     });
-  }, [rows, accountFilter, exchangeFilter]);
+  }, [rows, exchangeFilter]);
 
   const groups = useMemo(() => {
     const map = new Map<

@@ -66,6 +66,34 @@ describe('GenerateReportDialog', () => {
     expect(mutateAsyncMock).not.toHaveBeenCalled();
   });
 
+  it('lists only non-demo accounts and explains why demo ones are missing', () => {
+    useTradingAccountsMock.mockReturnValue({
+      data: [
+        { id: 'acc-1', name: 'My Portfolio' },
+        { id: 'demo-1', name: 'Practice', isDemo: true },
+      ],
+    });
+
+    const { container } = render(
+      <GenerateReportDialog visible onHide={vi.fn()} />
+    );
+
+    fireEvent.click(container.ownerDocument.querySelector('.p-multiselect')!);
+    expect(screen.getByText('My Portfolio')).toBeInTheDocument();
+    expect(screen.queryByText('Practice')).not.toBeInTheDocument();
+    expect(
+      screen.getByText('Demo accounts are excluded from tax reports.')
+    ).toBeInTheDocument();
+  });
+
+  it('does not mention demo accounts when there are none', () => {
+    render(<GenerateReportDialog visible onHide={vi.fn()} />);
+
+    expect(
+      screen.queryByText('Demo accounts are excluded from tax reports.')
+    ).not.toBeInTheDocument();
+  });
+
   it('renders the not-tax-advice disclaimer', () => {
     render(<GenerateReportDialog visible onHide={vi.fn()} />);
 

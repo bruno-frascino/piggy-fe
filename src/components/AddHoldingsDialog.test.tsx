@@ -223,3 +223,89 @@ describe('AddHoldingsDialog delete affordance', () => {
     ).not.toBeInTheDocument();
   });
 });
+
+describe('AddHoldingsDialog stop loss', () => {
+  const editInitial = {
+    symbol: 'AAPL',
+    name: 'Apple',
+    openDate: '2026-01-01',
+    units: 5,
+    buyPrice: 50,
+    buyFee: 2,
+    accountName: 'Main',
+    exchangeCode: 'NASDAQ',
+    currentPrice: 55,
+  };
+
+  function stopLossInput() {
+    return screen
+      .getByText('Stop Loss')
+      .parentElement!.querySelector('input') as HTMLInputElement;
+  }
+
+  it('pre-fills the stop loss in edit mode', () => {
+    render(
+      <AddHoldingsDialog
+        visible
+        mode='edit'
+        exchangeCode='NASDAQ'
+        initial={{ ...editInitial, stopLoss: 45.5 }}
+        onHide={vi.fn()}
+        onSubmit={vi.fn()}
+      />
+    );
+
+    expect(stopLossInput().value).toBe('45.5');
+  });
+
+  it('shows an empty stop loss field (not 0) when none is set', () => {
+    render(
+      <AddHoldingsDialog
+        visible
+        mode='edit'
+        exchangeCode='NASDAQ'
+        initial={editInitial}
+        onHide={vi.fn()}
+        onSubmit={vi.fn()}
+      />
+    );
+
+    expect(stopLossInput().value).toBe('');
+  });
+
+  it('submits the stop loss when set', () => {
+    const onSubmit = vi.fn();
+    render(
+      <AddHoldingsDialog
+        visible
+        mode='edit'
+        exchangeCode='NASDAQ'
+        initial={{ ...editInitial, stopLoss: 45 }}
+        onHide={vi.fn()}
+        onSubmit={onSubmit}
+      />
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'Save' }));
+
+    expect(onSubmit.mock.calls[0][0].stopLoss).toBe(45);
+  });
+
+  it('treats a stop loss of 0 as unset on submit', () => {
+    const onSubmit = vi.fn();
+    render(
+      <AddHoldingsDialog
+        visible
+        mode='edit'
+        exchangeCode='NASDAQ'
+        initial={{ ...editInitial, stopLoss: 0 }}
+        onHide={vi.fn()}
+        onSubmit={onSubmit}
+      />
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: 'Save' }));
+
+    expect(onSubmit.mock.calls[0][0].stopLoss).toBeUndefined();
+  });
+});

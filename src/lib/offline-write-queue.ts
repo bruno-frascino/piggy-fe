@@ -15,6 +15,7 @@ type CreatePositionPayload = {
   buyFees?: number;
   assetName?: string;
   industry?: string;
+  stopLossPrice?: number | null;
   notes?: string;
 };
 
