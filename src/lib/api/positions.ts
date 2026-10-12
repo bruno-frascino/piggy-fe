@@ -82,6 +82,7 @@ export function createPositionsApi(client: AxiosInstance) {
         openReason?: string | null;
         currentPrice?: number;
         maxDrawdownPercent?: number | null;
+        maxRunUpPercent?: number | null;
       }
     ) {
       if (USE_MOCK_API) {
@@ -118,16 +119,25 @@ export function createPositionsApi(client: AxiosInstance) {
               ? null
               : Number(payload.maxDrawdownPercent)
             : undefined,
+        maxRunUpPercent:
+          payload.maxRunUpPercent !== undefined
+            ? payload.maxRunUpPercent === null
+              ? null
+              : Number(payload.maxRunUpPercent)
+            : undefined,
       });
       return response.data;
     },
 
-    async recalculateDrawdown(
-      id: string
-    ): Promise<{ maxDrawdownPercent: number | null; message: string }> {
+    async recalculateDrawdown(id: string): Promise<{
+      maxDrawdownPercent: number | null;
+      maxRunUpPercent: number | null;
+      message: string;
+    }> {
       if (USE_MOCK_API) {
         return {
           maxDrawdownPercent: null,
+          maxRunUpPercent: null,
           message: 'Not implemented in mock mode',
         };
       }

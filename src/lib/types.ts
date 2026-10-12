@@ -41,6 +41,7 @@ export interface HoldingPosition {
   currentPrice: number;
   buyComments?: string;
   maxDrawdownPercent?: number; // Maximum percentage drop from entry price
+  maxRunUpPercent?: number; // Peak percentage gain above entry price
 }
 
 export interface StockSearchResult {
@@ -161,6 +162,7 @@ export interface ClosedTrade {
   sellComments?: string;
   baseCurrency?: string; // placeholder for future multi-currency support
   maxDrawdownPercent?: number; // worst intra-trade drawdown from entry price, in percent (positive number)
+  maxRunUpPercent?: number; // best intra-trade peak gain above entry price, in percent (positive number)
 }
 
 // Server-side scope for GET /positions/close-events. The close-date range bounds

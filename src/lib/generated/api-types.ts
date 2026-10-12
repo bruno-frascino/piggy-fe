@@ -1187,12 +1187,14 @@ export interface paths {
                         accountName?: string;
                         assetName?: string;
                         buyFees?: number;
-                        /** @description Current market price (used to calculate max drawdown) */
+                        /** @description Current market price (used to calculate max drawdown and max run-up) */
                         currentPrice?: number;
                         entryPrice?: number;
                         exchangeCode?: string;
                         industry?: string;
                         lessonsLearned?: string;
+                        /** @description Explicit override of the peak gain vs entry price, in percent (null resets it) */
+                        maxRunUpPercent?: number | null;
                         notes?: string;
                         /** Format: date-time */
                         openDate?: string;
@@ -1324,8 +1326,8 @@ export interface paths {
         get?: never;
         put?: never;
         /**
-         * Recalculate max drawdown from Yahoo Finance historical data
-         * @description Fetches daily OHLC history from the position's open date to today, finds the lowest intraday low, and persists it as maxDrawdownPercent. Returns the new value (or null if history is unavailable / no drawdown).
+         * Recalculate max drawdown and max run-up from historical data
+         * @description Fetches daily OHLC history from the position's open date to today (or to the close date for closed positions, for the run-up), finds the lowest intraday low and persists it as maxDrawdownPercent, and finds the highest intraday high and persists it as maxRunUpPercent (peak unrealized gain vs entry price). Returns the new values (or null if history is unavailable / no drawdown / no run-up).
          */
         post: {
             parameters: {
@@ -1346,6 +1348,7 @@ export interface paths {
                     content: {
                         "application/json": {
                             maxDrawdownPercent?: number | null;
+                            maxRunUpPercent?: number | null;
                             message?: string;
                             success?: boolean;
                         };

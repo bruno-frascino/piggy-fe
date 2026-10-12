@@ -103,6 +103,7 @@ export default function HoldingsTable({
     anyStopLoss,
     tableScrollHeight,
     handleResetMaxDrawdown,
+    handleResetMaxRunUp,
     handleRecalculateDrawdown,
   } = useHoldingRows({
     selectedExchange,
@@ -706,6 +707,34 @@ export default function HoldingsTable({
                   </span>
                 )}
                 style={{ minWidth: '170px' }}
+              />
+              <Column
+                header='Max Run-up %'
+                body={(r: HoldingRow) => (
+                  <span className='inline-flex items-center gap-1'>
+                    {r.maxRunUpPercent != null && r.maxRunUpPercent > 0 ? (
+                      <>
+                        <span
+                          className={
+                            hidden ? 'text-gray-500' : 'text-green-600'
+                          }
+                        >
+                          +{r.maxRunUpPercent.toFixed(2)}%
+                        </span>
+                        <button
+                          title='Reset max run-up'
+                          className='text-gray-300 hover:text-gray-500 leading-none'
+                          onClick={() => handleResetMaxRunUp(r)}
+                        >
+                          <i className='pi pi-times text-xs' />
+                        </button>
+                      </>
+                    ) : (
+                      <span className='text-gray-400'>—</span>
+                    )}
+                  </span>
+                )}
+                style={{ minWidth: '150px' }}
               />
               {anyStopLoss && (
                 <Column

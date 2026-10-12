@@ -6,11 +6,11 @@
     },
     "api-types.ts": {
       "path": "src/lib/generated/api-types.ts",
-      "sha256": "66a10fecf88979995e483c85edcb843f7be24a2dd3c945b01bf26c018c18f574"
+      "sha256": "742eb2709793adff393c5c1f57bd15b7157f186d7322494f0534c738b2340151"
     },
     "component-index.md": {
       "path": "context/component-index.md",
-      "sha256": "d49eaded772cbbe55689d2628555ac25e2a5d34b3c8e9b124372934957189ca9"
+      "sha256": "f6ada76e7e1990a24fe9a24af3fcc34521a0ea08f6161fb1ec7b12831f052f23"
     },
     "contract-drift.md": {
       "path": "context/contract-drift.md",
@@ -34,13 +34,13 @@
     },
     "symbol-index.json": {
       "path": "context/symbol-index.json",
-      "sha256": "34989862d614db37a8d709272961be8eba8fb6e14f00505664e49ad43da28756"
+      "sha256": "9663dfd22bea4ac1108f565390f8dd8b620110342b5c38262cdca1b0288d447d"
     },
     "unused.json": {
       "path": "context/unused.json",
-      "sha256": "999888c833415faab289ec4186badbfdbdd6966b77affd30e671ea7693254b52"
+      "sha256": "b100c21056bba7e31c94ec61d6d98d95d99fae0e8703be3e103c61a3eefff443"
     }
   },
-  "generatedAt": "2026-10-12T00:10:51.665Z",
+  "generatedAt": "2026-10-12T06:05:42.636Z",
   "generatorVersion": 1
 }

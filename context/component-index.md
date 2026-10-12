@@ -125,7 +125,7 @@
 
 ## `HoldingsTable`
 
-- File: [src/components/HoldingsTable.tsx](../src/components/HoldingsTable.tsx) (958 lines)
+- File: [src/components/HoldingsTable.tsx](../src/components/HoldingsTable.tsx) (987 lines)
 - API hooks used: useClosePosition, useCreatePosition, useDeletePosition, useUpdatePosition
 - Other hooks used: useCallback, useEffect, useHoldingRows, usePrivacy, useQueryClient, useRef, useState, useToast
 

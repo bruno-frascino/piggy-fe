@@ -233,7 +233,7 @@ export function useHoldingRows({
     });
   }, [holdings, quoteMap]);
 
-  // Auto-update max drawdown when live quotes arrive.
+  // Auto-update max drawdown / max run-up (peak gain) when live quotes arrive.
   // Uses `rows` (not raw holdings) so effectivePrice is consistent with what the table shows.
   // Only fires when a real live quote exists — fallback prices (stored/entry) are skipped.
   const lastMaxDrawdownUpdateRef = useRef<Map<string, number>>(new Map());
@@ -249,12 +249,15 @@ export function useHoldingRows({
       if (!quoteMap.has(row.symbol)) continue;
 
       // priceDrawdownPct is negative when current price < entry price
-      if (row.priceDrawdownPct >= 0) continue;
+      const isNewDrawdown =
+        row.priceDrawdownPct < 0 &&
+        Math.abs(row.priceDrawdownPct) > (row.maxDrawdownPercent || 0) + 0.01;
+      // ...and positive when above entry: register a new peak gain
+      const isNewRunUp =
+        row.priceDrawdownPct > 0 &&
+        row.priceDrawdownPct > (row.maxRunUpPercent || 0) + 0.01;
 
-      const absDrawdownPct = Math.abs(row.priceDrawdownPct);
-      const existingMaxDrawdown = row.maxDrawdownPercent || 0;
-
-      if (absDrawdownPct > existingMaxDrawdown + 0.01) {
+      if (isNewDrawdown || isNewRunUp) {
         const lastUpdate = lastMaxDrawdownUpdateRef.current.get(row.id);
         // Rate limit: only update once per 5 minutes per position
         if (!lastUpdate || nowMs - lastUpdate > 5 * 60 * 1000) {
@@ -307,6 +310,17 @@ export function useHoldingRows({
     [updatePosition]
   );
 
+  const handleResetMaxRunUp = useCallback(
+    (row: HoldingRow) => {
+      if (!row.id || !isOnline()) return;
+      void updatePosition({
+        id: row.id,
+        payload: { maxRunUpPercent: null },
+      }).catch(() => {});
+    },
+    [updatePosition]
+  );
+
   const handleRecalculateDrawdown = useCallback(
     (row: HoldingRow) => {
       if (!row.id || !isOnline()) return;
@@ -326,6 +340,7 @@ export function useHoldingRows({
     anyStopLoss,
     tableScrollHeight,
     handleResetMaxDrawdown,
+    handleResetMaxRunUp,
     handleRecalculateDrawdown,
   };
 }

@@ -1,7 +1,13 @@
 // @vitest-environment jsdom
 
 import '@testing-library/jest-dom/vitest';
-import { cleanup, render, screen, waitFor } from '@testing-library/react';
+import {
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { MASKED_VALUE } from '@/lib/format';
@@ -404,6 +410,48 @@ describe('HoldingsTable max-drawdown ratchet effect', () => {
     expect(updatePositionMock).not.toHaveBeenCalled();
   });
 
+  it('registers a new peak when the live price exceeds the stored max run-up', async () => {
+    setHoldings([
+      { ...baseHolding, maxDrawdownPercent: 0, maxRunUpPercent: 5 },
+    ]);
+    setQuotes([
+      {
+        symbol: 'AAPL',
+        price: 110,
+        change: 2,
+        changePercent: 1.85,
+        currency: 'USD',
+      },
+    ]);
+
+    renderTable();
+
+    await waitFor(() =>
+      expect(updatePositionMock).toHaveBeenCalledWith({
+        id: 'p1',
+        payload: { currentPrice: 110 },
+      })
+    );
+  });
+
+  it('shows the stored max run-up and lets the user reset it', async () => {
+    setHoldings([{ ...baseHolding, maxRunUpPercent: 15 }]);
+    setQuotes([]);
+
+    renderTable();
+
+    expect(screen.getByText('Max Run-up %')).toBeInTheDocument();
+    expect(screen.getByText('+15.00%')).toBeInTheDocument();
+
+    fireEvent.click(screen.getByTitle('Reset max run-up'));
+    await waitFor(() =>
+      expect(updatePositionMock).toHaveBeenCalledWith({
+        id: 'p1',
+        payload: { maxRunUpPercent: null },
+      })
+    );
+  });
+
   it('does not update when there is no live quote for the symbol', async () => {
     setHoldings([{ ...baseHolding }]);
     setQuotes([]);
@@ -432,8 +480,10 @@ describe('HoldingsTable max-drawdown ratchet effect', () => {
     expect(updatePositionMock).not.toHaveBeenCalled();
   });
 
-  it('does not update when the live price is above entry (positive return, no drawdown)', async () => {
-    setHoldings([{ ...baseHolding, maxDrawdownPercent: 0 }]);
+  it('does not update when the live price is above entry but within the stored peak', async () => {
+    setHoldings([
+      { ...baseHolding, maxDrawdownPercent: 0, maxRunUpPercent: 15 },
+    ]);
     setQuotes([
       {
         symbol: 'AAPL',

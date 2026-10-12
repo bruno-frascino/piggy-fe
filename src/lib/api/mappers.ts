@@ -145,6 +145,8 @@ export function mapPositionToHolding(pos: unknown): HoldingPosition | null {
       : entryPrice;
   const maxDrawdownPercent =
     pos.maxDrawdownPercent != null ? Number(pos.maxDrawdownPercent) : undefined;
+  const maxRunUpPercent =
+    pos.maxRunUpPercent != null ? Number(pos.maxRunUpPercent) : undefined;
   const normalizedOpenReason =
     typeof pos.openReason === 'string' ? pos.openReason.trim() : '';
   const normalizedLegacyNotes =
@@ -183,6 +185,7 @@ export function mapPositionToHolding(pos: unknown): HoldingPosition | null {
     currentPrice,
     buyComments: normalizedOpenReason || legacyOpenReason || undefined,
     maxDrawdownPercent,
+    maxRunUpPercent,
   };
 }
 
@@ -268,6 +271,10 @@ export function mapCloseEventToClosedTrade(event: unknown): ClosedTrade | null {
     maxDrawdownPercent:
       position.maxDrawdownPercent != null
         ? Number(position.maxDrawdownPercent)
+        : undefined,
+    maxRunUpPercent:
+      position.maxRunUpPercent != null
+        ? Number(position.maxRunUpPercent)
         : undefined,
   };
 }

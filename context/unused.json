@@ -190,9 +190,9 @@
         },
         {
           "col": 17,
-          "line": 189,
+          "line": 192,
           "name": "toDateStr",
-          "pos": 6018
+          "pos": 6140
         }
       ],
       "file": "src/lib/api/mappers.ts",
@@ -313,21 +313,21 @@
         },
         {
           "col": 18,
-          "line": 71,
+          "line": 72,
           "name": "ApiErrorResponse",
-          "pos": 1657
+          "pos": 1727
         },
         {
           "col": 18,
-          "line": 216,
+          "line": 218,
           "name": "StatisticsTimeSeriesPoint",
-          "pos": 5727
+          "pos": 5903
         },
         {
           "col": 18,
-          "line": 228,
+          "line": 230,
           "name": "StatisticsHistogramBucket",
-          "pos": 5954
+          "pos": 6130
         }
       ],
       "unlisted": [],

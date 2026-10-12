@@ -289,6 +289,19 @@ function ExchangeTable({
           style={{ minWidth: '150px' }}
         />
         <Column
+          header='Max Run-up %'
+          body={(r: ClosedTrade) =>
+            r.maxRunUpPercent != null && r.maxRunUpPercent > 0 ? (
+              <span className={hidden ? 'text-gray-500' : 'text-green-600'}>
+                +{r.maxRunUpPercent.toFixed(2)}%
+              </span>
+            ) : (
+              <span className='text-gray-400'>—</span>
+            )
+          }
+          style={{ minWidth: '150px' }}
+        />
+        <Column
           header='Buy Comments'
           body={(r: ClosedTrade) => r.buyComments || ''}
           style={{ minWidth: '180px' }}
