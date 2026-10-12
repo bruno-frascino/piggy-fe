@@ -2,7 +2,7 @@
 
 import { useRef, useState } from 'react';
 import { Button } from 'primereact/button';
-import { Dialog } from 'primereact/dialog';
+import Dialog from './AppDialog';
 import { Menu } from 'primereact/menu';
 import type { MenuItem } from 'primereact/menuitem';
 import type { TradingAccount } from '@/lib/types';

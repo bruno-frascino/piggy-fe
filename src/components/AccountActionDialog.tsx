@@ -1,7 +1,7 @@
 'use client';
 
 import { Button } from 'primereact/button';
-import { Dialog } from 'primereact/dialog';
+import Dialog from './AppDialog';
 
 interface Props {
   visible: boolean;

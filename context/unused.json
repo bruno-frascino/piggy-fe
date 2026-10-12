@@ -118,6 +118,29 @@
       "enumMembers": [],
       "exports": [
         {
+          "col": 17,
+          "line": 24,
+          "name": "focusFirstField",
+          "pos": 776
+        }
+      ],
+      "file": "src/components/AppDialog.tsx",
+      "files": [],
+      "namespaceMembers": [],
+      "optionalPeerDependencies": [],
+      "types": [],
+      "unlisted": [],
+      "unresolved": []
+    },
+    {
+      "binaries": [],
+      "catalog": [],
+      "dependencies": [],
+      "devDependencies": [],
+      "duplicates": [],
+      "enumMembers": [],
+      "exports": [
+        {
           "col": 14,
           "line": 421,
           "name": "useDeleteTaxReport",
@@ -286,7 +309,7 @@
           "col": 18,
           "line": 62,
           "name": "ExchangeDefinition",
-          "pos": 1807
+          "pos": 1797
         }
       ],
       "unlisted": [],

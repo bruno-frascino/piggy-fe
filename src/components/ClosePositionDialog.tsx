@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
-import { Dialog } from 'primereact/dialog';
+import Dialog from './AppDialog';
 import { InputText } from 'primereact/inputtext';
 import { Calendar } from 'primereact/calendar';
 import { InputNumber } from 'primereact/inputnumber';
@@ -156,6 +156,7 @@ export default function ClosePositionDialog({
                 if (input) input.inputMode = 'numeric';
               }}
               showIcon
+              showOnFocus={false}
               placeholder='DD/MM/YYYY'
               className='w-full'
               inputClassName='w-full'

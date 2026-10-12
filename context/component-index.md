@@ -51,9 +51,15 @@
   - `stock: ScreenerResult | null`
   - `onHide: () => void`
 
+## `focusFirstField`
+
+- File: [src/components/AppDialog.tsx](../src/components/AppDialog.tsx) (59 lines)
+- API hooks used: —
+- Other hooks used: useRef
+
 ## `ClosePositionPayload`
 
-- File: [src/components/ClosePositionDialog.tsx](../src/components/ClosePositionDialog.tsx) (287 lines)
+- File: [src/components/ClosePositionDialog.tsx](../src/components/ClosePositionDialog.tsx) (288 lines)
 - API hooks used: —
 - Other hooks used: useEffect, useMemo, usePrivacy, useState
 
@@ -95,7 +101,7 @@
 
 ## `EditClosedTradeDialog`
 
-- File: [src/components/EditClosedTradeDialog.tsx](../src/components/EditClosedTradeDialog.tsx) (370 lines)
+- File: [src/components/EditClosedTradeDialog.tsx](../src/components/EditClosedTradeDialog.tsx) (371 lines)
 - API hooks used: —
 - Other hooks used: useEffect, useMemo, usePrivacy, useState
 - Props:

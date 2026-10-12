@@ -77,13 +77,53 @@
       "valid": true
     },
     {
-      "dependencies": [],
+      "dependencies": [
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "local",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "./AppDialog",
+          "moduleSystem": "es6",
+          "resolved": "src/components/AppDialog.tsx",
+          "valid": true
+        }
+      ],
       "dependents": [
         "src/app/account/page.tsx",
         "src/components/DeleteAccountDialog.test.tsx"
       ],
       "orphan": false,
       "source": "src/components/DeleteAccountDialog.tsx",
+      "valid": true
+    },
+    {
+      "dependencies": [],
+      "dependents": [
+        "src/components/DeleteAccountDialog.tsx",
+        "src/components/EditClosedTradeDialog.tsx",
+        "src/components/DashboardView.tsx",
+        "src/components/AccountActionDialog.tsx",
+        "src/components/AccountsBar.tsx",
+        "src/components/AddHoldingsDialog.tsx",
+        "src/components/ClosePositionDialog.tsx",
+        "src/components/GenerateReportDialog.tsx",
+        "src/components/ReportDetailDialog.tsx",
+        "src/components/AddToWatchlistDialog.tsx",
+        "src/components/ScreenerFiltersForm.tsx",
+        "src/components/WatchlistsPanel.tsx",
+        "src/components/StatisticsView.tsx",
+        "src/components/AppDialog.test.tsx"
+      ],
+      "orphan": false,
+      "source": "src/components/AppDialog.tsx",
       "valid": true
     },
     {
@@ -1186,6 +1226,23 @@
           "coreModule": false,
           "couldNotResolve": false,
           "dependencyTypes": [
+            "local",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "./AppDialog",
+          "moduleSystem": "es6",
+          "resolved": "src/components/AppDialog.tsx",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
             "undetermined",
             "import"
           ],
@@ -1618,6 +1675,23 @@
           "coreModule": false,
           "couldNotResolve": false,
           "dependencyTypes": [
+            "local",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "./AppDialog",
+          "moduleSystem": "es6",
+          "resolved": "src/components/AppDialog.tsx",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
             "undetermined",
             "import"
           ],
@@ -1793,7 +1867,25 @@
       "valid": true
     },
     {
-      "dependencies": [],
+      "dependencies": [
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "local",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "./AppDialog",
+          "moduleSystem": "es6",
+          "resolved": "src/components/AppDialog.tsx",
+          "valid": true
+        }
+      ],
       "dependents": [
         "src/components/DashboardView.tsx",
         "src/components/AccountActionDialog.test.tsx"
@@ -1804,6 +1896,23 @@
     },
     {
       "dependencies": [
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "local",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "./AppDialog",
+          "moduleSystem": "es6",
+          "resolved": "src/components/AppDialog.tsx",
+          "valid": true
+        },
         {
           "circular": false,
           "coreModule": false,
@@ -2005,6 +2114,23 @@
           "coreModule": false,
           "couldNotResolve": false,
           "dependencyTypes": [
+            "local",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "./AppDialog",
+          "moduleSystem": "es6",
+          "resolved": "src/components/AppDialog.tsx",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
             "undetermined",
             "import"
           ],
@@ -2100,6 +2226,23 @@
     },
     {
       "dependencies": [
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "local",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "./AppDialog",
+          "moduleSystem": "es6",
+          "resolved": "src/components/AppDialog.tsx",
+          "valid": true
+        },
         {
           "circular": false,
           "coreModule": false,
@@ -2353,6 +2496,23 @@
           "coreModule": false,
           "couldNotResolve": false,
           "dependencyTypes": [
+            "local",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "./AppDialog",
+          "moduleSystem": "es6",
+          "resolved": "src/components/AppDialog.tsx",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
             "undetermined",
             "import"
           ],
@@ -2393,6 +2553,23 @@
     },
     {
       "dependencies": [
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "local",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "./AppDialog",
+          "moduleSystem": "es6",
+          "resolved": "src/components/AppDialog.tsx",
+          "valid": true
+        },
         {
           "circular": false,
           "coreModule": false,
@@ -2580,6 +2757,23 @@
           "coreModule": false,
           "couldNotResolve": false,
           "dependencyTypes": [
+            "local",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "./AppDialog",
+          "moduleSystem": "es6",
+          "resolved": "src/components/AppDialog.tsx",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
             "undetermined",
             "import"
           ],
@@ -2620,6 +2814,23 @@
     },
     {
       "dependencies": [
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "local",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "./AppDialog",
+          "moduleSystem": "es6",
+          "resolved": "src/components/AppDialog.tsx",
+          "valid": true
+        },
         {
           "circular": false,
           "coreModule": false,
@@ -2706,6 +2917,23 @@
           "coreModule": false,
           "couldNotResolve": false,
           "dependencyTypes": [
+            "local",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "./AppDialog",
+          "moduleSystem": "es6",
+          "resolved": "src/components/AppDialog.tsx",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
             "undetermined",
             "import"
           ],
@@ -2771,6 +2999,23 @@
     },
     {
       "dependencies": [
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "local",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "./AppDialog",
+          "moduleSystem": "es6",
+          "resolved": "src/components/AppDialog.tsx",
+          "valid": true
+        },
         {
           "circular": false,
           "coreModule": false,
@@ -2997,6 +3242,31 @@
       "dependents": [],
       "orphan": false,
       "source": "src/components/AddToWatchlistDialog.test.tsx",
+      "valid": true
+    },
+    {
+      "dependencies": [
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "local",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "./AppDialog",
+          "moduleSystem": "es6",
+          "resolved": "src/components/AppDialog.tsx",
+          "valid": true
+        }
+      ],
+      "dependents": [],
+      "orphan": false,
+      "source": "src/components/AppDialog.test.tsx",
       "valid": true
     },
     {
@@ -3868,8 +4138,8 @@
         }
       ]
     },
-    "totalCruised": 103,
-    "totalDependenciesCruised": 162,
+    "totalCruised": 105,
+    "totalDependenciesCruised": 176,
     "violations": [],
     "warn": 0
   }

@@ -198,6 +198,24 @@
     "startLine": 22
   },
   {
+    "endLine": 36,
+    "file": "src/components/AppDialog.tsx",
+    "jsdoc": "",
+    "kind": "FunctionDeclaration",
+    "name": "focusFirstField",
+    "signature": "export function focusFirstField(root: HTMLElement | null): boolean",
+    "startLine": 24
+  },
+  {
+    "endLine": 58,
+    "file": "src/components/AppDialog.tsx",
+    "jsdoc": "Drop-in replacement for PrimeReact's Dialog that focuses the first enabled input field when the dialog opens (PrimeReact otherwise focuses the close icon). Dialogs without any editable field keep PrimeReact's default focus behaviour.",
+    "kind": "FunctionDeclaration",
+    "name": "default",
+    "signature": "export default function AppDialog(",
+    "startLine": 43
+  },
+  {
     "endLine": 20,
     "file": "src/components/ClosePositionDialog.tsx",
     "jsdoc": "",
@@ -207,7 +225,7 @@
     "startLine": 14
   },
   {
-    "endLine": 286,
+    "endLine": 287,
     "file": "src/components/ClosePositionDialog.tsx",
     "jsdoc": "",
     "kind": "FunctionDeclaration",
@@ -261,7 +279,7 @@
     "startLine": 1
   },
   {
-    "endLine": 369,
+    "endLine": 370,
     "file": "src/components/EditClosedTradeDialog.tsx",
     "jsdoc": "",
     "kind": "FunctionDeclaration",

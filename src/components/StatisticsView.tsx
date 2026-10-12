@@ -6,7 +6,7 @@ import { Calendar } from 'primereact/calendar';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Button } from 'primereact/button';
-import { Dialog } from 'primereact/dialog';
+import Dialog from './AppDialog';
 import { Bar, Line } from 'react-chartjs-2';
 import {
   Chart as ChartJS,

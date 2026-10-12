@@ -16,7 +16,7 @@ import { useExchangeDiscovery } from '@/hooks/useExchangeDiscovery';
 import { Button } from 'primereact/button';
 import { InputText } from 'primereact/inputtext';
 import { Checkbox } from 'primereact/checkbox';
-import { Dialog } from 'primereact/dialog';
+import Dialog from './AppDialog';
 import HoldingsTable from '@/components/HoldingsTable';
 import DemoBadge from '@/components/DemoBadge';
 import AccountActionDialog from '@/components/AccountActionDialog';

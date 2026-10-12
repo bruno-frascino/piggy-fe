@@ -1,6 +1,6 @@
 'use client';
 
-import { Dialog } from 'primereact/dialog';
+import Dialog from './AppDialog';
 import { Button } from 'primereact/button';
 import { InputText } from 'primereact/inputtext';
 import { useState } from 'react';

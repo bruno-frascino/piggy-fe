@@ -5,7 +5,7 @@ import { InputNumber } from 'primereact/inputnumber';
 import { Button } from 'primereact/button';
 import { SelectButton } from 'primereact/selectbutton';
 import { Dropdown } from 'primereact/dropdown';
-import { Dialog } from 'primereact/dialog';
+import Dialog from './AppDialog';
 import { useState } from 'react';
 import {
   useCreateSavedScreen,

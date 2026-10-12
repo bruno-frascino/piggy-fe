@@ -1,6 +1,6 @@
 'use client';
 
-import { Dialog } from 'primereact/dialog';
+import Dialog from './AppDialog';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Message } from 'primereact/message';

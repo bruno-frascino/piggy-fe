@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { Accordion, AccordionTab } from 'primereact/accordion';
 import { Button } from 'primereact/button';
 import { InputText } from 'primereact/inputtext';
-import { Dialog } from 'primereact/dialog';
+import Dialog from './AppDialog';
 import {
   useCreateWatchlist,
   useDeleteWatchlist,

@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { Button } from 'primereact/button';
-import { Dialog } from 'primereact/dialog';
+import Dialog from './AppDialog';
 import { InputText } from 'primereact/inputtext';
 import { Password } from 'primereact/password';
 import { Message } from 'primereact/message';
