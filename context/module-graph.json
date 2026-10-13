@@ -2345,7 +2345,8 @@
         }
       ],
       "dependents": [
-        "src/components/DashboardView.tsx"
+        "src/components/DashboardView.tsx",
+        "src/hooks/useExchangeDiscovery.test.tsx"
       ],
       "orphan": false,
       "source": "src/hooks/useExchangeDiscovery.ts",
@@ -3842,6 +3843,31 @@
       "valid": true
     },
     {
+      "dependencies": [
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "local",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "./useExchangeDiscovery",
+          "moduleSystem": "es6",
+          "resolved": "src/hooks/useExchangeDiscovery.ts",
+          "valid": true
+        }
+      ],
+      "dependents": [],
+      "orphan": false,
+      "source": "src/hooks/useExchangeDiscovery.test.tsx",
+      "valid": true
+    },
+    {
       "dependencies": [],
       "dependents": [],
       "orphan": true,
@@ -4191,8 +4217,8 @@
         }
       ]
     },
-    "totalCruised": 107,
-    "totalDependenciesCruised": 178,
+    "totalCruised": 108,
+    "totalDependenciesCruised": 179,
     "violations": [],
     "warn": 0
   }

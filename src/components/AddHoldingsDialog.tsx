@@ -35,7 +35,7 @@ export default function AddHoldingsDialog({
   exchangeCode,
   onHide,
   onSubmit,
-  onExchangeDetected,
+  onExchangeSelected,
   onDelete,
 }: {
   visible: boolean;
@@ -46,7 +46,7 @@ export default function AddHoldingsDialog({
   exchangeCode?: string;
   onHide: () => void;
   onSubmit: (value: LocalHolding) => void;
-  onExchangeDetected?: (exchange: string) => void;
+  onExchangeSelected?: (exchange: string) => void;
   onDelete?: () => void;
 }) {
   const [form, setForm] = useState<Partial<LocalHolding>>({
@@ -101,7 +101,7 @@ export default function AddHoldingsDialog({
       exchangeCode: result.exchange,
     }));
     if (mode === 'add') {
-      onExchangeDetected?.(result.exchange);
+      onExchangeSelected?.(result.exchange);
     }
   };
 

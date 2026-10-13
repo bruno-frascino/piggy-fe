@@ -76,7 +76,7 @@
 
 ## `ExchangeDefinition`
 
-- File: [src/components/DashboardView.tsx](../src/components/DashboardView.tsx) (748 lines)
+- File: [src/components/DashboardView.tsx](../src/components/DashboardView.tsx) (750 lines)
 - API hooks used: useCloseAccount, useCreateAccount, useDeleteAccount, useReopenAccount, useTradingAccounts, useUpdateAccount
 - Other hooks used: useAccountSelection, useEffect, useExchangeDiscovery, useMemo, usePrivacy, useState
 
@@ -131,7 +131,7 @@
 
 ## `HoldingsTable`
 
-- File: [src/components/HoldingsTable.tsx](../src/components/HoldingsTable.tsx) (987 lines)
+- File: [src/components/HoldingsTable.tsx](../src/components/HoldingsTable.tsx) (989 lines)
 - API hooks used: useClosePosition, useCreatePosition, useDeletePosition, useUpdatePosition
 - Other hooks used: useCallback, useEffect, useHoldingRows, usePrivacy, useQueryClient, useRef, useState, useToast
 

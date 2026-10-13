@@ -252,7 +252,7 @@
     "startLine": 62
   },
   {
-    "endLine": 747,
+    "endLine": 749,
     "file": "src/components/DashboardView.tsx",
     "jsdoc": "",
     "kind": "FunctionDeclaration",
@@ -306,7 +306,7 @@
     "startLine": 28
   },
   {
-    "endLine": 986,
+    "endLine": 988,
     "file": "src/components/HoldingsTable.tsx",
     "jsdoc": "",
     "kind": "FunctionDeclaration",
@@ -909,7 +909,7 @@
     "startLine": 14
   },
   {
-    "endLine": 172,
+    "endLine": 181,
     "file": "src/hooks/useExchangeDiscovery.ts",
     "jsdoc": "Owns exchange discovery/selection for the dashboard: seeding the exchange list from the user's portfolio (merging on subsequent fetches so locally -edited fields survive), resolving the initially-selected exchange from the URL -> localStorage -> first-exchange (in that priority order), keeping the URL/localStorage in sync, and ensuring a snapshot exists for today once history has loaded. Extracted verbatim (same effects/deps) from DashboardView.tsx.",
     "kind": "FunctionDeclaration",

@@ -69,6 +69,7 @@ export default function HoldingsTable({
   isDemo = false,
   selectedExchange,
   onExchangeDetected,
+  onExchangeSelected,
   baseCurrency,
   onLiveTotals,
 }: {
@@ -77,6 +78,7 @@ export default function HoldingsTable({
   isDemo?: boolean;
   selectedExchange?: ExchangeKey;
   onExchangeDetected?: (exchange: string) => void;
+  onExchangeSelected?: (exchange: string) => void;
   baseCurrency?: string;
   onLiveTotals?: (t: {
     totalEquity: number;
@@ -803,7 +805,7 @@ export default function HoldingsTable({
         lockAccount
         exchangeCode={selectedExchange}
         onHide={() => setShowDialog(false)}
-        onExchangeDetected={onExchangeDetected}
+        onExchangeSelected={onExchangeSelected}
         onDelete={mode === 'edit' ? handleDeletePosition : undefined}
         onSubmit={(newPos: LocalHolding) => {
           const submit = async () => {

@@ -115,6 +115,7 @@ export default function DashboardView() {
     portfolioHistory,
     isCreatingSnapshot,
     handleExchangeDetected,
+    handleExchangeSelected,
   } = useExchangeDiscovery(selectedAccountId);
 
   const numberFormatter = useMemo(() => new Intl.NumberFormat('en-US'), []);
@@ -718,6 +719,7 @@ export default function DashboardView() {
                   isDemo={selectedAccount?.isDemo === true}
                   selectedExchange={selected || undefined}
                   onExchangeDetected={handleExchangeDetected}
+                  onExchangeSelected={handleExchangeSelected}
                   baseCurrency={exchange?.baseCurrency}
                   onLiveTotals={setLiveTotals}
                 />

@@ -73,11 +73,19 @@ export function useExchangeDiscovery(selectedAccountId: string) {
     setSnapshotRequestedForKey(null);
   }, [selectedAccountId]);
 
+  // Adds an exchange discovered from loaded holdings. Never changes the current
+  // selection, otherwise re-mounting the dashboard (cached holdings) would
+  // overwrite the user's remembered exchange with the last one in the list.
   const handleExchangeDetected = (exchangeName: string) => {
     setExchangeList(prev => {
       if (prev.some(e => e.name === exchangeName)) return prev;
       return [...prev, { name: exchangeName, equitySeries: [] }];
     });
+  };
+
+  // Explicit user choice (e.g. picking a symbol in the Add dialog): add + select.
+  const handleExchangeSelected = (exchangeName: string) => {
+    handleExchangeDetected(exchangeName);
     setSelected(exchangeName);
   };
 
@@ -168,5 +176,6 @@ export function useExchangeDiscovery(selectedAccountId: string) {
     isHistoryFetched,
     isCreatingSnapshot: createSnapshot.isPending,
     handleExchangeDetected,
+    handleExchangeSelected,
   };
 }
