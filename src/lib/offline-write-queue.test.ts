@@ -146,6 +146,7 @@ describe('offline-write-queue', () => {
         quantity: 1,
         fees: 0,
         notes: 'close',
+        closeReason: 'STOP_LOSS',
       },
     });
 
@@ -155,6 +156,15 @@ describe('offline-write-queue', () => {
     expect(createPositionMock).toHaveBeenCalledTimes(1);
     expect(updatePositionMock).toHaveBeenCalledTimes(1);
     expect(closePositionMock).toHaveBeenCalledTimes(1);
+    expect(closePositionMock).toHaveBeenCalledWith(
+      'p2',
+      '2026-05-10',
+      150,
+      1,
+      0,
+      'close',
+      'STOP_LOSS'
+    );
     expect(queue.getQueuedWritesCount()).toBe(0);
   });
 

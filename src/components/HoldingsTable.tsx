@@ -931,6 +931,7 @@ export default function HoldingsTable({
               quantity,
               fees: payload.sellFee || undefined,
               notes: payload.comments || undefined,
+              closeReason: payload.closeReason,
             };
 
             // If the holding came from the API it has an id — persist via API
@@ -956,6 +957,7 @@ export default function HoldingsTable({
                   quantity: closePayload.quantity,
                   fees: closePayload.fees,
                   notes: closePayload.notes,
+                  closeReason: closePayload.closeReason,
                 });
               }
             }

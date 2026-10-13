@@ -25,6 +25,8 @@ import {
   type HistoryPeriodPreset,
 } from '@/lib/date';
 import { formatCurrency, formatPct, returnClass } from '@/lib/format';
+import { closeReasonLabel } from '@/lib/close-reason';
+import { closedTradeAmounts } from '@/lib/closed-trade-math';
 import { usePrivacy } from '@/lib/privacy-context';
 import { useToast } from '@/lib/toast-context';
 
@@ -39,14 +41,14 @@ const PERIOD_PRESETS: { label: string; value: HistoryPeriodPreset }[] = [
 function calcTotals(trades: ClosedTrade[]) {
   return trades.reduce(
     (acc, r) => {
-      const openPos = r.unitsClosed * r.buyPrice + r.buyFee;
-      const closePos = r.unitsClosed * r.sellPrice - r.sellFee;
-      acc.open += openPos;
-      acc.close += closePos;
-      acc.pl += closePos - openPos;
+      const a = closedTradeAmounts(r);
+      acc.open += a.open;
+      acc.close += a.close;
+      acc.pl += a.pl;
+      acc.cost += a.cost;
       return acc;
     },
-    { open: 0, close: 0, pl: 0 }
+    { open: 0, close: 0, pl: 0, cost: 0 }
   );
 }
 
@@ -66,7 +68,7 @@ function ExchangeTable({
   onEdit,
 }: ExchangeTableProps) {
   const totals = calcTotals(trades);
-  const plPct = totals.open > 0 ? totals.pl / totals.open : 0;
+  const plPct = totals.cost > 0 ? totals.pl / totals.cost : 0;
   const groupCurrency = trades[0]?.baseCurrency ?? 'USD';
   const { mask, hidden } = usePrivacy();
 
@@ -209,7 +211,7 @@ function ExchangeTable({
           body={(r: ClosedTrade) =>
             mask(
               formatCurrency(
-                r.unitsClosed * r.buyPrice + r.buyFee,
+                closedTradeAmounts(r).open,
                 r.baseCurrency ?? groupCurrency
               )
             )
@@ -226,7 +228,7 @@ function ExchangeTable({
           body={(r: ClosedTrade) =>
             mask(
               formatCurrency(
-                r.unitsClosed * r.sellPrice - r.sellFee,
+                closedTradeAmounts(r).close,
                 r.baseCurrency ?? groupCurrency
               )
             )
@@ -241,10 +243,7 @@ function ExchangeTable({
         <Column
           header='P/L'
           body={(r: ClosedTrade) => {
-            const pl =
-              r.unitsClosed * r.sellPrice -
-              r.sellFee -
-              (r.unitsClosed * r.buyPrice + r.buyFee);
+            const { pl } = closedTradeAmounts(r);
             return (
               <span className={returnClass(pl, hidden)}>
                 {mask(formatCurrency(pl, r.baseCurrency ?? groupCurrency))}
@@ -261,9 +260,7 @@ function ExchangeTable({
         <Column
           header='P/L %'
           body={(r: ClosedTrade) => {
-            const open = r.unitsClosed * r.buyPrice + r.buyFee;
-            const pl = r.unitsClosed * r.sellPrice - r.sellFee - open;
-            const pct = open > 0 ? pl / open : 0;
+            const pct = closedTradeAmounts(r).returnFraction;
             return (
               <span className={returnClass(pct, hidden)}>{formatPct(pct)}</span>
             );
@@ -300,6 +297,16 @@ function ExchangeTable({
             )
           }
           style={{ minWidth: '150px' }}
+        />
+        <Column
+          header='Closed By'
+          body={(r: ClosedTrade) => {
+            return closeReasonLabel(
+              r.closeReason,
+              closedTradeAmounts(r).returnFraction
+            );
+          }}
+          style={{ minWidth: '170px' }}
         />
         <Column
           header='Buy Comments'
@@ -635,6 +642,9 @@ export default function HistoryPage() {
                       exitPrice: updated.sellPrice,
                       sellFees: updated.sellFee,
                       notes: updated.sellComments ?? '',
+                      ...(updated.closeReason !== active.closeReason
+                        ? { closeReason: updated.closeReason ?? null }
+                        : {}),
                     },
                   })
                 );

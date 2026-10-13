@@ -7,6 +7,7 @@ import {
 import { apiClient } from '@/lib/api-client';
 import type {
   AddWatchlistItemPayload,
+  CloseReason,
   ClosedTradesQuery,
   ScreenerFilters,
   StatisticsBreakdownBy,
@@ -313,6 +314,7 @@ export const useClosePosition = () => {
       quantity,
       fees,
       notes,
+      closeReason,
     }: {
       id: string;
       closeDate: string;
@@ -320,8 +322,17 @@ export const useClosePosition = () => {
       quantity?: number;
       fees?: number;
       notes?: string;
+      closeReason?: CloseReason;
     }) =>
-      apiClient.closePosition(id, closeDate, exitPrice, quantity, fees, notes),
+      apiClient.closePosition(
+        id,
+        closeDate,
+        exitPrice,
+        quantity,
+        fees,
+        notes,
+        closeReason
+      ),
     onSuccess: () => invalidatePositionQueries(queryClient),
   });
 };

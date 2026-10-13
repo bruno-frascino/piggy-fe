@@ -6,10 +6,13 @@ import { Calendar } from 'primereact/calendar';
 import { InputNumber } from 'primereact/inputnumber';
 import { InputTextarea } from 'primereact/inputtextarea';
 import { Button } from 'primereact/button';
+import { Dropdown } from 'primereact/dropdown';
 import { Message } from 'primereact/message';
 import { ConfirmDialog, confirmDialog } from 'primereact/confirmdialog';
 import { usePrivacy } from '@/lib/privacy-context';
-import type { ClosedTrade, TaxReportUsage } from '@/lib/types';
+import { CLOSE_REASON_OPTIONS } from '@/lib/close-reason';
+import { closedTradeAmounts } from '@/lib/closed-trade-math';
+import type { CloseReason, ClosedTrade, TaxReportUsage } from '@/lib/types';
 
 interface Props {
   trade: ClosedTrade;
@@ -95,22 +98,12 @@ export default function EditClosedTradeDialog({
     });
   };
 
-  const openPosition = useMemo(
-    () => form.unitsClosed * form.buyPrice + form.buyFee,
-    [form.unitsClosed, form.buyPrice, form.buyFee]
-  );
-  const closePosition = useMemo(
-    () => form.unitsClosed * form.sellPrice - form.sellFee,
-    [form.unitsClosed, form.sellPrice, form.sellFee]
-  );
-  const pl = useMemo(
-    () => closePosition - openPosition,
-    [closePosition, openPosition]
-  );
-  const plPct = useMemo(
-    () => (openPosition > 0 ? pl / openPosition : 0),
-    [pl, openPosition]
-  );
+  const {
+    open: openPosition,
+    close: closePosition,
+    pl,
+    returnFraction: plPct,
+  } = useMemo(() => closedTradeAmounts(form), [form]);
   const periodDays = useMemo(() => {
     const start = new Date(form.openDate).getTime();
     const end = new Date(form.closeDate).getTime();
@@ -306,6 +299,27 @@ export default function EditClosedTradeDialog({
             {errors.sellFee && (
               <p className='text-xs text-red-600 mt-1'>{errors.sellFee}</p>
             )}
+          </div>
+        </div>
+
+        <div className='grid grid-cols-12 gap-3'>
+          <div className='col-span-12 md:col-span-3'>
+            <label className='block text-sm font-medium mb-1'>Closed By</label>
+            <Dropdown
+              value={form.closeReason ?? null}
+              options={CLOSE_REASON_OPTIONS}
+              onChange={e =>
+                setForm(f => ({
+                  ...f,
+                  closeReason: (e.value ?? undefined) as
+                    | CloseReason
+                    | undefined,
+                }))
+              }
+              placeholder='Unknown'
+              showClear
+              className='w-full'
+            />
           </div>
         </div>
 

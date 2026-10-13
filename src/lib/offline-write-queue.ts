@@ -1,4 +1,5 @@
 import { apiClient } from '@/lib/api-client';
+import type { CloseReason } from '@/lib/types';
 
 const OFFLINE_WRITE_QUEUE_KEY = 'truffles.offlineWriteQueue.v1';
 export const OFFLINE_WRITE_QUEUE_CHANGED_EVENT =
@@ -42,6 +43,7 @@ type ClosePositionPayload = {
   quantity?: number;
   fees?: number;
   notes?: string;
+  closeReason?: CloseReason;
 };
 
 export type QueuedWriteAction =
@@ -183,7 +185,8 @@ export async function syncQueuedWritesNow() {
       action.payload.exitPrice,
       action.payload.quantity,
       action.payload.fees,
-      action.payload.notes
+      action.payload.notes,
+      action.payload.closeReason
     );
   });
 }

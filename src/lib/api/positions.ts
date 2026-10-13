@@ -1,5 +1,6 @@
 import { AxiosInstance } from 'axios';
 import type {
+  CloseReason,
   ClosedTrade,
   ClosedTradesPage,
   ClosedTradesQuery,
@@ -214,6 +215,7 @@ export function createPositionsApi(client: AxiosInstance) {
         exitPrice?: number;
         sellFees?: number;
         notes?: string;
+        closeReason?: CloseReason | null;
       }
     ) {
       if (USE_MOCK_API) {
@@ -236,7 +238,8 @@ export function createPositionsApi(client: AxiosInstance) {
       exitPrice: number,
       quantity?: number,
       fees?: number,
-      notes?: string
+      notes?: string,
+      closeReason?: CloseReason
     ) {
       if (USE_MOCK_API) {
         return { success: true };
@@ -249,6 +252,7 @@ export function createPositionsApi(client: AxiosInstance) {
         ...(quantity !== undefined && { quantity }),
         ...(fees !== undefined && { fees }),
         ...(normalizedNotes ? { notes: normalizedNotes } : {}),
+        ...(closeReason ? { closeReason } : {}),
       });
       return response.data;
     },

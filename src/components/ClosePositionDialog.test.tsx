@@ -82,7 +82,102 @@ describe('ClosePositionDialog', () => {
         closeUnits: 10,
         sellPrice: 125,
         sellFee: 0,
+        closeReason: 'MANUAL',
       })
     );
+  });
+
+  it('fills the sell price and closure type from the stop loss', () => {
+    const onSubmit = vi.fn();
+
+    render(
+      <ClosePositionDialog
+        visible
+        initial={{
+          symbol: 'AAPL',
+          name: 'Apple Inc.',
+          industry: 'Technology',
+          openDate: '2026-07-01',
+          units: 10,
+          buyPrice: 100,
+          buyFee: 0,
+          stopLoss: 92.5,
+          accountName: 'Main',
+          exchangeCode: 'NASDAQ',
+          currentPrice: 125,
+        }}
+        onHide={vi.fn()}
+        onSubmit={onSubmit}
+      />
+    );
+
+    fireEvent.click(screen.getByRole('button', { name: /use stop loss/i }));
+    fireEvent.click(screen.getByRole('button', { name: /close position/i }));
+
+    expect(onSubmit).toHaveBeenCalledWith(
+      expect.objectContaining({ sellPrice: 92.5, closeReason: 'STOP_LOSS' })
+    );
+  });
+
+  it('disables "Use stop loss" when no stop loss is set', () => {
+    render(
+      <ClosePositionDialog
+        visible
+        initial={{
+          symbol: 'AAPL',
+          name: 'Apple Inc.',
+          industry: 'Technology',
+          openDate: '2026-07-01',
+          units: 10,
+          buyPrice: 100,
+          buyFee: 0,
+          accountName: 'Main',
+          exchangeCode: 'NASDAQ',
+          currentPrice: 125,
+        }}
+        onHide={vi.fn()}
+        onSubmit={vi.fn()}
+      />
+    );
+
+    expect(
+      screen.getByRole('button', { name: /use stop loss/i })
+    ).toBeDisabled();
+  });
+
+  it('displays the stop loss read-only, or a dash when none is set', () => {
+    const base = {
+      symbol: 'AAPL',
+      name: 'Apple Inc.',
+      industry: 'Technology',
+      openDate: '2026-07-01',
+      units: 10,
+      buyPrice: 100,
+      buyFee: 0,
+      accountName: 'Main',
+      exchangeCode: 'NASDAQ',
+      currentPrice: 125,
+    };
+    const { rerender } = render(
+      <ClosePositionDialog
+        visible
+        initial={{ ...base, stopLoss: 92.5 }}
+        onHide={vi.fn()}
+        onSubmit={vi.fn()}
+      />
+    );
+    expect(screen.getByText('Stop Loss')).toBeInTheDocument();
+    const field = screen.getByDisplayValue('92.5');
+    expect(field).toHaveAttribute('readonly');
+
+    rerender(
+      <ClosePositionDialog
+        visible
+        initial={base}
+        onHide={vi.fn()}
+        onSubmit={vi.fn()}
+      />
+    );
+    expect(screen.getByDisplayValue('—')).toBeInTheDocument();
   });
 });

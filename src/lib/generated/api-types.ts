@@ -1015,7 +1015,7 @@ export interface paths {
             };
             requestBody?: never;
             responses: {
-                /** @description Paginated SELL transactions with position and asset context */
+                /** @description Paginated SELL transactions with position and asset context. Each event carries `closeReason` (STOP_LOSS | TARGET | MANUAL | OTHER, or null when unknown). */
                 200: {
                     headers: {
                         [name: string]: unknown;
@@ -1084,6 +1084,11 @@ export interface paths {
                     "application/json": {
                         /** Format: date-time */
                         closeDate?: string;
+                        /**
+                         * @description Why the position was closed; null clears it (unknown)
+                         * @enum {string|null}
+                         */
+                        closeReason?: "STOP_LOSS" | "TARGET" | "MANUAL" | "OTHER" | null;
                         exitPrice?: number;
                         notes?: string;
                         sellFees?: number;
@@ -1270,6 +1275,11 @@ export interface paths {
                     "application/json": {
                         /** Format: date-time */
                         closeDate: string;
+                        /**
+                         * @description Why the position was closed. Defaults to MANUAL when omitted. Whether a stop-out was a loss, break-even or gain is derived from realised P&L, not stored.
+                         * @enum {string}
+                         */
+                        closeReason?: "STOP_LOSS" | "TARGET" | "MANUAL" | "OTHER";
                         exitPrice: number;
                         /** @default 0 */
                         fees?: number;

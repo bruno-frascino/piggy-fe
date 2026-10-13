@@ -138,6 +138,9 @@ export interface TaxReport {
   lineItems?: TaxReportLineItem[];
 }
 
+// Mirrors the backend `CloseReason` enum; absent = unknown (closed before it was tracked).
+export type CloseReason = 'STOP_LOSS' | 'TARGET' | 'MANUAL' | 'OTHER';
+
 // A closed (or partially closed) position, sourced from the server via
 // GET /positions/close-events (see useClosedPositions / apiClient.getClosedPositions).
 // The server is the single source of truth for closed trades — there is no
@@ -160,6 +163,7 @@ export interface ClosedTrade {
   periodDays: number;
   buyComments?: string;
   sellComments?: string;
+  closeReason?: CloseReason;
   baseCurrency?: string; // placeholder for future multi-currency support
   maxDrawdownPercent?: number; // worst intra-trade drawdown from entry price, in percent (positive number)
   maxRunUpPercent?: number; // best intra-trade peak gain above entry price, in percent (positive number)

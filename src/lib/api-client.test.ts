@@ -686,6 +686,27 @@ describe('api-client', () => {
 
     await apiClient.closePosition('p1', '2026-05-10', 120, 2, 1, '   ');
     await apiClient.updateCloseEvent('ce1', { notes: '   ' });
+    axiosClientMock.post.mockResolvedValueOnce({ data: { success: true } });
+    axiosClientMock.patch.mockResolvedValueOnce({ data: { success: true } });
+    await apiClient.closePosition(
+      'p1',
+      '2026-05-10',
+      90,
+      undefined,
+      undefined,
+      undefined,
+      'STOP_LOSS'
+    );
+    await apiClient.updateCloseEvent('ce1', { closeReason: null });
+    expect(axiosClientMock.post).toHaveBeenCalledWith('/positions/p1/close', {
+      closeDate: '2026-05-10',
+      exitPrice: 90,
+      closeReason: 'STOP_LOSS',
+    });
+    expect(axiosClientMock.patch).toHaveBeenCalledWith(
+      '/positions/close-events/ce1',
+      { closeReason: null }
+    );
 
     expect(axiosClientMock.post).toHaveBeenCalledWith('/positions/p1/close', {
       closeDate: '2026-05-10',

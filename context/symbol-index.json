@@ -45,13 +45,13 @@
     "startLine": 14
   },
   {
-    "endLine": 666,
+    "endLine": 676,
     "file": "src/app/history/page.tsx",
     "jsdoc": "",
     "kind": "FunctionDeclaration",
     "name": "default",
     "signature": "export default function HistoryPage()",
-    "startLine": 319
+    "startLine": 326
   },
   {
     "endLine": 37,
@@ -216,22 +216,22 @@
     "startLine": 43
   },
   {
-    "endLine": 20,
+    "endLine": 24,
     "file": "src/components/ClosePositionDialog.tsx",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "ClosePositionPayload",
     "signature": "export interface ClosePositionPayload",
-    "startLine": 14
+    "startLine": 17
   },
   {
-    "endLine": 287,
+    "endLine": 352,
     "file": "src/components/ClosePositionDialog.tsx",
     "jsdoc": "",
     "kind": "FunctionDeclaration",
     "name": "default",
     "signature": "export default function ClosePositionDialog(",
-    "startLine": 22
+    "startLine": 26
   },
   {
     "endLine": 45,
@@ -279,13 +279,13 @@
     "startLine": 1
   },
   {
-    "endLine": 370,
+    "endLine": 384,
     "file": "src/components/EditClosedTradeDialog.tsx",
     "jsdoc": "",
     "kind": "FunctionDeclaration",
     "name": "default",
     "signature": "export default function EditClosedTradeDialog(",
-    "startLine": 42
+    "startLine": 45
   },
   {
     "endLine": 31,
@@ -306,7 +306,7 @@
     "startLine": 28
   },
   {
-    "endLine": 988,
+    "endLine": 990,
     "file": "src/components/HoldingsTable.tsx",
     "jsdoc": "",
     "kind": "FunctionDeclaration",
@@ -414,481 +414,481 @@
     "startLine": 66
   },
   {
-    "endLine": 41,
+    "endLine": 42,
     "file": "src/hooks/api.ts",
     "jsdoc": "",
     "kind": "VariableDeclaration",
     "name": "useTradingAccounts",
     "signature": "useTradingAccounts = (includeClosed = false, enabled = true) =>",
-    "startLine": 34
+    "startLine": 35
   },
   {
-    "endLine": 53,
+    "endLine": 54,
     "file": "src/hooks/api.ts",
     "jsdoc": "",
     "kind": "VariableDeclaration",
     "name": "useCreateAccount",
     "signature": "useCreateAccount = () =>",
-    "startLine": 43
+    "startLine": 44
   },
   {
-    "endLine": 69,
+    "endLine": 70,
     "file": "src/hooks/api.ts",
     "jsdoc": "",
     "kind": "VariableDeclaration",
     "name": "useDeleteAccount",
     "signature": "useDeleteAccount = () =>",
-    "startLine": 55
+    "startLine": 56
   },
   {
-    "endLine": 83,
+    "endLine": 84,
     "file": "src/hooks/api.ts",
     "jsdoc": "",
     "kind": "VariableDeclaration",
     "name": "useCloseAccount",
     "signature": "useCloseAccount = () =>",
-    "startLine": 71
+    "startLine": 72
   },
   {
-    "endLine": 94,
+    "endLine": 95,
     "file": "src/hooks/api.ts",
     "jsdoc": "",
     "kind": "VariableDeclaration",
     "name": "useReopenAccount",
     "signature": "useReopenAccount = () =>",
-    "startLine": 85
+    "startLine": 86
   },
   {
-    "endLine": 106,
+    "endLine": 107,
     "file": "src/hooks/api.ts",
     "jsdoc": "",
     "kind": "VariableDeclaration",
     "name": "useUpdateAccount",
     "signature": "useUpdateAccount = () =>",
-    "startLine": 96
+    "startLine": 97
   },
   {
-    "endLine": 124,
+    "endLine": 125,
     "file": "src/hooks/api.ts",
     "jsdoc": "",
     "kind": "VariableDeclaration",
     "name": "useLogin",
     "signature": "useLogin = () =>",
-    "startLine": 109
+    "startLine": 110
   },
   {
-    "endLine": 150,
+    "endLine": 151,
     "file": "src/hooks/api.ts",
     "jsdoc": "",
     "kind": "VariableDeclaration",
     "name": "useSignup",
     "signature": "useSignup = () =>",
-    "startLine": 127
+    "startLine": 128
   },
   {
-    "endLine": 158,
+    "endLine": 159,
     "file": "src/hooks/api.ts",
     "jsdoc": "",
     "kind": "VariableDeclaration",
     "name": "useForgotPassword",
     "signature": "useForgotPassword = () =>",
-    "startLine": 153
+    "startLine": 154
   },
   {
-    "endLine": 170,
+    "endLine": 171,
     "file": "src/hooks/api.ts",
     "jsdoc": "",
     "kind": "VariableDeclaration",
     "name": "useResetPassword",
     "signature": "useResetPassword = () =>",
-    "startLine": 161
+    "startLine": 162
   },
   {
-    "endLine": 176,
+    "endLine": 177,
     "file": "src/hooks/api.ts",
     "jsdoc": "",
     "kind": "VariableDeclaration",
     "name": "useLogout",
     "signature": "useLogout = () =>",
-    "startLine": 172
+    "startLine": 173
   },
   {
-    "endLine": 183,
+    "endLine": 184,
     "file": "src/hooks/api.ts",
     "jsdoc": "",
     "kind": "VariableDeclaration",
     "name": "useDeleteCurrentUser",
     "signature": "useDeleteCurrentUser = () =>",
-    "startLine": 178
+    "startLine": 179
   },
   {
-    "endLine": 190,
+    "endLine": 191,
     "file": "src/hooks/api.ts",
     "jsdoc": "",
     "kind": "VariableDeclaration",
     "name": "useRestoreAccount",
     "signature": "useRestoreAccount = () =>",
-    "startLine": 185
+    "startLine": 186
   },
   {
-    "endLine": 197,
+    "endLine": 198,
     "file": "src/hooks/api.ts",
     "jsdoc": "",
     "kind": "VariableDeclaration",
     "name": "useCurrentUser",
     "signature": "useCurrentUser = () =>",
-    "startLine": 192
+    "startLine": 193
   },
   {
-    "endLine": 208,
+    "endLine": 209,
     "file": "src/hooks/api.ts",
     "jsdoc": "",
     "kind": "VariableDeclaration",
     "name": "useUpdateCurrentUser",
     "signature": "useUpdateCurrentUser = () =>",
-    "startLine": 199
+    "startLine": 200
   },
   {
-    "endLine": 216,
+    "endLine": 217,
     "file": "src/hooks/api.ts",
     "jsdoc": "",
     "kind": "VariableDeclaration",
     "name": "useUserPortfolio",
     "signature": "useUserPortfolio = (accountId?: string) =>",
-    "startLine": 210
+    "startLine": 211
   },
   {
-    "endLine": 231,
+    "endLine": 232,
     "file": "src/hooks/api.ts",
     "jsdoc": "",
     "kind": "VariableDeclaration",
     "name": "usePortfolioHistory",
     "signature": "usePortfolioHistory = ( accountId?: string, exchangeCode?: string ) =>",
-    "startLine": 218
+    "startLine": 219
   },
   {
-    "endLine": 239,
+    "endLine": 240,
     "file": "src/hooks/api.ts",
     "jsdoc": "",
     "kind": "VariableDeclaration",
     "name": "useRealizedPnL",
     "signature": "useRealizedPnL = (accountId?: string, exchangeCode?: string) =>",
-    "startLine": 233
+    "startLine": 234
   },
   {
-    "endLine": 256,
+    "endLine": 257,
     "file": "src/hooks/api.ts",
     "jsdoc": "",
     "kind": "VariableDeclaration",
     "name": "useCreatePortfolioSnapshot",
     "signature": "useCreatePortfolioSnapshot = () =>",
-    "startLine": 241
+    "startLine": 242
   },
   {
-    "endLine": 264,
+    "endLine": 265,
     "file": "src/hooks/api.ts",
     "jsdoc": "",
     "kind": "VariableDeclaration",
     "name": "useHoldings",
     "signature": "useHoldings = (exchangeName?: string, accountId?: string) =>",
-    "startLine": 258
+    "startLine": 259
   },
   {
-    "endLine": 278,
+    "endLine": 279,
     "file": "src/hooks/api.ts",
     "jsdoc": "",
     "kind": "VariableDeclaration",
     "name": "useClosedPositions",
     "signature": "useClosedPositions = (params: ClosedTradesQuery =",
-    "startLine": 266
+    "startLine": 267
   },
   {
-    "endLine": 288,
+    "endLine": 289,
     "file": "src/hooks/api.ts",
     "jsdoc": "",
     "kind": "VariableDeclaration",
     "name": "useCreatePosition",
     "signature": "useCreatePosition = () =>",
-    "startLine": 280
+    "startLine": 281
   },
   {
-    "endLine": 303,
+    "endLine": 304,
     "file": "src/hooks/api.ts",
     "jsdoc": "",
     "kind": "VariableDeclaration",
     "name": "useUpdatePosition",
     "signature": "useUpdatePosition = () =>",
-    "startLine": 290
+    "startLine": 291
   },
   {
-    "endLine": 327,
+    "endLine": 338,
     "file": "src/hooks/api.ts",
     "jsdoc": "",
     "kind": "VariableDeclaration",
     "name": "useClosePosition",
     "signature": "useClosePosition = () =>",
-    "startLine": 305
+    "startLine": 306
   },
   {
-    "endLine": 336,
+    "endLine": 347,
     "file": "src/hooks/api.ts",
     "jsdoc": "",
     "kind": "VariableDeclaration",
     "name": "useDeletePosition",
     "signature": "useDeletePosition = () =>",
-    "startLine": 329
+    "startLine": 340
   },
   {
-    "endLine": 351,
+    "endLine": 362,
     "file": "src/hooks/api.ts",
     "jsdoc": "",
     "kind": "VariableDeclaration",
     "name": "useUpdateCloseEvent",
     "signature": "useUpdateCloseEvent = () =>",
-    "startLine": 338
+    "startLine": 349
   },
   {
-    "endLine": 360,
+    "endLine": 371,
     "file": "src/hooks/api.ts",
     "jsdoc": "",
     "kind": "VariableDeclaration",
     "name": "useRecalculateDrawdown",
     "signature": "useRecalculateDrawdown = () =>",
-    "startLine": 353
+    "startLine": 364
   },
   {
-    "endLine": 372,
+    "endLine": 383,
     "file": "src/hooks/api.ts",
     "jsdoc": "",
     "kind": "VariableDeclaration",
     "name": "useQuotes",
     "signature": "useQuotes = (symbols: string[]) =>",
-    "startLine": 362
+    "startLine": 373
   },
   {
-    "endLine": 382,
+    "endLine": 393,
     "file": "src/hooks/api.ts",
     "jsdoc": "",
     "kind": "VariableDeclaration",
     "name": "useStockSearch",
     "signature": "useStockSearch = (query: string, limit = 10) =>",
-    "startLine": 374
+    "startLine": 385
   },
   {
-    "endLine": 390,
+    "endLine": 401,
     "file": "src/hooks/api.ts",
     "jsdoc": "",
     "kind": "VariableDeclaration",
     "name": "useTaxReports",
     "signature": "useTaxReports = (includeSuperseded = false) =>",
-    "startLine": 385
+    "startLine": 396
   },
   {
-    "endLine": 398,
+    "endLine": 409,
     "file": "src/hooks/api.ts",
     "jsdoc": "",
     "kind": "VariableDeclaration",
     "name": "useTaxReportDetail",
     "signature": "useTaxReportDetail = (id?: string) =>",
-    "startLine": 392
+    "startLine": 403
   },
   {
-    "endLine": 405,
+    "endLine": 416,
     "file": "src/hooks/api.ts",
     "jsdoc": "",
     "kind": "VariableDeclaration",
     "name": "useTaxReportPositionUsage",
     "signature": "useTaxReportPositionUsage = () =>",
-    "startLine": 400
-  },
-  {
-    "endLine": 419,
-    "file": "src/hooks/api.ts",
-    "jsdoc": "",
-    "kind": "VariableDeclaration",
-    "name": "useGenerateTaxReport",
-    "signature": "useGenerateTaxReport = () =>",
-    "startLine": 407
+    "startLine": 411
   },
   {
     "endLine": 430,
     "file": "src/hooks/api.ts",
     "jsdoc": "",
     "kind": "VariableDeclaration",
-    "name": "useDeleteTaxReport",
-    "signature": "useDeleteTaxReport = () =>",
-    "startLine": 421
+    "name": "useGenerateTaxReport",
+    "signature": "useGenerateTaxReport = () =>",
+    "startLine": 418
   },
   {
-    "endLine": 436,
+    "endLine": 441,
+    "file": "src/hooks/api.ts",
+    "jsdoc": "",
+    "kind": "VariableDeclaration",
+    "name": "useDeleteTaxReport",
+    "signature": "useDeleteTaxReport = () =>",
+    "startLine": 432
+  },
+  {
+    "endLine": 447,
     "file": "src/hooks/api.ts",
     "jsdoc": "",
     "kind": "VariableDeclaration",
     "name": "useDownloadTaxReportPdf",
     "signature": "useDownloadTaxReportPdf = () =>",
-    "startLine": 432
+    "startLine": 443
   },
   {
-    "endLine": 449,
+    "endLine": 460,
     "file": "src/hooks/api.ts",
     "jsdoc": "",
     "kind": "VariableDeclaration",
     "name": "useStatisticsSummary",
     "signature": "useStatisticsSummary = ( filters: StatisticsFilters =",
-    "startLine": 439
+    "startLine": 450
   },
   {
-    "endLine": 468,
+    "endLine": 479,
     "file": "src/hooks/api.ts",
     "jsdoc": "",
     "kind": "VariableDeclaration",
     "name": "useStatisticsTimeSeries",
     "signature": "useStatisticsTimeSeries = (params:",
-    "startLine": 451
+    "startLine": 462
   },
   {
-    "endLine": 480,
+    "endLine": 491,
     "file": "src/hooks/api.ts",
     "jsdoc": "",
     "kind": "VariableDeclaration",
     "name": "useStatisticsDistributions",
     "signature": "useStatisticsDistributions = ( filters: StatisticsFilters =",
-    "startLine": 470
+    "startLine": 481
   },
   {
-    "endLine": 492,
+    "endLine": 503,
     "file": "src/hooks/api.ts",
     "jsdoc": "",
     "kind": "VariableDeclaration",
     "name": "useStatisticsRisk",
     "signature": "useStatisticsRisk = ( filters: StatisticsFilters =",
-    "startLine": 482
+    "startLine": 493
   },
   {
-    "endLine": 511,
+    "endLine": 522,
     "file": "src/hooks/api.ts",
     "jsdoc": "",
     "kind": "VariableDeclaration",
     "name": "useStatisticsBreakdowns",
     "signature": "useStatisticsBreakdowns = (params:",
-    "startLine": 494
-  },
-  {
-    "endLine": 534,
-    "file": "src/hooks/api.ts",
-    "jsdoc": "",
-    "kind": "VariableDeclaration",
-    "name": "useStatisticsClosedTrades",
-    "signature": "useStatisticsClosedTrades = (params:",
-    "startLine": 513
+    "startLine": 505
   },
   {
     "endLine": 545,
     "file": "src/hooks/api.ts",
     "jsdoc": "",
     "kind": "VariableDeclaration",
-    "name": "useScreener",
-    "signature": "useScreener = (filters: ScreenerFilters, enabled = true) =>",
-    "startLine": 537
+    "name": "useStatisticsClosedTrades",
+    "signature": "useStatisticsClosedTrades = (params:",
+    "startLine": 524
   },
   {
-    "endLine": 555,
+    "endLine": 556,
+    "file": "src/hooks/api.ts",
+    "jsdoc": "",
+    "kind": "VariableDeclaration",
+    "name": "useScreener",
+    "signature": "useScreener = (filters: ScreenerFilters, enabled = true) =>",
+    "startLine": 548
+  },
+  {
+    "endLine": 566,
     "file": "src/hooks/api.ts",
     "jsdoc": "",
     "kind": "VariableDeclaration",
     "name": "useUpcomingDividends",
     "signature": "useUpcomingDividends = (symbols: string[], enabled = true) =>",
-    "startLine": 547
+    "startLine": 558
   },
   {
-    "endLine": 563,
+    "endLine": 574,
     "file": "src/hooks/api.ts",
     "jsdoc": "",
     "kind": "VariableDeclaration",
     "name": "useSavedScreens",
     "signature": "useSavedScreens = () =>",
-    "startLine": 557
+    "startLine": 568
   },
   {
-    "endLine": 579,
+    "endLine": 590,
     "file": "src/hooks/api.ts",
     "jsdoc": "",
     "kind": "VariableDeclaration",
     "name": "useCreateSavedScreen",
     "signature": "useCreateSavedScreen = () =>",
-    "startLine": 565
+    "startLine": 576
   },
   {
-    "endLine": 589,
+    "endLine": 600,
     "file": "src/hooks/api.ts",
     "jsdoc": "",
     "kind": "VariableDeclaration",
     "name": "useDeleteSavedScreen",
     "signature": "useDeleteSavedScreen = () =>",
-    "startLine": 581
+    "startLine": 592
   },
   {
-    "endLine": 598,
+    "endLine": 609,
     "file": "src/hooks/api.ts",
     "jsdoc": "",
     "kind": "VariableDeclaration",
     "name": "useWatchlists",
     "signature": "useWatchlists = () =>",
-    "startLine": 592
+    "startLine": 603
   },
   {
-    "endLine": 607,
+    "endLine": 618,
     "file": "src/hooks/api.ts",
     "jsdoc": "",
     "kind": "VariableDeclaration",
     "name": "useWatchlistDetail",
     "signature": "useWatchlistDetail = (id?: string) =>",
-    "startLine": 600
+    "startLine": 611
   },
   {
-    "endLine": 617,
+    "endLine": 628,
     "file": "src/hooks/api.ts",
     "jsdoc": "",
     "kind": "VariableDeclaration",
     "name": "useCreateWatchlist",
     "signature": "useCreateWatchlist = () =>",
-    "startLine": 609
+    "startLine": 620
   },
   {
-    "endLine": 629,
+    "endLine": 640,
     "file": "src/hooks/api.ts",
     "jsdoc": "",
     "kind": "VariableDeclaration",
     "name": "useRenameWatchlist",
     "signature": "useRenameWatchlist = () =>",
-    "startLine": 619
+    "startLine": 630
   },
   {
-    "endLine": 639,
+    "endLine": 650,
     "file": "src/hooks/api.ts",
     "jsdoc": "",
     "kind": "VariableDeclaration",
     "name": "useDeleteWatchlist",
     "signature": "useDeleteWatchlist = () =>",
-    "startLine": 631
+    "startLine": 642
   },
   {
-    "endLine": 659,
+    "endLine": 670,
     "file": "src/hooks/api.ts",
     "jsdoc": "",
     "kind": "VariableDeclaration",
     "name": "useAddWatchlistItem",
     "signature": "useAddWatchlistItem = () =>",
-    "startLine": 641
+    "startLine": 652
   },
   {
-    "endLine": 679,
+    "endLine": 690,
     "file": "src/hooks/api.ts",
     "jsdoc": "",
     "kind": "VariableDeclaration",
     "name": "useRemoveWatchlistItem",
     "signature": "useRemoveWatchlistItem = () =>",
-    "startLine": 661
+    "startLine": 672
   },
   {
     "endLine": 47,
@@ -1098,13 +1098,13 @@
     "startLine": 192
   },
   {
-    "endLine": 280,
+    "endLine": 294,
     "file": "src/lib/api/mappers.ts",
     "jsdoc": "",
     "kind": "FunctionDeclaration",
     "name": "mapCloseEventToClosedTrade",
     "signature": "export function mapCloseEventToClosedTrade(event: unknown): ClosedTrade | null",
-    "startLine": 198
+    "startLine": 209
   },
   {
     "endLine": 207,
@@ -1116,13 +1116,13 @@
     "startLine": 27
   },
   {
-    "endLine": 265,
+    "endLine": 269,
     "file": "src/lib/api/positions.ts",
     "jsdoc": "",
     "kind": "FunctionDeclaration",
     "name": "createPositionsApi",
     "signature": "export function createPositionsApi(client: AxiosInstance)",
-    "startLine": 19
+    "startLine": 20
   },
   {
     "endLine": 16,
@@ -1186,6 +1186,60 @@
     "name": "createWatchlistsApi",
     "signature": "export function createWatchlistsApi(client: AxiosInstance)",
     "startLine": 52
+  },
+  {
+    "endLine": 8,
+    "file": "src/lib/close-reason.ts",
+    "jsdoc": "",
+    "kind": "VariableDeclaration",
+    "name": "CLOSE_REASON_OPTIONS",
+    "signature": "CLOSE_REASON_OPTIONS:",
+    "startLine": 3
+  },
+  {
+    "endLine": 11,
+    "file": "src/lib/close-reason.ts",
+    "jsdoc": "",
+    "kind": "VariableDeclaration",
+    "name": "BREAK_EVEN_TOLERANCE",
+    "signature": "BREAK_EVEN_TOLERANCE = 0.001",
+    "startLine": 11
+  },
+  {
+    "endLine": 13,
+    "file": "src/lib/close-reason.ts",
+    "jsdoc": "",
+    "kind": "TypeAliasDeclaration",
+    "name": "CloseOutcome",
+    "signature": "export type CloseOutcome = 'GAIN' | 'LOSS' | 'BREAK_EVEN';",
+    "startLine": 13
+  },
+  {
+    "endLine": 21,
+    "file": "src/lib/close-reason.ts",
+    "jsdoc": "",
+    "kind": "FunctionDeclaration",
+    "name": "closeOutcome",
+    "signature": "export function closeOutcome(returnFraction: number): CloseOutcome",
+    "startLine": 17
+  },
+  {
+    "endLine": 39,
+    "file": "src/lib/close-reason.ts",
+    "jsdoc": "",
+    "kind": "FunctionDeclaration",
+    "name": "closeReasonLabel",
+    "signature": "export function closeReasonLabel( reason: CloseReason | undefined, returnFraction: number ): string",
+    "startLine": 29
+  },
+  {
+    "endLine": 16,
+    "file": "src/lib/closed-trade-math.ts",
+    "jsdoc": "",
+    "kind": "FunctionDeclaration",
+    "name": "closedTradeAmounts",
+    "signature": "export function closedTradeAmounts(t: TradeAmounts)",
+    "startLine": 10
   },
   {
     "endLine": 9,
@@ -1278,7 +1332,7 @@
     "startLine": 18
   },
   {
-    "endLine": 2910,
+    "endLine": 2920,
     "file": "src/lib/generated/api-types.ts",
     "jsdoc": "GENERATED from contracts/openapi.json by scripts/context/generate-api-types.ts. REFERENCE ONLY — never import this file from app code (components/hooks/pages). src/lib/types.ts is the manually mirrored source of truth (see docs/adr/0007-manual-types-mirror.md). See context/contract-drift.md for a report of any drift between the two.",
     "kind": "InterfaceDeclaration",
@@ -1287,40 +1341,40 @@
     "startLine": 7
   },
   {
-    "endLine": 2911,
+    "endLine": 2921,
     "file": "src/lib/generated/api-types.ts",
     "jsdoc": "",
     "kind": "TypeAliasDeclaration",
     "name": "webhooks",
     "signature": "export type webhooks = Record<string, never>;",
-    "startLine": 2911
+    "startLine": 2921
   },
   {
-    "endLine": 2948,
+    "endLine": 2958,
     "file": "src/lib/generated/api-types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "components",
     "signature": "export interface components",
-    "startLine": 2912
+    "startLine": 2922
   },
   {
-    "endLine": 2949,
+    "endLine": 2959,
     "file": "src/lib/generated/api-types.ts",
     "jsdoc": "",
     "kind": "TypeAliasDeclaration",
     "name": "$defs",
     "signature": "export type $defs = Record<string, never>;",
-    "startLine": 2949
+    "startLine": 2959
   },
   {
-    "endLine": 2950,
+    "endLine": 2960,
     "file": "src/lib/generated/api-types.ts",
     "jsdoc": "",
     "kind": "TypeAliasDeclaration",
     "name": "operations",
     "signature": "export type operations = Record<string, never>;",
-    "startLine": 2950
+    "startLine": 2960
   },
   {
     "endLine": 10,
@@ -1449,76 +1503,76 @@
     "startLine": 43
   },
   {
-    "endLine": 5,
+    "endLine": 6,
     "file": "src/lib/offline-write-queue.ts",
     "jsdoc": "",
     "kind": "VariableDeclaration",
     "name": "OFFLINE_WRITE_QUEUE_CHANGED_EVENT",
     "signature": "OFFLINE_WRITE_QUEUE_CHANGED_EVENT = 'truffles:offline-write-queue-changed'",
-    "startLine": 4
+    "startLine": 5
   },
   {
-    "endLine": 67,
+    "endLine": 69,
     "file": "src/lib/offline-write-queue.ts",
     "jsdoc": "",
     "kind": "TypeAliasDeclaration",
     "name": "QueuedWriteAction",
     "signature": "export type QueuedWriteAction = |",
-    "startLine": 47
+    "startLine": 49
   },
   {
-    "endLine": 83,
+    "endLine": 85,
     "file": "src/lib/offline-write-queue.ts",
     "jsdoc": "",
     "kind": "TypeAliasDeclaration",
     "name": "QueuedWriteActionInput",
     "signature": "export type QueuedWriteActionInput = |",
-    "startLine": 69
+    "startLine": 71
   },
   {
-    "endLine": 121,
+    "endLine": 123,
     "file": "src/lib/offline-write-queue.ts",
     "jsdoc": "",
     "kind": "FunctionDeclaration",
     "name": "getQueuedWritesCount",
     "signature": "export function getQueuedWritesCount()",
-    "startLine": 119
+    "startLine": 121
   },
   {
-    "endLine": 125,
+    "endLine": 127,
     "file": "src/lib/offline-write-queue.ts",
     "jsdoc": "",
     "kind": "FunctionDeclaration",
     "name": "clearQueuedWrites",
     "signature": "export function clearQueuedWrites()",
-    "startLine": 123
+    "startLine": 125
   },
   {
-    "endLine": 137,
+    "endLine": 139,
     "file": "src/lib/offline-write-queue.ts",
     "jsdoc": "",
     "kind": "FunctionDeclaration",
     "name": "enqueueQueuedWrite",
     "signature": "export function enqueueQueuedWrite(action: QueuedWriteActionInput)",
-    "startLine": 127
+    "startLine": 129
   },
   {
-    "endLine": 166,
+    "endLine": 168,
     "file": "src/lib/offline-write-queue.ts",
     "jsdoc": "",
     "kind": "FunctionDeclaration",
     "name": "replayQueuedWrites",
     "signature": "export async function replayQueuedWrites( execute: (action: QueuedWriteAction) => Promise<void> )",
-    "startLine": 139
+    "startLine": 141
   },
   {
-    "endLine": 189,
+    "endLine": 192,
     "file": "src/lib/offline-write-queue.ts",
     "jsdoc": "",
     "kind": "FunctionDeclaration",
     "name": "syncQueuedWritesNow",
     "signature": "export async function syncQueuedWritesNow()",
-    "startLine": 168
+    "startLine": 170
   },
   {
     "endLine": 16,
@@ -1719,264 +1773,273 @@
     "startLine": 118
   },
   {
-    "endLine": 166,
+    "endLine": 142,
+    "file": "src/lib/types.ts",
+    "jsdoc": "",
+    "kind": "TypeAliasDeclaration",
+    "name": "CloseReason",
+    "signature": "export type CloseReason = 'STOP_LOSS' | 'TARGET' | 'MANUAL' | 'OTHER';",
+    "startLine": 142
+  },
+  {
+    "endLine": 170,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "ClosedTrade",
     "signature": "export interface ClosedTrade",
-    "startLine": 145
+    "startLine": 148
   },
   {
-    "endLine": 176,
+    "endLine": 180,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "ClosedTradesQuery",
     "signature": "export interface ClosedTradesQuery",
-    "startLine": 170
+    "startLine": 174
   },
   {
-    "endLine": 181,
+    "endLine": 185,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "ClosedTradesPage",
     "signature": "export interface ClosedTradesPage",
-    "startLine": 178
+    "startLine": 182
   },
   {
-    "endLine": 190,
+    "endLine": 194,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "TaxReportUsage",
     "signature": "export interface TaxReportUsage",
-    "startLine": 185
+    "startLine": 189
   },
   {
-    "endLine": 192,
+    "endLine": 196,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "TypeAliasDeclaration",
     "name": "TaxReportPositionUsage",
     "signature": "export type TaxReportPositionUsage = Record<string, TaxReportUsage[]>;",
-    "startLine": 192
+    "startLine": 196
   },
   {
-    "endLine": 201,
+    "endLine": 205,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "StatisticsFilters",
     "signature": "export interface StatisticsFilters",
-    "startLine": 194
+    "startLine": 198
   },
   {
-    "endLine": 216,
+    "endLine": 220,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "StatisticsSummary",
     "signature": "export interface StatisticsSummary",
-    "startLine": 203
+    "startLine": 207
   },
   {
-    "endLine": 222,
+    "endLine": 226,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "StatisticsTimeSeriesPoint",
     "signature": "export interface StatisticsTimeSeriesPoint",
-    "startLine": 218
+    "startLine": 222
   },
   {
-    "endLine": 228,
+    "endLine": 232,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "StatisticsTimeSeries",
     "signature": "export interface StatisticsTimeSeries",
-    "startLine": 224
+    "startLine": 228
   },
   {
-    "endLine": 234,
+    "endLine": 238,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "StatisticsHistogramBucket",
     "signature": "export interface StatisticsHistogramBucket",
-    "startLine": 230
+    "startLine": 234
   },
   {
-    "endLine": 241,
+    "endLine": 245,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "StatisticsDistributions",
     "signature": "export interface StatisticsDistributions",
-    "startLine": 236
+    "startLine": 240
   },
   {
-    "endLine": 251,
+    "endLine": 255,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "StatisticsRisk",
     "signature": "export interface StatisticsRisk",
-    "startLine": 243
+    "startLine": 247
   },
   {
-    "endLine": 257,
+    "endLine": 261,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "TypeAliasDeclaration",
     "name": "StatisticsBreakdownBy",
     "signature": "export type StatisticsBreakdownBy = | 'account' | 'exchange' | 'assetType' | 'industry';",
-    "startLine": 253
+    "startLine": 257
   },
   {
-    "endLine": 262,
+    "endLine": 266,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "TypeAliasDeclaration",
     "name": "StatisticsBreakdownMetric",
     "signature": "export type StatisticsBreakdownMetric = | 'marketValue' | 'realizedPnL' | 'totalPnL';",
-    "startLine": 259
+    "startLine": 263
   },
   {
-    "endLine": 270,
+    "endLine": 274,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "StatisticsBreakdownRow",
     "signature": "export interface StatisticsBreakdownRow",
-    "startLine": 264
+    "startLine": 268
   },
   {
-    "endLine": 275,
+    "endLine": 279,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "StatisticsBreakdownsResponse",
     "signature": "export interface StatisticsBreakdownsResponse",
-    "startLine": 272
+    "startLine": 276
   },
   {
-    "endLine": 290,
+    "endLine": 294,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "StatisticsClosedTradeRow",
     "signature": "export interface StatisticsClosedTradeRow",
-    "startLine": 277
+    "startLine": 281
   },
   {
-    "endLine": 296,
+    "endLine": 300,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "TypeAliasDeclaration",
     "name": "StatisticsClosedTradesSortBy",
     "signature": "export type StatisticsClosedTradesSortBy = | 'closeDate' | 'pnl' | 'returnPct' | 'holdingDays';",
-    "startLine": 292
+    "startLine": 296
   },
   {
-    "endLine": 298,
+    "endLine": 302,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "TypeAliasDeclaration",
     "name": "StatisticsClosedTradesSortDir",
     "signature": "export type StatisticsClosedTradesSortDir = 'asc' | 'desc';",
-    "startLine": 298
+    "startLine": 302
   },
   {
-    "endLine": 307,
+    "endLine": 311,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "StatisticsClosedTradesResponse",
     "signature": "export interface StatisticsClosedTradesResponse",
-    "startLine": 300
+    "startLine": 304
   },
   {
-    "endLine": 324,
+    "endLine": 328,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "ScreenerResult",
     "signature": "export interface ScreenerResult",
-    "startLine": 311
+    "startLine": 315
   },
   {
-    "endLine": 326,
+    "endLine": 330,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "TypeAliasDeclaration",
     "name": "ScreenerMode",
     "signature": "export type ScreenerMode = 'symbol' | 'filter';",
-    "startLine": 326
+    "startLine": 330
   },
   {
-    "endLine": 339,
+    "endLine": 343,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "ScreenerFilters",
     "signature": "export interface ScreenerFilters",
-    "startLine": 328
+    "startLine": 332
   },
   {
-    "endLine": 348,
+    "endLine": 352,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "UpcomingDividend",
     "signature": "export interface UpcomingDividend",
-    "startLine": 341
+    "startLine": 345
   },
   {
-    "endLine": 356,
+    "endLine": 360,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "SavedScreen",
     "signature": "export interface SavedScreen",
-    "startLine": 350
+    "startLine": 354
   },
   {
-    "endLine": 364,
+    "endLine": 368,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "Watchlist",
     "signature": "export interface Watchlist",
-    "startLine": 358
-  },
-  {
-    "endLine": 376,
-    "file": "src/lib/types.ts",
-    "jsdoc": "",
-    "kind": "InterfaceDeclaration",
-    "name": "WatchlistItem",
-    "signature": "export interface WatchlistItem",
-    "startLine": 366
+    "startLine": 362
   },
   {
     "endLine": 380,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
-    "name": "WatchlistDetail",
-    "signature": "export interface WatchlistDetail extends Watchlist",
-    "startLine": 378
+    "name": "WatchlistItem",
+    "signature": "export interface WatchlistItem",
+    "startLine": 370
   },
   {
-    "endLine": 390,
+    "endLine": 384,
+    "file": "src/lib/types.ts",
+    "jsdoc": "",
+    "kind": "InterfaceDeclaration",
+    "name": "WatchlistDetail",
+    "signature": "export interface WatchlistDetail extends Watchlist",
+    "startLine": 382
+  },
+  {
+    "endLine": 394,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "AddWatchlistItemPayload",
     "signature": "export interface AddWatchlistItemPayload",
-    "startLine": 382
+    "startLine": 386
   }
 ]

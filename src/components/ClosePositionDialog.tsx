@@ -7,15 +7,19 @@ import { Calendar } from 'primereact/calendar';
 import { InputNumber } from 'primereact/inputnumber';
 import { InputTextarea } from 'primereact/inputtextarea';
 import { Button } from 'primereact/button';
+import { Dropdown } from 'primereact/dropdown';
 import type { LocalHolding } from '@/components/AddHoldingsDialog';
 import { formatDateDDMMYYYY } from '@/lib/date';
 import { usePrivacy } from '@/lib/privacy-context';
+import { CLOSE_REASON_OPTIONS } from '@/lib/close-reason';
+import type { CloseReason } from '@/lib/types';
 
 export interface ClosePositionPayload {
   closeDate: string; // ISO YYYY-MM-DD
   closeUnits: number;
   sellPrice: number;
   sellFee: number;
+  closeReason: CloseReason;
   comments?: string;
 }
 
@@ -35,6 +39,7 @@ export default function ClosePositionDialog({
     closeUnits: 0,
     sellPrice: 0,
     sellFee: 0,
+    closeReason: 'MANUAL',
     comments: '',
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -62,6 +67,7 @@ export default function ClosePositionDialog({
       closeUnits: initial.units,
       sellPrice: (initial.currentPrice ?? initial.buyPrice) || 0,
       sellFee: 0,
+      closeReason: 'MANUAL',
       comments: '',
     });
     setErrors({});
@@ -79,6 +85,15 @@ export default function ClosePositionDialog({
   const closingPosition = useMemo(() => {
     return (form.closeUnits || 0) * (form.sellPrice || 0);
   }, [form.closeUnits, form.sellPrice]);
+
+  const stopLoss =
+    typeof initial?.stopLoss === 'number' && initial.stopLoss > 0
+      ? initial.stopLoss
+      : null;
+  const stopPriceEdited =
+    form.closeReason === 'STOP_LOSS' &&
+    stopLoss !== null &&
+    form.sellPrice !== stopLoss;
 
   const handleSubmit = () => {
     if (!initial) return;
@@ -137,7 +152,7 @@ export default function ClosePositionDialog({
 
         {/* Close info */}
         <div className='grid grid-cols-12 gap-3'>
-          <div className='col-span-12 md:col-span-4'>
+          <div className='col-span-12 md:col-span-3'>
             <label className='block text-sm font-medium mb-1'>
               Close Date *
             </label>
@@ -165,16 +180,28 @@ export default function ClosePositionDialog({
               <p className='text-xs text-red-600 mt-1'>{errors.closeDate}</p>
             )}
           </div>
-          <div className='col-span-12 md:col-span-4'>
+          <div className='col-span-12 md:col-span-3'>
             <label className='block text-sm font-medium mb-1'>
               Period (days)
             </label>
             <InputText value={String(periodDays)} readOnly className='w-full' />
           </div>
-          <div className='col-span-12 md:col-span-4'>
+          <div className='col-span-12 md:col-span-3'>
             <label className='block text-sm font-medium mb-1'>Open Units</label>
             <InputText
               value={String(initial.units)}
+              readOnly
+              className='w-full'
+            />
+          </div>
+          <div className='col-span-12 md:col-span-3'>
+            <label className='block text-sm font-medium mb-1'>Stop Loss</label>
+            <InputText
+              value={
+                typeof initial.stopLoss === 'number' && initial.stopLoss > 0
+                  ? String(initial.stopLoss)
+                  : '—'
+              }
               readOnly
               className='w-full'
             />
@@ -219,6 +246,25 @@ export default function ClosePositionDialog({
             {errors.sellPrice && (
               <p className='text-xs text-red-600 mt-1'>{errors.sellPrice}</p>
             )}
+            <Button
+              type='button'
+              label='Use stop loss'
+              icon='pi pi-arrow-up-left'
+              size='small'
+              text
+              disabled={stopLoss === null}
+              tooltip={stopLoss === null ? 'No stop loss set' : undefined}
+              tooltipOptions={{ showOnDisabled: true }}
+              className='mt-1 p-0'
+              onClick={() =>
+                stopLoss !== null &&
+                setForm(f => ({
+                  ...f,
+                  sellPrice: stopLoss,
+                  closeReason: 'STOP_LOSS',
+                }))
+              }
+            />
           </div>
           <div className='col-span-12 md:col-span-4'>
             <label className='block text-sm font-medium mb-1'>Sell Fee</label>
@@ -251,6 +297,25 @@ export default function ClosePositionDialog({
             />
           </div>
           <div className='col-span-12 md:col-span-6'>
+            <label className='block text-sm font-medium mb-1'>Closed By</label>
+            <Dropdown
+              value={form.closeReason}
+              options={CLOSE_REASON_OPTIONS}
+              onChange={e =>
+                setForm(f => ({ ...f, closeReason: e.value as CloseReason }))
+              }
+              className='w-full'
+            />
+            {stopPriceEdited && (
+              <p className='text-xs text-amber-600 mt-1'>
+                Sell price differs from the stop loss ({stopLoss}).
+              </p>
+            )}
+          </div>
+        </div>
+
+        <div className='grid grid-cols-12 gap-3'>
+          <div className='col-span-12'>
             <label className='block text-sm font-medium mb-1'>
               Sell Comments
             </label>

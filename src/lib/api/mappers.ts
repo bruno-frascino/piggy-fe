@@ -1,4 +1,4 @@
-import type { ClosedTrade } from '../types';
+import type { CloseReason, ClosedTrade } from '../types';
 import type {
   EquityPoint,
   HoldingPosition,
@@ -195,6 +195,17 @@ export function toDateStr(v: unknown): string {
   return '';
 }
 
+const CLOSE_REASONS: readonly string[] = [
+  'STOP_LOSS',
+  'TARGET',
+  'MANUAL',
+  'OTHER',
+];
+
+function isCloseReason(value: unknown): value is CloseReason {
+  return typeof value === 'string' && CLOSE_REASONS.includes(value);
+}
+
 export function mapCloseEventToClosedTrade(event: unknown): ClosedTrade | null {
   if (!isRecord(event)) return null;
 
@@ -267,6 +278,9 @@ export function mapCloseEventToClosedTrade(event: unknown): ClosedTrade | null {
         : typeof position.notes === 'string'
           ? position.notes
           : undefined,
+    closeReason: isCloseReason(event.closeReason)
+      ? event.closeReason
+      : undefined,
     baseCurrency: typeof exch?.currency === 'string' ? exch.currency : 'USD',
     maxDrawdownPercent:
       position.maxDrawdownPercent != null

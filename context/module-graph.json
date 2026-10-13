@@ -414,7 +414,8 @@
         "src/lib/api/stocks.ts",
         "src/lib/api/tax-reports.ts",
         "src/lib/api/user.ts",
-        "src/lib/api/watchlists.ts"
+        "src/lib/api/watchlists.ts",
+        "src/lib/api/mappers.close-reason.test.ts"
       ],
       "orphan": false,
       "source": "src/lib/api/mappers.ts",
@@ -1156,6 +1157,40 @@
           "exoticallyRequired": false,
           "followable": true,
           "matchesDoNotFollow": false,
+          "module": "@/lib/close-reason",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/close-reason.ts",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/lib/closed-trade-math",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/closed-trade-math.ts",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
           "module": "@/lib/date",
           "moduleSystem": "es6",
           "resolved": "src/lib/date.ts",
@@ -1251,6 +1286,40 @@
           "exoticallyRequired": false,
           "followable": true,
           "matchesDoNotFollow": false,
+          "module": "@/lib/close-reason",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/close-reason.ts",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/lib/closed-trade-math",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/closed-trade-math.ts",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
           "module": "@/lib/privacy-context",
           "moduleSystem": "es6",
           "resolved": "src/lib/privacy-context.tsx",
@@ -1263,6 +1332,29 @@
       ],
       "orphan": false,
       "source": "src/components/EditClosedTradeDialog.tsx",
+      "valid": true
+    },
+    {
+      "dependencies": [],
+      "dependents": [
+        "src/app/history/page.tsx",
+        "src/components/EditClosedTradeDialog.tsx",
+        "src/components/ClosePositionDialog.tsx",
+        "src/lib/close-reason.test.ts"
+      ],
+      "orphan": false,
+      "source": "src/lib/close-reason.ts",
+      "valid": true
+    },
+    {
+      "dependencies": [],
+      "dependents": [
+        "src/app/history/page.tsx",
+        "src/components/EditClosedTradeDialog.tsx",
+        "src/lib/closed-trade-math.test.ts"
+      ],
+      "orphan": false,
+      "source": "src/lib/closed-trade-math.ts",
       "valid": true
     },
     {
@@ -2242,6 +2334,23 @@
           "module": "./AppDialog",
           "moduleSystem": "es6",
           "resolved": "src/components/AppDialog.tsx",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/lib/close-reason",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/close-reason.ts",
           "valid": true
         },
         {
@@ -3963,6 +4072,81 @@
           "exoticallyRequired": false,
           "followable": true,
           "matchesDoNotFollow": false,
+          "module": "./mappers",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/api/mappers.ts",
+          "valid": true
+        }
+      ],
+      "dependents": [],
+      "orphan": false,
+      "source": "src/lib/api/mappers.close-reason.test.ts",
+      "valid": true
+    },
+    {
+      "dependencies": [
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "local",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "./close-reason",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/close-reason.ts",
+          "valid": true
+        }
+      ],
+      "dependents": [],
+      "orphan": false,
+      "source": "src/lib/close-reason.test.ts",
+      "valid": true
+    },
+    {
+      "dependencies": [
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "local",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "./closed-trade-math",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/closed-trade-math.ts",
+          "valid": true
+        }
+      ],
+      "dependents": [],
+      "orphan": false,
+      "source": "src/lib/closed-trade-math.test.ts",
+      "valid": true
+    },
+    {
+      "dependencies": [
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "local",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
           "module": "./date",
           "moduleSystem": "es6",
           "resolved": "src/lib/date.ts",
@@ -4217,8 +4401,8 @@
         }
       ]
     },
-    "totalCruised": 108,
-    "totalDependenciesCruised": 179,
+    "totalCruised": 113,
+    "totalDependenciesCruised": 187,
     "violations": [],
     "warn": 0
   }

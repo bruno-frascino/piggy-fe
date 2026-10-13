@@ -59,7 +59,7 @@
 
 ## `ClosePositionPayload`
 
-- File: [src/components/ClosePositionDialog.tsx](../src/components/ClosePositionDialog.tsx) (288 lines)
+- File: [src/components/ClosePositionDialog.tsx](../src/components/ClosePositionDialog.tsx) (353 lines)
 - API hooks used: —
 - Other hooks used: useEffect, useMemo, usePrivacy, useState
 
@@ -101,7 +101,7 @@
 
 ## `EditClosedTradeDialog`
 
-- File: [src/components/EditClosedTradeDialog.tsx](../src/components/EditClosedTradeDialog.tsx) (371 lines)
+- File: [src/components/EditClosedTradeDialog.tsx](../src/components/EditClosedTradeDialog.tsx) (385 lines)
 - API hooks used: —
 - Other hooks used: useEffect, useMemo, usePrivacy, useState
 - Props:
@@ -131,7 +131,7 @@
 
 ## `HoldingsTable`
 
-- File: [src/components/HoldingsTable.tsx](../src/components/HoldingsTable.tsx) (989 lines)
+- File: [src/components/HoldingsTable.tsx](../src/components/HoldingsTable.tsx) (991 lines)
 - API hooks used: useClosePosition, useCreatePosition, useDeletePosition, useUpdatePosition
 - Other hooks used: useCallback, useEffect, useHoldingRows, usePrivacy, useQueryClient, useRef, useState, useToast
 
