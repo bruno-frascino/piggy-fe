@@ -1669,7 +1669,7 @@ export interface paths {
                     exchangeCodes?: string;
                     /** @description CSV asset types */
                     assetTypes?: "EQUITY" | "ETF" | "CRYPTO";
-                    /** @description CSV position statuses */
+                    /** @description CSV position statuses. Defaults to OPEN,PARTIAL when `metric=marketValue` (closed positions hold nothing); all statuses otherwise. For marketValue, partial positions are prorated to the quantity still held. */
                     status?: "OPEN" | "PARTIAL" | "CLOSED";
                 };
                 header?: never;

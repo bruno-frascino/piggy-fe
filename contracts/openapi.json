@@ -1839,7 +1839,7 @@
             }
           },
           {
-            "description": "CSV position statuses",
+            "description": "CSV position statuses. Defaults to OPEN,PARTIAL when `metric=marketValue` (closed positions hold nothing); all statuses otherwise. For marketValue, partial positions are prorated to the quantity still held.",
             "in": "query",
             "name": "status",
             "schema": {

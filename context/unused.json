@@ -3,26 +3,6 @@
     {
       "binaries": [],
       "catalog": [],
-      "dependencies": [],
-      "devDependencies": [],
-      "duplicates": [],
-      "enumMembers": [],
-      "exports": [],
-      "file": "src/hooks/useLongPress.ts",
-      "files": [
-        {
-          "name": "src/hooks/useLongPress.ts"
-        }
-      ],
-      "namespaceMembers": [],
-      "optionalPeerDependencies": [],
-      "types": [],
-      "unlisted": [],
-      "unresolved": []
-    },
-    {
-      "binaries": [],
-      "catalog": [],
       "dependencies": [
         {
           "col": 6,
@@ -118,6 +98,52 @@
       "enumMembers": [],
       "exports": [
         {
+          "col": 17,
+          "line": 24,
+          "name": "focusFirstField",
+          "pos": 776
+        }
+      ],
+      "file": "src/components/AppDialog.tsx",
+      "files": [],
+      "namespaceMembers": [],
+      "optionalPeerDependencies": [],
+      "types": [],
+      "unlisted": [],
+      "unresolved": []
+    },
+    {
+      "binaries": [],
+      "catalog": [],
+      "dependencies": [],
+      "devDependencies": [],
+      "duplicates": [],
+      "enumMembers": [],
+      "exports": [],
+      "file": "src/components/DashboardView.tsx",
+      "files": [],
+      "namespaceMembers": [],
+      "optionalPeerDependencies": [],
+      "types": [
+        {
+          "col": 18,
+          "line": 62,
+          "name": "ExchangeDefinition",
+          "pos": 1797
+        }
+      ],
+      "unlisted": [],
+      "unresolved": []
+    },
+    {
+      "binaries": [],
+      "catalog": [],
+      "dependencies": [],
+      "devDependencies": [],
+      "duplicates": [],
+      "enumMembers": [],
+      "exports": [
+        {
           "col": 14,
           "line": 432,
           "name": "useDeleteTaxReport",
@@ -132,6 +158,26 @@
       ],
       "file": "src/hooks/api.ts",
       "files": [],
+      "namespaceMembers": [],
+      "optionalPeerDependencies": [],
+      "types": [],
+      "unlisted": [],
+      "unresolved": []
+    },
+    {
+      "binaries": [],
+      "catalog": [],
+      "dependencies": [],
+      "devDependencies": [],
+      "duplicates": [],
+      "enumMembers": [],
+      "exports": [],
+      "file": "src/hooks/useLongPress.ts",
+      "files": [
+        {
+          "name": "src/hooks/useLongPress.ts"
+        }
+      ],
       "namespaceMembers": [],
       "optionalPeerDependencies": [],
       "types": [],
@@ -171,12 +217,18 @@
       "exports": [
         {
           "col": 17,
-          "line": 24,
-          "name": "focusFirstField",
-          "pos": 776
+          "line": 23,
+          "name": "normalizeEquitySeries",
+          "pos": 538
+        },
+        {
+          "col": 17,
+          "line": 192,
+          "name": "toDateStr",
+          "pos": 6153
         }
       ],
-      "file": "src/components/AppDialog.tsx",
+      "file": "src/lib/api/mappers.ts",
       "files": [],
       "namespaceMembers": [],
       "optionalPeerDependencies": [],
@@ -200,35 +252,6 @@
         }
       ],
       "file": "src/lib/close-reason.ts",
-      "files": [],
-      "namespaceMembers": [],
-      "optionalPeerDependencies": [],
-      "types": [],
-      "unlisted": [],
-      "unresolved": []
-    },
-    {
-      "binaries": [],
-      "catalog": [],
-      "dependencies": [],
-      "devDependencies": [],
-      "duplicates": [],
-      "enumMembers": [],
-      "exports": [
-        {
-          "col": 17,
-          "line": 23,
-          "name": "normalizeEquitySeries",
-          "pos": 538
-        },
-        {
-          "col": 17,
-          "line": 192,
-          "name": "toDateStr",
-          "pos": 6153
-        }
-      ],
-      "file": "src/lib/api/mappers.ts",
       "files": [],
       "namespaceMembers": [],
       "optionalPeerDependencies": [],
@@ -281,42 +304,6 @@
       "enumMembers": [],
       "exports": [
         {
-          "col": 17,
-          "line": 43,
-          "name": "summarize",
-          "pos": 1173
-        }
-      ],
-      "file": "src/lib/mock-portfolio.ts",
-      "files": [],
-      "namespaceMembers": [],
-      "optionalPeerDependencies": [],
-      "types": [
-        {
-          "col": 13,
-          "line": 1,
-          "name": "ExchangeKey",
-          "pos": 12
-        },
-        {
-          "col": 18,
-          "line": 3,
-          "name": "EquityPoint",
-          "pos": 89
-        }
-      ],
-      "unlisted": [],
-      "unresolved": []
-    },
-    {
-      "binaries": [],
-      "catalog": [],
-      "dependencies": [],
-      "devDependencies": [],
-      "duplicates": [],
-      "enumMembers": [],
-      "exports": [
-        {
           "col": 14,
           "line": 29,
           "name": "mockHoldings",
@@ -345,17 +332,30 @@
       "devDependencies": [],
       "duplicates": [],
       "enumMembers": [],
-      "exports": [],
-      "file": "src/components/DashboardView.tsx",
+      "exports": [
+        {
+          "col": 17,
+          "line": 43,
+          "name": "summarize",
+          "pos": 1173
+        }
+      ],
+      "file": "src/lib/mock-portfolio.ts",
       "files": [],
       "namespaceMembers": [],
       "optionalPeerDependencies": [],
       "types": [
         {
+          "col": 13,
+          "line": 1,
+          "name": "ExchangeKey",
+          "pos": 12
+        },
+        {
           "col": 18,
-          "line": 62,
-          "name": "ExchangeDefinition",
-          "pos": 1797
+          "line": 3,
+          "name": "EquityPoint",
+          "pos": 89
         }
       ],
       "unlisted": [],
