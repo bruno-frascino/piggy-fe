@@ -361,6 +361,18 @@ export const useUpdateCloseEvent = () => {
   });
 };
 
+export const useCheckStopLoss = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, currentPrice }: { id: string; currentPrice?: number }) =>
+      apiClient.checkStopLoss(id, currentPrice),
+    onSuccess: data => {
+      if (data.stopLossHitAt) invalidatePositionQueries(queryClient);
+    },
+  });
+};
+
 export const useRecalculateDrawdown = () => {
   const queryClient = useQueryClient();
 

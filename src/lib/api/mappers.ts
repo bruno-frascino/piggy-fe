@@ -147,6 +147,10 @@ export function mapPositionToHolding(pos: unknown): HoldingPosition | null {
     pos.maxDrawdownPercent != null ? Number(pos.maxDrawdownPercent) : undefined;
   const maxRunUpPercent =
     pos.maxRunUpPercent != null ? Number(pos.maxRunUpPercent) : undefined;
+  const stopLossHitAt =
+    typeof pos.stopLossHitAt === 'string' && pos.stopLossHitAt
+      ? pos.stopLossHitAt
+      : undefined;
   const normalizedOpenReason =
     typeof pos.openReason === 'string' ? pos.openReason.trim() : '';
   const normalizedLegacyNotes =
@@ -186,6 +190,7 @@ export function mapPositionToHolding(pos: unknown): HoldingPosition | null {
     buyComments: normalizedOpenReason || legacyOpenReason || undefined,
     maxDrawdownPercent,
     maxRunUpPercent,
+    stopLossHitAt,
   };
 }
 

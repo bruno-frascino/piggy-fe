@@ -29,6 +29,7 @@ const {
   useRealizedPnLMock,
   updatePositionMock,
   recalculateDrawdownMock,
+  checkStopLossMock,
   mutationMock,
   showToastMock,
   privacyState,
@@ -38,6 +39,7 @@ const {
   useRealizedPnLMock: vi.fn(),
   updatePositionMock: vi.fn(),
   recalculateDrawdownMock: vi.fn(),
+  checkStopLossMock: vi.fn(),
   mutationMock: vi.fn(),
   showToastMock: vi.fn(),
   privacyState: { hidden: false },
@@ -52,6 +54,7 @@ vi.mock('@/hooks/api', () => ({
   useCreatePosition: () => ({ mutateAsync: mutationMock }),
   useUpdatePosition: () => ({ mutateAsync: updatePositionMock }),
   useRecalculateDrawdown: () => ({ mutateAsync: recalculateDrawdownMock }),
+  useCheckStopLoss: () => ({ mutateAsync: checkStopLossMock }),
   useClosePosition: () => ({ mutateAsync: mutationMock }),
   useDeletePosition: () => ({ mutateAsync: mutationMock }),
 }));
@@ -80,7 +83,7 @@ function renderTable(onLiveTotals?: (t: unknown) => void, isDemo = false) {
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
   });
-  return render(
+  const tree = () => (
     <QueryClientProvider client={queryClient}>
       <HoldingsTable
         selectedAccountId='acc-1'
@@ -90,6 +93,7 @@ function renderTable(onLiveTotals?: (t: unknown) => void, isDemo = false) {
       />
     </QueryClientProvider>
   );
+  return { ...render(tree()), tree };
 }
 
 const baseHolding = {
@@ -119,6 +123,7 @@ beforeEach(() => {
   useRealizedPnLMock.mockReturnValue({ data: 0 });
   updatePositionMock.mockResolvedValue({ success: true });
   recalculateDrawdownMock.mockResolvedValue({ success: true });
+  checkStopLossMock.mockResolvedValue({ stopLossHitAt: null });
   mutationMock.mockResolvedValue({ success: true });
   Object.defineProperty(window.navigator, 'onLine', {
     configurable: true,
@@ -321,6 +326,82 @@ describe('HoldingsTable stop-loss highlight', () => {
     expect(
       screen.queryByRole('img', { name: 'Stop loss triggered' })
     ).not.toBeInTheDocument();
+  });
+
+  it('keeps the highlight when the stop loss was reached earlier but the price recovered', () => {
+    setHoldings([
+      { ...baseHolding, stopLoss: 95, stopLossHitAt: '2026-02-03T00:00:00Z' },
+    ]);
+    setQuotes([quote(110)]);
+
+    const { container } = renderTable();
+
+    expect(triggeredRows(container).desktop).toHaveLength(1);
+    expect(triggeredRows(container).mobile).toHaveLength(1);
+    expect(checkStopLossMock).not.toHaveBeenCalled();
+  });
+
+  it('ignores a recorded hit when no stop loss is set', () => {
+    setHoldings([
+      {
+        ...baseHolding,
+        stopLoss: undefined,
+        stopLossHitAt: '2026-02-03T00:00:00Z',
+      },
+    ]);
+    setQuotes([quote(110)]);
+
+    const { container } = renderTable();
+
+    expect(triggeredRows(container).desktop).toHaveLength(0);
+  });
+
+  it('asks the backend to check price history once for a stop that is not flagged', () => {
+    setHoldings([{ ...baseHolding, stopLoss: 95 }]);
+    setQuotes([quote(110)]);
+
+    const { rerender, tree } = renderTable();
+    rerender(tree());
+
+    expect(checkStopLossMock).toHaveBeenCalledTimes(1);
+    expect(checkStopLossMock).toHaveBeenCalledWith({
+      id: 'p1',
+      currentPrice: undefined,
+    });
+  });
+
+  it('reports a live stop loss hit with the current price', () => {
+    setHoldings([{ ...baseHolding, stopLoss: 95 }]);
+    setQuotes([quote(90)]);
+
+    renderTable();
+
+    expect(checkStopLossMock).toHaveBeenCalledWith({
+      id: 'p1',
+      currentPrice: 90,
+    });
+  });
+
+  it('does not check positions without a stop loss', () => {
+    setHoldings([{ ...baseHolding, stopLoss: undefined }]);
+    setQuotes([quote(90)]);
+
+    renderTable();
+
+    expect(checkStopLossMock).not.toHaveBeenCalled();
+  });
+
+  it('does not check while offline', () => {
+    Object.defineProperty(window.navigator, 'onLine', {
+      configurable: true,
+      value: false,
+    });
+    setHoldings([{ ...baseHolding, stopLoss: 95 }]);
+    setQuotes([quote(90)]);
+
+    renderTable();
+
+    expect(checkStopLossMock).not.toHaveBeenCalled();
   });
 
   it.each([undefined, 0])(

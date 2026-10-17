@@ -132,6 +132,10 @@ describe('apiClient mock-mode parity', () => {
       name: 'recalculateDrawdown',
       call: () => apiClient.recalculateDrawdown('pos-1'),
     },
+    {
+      name: 'checkStopLoss',
+      call: () => apiClient.checkStopLoss('pos-1', 90),
+    },
     { name: 'getHoldings', call: () => apiClient.getHoldings() },
     {
       name: 'getRealizedPnL',

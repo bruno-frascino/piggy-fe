@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { LocalHolding } from '@/components/AddHoldingsDialog';
 import type { ExchangeKey, QuoteResult } from '@/lib/types';
 import {
+  useCheckStopLoss,
   useHoldings,
   useQuotes,
   useRealizedPnL,
@@ -20,7 +21,7 @@ export type HoldingRow = LocalHolding & {
   priceDrawdownPct: number; // (effectivePrice - buyPrice) / buyPrice — used for max drawdown tracking
   stopLossPosition: number; // units * stopLoss
   stopLossReturnPct: number; // (stopLossPos - open)/open
-  stopLossTriggered: boolean; // stop loss set and effectivePrice <= stopLoss
+  stopLossTriggered: boolean; // stop loss set and effectivePrice <= stopLoss, or it was reached before (stopLossHitAt)
   allocationPct: number; // openPosition / totalOpen
   originalIndex: number; // index in holdings array
 };
@@ -65,6 +66,7 @@ export function useHoldingRows({
 }) {
   const { mutateAsync: updatePosition } = useUpdatePosition();
   const { mutateAsync: recalculateDrawdown } = useRecalculateDrawdown();
+  const { mutateAsync: checkStopLoss } = useCheckStopLoss();
   const MS_PER_DAY = 24 * 60 * 60 * 1000;
   const now = Date.now();
 
@@ -226,12 +228,34 @@ export function useHoldingRows({
         priceDrawdownPct,
         stopLossPosition: hasStop ? stopLossPosition : NaN,
         stopLossReturnPct: hasStop ? stopLossReturnPct : NaN,
-        stopLossTriggered: hasStop && effectivePrice <= stopLossPrice,
+        stopLossTriggered:
+          hasStop && (effectivePrice <= stopLossPrice || !!h.stopLossHitAt),
         allocationPct,
         originalIndex: i,
       };
     });
   }, [holdings, quoteMap]);
+
+  // Ask the backend to remember when a stop loss was reached, so the highlight
+  // stays after the price recovers. The backend scans price history for lows
+  // hit while the app was closed; a live quote at/below the stop is reported
+  // directly. Each (position, stop, mode) is sent once per session.
+  const stopLossCheckedRef = useRef<Set<string>>(new Set());
+  useEffect(() => {
+    if (!isOnline()) return;
+    for (const row of rows) {
+      if (!row.id || row.stopLossHitAt || !hasStopLoss(row.stopLoss)) continue;
+      const live =
+        quoteMap.has(row.symbol) && row.effectivePrice <= row.stopLoss;
+      const key = `${row.id}:${row.stopLoss}:${live ? 'live' : 'history'}`;
+      if (stopLossCheckedRef.current.has(key)) continue;
+      stopLossCheckedRef.current.add(key);
+      void checkStopLoss({
+        id: row.id,
+        currentPrice: live ? row.effectivePrice : undefined,
+      }).catch(() => stopLossCheckedRef.current.delete(key));
+    }
+  }, [rows, quoteMap, checkStopLoss]);
 
   // Auto-update max drawdown / max run-up (peak gain) when live quotes arrive.
   // Uses `rows` (not raw holdings) so effectivePrice is consistent with what the table shows.

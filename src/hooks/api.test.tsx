@@ -9,6 +9,7 @@ const {
   updatePositionMock,
   updateCloseEventMock,
   recalculateDrawdownMock,
+  checkStopLossMock,
   searchStocksMock,
   logoutMock,
   downloadTaxReportPdfMock,
@@ -18,6 +19,7 @@ const {
   updatePositionMock: vi.fn(),
   updateCloseEventMock: vi.fn(),
   recalculateDrawdownMock: vi.fn(),
+  checkStopLossMock: vi.fn(),
   searchStocksMock: vi.fn(),
   logoutMock: vi.fn(),
   downloadTaxReportPdfMock: vi.fn(),
@@ -30,6 +32,7 @@ vi.mock('@/lib/api-client', () => ({
     updatePosition: updatePositionMock,
     updateCloseEvent: updateCloseEventMock,
     recalculateDrawdown: recalculateDrawdownMock,
+    checkStopLoss: checkStopLossMock,
     searchStocks: searchStocksMock,
     logout: logoutMock,
     downloadTaxReportPdf: downloadTaxReportPdfMock,
@@ -39,6 +42,7 @@ vi.mock('@/lib/api-client', () => ({
 }));
 
 import {
+  useCheckStopLoss,
   useClosedPositions,
   useDownloadTaxReportPdf,
   useLogout,
@@ -138,6 +142,26 @@ describe('central API mutation hooks', () => {
     expect(invalidateQueries).toHaveBeenCalledWith({
       queryKey: ['user-portfolio'],
     });
+  });
+
+  it('invalidates position queries only when a stop loss hit was recorded', async () => {
+    const queryClient = new QueryClient();
+    const invalidateQueries = vi.spyOn(queryClient, 'invalidateQueries');
+    const { result } = renderHook(() => useCheckStopLoss(), {
+      wrapper: createWrapper(queryClient),
+    });
+
+    checkStopLossMock.mockResolvedValue({ stopLossHitAt: null });
+    await act(() => result.current.mutateAsync({ id: 'position-1' }));
+    expect(checkStopLossMock).toHaveBeenCalledWith('position-1', undefined);
+    expect(invalidateQueries).not.toHaveBeenCalled();
+
+    checkStopLossMock.mockResolvedValue({ stopLossHitAt: '2026-02-03' });
+    await act(() =>
+      result.current.mutateAsync({ id: 'position-1', currentPrice: 90 })
+    );
+    expect(checkStopLossMock).toHaveBeenCalledWith('position-1', 90);
+    expect(invalidateQueries).toHaveBeenCalledWith({ queryKey: ['holdings'] });
   });
 
   it('delegates logout and PDF download without adding cache behavior', async () => {

@@ -148,6 +148,18 @@ export function createPositionsApi(client: AxiosInstance) {
       return response.data;
     },
 
+    async checkStopLoss(
+      id: string,
+      currentPrice?: number
+    ): Promise<{ stopLossHitAt: string | null }> {
+      if (USE_MOCK_API) return { stopLossHitAt: null };
+      const response = await client.post(
+        `/positions/${id}/check-stop-loss`,
+        currentPrice !== undefined ? { currentPrice } : {}
+      );
+      return { stopLossHitAt: response.data?.stopLossHitAt ?? null };
+    },
+
     // Holdings methods
     async getHoldings(
       exchangeName?: string,

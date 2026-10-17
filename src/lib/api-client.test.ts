@@ -288,6 +288,46 @@ describe('api-client', () => {
     expect(holdings.map(h => h.stopLoss)).toEqual([undefined, undefined, 90.5]);
   });
 
+  it('maps stopLossHitAt and checks the stop loss via the API', async () => {
+    const apiClient = await loadClient();
+    const position = (id: string, stopLossHitAt: unknown) => ({
+      id,
+      openDate: '2026-05-01T10:00:00.000Z',
+      entryPrice: 100,
+      quantity: 5,
+      buyFees: 0,
+      stopLossPrice: 90,
+      stopLossHitAt,
+      account: { id: 'acc1', name: 'Main' },
+      asset: { symbol: 'AAPL', name: 'Apple', exchange: { code: 'NASDAQ' } },
+    });
+    axiosClientMock.get.mockResolvedValueOnce({
+      data: {
+        data: [
+          position('p1', null),
+          position('p2', '2026-05-03T00:00:00.000Z'),
+        ],
+      },
+    });
+
+    const holdings = await apiClient.getHoldings('NASDAQ', 'acc1');
+    expect(holdings.map(h => h.stopLossHitAt)).toEqual([
+      undefined,
+      '2026-05-03T00:00:00.000Z',
+    ]);
+
+    axiosClientMock.post.mockResolvedValueOnce({
+      data: { success: true, stopLossHitAt: '2026-05-03T00:00:00.000Z' },
+    });
+    await expect(apiClient.checkStopLoss('p2', 88)).resolves.toEqual({
+      stopLossHitAt: '2026-05-03T00:00:00.000Z',
+    });
+    expect(axiosClientMock.post).toHaveBeenCalledWith(
+      '/positions/p2/check-stop-loss',
+      { currentPrice: 88 }
+    );
+  });
+
   it('maps holdings from positions endpoint', async () => {
     const apiClient = await loadClient();
 

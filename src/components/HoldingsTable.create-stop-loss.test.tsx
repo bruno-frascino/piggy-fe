@@ -36,6 +36,7 @@ vi.mock('@/hooks/api', () => ({
   useCreatePosition: () => ({ mutateAsync: createPositionMock }),
   useUpdatePosition: () => ({ mutateAsync: vi.fn() }),
   useRecalculateDrawdown: () => ({ mutateAsync: vi.fn() }),
+  useCheckStopLoss: () => ({ mutateAsync: vi.fn() }),
   useClosePosition: () => ({ mutateAsync: vi.fn() }),
   useDeletePosition: () => ({ mutateAsync: vi.fn() }),
 }));

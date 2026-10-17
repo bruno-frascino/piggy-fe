@@ -42,6 +42,7 @@ export interface HoldingPosition {
   buyComments?: string;
   maxDrawdownPercent?: number; // Maximum percentage drop from entry price
   maxRunUpPercent?: number; // Peak percentage gain above entry price
+  stopLossHitAt?: string; // ISO timestamp; set once the stop loss was reached, even if price recovered
 }
 
 export interface StockSearchResult {

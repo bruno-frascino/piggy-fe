@@ -1206,6 +1206,7 @@ export interface paths {
                         openReason?: string | null;
                         quantity?: number;
                         setupType?: string;
+                        /** @description Changing the stop loss restarts stop-loss-reached tracking (clears stopLossHitAt) */
                         stopLossPrice?: number;
                         strategy?: string;
                         symbol?: string;
@@ -1249,6 +1250,79 @@ export interface paths {
                 };
             };
         };
+        trace?: never;
+    };
+    "/api/positions/{id}/check-stop-loss": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Check whether a position's stop loss has been reached and remember it
+         * @description For an open long position with a stop loss that is not already flagged, decides whether the stop has been reached and, if so, persists stopLossHitAt so the flag survives the price recovering. If currentPrice is supplied and at or below the stop, the stop is flagged immediately. Otherwise daily lows are scanned from the time the stop was last set (or the open date, if never changed) to today; the first day whose low reached the stop becomes stopLossHitAt (day-granular). Editing the stop loss price clears the flag. Already-flagged, closed, short, or stop-less positions are returned unchanged.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": {
+                        /** @description Live market price; when at or below the stop the history scan is skipped */
+                        currentPrice?: number;
+                    };
+                };
+            };
+            responses: {
+                /** @description Current stop loss hit state */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** Format: date-time */
+                            stopLossHitAt?: string | null;
+                            success?: boolean;
+                        };
+                    };
+                };
+                /** @description Validation error */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Position not found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
     "/api/positions/{id}/close": {
