@@ -13,6 +13,7 @@ import { formatDateDDMMYYYY } from '@/lib/date';
 import { usePrivacy } from '@/lib/privacy-context';
 import { CLOSE_REASON_OPTIONS } from '@/lib/close-reason';
 import type { CloseReason } from '@/lib/types';
+import { cryptoQuote, instrumentType } from '@/lib/crypto';
 
 export interface ClosePositionPayload {
   closeDate: string; // ISO YYYY-MM-DD
@@ -44,6 +45,8 @@ export default function ClosePositionDialog({
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
   const { mask } = usePrivacy();
+  const crypto =
+    instrumentType(initial?.assetType, initial?.exchangeCode) === 'CRYPTO';
 
   const parseIsoDate = (value: string) => {
     const parts = value.split('-').map(Number);
@@ -99,7 +102,7 @@ export default function ClosePositionDialog({
     if (!initial) return;
     const e: Record<string, string> = {};
     if (!/\d{4}-\d{2}-\d{2}/.test(form.closeDate))
-      e.closeDate = 'Use YYYY-MM-DD';
+      e.closeDate = 'Enter a valid date (DD/MM/YYYY)';
     if (
       typeof form.closeUnits !== 'number' ||
       isNaN(form.closeUnits) ||
@@ -220,7 +223,7 @@ export default function ClosePositionDialog({
               }
               mode='decimal'
               minFractionDigits={0}
-              maxFractionDigits={6}
+              maxFractionDigits={crypto ? 12 : 6}
               className='w-full'
               inputClassName='w-full'
             />
@@ -230,7 +233,9 @@ export default function ClosePositionDialog({
           </div>
           <div className='col-span-12 md:col-span-4'>
             <label className='block text-sm font-medium mb-1'>
-              Sell Price *
+              {crypto
+                ? `Sell Price (${cryptoQuote(initial.symbol)}) *`
+                : 'Sell Price *'}
             </label>
             <InputNumber
               value={form.sellPrice}
@@ -239,7 +244,7 @@ export default function ClosePositionDialog({
               }
               mode='decimal'
               minFractionDigits={0}
-              maxFractionDigits={3}
+              maxFractionDigits={crypto ? 12 : 3}
               className='w-full'
               inputClassName='w-full'
             />
@@ -275,7 +280,7 @@ export default function ClosePositionDialog({
               }
               mode='decimal'
               minFractionDigits={0}
-              maxFractionDigits={3}
+              maxFractionDigits={crypto ? 8 : 3}
               className='w-full'
               inputClassName='w-full'
             />

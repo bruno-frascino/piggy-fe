@@ -7,8 +7,13 @@
 | `['closed-positions', params.accountId ?? 'all-accounts', params.dateFrom ?? 'all', params.dateTo ?? 'all', params.limit ?? 'default', params.offset ?? 0,]` | useClosedPositions | — |
 | `['closed-positions']` | useDeleteAccount | useDeleteAccount |
 | `['current-user']` | useCurrentUser, useUpdateCurrentUser | useUpdateCurrentUser |
+| `['exchanges', assetClass]` | useExchanges | — |
 | `['holdings', exchangeName ?? 'all', accountId ?? 'all']` | useHoldings | — |
 | `['holdings']` | useDeleteAccount, useCloseAccount | useDeleteAccount, useCloseAccount |
+| `['import', id]` | useImport | — |
+| `['import', importId]` | useCommitImport, useDiscardImport | useCommitImport |
+| `['imports']` | useImports, useCreateImport, useCommitImport, useDiscardImport | useCreateImport, useCommitImport, useDiscardImport |
+| `['kraken-assets', quote, q.trim()]` | useKrakenAssetSearch | — |
 | `['portfolio-history', accountId ?? 'none', exchangeCode ?? 'none',]` | usePortfolioHistory | — |
 | `['portfolio-history']` | useDeleteAccount, useCloseAccount, useCreatePortfolioSnapshot | useDeleteAccount, useCloseAccount, useCreatePortfolioSnapshot |
 | `['quotes', key]` | useQuotes | — |

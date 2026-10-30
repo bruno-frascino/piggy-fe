@@ -12,6 +12,8 @@ import { ConfirmDialog, confirmDialog } from 'primereact/confirmdialog';
 import { usePrivacy } from '@/lib/privacy-context';
 import { CLOSE_REASON_OPTIONS } from '@/lib/close-reason';
 import { closedTradeAmounts } from '@/lib/closed-trade-math';
+import { formatDateDDMMYYYY } from '@/lib/date';
+import { isCryptoExchange, exchangeLabel } from '@/lib/crypto';
 import type { CloseReason, ClosedTrade, TaxReportUsage } from '@/lib/types';
 
 interface Props {
@@ -52,6 +54,7 @@ export default function EditClosedTradeDialog({
   const [form, setForm] = useState<ClosedTrade>(trade);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const { mask } = usePrivacy();
+  const crypto = isCryptoExchange(trade.exchange);
 
   useEffect(() => {
     setForm(trade);
@@ -62,7 +65,7 @@ export default function EditClosedTradeDialog({
     const e: Record<string, string> = {};
     if (!form.closeDate.trim()) e.closeDate = 'Required';
     else if (!/\d{4}-\d{2}-\d{2}/.test(form.closeDate))
-      e.closeDate = 'Use YYYY-MM-DD';
+      e.closeDate = 'Enter a valid date (DD/MM/YYYY)';
     else if (
       new Date(form.closeDate).getTime() < new Date(form.openDate).getTime()
     ) {
@@ -115,7 +118,7 @@ export default function EditClosedTradeDialog({
     return new Intl.NumberFormat(undefined, {
       style: 'currency',
       currency: trade.baseCurrency ?? 'USD',
-      maximumFractionDigits: 3,
+      maximumFractionDigits: crypto ? 12 : 3,
     }).format(n);
   }
   function formatPct(v: number) {
@@ -161,7 +164,10 @@ export default function EditClosedTradeDialog({
             <ReadOnlyField label='Name' value={form.name ?? ''} />
           </div>
           <div className='col-span-12 md:col-span-3'>
-            <ReadOnlyField label='Exchange' value={form.exchange ?? ''} />
+            <ReadOnlyField
+              label='Exchange'
+              value={exchangeLabel(form.exchange ?? '')}
+            />
           </div>
         </div>
 
@@ -205,7 +211,10 @@ export default function EditClosedTradeDialog({
 
         <div className='grid grid-cols-12 gap-3'>
           <div className='col-span-12 md:col-span-4'>
-            <ReadOnlyField label='Open Date' value={form.openDate} />
+            <ReadOnlyField
+              label='Open Date'
+              value={formatDateDDMMYYYY(form.openDate)}
+            />
           </div>
           <div className='col-span-12 md:col-span-4'>
             <label className='block text-sm font-medium mb-1'>
@@ -276,7 +285,7 @@ export default function EditClosedTradeDialog({
                 setForm(f => ({ ...f, sellPrice: (e.value ?? 0) as number }))
               }
               mode='decimal'
-              maxFractionDigits={3}
+              maxFractionDigits={crypto ? 12 : 3}
               className='w-full'
               inputClassName='w-full'
             />
@@ -292,7 +301,7 @@ export default function EditClosedTradeDialog({
                 setForm(f => ({ ...f, sellFee: (e.value ?? 0) as number }))
               }
               mode='decimal'
-              maxFractionDigits={3}
+              maxFractionDigits={crypto ? 8 : 3}
               className='w-full'
               inputClassName='w-full'
             />

@@ -127,9 +127,9 @@
       "types": [
         {
           "col": 18,
-          "line": 62,
+          "line": 64,
           "name": "ExchangeDefinition",
-          "pos": 1797
+          "pos": 1844
         }
       ],
       "unlisted": [],
@@ -145,15 +145,15 @@
       "exports": [
         {
           "col": 14,
-          "line": 444,
+          "line": 469,
           "name": "useDeleteTaxReport",
-          "pos": 12395
+          "pos": 13031
         },
         {
           "col": 14,
-          "line": 570,
+          "line": 595,
           "name": "useUpcomingDividends",
-          "pos": 15586
+          "pos": 16222
         }
       ],
       "file": "src/hooks/api.ts",
@@ -223,9 +223,9 @@
         },
         {
           "col": 17,
-          "line": 197,
+          "line": 211,
           "name": "toDateStr",
-          "pos": 6304
+          "pos": 6728
         }
       ],
       "file": "src/lib/api/mappers.ts",
@@ -252,6 +252,29 @@
         }
       ],
       "file": "src/lib/close-reason.ts",
+      "files": [],
+      "namespaceMembers": [],
+      "optionalPeerDependencies": [],
+      "types": [],
+      "unlisted": [],
+      "unresolved": []
+    },
+    {
+      "binaries": [],
+      "catalog": [],
+      "dependencies": [],
+      "devDependencies": [],
+      "duplicates": [],
+      "enumMembers": [],
+      "exports": [
+        {
+          "col": 17,
+          "line": 21,
+          "name": "allocatedTotal",
+          "pos": 527
+        }
+      ],
+      "file": "src/lib/import-allocation.ts",
       "files": [],
       "namespaceMembers": [],
       "optionalPeerDependencies": [],
@@ -376,27 +399,87 @@
       "types": [
         {
           "col": 18,
-          "line": 16,
+          "line": 26,
           "name": "AvailableExchange",
-          "pos": 313
+          "pos": 538
+        },
+        {
+          "col": 13,
+          "line": 38,
+          "name": "PositionOrigin",
+          "pos": 755
         },
         {
           "col": 18,
-          "line": 73,
+          "line": 96,
           "name": "ApiErrorResponse",
-          "pos": 1831
+          "pos": 2424
         },
         {
           "col": 18,
-          "line": 223,
+          "line": 246,
           "name": "StatisticsTimeSeriesPoint",
-          "pos": 6200
+          "pos": 6793
         },
         {
           "col": 18,
-          "line": 235,
+          "line": 258,
           "name": "StatisticsHistogramBucket",
-          "pos": 6427
+          "pos": 7020
+        },
+        {
+          "col": 13,
+          "line": 429,
+          "name": "ImportedEventStatus",
+          "pos": 10593
+        },
+        {
+          "col": 13,
+          "line": 435,
+          "name": "ImportQuoteCurrency",
+          "pos": 10701
+        },
+        {
+          "col": 18,
+          "line": 456,
+          "name": "ImportPlannedParcel",
+          "pos": 11170
+        },
+        {
+          "col": 18,
+          "line": 472,
+          "name": "ImportPlannedAllocation",
+          "pos": 11519
+        },
+        {
+          "col": 18,
+          "line": 481,
+          "name": "ImportEligibleParcel",
+          "pos": 11687
+        },
+        {
+          "col": 13,
+          "line": 488,
+          "name": "ImportCloseReason",
+          "pos": 11811
+        },
+        {
+          "col": 18,
+          "line": 507,
+          "name": "ImportStakingMonth",
+          "pos": 12289
+        },
+        {
+          "col": 13,
+          "line": 517,
+          "name": "ImportIssueType",
+          "pos": 12491
+        },
+        {
+          "col": 18,
+          "line": 532,
+          "name": "ImportReconciliation",
+          "pos": 12781
         }
       ],
       "unlisted": [],

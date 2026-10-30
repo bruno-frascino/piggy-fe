@@ -11,6 +11,7 @@ import { Message } from 'primereact/message';
 import { Divider } from 'primereact/divider';
 import { useLogin, useRestoreAccount } from '@/hooks/api';
 import CoreHeader from '@/components/CoreHeader';
+import { formatDateDDMMYYYY } from '@/lib/date';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -105,9 +106,9 @@ export default function LoginPage() {
                 </p>
                 <p className='text-sm leading-6 text-amber-900'>
                   {pendingDeletionPurgeAfter
-                    ? `All your data will be permanently erased on ${new Date(
+                    ? `All your data will be permanently erased on ${formatDateDDMMYYYY(
                         pendingDeletionPurgeAfter
-                      ).toLocaleDateString('en-AU')}.`
+                      )}.`
                     : 'All your data will be permanently erased when the grace period ends.'}{' '}
                   Restore it now to keep everything.
                 </p>

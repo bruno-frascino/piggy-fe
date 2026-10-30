@@ -162,6 +162,20 @@ export function mapPositionToHolding(pos: unknown): HoldingPosition | null {
 
   return {
     id: typeof pos.id === 'string' ? pos.id : undefined,
+    assetType:
+      asset.assetType === 'CRYPTO' ||
+      asset.assetType === 'ETF' ||
+      asset.assetType === 'EQUITY'
+        ? asset.assetType
+        : undefined,
+    origin:
+      pos.origin === 'MANUAL' ||
+      pos.origin === 'IMPORT_TRADE' ||
+      pos.origin === 'STAKING_REWARD'
+        ? pos.origin
+        : undefined,
+    externalRef:
+      typeof pos.externalRef === 'string' ? pos.externalRef : undefined,
     accountId: typeof account?.id === 'string' ? account.id : undefined,
     accountName:
       typeof account?.name === 'string' && account.name

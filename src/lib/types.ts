@@ -1,4 +1,14 @@
 export type ExchangeKey = string;
+export type AssetType = 'EQUITY' | 'ETF' | 'CRYPTO';
+export type CryptoQuote = 'AUD' | 'USD';
+
+export interface KrakenMarket {
+  base: string;
+  name: string;
+  quote: CryptoQuote;
+  symbol: string;
+  exchangeCode: string;
+}
 
 export interface EquityPoint {
   date: string; // ISO date
@@ -25,7 +35,18 @@ export interface AvailableExchange {
   stocksCount?: number;
 }
 
+export type PositionOrigin = 'MANUAL' | 'IMPORT_TRADE' | 'STAKING_REWARD';
+
+/** Row returned by GET /api/exchanges. */
+export interface ExchangeSummary {
+  code: string;
+  name: string;
+  currency: string;
+  isCrypto: boolean;
+}
+
 export interface HoldingPosition {
+  assetType?: AssetType;
   id?: string; // backend position ID (present when loaded from API)
   accountId?: string;
   accountName?: string;
@@ -43,6 +64,8 @@ export interface HoldingPosition {
   maxDrawdownPercent?: number; // Maximum percentage drop from entry price
   maxRunUpPercent?: number; // Peak percentage gain above entry price
   stopLossHitAt?: string; // ISO timestamp; set once the stop loss was reached, even if price recovered
+  origin?: PositionOrigin;
+  externalRef?: string; // source order/month key for imported parcels; '' for manual
 }
 
 export interface StockSearchResult {
@@ -392,4 +415,181 @@ export interface AddWatchlistItemPayload {
   sector?: string;
   industry?: string;
   marketCap?: number;
+}
+
+// ─── Exchange imports (mirrors piggy-api src/lib/imports/types.ts) ──────────
+
+export type ImportSource = 'KRAKEN';
+export type ImportBatchStatus =
+  | 'PENDING_REVIEW'
+  | 'PARTIALLY_APPLIED'
+  | 'COMMITTED'
+  | 'DISCARDED'
+  | 'FAILED';
+export type ImportedEventStatus =
+  | 'PENDING'
+  | 'DEFERRED'
+  | 'APPLIED'
+  | 'SKIPPED'
+  | 'DUPLICATE';
+export type ImportQuoteCurrency = 'AUD' | 'USD';
+
+export interface ImportBatch {
+  id: string;
+  accountId: string;
+  source: ImportSource;
+  method: 'CSV' | 'API';
+  status: ImportBatchStatus;
+  fileNames: string[];
+  warnings: string[];
+  createdAt: string;
+  committedAt: string | null;
+  eventCounts?: Partial<Record<ImportedEventStatus, number>>;
+}
+
+export interface ImportFilePayload {
+  kind: 'trades' | 'ledgers';
+  fileName: string;
+  content: string;
+}
+
+export interface ImportPlannedParcel {
+  ref: string;
+  origin: 'IMPORT_TRADE' | 'STAKING_REWARD';
+  externalRef: string;
+  symbol: string;
+  baseAsset: string;
+  quoteCurrency: ImportQuoteCurrency;
+  exchangeCode: string;
+  openDate: string;
+  quantity: string;
+  entryPrice: string;
+  totalBuyValue: string;
+  buyFees: string;
+  notes: string;
+}
+
+export interface ImportPlannedAllocation {
+  positionRef: string;
+  quantity: string;
+  price: string;
+  totalValue: string;
+  fees: string;
+  notes: string | null;
+}
+
+export interface ImportEligibleParcel {
+  positionRef: string;
+  remaining: string;
+  acquiredAt: string;
+  currency: string;
+}
+
+export type ImportCloseReason = CloseReason;
+
+export interface ImportPlannedSell {
+  eventId: string;
+  externalId: string;
+  occurredAt: string;
+  sellDate: string;
+  baseAsset: string;
+  quoteCurrency: ImportQuoteCurrency;
+  quantity: string;
+  orderType: string | null;
+  closeReason: ImportCloseReason | null;
+  allocations: ImportPlannedAllocation[];
+  userOverridden: boolean;
+  dustIgnored: string | null;
+  resolved: boolean;
+  eligible: ImportEligibleParcel[];
+}
+
+export interface ImportStakingMonth {
+  key: string;
+  baseAsset: string;
+  month: string;
+  eventIds: string[];
+  quantity: string;
+  fmvAud: string;
+  status: 'APPLY' | 'DUST' | 'DEFERRED' | 'BLOCKED';
+}
+
+export type ImportIssueType =
+  | 'INSUFFICIENT_HOLDINGS'
+  | 'DUST_SHORTFALL'
+  | 'INVALID_ALLOCATION'
+  | 'MISSING_FMV'
+  | 'MISSING_FX';
+
+export interface ImportPlanIssue {
+  type: ImportIssueType;
+  blocking: boolean;
+  eventId: string;
+  externalId: string;
+  message: string;
+}
+
+export interface ImportReconciliation {
+  reconciled: boolean;
+  rows: Array<{
+    asset: string;
+    expected: string;
+    simulated: string;
+    difference: string;
+  }>;
+}
+
+export interface ImportPlan {
+  newPositions: ImportPlannedParcel[];
+  sells: ImportPlannedSell[];
+  staking: ImportStakingMonth[];
+  unsupported: Array<{ eventId: string; externalId: string; reason: string }>;
+  skipped: Array<{ eventId: string; externalId: string; reason: string }>;
+  issues: ImportPlanIssue[];
+  reconciliation: ImportReconciliation | null;
+  summary: {
+    buys: number;
+    sells: number;
+    stakingMonthsApplied: number;
+    stakingMonthsDust: number;
+    stakingMonthsDeferred: number;
+    dustTotalAud: string;
+    unsupported: number;
+    skipped: number;
+    blockingIssues: number;
+  };
+}
+
+export interface ImportDetail {
+  batch: ImportBatch;
+  plan: ImportPlan;
+  eventCounts: Partial<Record<ImportedEventStatus, number>>;
+}
+
+export interface ImportUploadResult {
+  /** null when no new events need storing; existing events may still need review. */
+  batch: ImportBatch | null;
+  plan: ImportPlan | null;
+  duplicates: number;
+  warnings: string[];
+  existingBatches: Array<{
+    id: string;
+    accountId: string;
+    accountName: string;
+    status: ImportBatchStatus;
+    eventCount: number;
+  }>;
+}
+
+export interface ImportEventResolution {
+  skip?: boolean;
+  /** null clears an override and restores the FIFO suggestion. */
+  allocations?: Array<{ positionRef: string; quantity: string }> | null;
+  closeReason?: ImportCloseReason | null;
+  fmvAud?: string;
+}
+
+export interface ImportCommitResult {
+  createdPositionIds: string[];
+  appliedEvents: number;
 }

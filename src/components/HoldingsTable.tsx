@@ -3,9 +3,11 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { Card } from 'primereact/card';
+import { Message } from 'primereact/message';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Button } from 'primereact/button';
+import ImportUploadDialog from '@/components/ImportUploadDialog';
 import AddHoldingsDialog, {
   LocalHolding,
 } from '@/components/AddHoldingsDialog';
@@ -20,6 +22,7 @@ import {
 } from '@/lib/offline-write-queue';
 import { useToast } from '@/lib/toast-context';
 import { formatCurrency, formatPct, returnClass } from '@/lib/format';
+import { exchangeLabel, isCryptoExchange } from '@/lib/crypto';
 import { usePrivacy } from '@/lib/privacy-context';
 import { useHoldingRows, type HoldingRow } from '@/hooks/useHoldingRows';
 import {
@@ -31,7 +34,7 @@ import {
 
 function formatNumber(n: number) {
   return new Intl.NumberFormat(undefined, {
-    maximumFractionDigits: 3,
+    maximumFractionDigits: 12,
   }).format(n);
 }
 
@@ -89,8 +92,10 @@ export default function HoldingsTable({
   const queryClient = useQueryClient();
   const { show: showToast } = useToast();
   const { mask, hidden } = usePrivacy();
-  const { mutateAsync: createPosition } = useCreatePosition();
-  const { mutateAsync: updatePosition } = useUpdatePosition();
+  const { mutateAsync: createPosition, isPending: creating } =
+    useCreatePosition();
+  const { mutateAsync: updatePosition, isPending: updating } =
+    useUpdatePosition();
   const { mutateAsync: closePosition } = useClosePosition();
   const { mutateAsync: deletePosition } = useDeletePosition();
   const [submitError, setSubmitError] = useState<string>('');
@@ -121,6 +126,7 @@ export default function HoldingsTable({
   const [dialogInitial, setDialogInitial] = useState<
     Partial<LocalHolding> | undefined
   >(undefined);
+  const [showImportDialog, setShowImportDialog] = useState(false);
   const [showCloseDialog, setShowCloseDialog] = useState(false);
   const [closeIdx, setCloseIdx] = useState<number | null>(null);
   const [closeInitial, setCloseInitial] = useState<LocalHolding | null>(null);
@@ -270,9 +276,22 @@ export default function HoldingsTable({
         <h3 className='text-xl font-semibold text-gray-900'>
           Holdings
           {selectedAccountName ? ` · ${selectedAccountName}` : ''}
-          {selectedExchange ? ` · ${selectedExchange}` : ''}
+          {selectedExchange ? ` · ${exchangeLabel(selectedExchange)}` : ''}
         </h3>
-        <div>
+        <div className='flex items-center gap-2'>
+          {!isDemo && (
+            <Button
+              icon='pi pi-upload'
+              rounded
+              outlined
+              severity='secondary'
+              aria-label='Import from exchange'
+              tooltip='Import from exchange'
+              tooltipOptions={{ position: 'bottom' }}
+              className='!w-11 !h-11'
+              onClick={() => setShowImportDialog(true)}
+            />
+          )}
           <Button
             icon='pi pi-plus'
             rounded
@@ -292,6 +311,19 @@ export default function HoldingsTable({
 
       {submitError && (
         <div className='mb-3 text-sm text-red-600'>{submitError}</div>
+      )}
+      {isCryptoExchange(selectedExchange) && rows.length > 0 && (
+        <Message
+          severity={
+            rows.some(row => !quoteMap.has(row.symbol)) ? 'warn' : 'info'
+          }
+          className='mb-3'
+          text={
+            rows.some(row => !quoteMap.has(row.symbol))
+              ? 'Some live crypto prices are unavailable. Those positions use their stored price; returns are estimates. Daily crypto changes are not available.'
+              : 'Crypto values are shown in the selected purchase currency. Daily changes are not available.'
+          }
+        />
       )}
 
       {rows.length === 0 ? (
@@ -341,6 +373,7 @@ export default function HoldingsTable({
                           setEditIdx(r.originalIndex);
                           setDialogInitial({
                             id: r.id,
+                            assetType: r.assetType,
                             accountName: r.accountName,
                             exchangeCode: r.exchangeCode,
                             symbol: r.symbol,
@@ -378,6 +411,8 @@ export default function HoldingsTable({
                           setCloseIdx(r.originalIndex);
                           setCloseInitial({
                             id: r.id,
+                            assetType: r.assetType,
+                            exchangeCode: r.exchangeCode,
                             symbol: r.symbol,
                             name: r.name,
                             openDate: r.openDate,
@@ -499,6 +534,7 @@ export default function HoldingsTable({
                         setEditIdx(r.originalIndex);
                         setDialogInitial({
                           id: r.id,
+                          assetType: r.assetType,
                           accountName: r.accountName,
                           exchangeCode: r.exchangeCode,
                           symbol: r.symbol,
@@ -546,7 +582,13 @@ export default function HoldingsTable({
               />
               <Column
                 header='Buy'
-                body={(r: HoldingRow) => formatCurrency(r.buyPrice, currency)}
+                body={(r: HoldingRow) =>
+                  formatCurrency(
+                    r.buyPrice,
+                    currency,
+                    isCryptoExchange(r.exchangeCode) ? 12 : 3
+                  )
+                }
                 style={{ minWidth: '120px' }}
               />
               <Column
@@ -566,7 +608,11 @@ export default function HoldingsTable({
               <Column
                 header='Price'
                 body={(r: HoldingRow) =>
-                  formatCurrency(r.effectivePrice, currency)
+                  formatCurrency(
+                    r.effectivePrice,
+                    currency,
+                    isCryptoExchange(r.exchangeCode) ? 12 : 3
+                  )
                 }
                 style={{ minWidth: '130px' }}
               />
@@ -617,6 +663,8 @@ export default function HoldingsTable({
                       setCloseIdx(r.originalIndex);
                       setCloseInitial({
                         id: r.id,
+                        assetType: r.assetType,
+                        exchangeCode: r.exchangeCode,
                         symbol: r.symbol,
                         name: r.name,
                         openDate: r.openDate,
@@ -743,7 +791,11 @@ export default function HoldingsTable({
                   header='Stop Loss'
                   body={(r: HoldingRow) =>
                     typeof r.stopLoss === 'number' && r.stopLoss > 0
-                      ? formatCurrency(r.stopLoss, currency)
+                      ? formatCurrency(
+                          r.stopLoss,
+                          currency,
+                          isCryptoExchange(r.exchangeCode) ? 12 : 3
+                        )
                       : '—'
                   }
                   style={{ minWidth: '120px' }}
@@ -797,6 +849,15 @@ export default function HoldingsTable({
         </>
       )}
 
+      {showImportDialog && (
+        <ImportUploadDialog
+          visible
+          accountId={selectedAccountId}
+          accountName={selectedAccountName}
+          onHide={() => setShowImportDialog(false)}
+        />
+      )}
+
       <AddHoldingsDialog
         visible={showDialog}
         mode={mode}
@@ -805,7 +866,12 @@ export default function HoldingsTable({
         lockAccount
         exchangeCode={selectedExchange}
         onHide={() => setShowDialog(false)}
-        onExchangeSelected={onExchangeSelected}
+        busy={creating || updating}
+        error={submitError}
+        onImport={() => {
+          setShowDialog(false);
+          setShowImportDialog(true);
+        }}
         onDelete={mode === 'edit' ? handleDeletePosition : undefined}
         onSubmit={(newPos: LocalHolding) => {
           const submit = async () => {
@@ -868,6 +934,7 @@ export default function HoldingsTable({
 
             const payload = {
               symbol: newPos.symbol,
+              assetType: newPos.assetType,
               exchangeCode: resolvedExchange,
               accountId: selectedAccountId,
               accountName: selectedAccountName ?? newPos.accountName,
@@ -900,6 +967,12 @@ export default function HoldingsTable({
               ]);
             } else {
               await createPosition(payload);
+              onExchangeSelected?.(resolvedExchange);
+              showToast({
+                severity: 'success',
+                summary: 'Position added',
+                detail: `${newPos.symbol} added to ${selectedAccountName ?? newPos.accountName ?? 'Main'} · ${exchangeLabel(resolvedExchange)}.`,
+              });
             }
 
             setSubmitError('');

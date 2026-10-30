@@ -114,6 +114,7 @@
         "src/components/AccountsBar.tsx",
         "src/components/AddHoldingsDialog.tsx",
         "src/components/ClosePositionDialog.tsx",
+        "src/components/ImportUploadDialog.tsx",
         "src/components/GenerateReportDialog.tsx",
         "src/components/ReportDetailDialog.tsx",
         "src/components/AddToWatchlistDialog.tsx",
@@ -153,11 +154,16 @@
         "src/app/auth/reset-password/page.tsx",
         "src/app/auth/signup/page.tsx",
         "src/app/history/page.tsx",
+        "src/components/ImportReview.tsx",
+        "src/components/ImportsList.tsx",
         "src/components/TopNav.tsx",
         "src/components/DashboardView.tsx",
         "src/components/HoldingsTable.tsx",
+        "src/components/AddHoldingsDialog.tsx",
+        "src/components/CryptoCoinPicker.tsx",
         "src/hooks/useAccountNameSuggestions.ts",
         "src/hooks/useSymbolSearch.ts",
+        "src/components/ImportUploadDialog.tsx",
         "src/hooks/useHoldingRows.ts",
         "src/hooks/useExchangeDiscovery.ts",
         "src/components/ReportsView.tsx",
@@ -227,6 +233,23 @@
           "module": "./api/http",
           "moduleSystem": "es6",
           "resolved": "src/lib/api/http.ts",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "local",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "./api/imports",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/api/imports.ts",
           "valid": true
         },
         {
@@ -407,6 +430,7 @@
       "dependencies": [],
       "dependents": [
         "src/lib/api/accounts.ts",
+        "src/lib/api/imports.ts",
         "src/lib/api/portfolio.ts",
         "src/lib/api/positions.ts",
         "src/lib/api/screener.ts",
@@ -480,6 +504,34 @@
           "exoticallyRequired": false,
           "followable": true,
           "matchesDoNotFollow": false,
+          "module": "./mappers",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/api/mappers.ts",
+          "valid": true
+        }
+      ],
+      "dependents": [
+        "src/lib/api-client.ts",
+        "src/lib/api/imports.test.ts"
+      ],
+      "orphan": false,
+      "source": "src/lib/api/imports.ts",
+      "valid": true
+    },
+    {
+      "dependencies": [
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "local",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
           "module": "../mock-portfolio",
           "moduleSystem": "es6",
           "resolved": "src/lib/mock-portfolio.ts",
@@ -500,6 +552,23 @@
           "module": "./mappers",
           "moduleSystem": "es6",
           "resolved": "src/lib/api/mappers.ts",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "local",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "./positions",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/api/positions.ts",
           "valid": true
         }
       ],
@@ -575,7 +644,8 @@
         }
       ],
       "dependents": [
-        "src/lib/api-client.ts"
+        "src/lib/api-client.ts",
+        "src/lib/api/portfolio.ts"
       ],
       "orphan": false,
       "source": "src/lib/api/positions.ts",
@@ -804,6 +874,7 @@
         "src/components/HoldingsTable.test.tsx",
         "src/components/ReportsView.test.tsx",
         "src/components/StatisticsView.test.tsx",
+        "src/lib/crypto.test.ts",
         "src/lib/format.test.ts",
         "src/lib/privacy-context.test.tsx"
       ],
@@ -931,6 +1002,31 @@
           "coreModule": false,
           "couldNotResolve": false,
           "dependencyTypes": [
+            "local",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "./page",
+          "moduleSystem": "es6",
+          "resolved": "src/app/auth/login/page.tsx",
+          "valid": true
+        }
+      ],
+      "dependents": [],
+      "orphan": false,
+      "source": "src/app/auth/login/page.test.tsx",
+      "valid": true
+    },
+    {
+      "dependencies": [
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
             "undetermined",
             "import"
           ],
@@ -959,11 +1055,50 @@
           "moduleSystem": "es6",
           "resolved": "src/hooks/api.ts",
           "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/lib/date",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/date.ts",
+          "valid": true
         }
       ],
-      "dependents": [],
+      "dependents": [
+        "src/app/auth/login/page.test.tsx"
+      ],
       "orphan": false,
       "source": "src/app/auth/login/page.tsx",
+      "valid": true
+    },
+    {
+      "dependencies": [],
+      "dependents": [
+        "src/app/auth/login/page.tsx",
+        "src/app/history/page.tsx",
+        "src/components/EditClosedTradeDialog.tsx",
+        "src/components/ImportReview.tsx",
+        "src/components/ImportSellAllocation.tsx",
+        "src/components/ImportsList.tsx",
+        "src/components/DashboardView.tsx",
+        "src/components/ClosePositionDialog.tsx",
+        "src/components/ReportsView.tsx",
+        "src/components/ReportDetailDialog.tsx",
+        "src/components/StatisticsView.tsx",
+        "src/lib/date.test.ts"
+      ],
+      "orphan": false,
+      "source": "src/lib/date.ts",
       "valid": true
     },
     {
@@ -1191,6 +1326,23 @@
           "exoticallyRequired": false,
           "followable": true,
           "matchesDoNotFollow": false,
+          "module": "@/lib/crypto",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/crypto.ts",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
           "module": "@/lib/date",
           "moduleSystem": "es6",
           "resolved": "src/lib/date.ts",
@@ -1320,6 +1472,40 @@
           "exoticallyRequired": false,
           "followable": true,
           "matchesDoNotFollow": false,
+          "module": "@/lib/crypto",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/crypto.ts",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/lib/date",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/date.ts",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
           "module": "@/lib/privacy-context",
           "moduleSystem": "es6",
           "resolved": "src/lib/privacy-context.tsx",
@@ -1339,6 +1525,7 @@
       "dependents": [
         "src/app/history/page.tsx",
         "src/components/EditClosedTradeDialog.tsx",
+        "src/components/ImportSellAllocation.tsx",
         "src/components/ClosePositionDialog.tsx",
         "src/lib/close-reason.test.ts"
       ],
@@ -1361,6 +1548,25 @@
       "dependencies": [],
       "dependents": [
         "src/app/history/page.tsx",
+        "src/components/EditClosedTradeDialog.tsx",
+        "src/components/DashboardView.tsx",
+        "src/components/HoldingsTable.tsx",
+        "src/components/AddHoldingsDialog.tsx",
+        "src/components/ClosePositionDialog.tsx",
+        "src/hooks/useHoldingRows.ts",
+        "src/hooks/useExchangeDiscovery.ts",
+        "src/lib/crypto.test.ts"
+      ],
+      "orphan": false,
+      "source": "src/lib/crypto.ts",
+      "valid": true
+    },
+    {
+      "dependencies": [],
+      "dependents": [
+        "src/app/history/page.tsx",
+        "src/components/ImportReview.tsx",
+        "src/components/ImportsList.tsx",
         "src/components/ReportsView.tsx",
         "src/components/ScreenerView.tsx",
         "src/components/StatisticsView.tsx"
@@ -1373,22 +1579,11 @@
       "dependencies": [],
       "dependents": [
         "src/app/history/page.tsx",
-        "src/components/DashboardView.tsx",
-        "src/components/ClosePositionDialog.tsx",
-        "src/components/StatisticsView.tsx",
-        "src/lib/date.test.ts"
-      ],
-      "orphan": false,
-      "source": "src/lib/date.ts",
-      "valid": true
-    },
-    {
-      "dependencies": [],
-      "dependents": [
-        "src/app/history/page.tsx",
+        "src/components/ImportReview.tsx",
         "src/app/providers.tsx",
         "src/components/TopNav.tsx",
         "src/components/HoldingsTable.tsx",
+        "src/components/ImportUploadDialog.tsx",
         "src/components/ReportsView.tsx",
         "src/components/GenerateReportDialog.tsx",
         "src/components/AddToWatchlistDialog.tsx",
@@ -1397,6 +1592,285 @@
       ],
       "orphan": false,
       "source": "src/lib/toast-context.tsx",
+      "valid": true
+    },
+    {
+      "dependencies": [
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/components/ImportReview",
+          "moduleSystem": "es6",
+          "resolved": "src/components/ImportReview.tsx",
+          "valid": true
+        }
+      ],
+      "dependents": [],
+      "orphan": false,
+      "source": "src/app/imports/[id]/page.tsx",
+      "valid": true
+    },
+    {
+      "dependencies": [
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/components/ImportSellAllocation",
+          "moduleSystem": "es6",
+          "resolved": "src/components/ImportSellAllocation.tsx",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/components/PageHeader",
+          "moduleSystem": "es6",
+          "resolved": "src/components/PageHeader.tsx",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/hooks/api",
+          "moduleSystem": "es6",
+          "resolved": "src/hooks/api.ts",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/lib/date",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/date.ts",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/lib/toast-context",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/toast-context.tsx",
+          "valid": true
+        }
+      ],
+      "dependents": [
+        "src/app/imports/[id]/page.tsx",
+        "src/components/ImportReview.test.tsx"
+      ],
+      "orphan": false,
+      "source": "src/components/ImportReview.tsx",
+      "valid": true
+    },
+    {
+      "dependencies": [
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/lib/close-reason",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/close-reason.ts",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/lib/date",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/date.ts",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/lib/import-allocation",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/import-allocation.ts",
+          "valid": true
+        }
+      ],
+      "dependents": [
+        "src/components/ImportReview.tsx"
+      ],
+      "orphan": false,
+      "source": "src/components/ImportSellAllocation.tsx",
+      "valid": true
+    },
+    {
+      "dependencies": [],
+      "dependents": [
+        "src/components/ImportSellAllocation.tsx",
+        "src/lib/import-allocation.test.ts"
+      ],
+      "orphan": false,
+      "source": "src/lib/import-allocation.ts",
+      "valid": true
+    },
+    {
+      "dependencies": [
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/components/ImportsList",
+          "moduleSystem": "es6",
+          "resolved": "src/components/ImportsList.tsx",
+          "valid": true
+        }
+      ],
+      "dependents": [],
+      "orphan": false,
+      "source": "src/app/imports/page.tsx",
+      "valid": true
+    },
+    {
+      "dependencies": [
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/components/PageHeader",
+          "moduleSystem": "es6",
+          "resolved": "src/components/PageHeader.tsx",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/hooks/api",
+          "moduleSystem": "es6",
+          "resolved": "src/hooks/api.ts",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/lib/date",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/date.ts",
+          "valid": true
+        }
+      ],
+      "dependents": [
+        "src/app/imports/page.tsx",
+        "src/components/ImportsList.test.tsx"
+      ],
+      "orphan": false,
+      "source": "src/components/ImportsList.tsx",
       "valid": true
     },
     {
@@ -1928,6 +2402,23 @@
           "exoticallyRequired": false,
           "followable": true,
           "matchesDoNotFollow": false,
+          "module": "@/lib/crypto",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/crypto.ts",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
           "module": "@/lib/date",
           "moduleSystem": "es6",
           "resolved": "src/lib/date.ts",
@@ -2100,6 +2591,23 @@
           "exoticallyRequired": false,
           "followable": true,
           "matchesDoNotFollow": false,
+          "module": "@/components/ImportUploadDialog",
+          "moduleSystem": "es6",
+          "resolved": "src/components/ImportUploadDialog.tsx",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
           "module": "@/hooks/api",
           "moduleSystem": "es6",
           "resolved": "src/hooks/api.ts",
@@ -2120,6 +2628,23 @@
           "module": "@/hooks/useHoldingRows",
           "moduleSystem": "es6",
           "resolved": "src/hooks/useHoldingRows.ts",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/lib/crypto",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/crypto.ts",
           "valid": true
         },
         {
@@ -2193,7 +2718,9 @@
       ],
       "dependents": [
         "src/components/DashboardView.tsx",
+        "src/components/HoldingsTable-entry.test.tsx",
         "src/components/HoldingsTable.create-stop-loss.test.tsx",
+        "src/components/HoldingsTable.import-button.test.tsx",
         "src/components/HoldingsTable.test.tsx"
       ],
       "orphan": false,
@@ -2217,6 +2744,40 @@
           "module": "./AppDialog",
           "moduleSystem": "es6",
           "resolved": "src/components/AppDialog.tsx",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "local",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "./CryptoCoinPicker",
+          "moduleSystem": "es6",
+          "resolved": "src/components/CryptoCoinPicker.tsx",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/hooks/api",
+          "moduleSystem": "es6",
+          "resolved": "src/hooks/api.ts",
           "valid": true
         },
         {
@@ -2252,6 +2813,23 @@
           "moduleSystem": "es6",
           "resolved": "src/hooks/useSymbolSearch.ts",
           "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/lib/crypto",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/crypto.ts",
+          "valid": true
         }
       ],
       "dependents": [
@@ -2260,6 +2838,33 @@
       ],
       "orphan": false,
       "source": "src/components/AddHoldingsDialog.tsx",
+      "valid": true
+    },
+    {
+      "dependencies": [
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/hooks/api",
+          "moduleSystem": "es6",
+          "resolved": "src/hooks/api.ts",
+          "valid": true
+        }
+      ],
+      "dependents": [
+        "src/components/AddHoldingsDialog.tsx"
+      ],
+      "orphan": false,
+      "source": "src/components/CryptoCoinPicker.tsx",
       "valid": true
     },
     {
@@ -2365,6 +2970,23 @@
           "exoticallyRequired": false,
           "followable": true,
           "matchesDoNotFollow": false,
+          "module": "@/lib/crypto",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/crypto.ts",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
           "module": "@/lib/date",
           "moduleSystem": "es6",
           "resolved": "src/lib/date.ts",
@@ -2410,9 +3032,88 @@
           "exoticallyRequired": false,
           "followable": true,
           "matchesDoNotFollow": false,
+          "module": "@/components/AppDialog",
+          "moduleSystem": "es6",
+          "resolved": "src/components/AppDialog.tsx",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
           "module": "@/hooks/api",
           "moduleSystem": "es6",
           "resolved": "src/hooks/api.ts",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/lib/toast-context",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/toast-context.tsx",
+          "valid": true
+        }
+      ],
+      "dependents": [
+        "src/components/HoldingsTable.tsx",
+        "src/components/ImportUploadDialog.test.tsx"
+      ],
+      "orphan": false,
+      "source": "src/components/ImportUploadDialog.tsx",
+      "valid": true
+    },
+    {
+      "dependencies": [
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/hooks/api",
+          "moduleSystem": "es6",
+          "resolved": "src/hooks/api.ts",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/lib/crypto",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/crypto.ts",
           "valid": true
         }
       ],
@@ -2450,6 +3151,23 @@
           "module": "@/hooks/api",
           "moduleSystem": "es6",
           "resolved": "src/hooks/api.ts",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/lib/crypto",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/crypto.ts",
           "valid": true
         }
       ],
@@ -2554,6 +3272,23 @@
           "module": "@/hooks/api",
           "moduleSystem": "es6",
           "resolved": "src/hooks/api.ts",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/lib/date",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/date.ts",
           "valid": true
         },
         {
@@ -2709,6 +3444,23 @@
           "exoticallyRequired": false,
           "followable": true,
           "matchesDoNotFollow": false,
+          "module": "@/lib/date",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/date.ts",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
           "module": "@/lib/privacy-context",
           "moduleSystem": "es6",
           "resolved": "src/lib/privacy-context.tsx",
@@ -2716,7 +3468,8 @@
         }
       ],
       "dependents": [
-        "src/components/ReportsView.tsx"
+        "src/components/ReportsView.tsx",
+        "src/components/ReportDetailDialog.test.tsx"
       ],
       "orphan": false,
       "source": "src/components/ReportDetailDialog.tsx",
@@ -3613,7 +4366,57 @@
       ],
       "dependents": [],
       "orphan": false,
+      "source": "src/components/HoldingsTable-entry.test.tsx",
+      "valid": true
+    },
+    {
+      "dependencies": [
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "local",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "./HoldingsTable",
+          "moduleSystem": "es6",
+          "resolved": "src/components/HoldingsTable.tsx",
+          "valid": true
+        }
+      ],
+      "dependents": [],
+      "orphan": false,
       "source": "src/components/HoldingsTable.create-stop-loss.test.tsx",
+      "valid": true
+    },
+    {
+      "dependencies": [
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "local",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "./HoldingsTable",
+          "moduleSystem": "es6",
+          "resolved": "src/components/HoldingsTable.tsx",
+          "valid": true
+        }
+      ],
+      "dependents": [],
+      "orphan": false,
+      "source": "src/components/HoldingsTable.import-button.test.tsx",
       "valid": true
     },
     {
@@ -3656,6 +4459,106 @@
       "dependents": [],
       "orphan": false,
       "source": "src/components/HoldingsTable.test.tsx",
+      "valid": true
+    },
+    {
+      "dependencies": [
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "local",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "./ImportReview",
+          "moduleSystem": "es6",
+          "resolved": "src/components/ImportReview.tsx",
+          "valid": true
+        }
+      ],
+      "dependents": [],
+      "orphan": false,
+      "source": "src/components/ImportReview.test.tsx",
+      "valid": true
+    },
+    {
+      "dependencies": [
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "local",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "./ImportUploadDialog",
+          "moduleSystem": "es6",
+          "resolved": "src/components/ImportUploadDialog.tsx",
+          "valid": true
+        }
+      ],
+      "dependents": [],
+      "orphan": false,
+      "source": "src/components/ImportUploadDialog.test.tsx",
+      "valid": true
+    },
+    {
+      "dependencies": [
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "local",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "./ImportsList",
+          "moduleSystem": "es6",
+          "resolved": "src/components/ImportsList.tsx",
+          "valid": true
+        }
+      ],
+      "dependents": [],
+      "orphan": false,
+      "source": "src/components/ImportsList.test.tsx",
+      "valid": true
+    },
+    {
+      "dependencies": [
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "local",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "./ReportDetailDialog",
+          "moduleSystem": "es6",
+          "resolved": "src/components/ReportDetailDialog.tsx",
+          "valid": true
+        }
+      ],
+      "dependents": [],
+      "orphan": false,
+      "source": "src/components/ReportDetailDialog.test.tsx",
       "valid": true
     },
     {
@@ -4072,6 +4975,31 @@
           "exoticallyRequired": false,
           "followable": true,
           "matchesDoNotFollow": false,
+          "module": "./imports",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/api/imports.ts",
+          "valid": true
+        }
+      ],
+      "dependents": [],
+      "orphan": false,
+      "source": "src/lib/api/imports.test.ts",
+      "valid": true
+    },
+    {
+      "dependencies": [
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "local",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
           "module": "./mappers",
           "moduleSystem": "es6",
           "resolved": "src/lib/api/mappers.ts",
@@ -4147,6 +5075,48 @@
           "exoticallyRequired": false,
           "followable": true,
           "matchesDoNotFollow": false,
+          "module": "./crypto",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/crypto.ts",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "local",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "./format",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/format.ts",
+          "valid": true
+        }
+      ],
+      "dependents": [],
+      "orphan": false,
+      "source": "src/lib/crypto.test.ts",
+      "valid": true
+    },
+    {
+      "dependencies": [
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "local",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
           "module": "./date",
           "moduleSystem": "es6",
           "resolved": "src/lib/date.ts",
@@ -4188,6 +5158,31 @@
       "dependents": [],
       "orphan": true,
       "source": "src/lib/generated/api-types.ts",
+      "valid": true
+    },
+    {
+      "dependencies": [
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "local",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "./import-allocation",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/import-allocation.ts",
+          "valid": true
+        }
+      ],
+      "dependents": [],
+      "orphan": false,
+      "source": "src/lib/import-allocation.test.ts",
       "valid": true
     },
     {
@@ -4401,8 +5396,8 @@
         }
       ]
     },
-    "totalCruised": 113,
-    "totalDependenciesCruised": 187,
+    "totalCruised": 133,
+    "totalDependenciesCruised": 233,
     "violations": [],
     "warn": 0
   }

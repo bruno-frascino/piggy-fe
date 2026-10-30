@@ -13,6 +13,7 @@ import GenerateReportDialog from '@/components/GenerateReportDialog';
 import ReportDetailDialog from '@/components/ReportDetailDialog';
 import { useToast } from '@/lib/toast-context';
 import { usePrivacy } from '@/lib/privacy-context';
+import { formatDateDDMMYYYY } from '@/lib/date';
 import type { TaxReport } from '@/lib/types';
 
 function formatAud(n: number): string {
@@ -179,8 +180,7 @@ export default function ReportsView() {
               </div>
 
               <p className='text-xs mb-3' style={{ color: 'var(--tr-text-2)' }}>
-                Generated{' '}
-                {new Date(report.generatedAt).toLocaleDateString('en-AU')}
+                Generated {formatDateDDMMYYYY(report.generatedAt)}
                 {report.discountAppliedAud > 0 &&
                   ` · ${mask(formatAud(report.discountAppliedAud))} discount applied`}
                 {report.carriedForwardLossClosingAud > 0 &&

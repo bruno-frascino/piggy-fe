@@ -37,8 +37,8 @@
 
 ## `LocalHolding`
 
-- File: [src/components/AddHoldingsDialog.tsx](../src/components/AddHoldingsDialog.tsx) (493 lines)
-- API hooks used: —
+- File: [src/components/AddHoldingsDialog.tsx](../src/components/AddHoldingsDialog.tsx) (735 lines)
+- API hooks used: useExchanges
 - Other hooks used: useAccountNameSuggestions, useEffect, useState, useSymbolSearch
 
 ## `AddToWatchlistDialog`
@@ -59,7 +59,7 @@
 
 ## `ClosePositionPayload`
 
-- File: [src/components/ClosePositionDialog.tsx](../src/components/ClosePositionDialog.tsx) (353 lines)
+- File: [src/components/ClosePositionDialog.tsx](../src/components/ClosePositionDialog.tsx) (358 lines)
 - API hooks used: —
 - Other hooks used: useEffect, useMemo, usePrivacy, useState
 
@@ -74,9 +74,15 @@
   - `description?: string`
   - `showNav?: boolean`
 
+## `CryptoCoinPicker`
+
+- File: [src/components/CryptoCoinPicker.tsx](../src/components/CryptoCoinPicker.tsx) (93 lines)
+- API hooks used: useKrakenAssetSearch
+- Other hooks used: useEffect, useState
+
 ## `ExchangeDefinition`
 
-- File: [src/components/DashboardView.tsx](../src/components/DashboardView.tsx) (750 lines)
+- File: [src/components/DashboardView.tsx](../src/components/DashboardView.tsx) (752 lines)
 - API hooks used: useCloseAccount, useCreateAccount, useDeleteAccount, useReopenAccount, useTradingAccounts, useUpdateAccount
 - Other hooks used: useAccountSelection, useEffect, useExchangeDiscovery, useMemo, usePrivacy, useState
 
@@ -101,7 +107,7 @@
 
 ## `EditClosedTradeDialog`
 
-- File: [src/components/EditClosedTradeDialog.tsx](../src/components/EditClosedTradeDialog.tsx) (385 lines)
+- File: [src/components/EditClosedTradeDialog.tsx](../src/components/EditClosedTradeDialog.tsx) (394 lines)
 - API hooks used: —
 - Other hooks used: useEffect, useMemo, usePrivacy, useState
 - Props:
@@ -131,9 +137,44 @@
 
 ## `HoldingsTable`
 
-- File: [src/components/HoldingsTable.tsx](../src/components/HoldingsTable.tsx) (991 lines)
+- File: [src/components/HoldingsTable.tsx](../src/components/HoldingsTable.tsx) (1064 lines)
 - API hooks used: useClosePosition, useCreatePosition, useDeletePosition, useUpdatePosition
 - Other hooks used: useCallback, useEffect, useHoldingRows, usePrivacy, useQueryClient, useRef, useState, useToast
+
+## `ImportReview`
+
+- File: [src/components/ImportReview.tsx](../src/components/ImportReview.tsx) (431 lines)
+- API hooks used: useCommitImport, useDiscardImport, useImport, useResolveImportEvent
+- Other hooks used: useRouter, useState, useToast
+
+## `ImportSellAllocation`
+
+- File: [src/components/ImportSellAllocation.tsx](../src/components/ImportSellAllocation.tsx) (206 lines)
+- API hooks used: —
+- Other hooks used: useState
+- Props:
+  - `sell: ImportPlannedSell`
+  - `issues: ImportPlanIssue[]`
+  - `busy: boolean`
+  - `readOnly?: boolean`
+  - `onResolve: (resolution: ImportEventResolution) => void`
+
+## `ImportsList`
+
+- File: [src/components/ImportsList.tsx](../src/components/ImportsList.tsx) (68 lines)
+- API hooks used: useImports, useTradingAccounts
+- Other hooks used: —
+
+## `ImportUploadDialog`
+
+- File: [src/components/ImportUploadDialog.tsx](../src/components/ImportUploadDialog.tsx) (305 lines)
+- API hooks used: useCreateImport
+- Other hooks used: useRouter, useState, useToast
+- Props:
+  - `visible: boolean`
+  - `accountId: string`
+  - `accountName?: string`
+  - `onHide: () => void`
 
 ## `MobileTabBar`
 
@@ -153,7 +194,7 @@
 
 ## `ReportDetailDialog`
 
-- File: [src/components/ReportDetailDialog.tsx](../src/components/ReportDetailDialog.tsx) (173 lines)
+- File: [src/components/ReportDetailDialog.tsx](../src/components/ReportDetailDialog.tsx) (182 lines)
 - API hooks used: useTaxReportDetail
 - Other hooks used: usePrivacy
 - Props:

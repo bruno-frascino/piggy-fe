@@ -6,6 +6,7 @@ import { Column } from 'primereact/column';
 import { Message } from 'primereact/message';
 import { useTaxReportDetail } from '@/hooks/api';
 import { usePrivacy } from '@/lib/privacy-context';
+import { formatDateDDMMYYYY } from '@/lib/date';
 import type { TaxReportLineItem } from '@/lib/types';
 
 function formatAud(n: number): string {
@@ -97,8 +98,16 @@ export default function ReportDetailDialog({ reportId, onHide }: Props) {
           >
             <Column field='symbol' header='Symbol' />
             <Column field='accountName' header='Account' />
-            <Column field='acquireDate' header='Acquired' />
-            <Column field='disposeDate' header='Disposed' />
+            <Column
+              field='acquireDate'
+              header='Acquired'
+              body={(l: TaxReportLineItem) => formatDateDDMMYYYY(l.acquireDate)}
+            />
+            <Column
+              field='disposeDate'
+              header='Disposed'
+              body={(l: TaxReportLineItem) => formatDateDDMMYYYY(l.disposeDate)}
+            />
             <Column
               field='quantity'
               header='Qty'

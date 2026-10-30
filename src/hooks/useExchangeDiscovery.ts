@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import type { ExchangeKey, ExchangePortfolio } from '@/lib/types';
+import { exchangeCurrency } from '@/lib/crypto';
 import {
   useCreatePortfolioSnapshot,
   usePortfolioHistory,
@@ -79,11 +80,18 @@ export function useExchangeDiscovery(selectedAccountId: string) {
   const handleExchangeDetected = (exchangeName: string) => {
     setExchangeList(prev => {
       if (prev.some(e => e.name === exchangeName)) return prev;
-      return [...prev, { name: exchangeName, equitySeries: [] }];
+      return [
+        ...prev,
+        {
+          name: exchangeName,
+          equitySeries: [],
+          baseCurrency: exchangeCurrency(exchangeName),
+        },
+      ];
     });
   };
 
-  // Explicit user choice (e.g. picking a symbol in the Add dialog): add + select.
+  // Select a newly saved position's venue, not a tentative symbol choice.
   const handleExchangeSelected = (exchangeName: string) => {
     handleExchangeDetected(exchangeName);
     setSelected(exchangeName);
@@ -125,6 +133,15 @@ export function useExchangeDiscovery(selectedAccountId: string) {
     const fromQuery = searchParams?.get('exchange') as ExchangeKey | null;
     if (fromQuery && exchangeList.some(e => e.name === fromQuery)) {
       setSelected(fromQuery);
+      return;
+    }
+    const venue = searchParams?.get('venue');
+    const importedExchange =
+      venue === 'KRAKEN'
+        ? exchangeList.find(e => e.name === 'KRAKEN' || e.name === 'KRAKEN_USD')
+        : undefined;
+    if (importedExchange) {
+      setSelected(importedExchange.name);
       return;
     }
     try {

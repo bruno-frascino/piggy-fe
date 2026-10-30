@@ -1,5 +1,7 @@
 'use client';
 
+import { exchangeLabel } from '@/lib/crypto';
+
 import { useEffect, useMemo, useState } from 'react';
 import { Card } from 'primereact/card';
 import type { ExchangeKey, EquityPoint, TradingAccount } from '@/lib/types';
@@ -599,7 +601,7 @@ export default function DashboardView() {
                             }`}
                             aria-pressed={isSelected}
                           >
-                            {e.name}
+                            {exchangeLabel(e.name)}
                           </button>
                         </div>
                       );

@@ -1,6 +1,7 @@
 'use client';
 
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { exchangeLabel, isCryptoExchange } from '@/lib/crypto';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Card } from 'primereact/card';
@@ -82,7 +83,7 @@ function ExchangeTable({
           className='text-xl font-semibold'
           style={{ color: 'var(--tr-text)' }}
         >
-          {exchange}
+          {exchangeLabel(exchange)}
           {accountName && (
             <span
               className='ml-2 text-sm font-normal'
@@ -175,20 +176,36 @@ function ExchangeTable({
         />
         <Column
           header='Units Closed'
-          body={(r: ClosedTrade) => mask(r.unitsClosed.toFixed(3))}
+          body={(r: ClosedTrade) =>
+            mask(
+              isCryptoExchange(r.exchange)
+                ? r.unitsClosed.toLocaleString('en-AU', {
+                    maximumFractionDigits: 12,
+                  })
+                : r.unitsClosed.toFixed(3)
+            )
+          }
           style={{ minWidth: '130px' }}
         />
         <Column
           header='Buy Price'
           body={(r: ClosedTrade) =>
-            formatCurrency(r.buyPrice, r.baseCurrency ?? groupCurrency)
+            formatCurrency(
+              r.buyPrice,
+              r.baseCurrency ?? groupCurrency,
+              isCryptoExchange(r.exchange) ? 12 : 3
+            )
           }
           style={{ minWidth: '120px' }}
         />
         <Column
           header='Sell Price'
           body={(r: ClosedTrade) =>
-            formatCurrency(r.sellPrice, r.baseCurrency ?? groupCurrency)
+            formatCurrency(
+              r.sellPrice,
+              r.baseCurrency ?? groupCurrency,
+              isCryptoExchange(r.exchange) ? 12 : 3
+            )
           }
           style={{ minWidth: '120px' }}
         />
@@ -338,6 +355,14 @@ export default function HistoryPage() {
   // demo accounts on the server); exchange is sliced client-side so its dropdown
   // keeps listing every option in range.
   const [accountFilter, setAccountFilter] = useState<string | null>(null);
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('accountId')) setAccountFilter(params.get('accountId'));
+    if (params.get('period') === 'all') {
+      setStartDate('');
+      setEndDate('');
+    }
+  }, []);
   const { data, isLoading } = useClosedPositions({
     accountId: accountFilter ?? undefined,
     dateFrom: startDate || undefined,
@@ -398,7 +423,7 @@ export default function HistoryPage() {
       { label: 'All exchanges', value: null },
       ...Array.from(names)
         .sort()
-        .map(name => ({ label: name, value: name })),
+        .map(name => ({ label: exchangeLabel(name), value: name })),
     ];
   }, [rows]);
 

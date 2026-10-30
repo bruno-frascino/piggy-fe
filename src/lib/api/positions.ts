@@ -4,6 +4,7 @@ import type {
   ClosedTrade,
   ClosedTradesPage,
   ClosedTradesQuery,
+  AssetType,
 } from '../types';
 import { exchanges } from '../mock-portfolio';
 import { getHoldingsForExchange } from '../mock-holdings';
@@ -17,10 +18,34 @@ import {
 
 const USE_MOCK_API = process.env.NEXT_PUBLIC_USE_MOCK_API === 'true';
 
+export async function fetchOpenPositionRecords(
+  client: AxiosInstance,
+  filters: { accountId?: string; exchangeCode?: string }
+): Promise<unknown[]> {
+  const positions: unknown[] = [];
+  const limit = 100;
+  let page: unknown[];
+  do {
+    const response = await client.get('/positions', {
+      params: {
+        status: 'OPEN,PARTIAL',
+        limit,
+        ...(positions.length ? { offset: positions.length } : {}),
+        ...(filters.exchangeCode ? { exchangeCode: filters.exchangeCode } : {}),
+        ...(filters.accountId ? { accountId: filters.accountId } : {}),
+      },
+    });
+    page = unwrapArray<unknown>(response.data);
+    positions.push(...page);
+  } while (page.length === limit);
+  return positions;
+}
+
 export function createPositionsApi(client: AxiosInstance) {
   return {
     async createPosition(payload: {
       symbol: string;
+      assetType?: AssetType;
       exchangeCode: string;
       accountId?: string;
       accountName?: string;
@@ -46,6 +71,7 @@ export function createPositionsApi(client: AxiosInstance) {
 
       await client.post('/positions', {
         symbol: payload.symbol.trim().toUpperCase(),
+        ...(payload.assetType ? { assetType: payload.assetType } : {}),
         exchangeCode: payload.exchangeCode.trim().toUpperCase(),
         accountId: payload.accountId,
         accountName: payload.accountName?.trim() || undefined,
@@ -175,15 +201,11 @@ export function createPositionsApi(client: AxiosInstance) {
           getHoldingsForExchange(exchange.name)
         );
       }
-      const response = await client.get('/positions', {
-        params: {
-          status: 'OPEN,PARTIAL',
-          limit: 100,
-          ...(exchangeName ? { exchangeCode: exchangeName } : {}),
-          ...(accountId ? { accountId } : {}),
-        },
+      const positions = await fetchOpenPositionRecords(client, {
+        exchangeCode: exchangeName,
+        accountId,
       });
-      return unwrapArray<unknown>(response.data)
+      return positions
         .map(mapPositionToHolding)
         .filter((h): h is HoldingPosition => h !== null);
     },

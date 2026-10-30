@@ -9,6 +9,7 @@ import { createTaxReportsApi } from './api/tax-reports';
 import { createStatisticsApi } from './api/statistics';
 import { createScreenerApi } from './api/screener';
 import { createWatchlistsApi } from './api/watchlists';
+import { createImportsApi } from './api/imports';
 
 // Thin facade preserving the historical flat `apiClient.<method>()` surface
 // while the actual implementation lives in domain modules under `./api/`.
@@ -30,4 +31,5 @@ export const apiClient = {
   ...createStatisticsApi(httpClient),
   ...createScreenerApi(httpClient),
   ...createWatchlistsApi(httpClient),
+  ...createImportsApi(httpClient),
 };

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { LocalHolding } from '@/components/AddHoldingsDialog';
 import type { ExchangeKey, QuoteResult } from '@/lib/types';
+import { exchangeCurrency } from '@/lib/crypto';
 import {
   useCheckStopLoss,
   useHoldings,
@@ -103,8 +104,16 @@ export function useHoldingRows({
   const { data: quotesData } = useQuotes(symbols);
   const quoteMap = useMemo(() => {
     if (!quotesData) return new Map<string, QuoteResult>();
-    return new Map(quotesData.map(q => [q.symbol, q]));
-  }, [quotesData]);
+    const expectedCurrency = exchangeCurrency(selectedExchange);
+    const compatible = quotesData.filter(quote => {
+      if (!expectedCurrency || quote.currency === expectedCurrency) return true;
+      console.warn(
+        `Ignoring crypto quote with an incompatible currency: ${quote.symbol}`
+      );
+      return false;
+    });
+    return new Map(compatible.map(q => [q.symbol, q]));
+  }, [quotesData, selectedExchange]);
 
   const totals = useMemo(() => {
     const totalOpen = holdings.reduce(
@@ -320,8 +329,8 @@ export function useHoldingRows({
       const q = quoteMap.get(symbol);
       if (q?.currency) return q.currency;
     }
-    return baseCurrency ?? 'USD';
-  }, [symbols, quoteMap, baseCurrency]);
+    return baseCurrency ?? exchangeCurrency(selectedExchange) ?? 'USD';
+  }, [symbols, quoteMap, baseCurrency, selectedExchange]);
 
   const handleResetMaxDrawdown = useCallback(
     (row: HoldingRow) => {

@@ -718,6 +718,490 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/exchanges": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List exchanges, optionally filtered by asset class */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description Only crypto venues (one row per quote currency) or only equity exchanges */
+                    assetClass?: "crypto" | "equity";
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Exchanges ordered by code */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            data?: {
+                                code?: string;
+                                currency?: string;
+                                isCrypto?: boolean;
+                                name?: string;
+                            }[];
+                            success?: boolean;
+                        };
+                    };
+                };
+                /** @description Validation error */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/exchanges/kraken/assets": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Search Kraken spot assets by symbol, alias or common coin name
+         * @description Uses Kraken's public pair catalogue (cached for ten minutes). Only AUD and USD quote currencies are supported. Names are provided for common coins; other coins are searchable by ticker. Results describe recorded spot markets, not regional trading eligibility. An empty result means no matching pair, not a provider failure.
+         */
+        get: {
+            parameters: {
+                query: {
+                    q?: string;
+                    quote: "AUD" | "USD";
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Up to 30 matching Kraken markets */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            data?: {
+                                base: string;
+                                exchangeCode: string;
+                                name: string;
+                                /** @enum {string} */
+                                quote: "AUD" | "USD";
+                                symbol: string;
+                            }[];
+                            success?: boolean;
+                        };
+                    };
+                };
+                /** @description Unsupported quote currency or invalid query */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Kraken market catalogue temporarily unavailable */
+                503: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/imports": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List the user's import batches */
+        get: {
+            parameters: {
+                query?: {
+                    page?: number;
+                    limit?: number;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Batches (newest first) with event counts by status */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        /**
+         * Upload exchange CSV exports and build an import plan
+         * @description Kraken only for now — both `trades` and `ledgers` CSVs are required. Events already uploaded (same exchange id, including pending review) are counted as duplicates and not stored again. `existingBatches` identifies the previous imports, their status, target account and matching event count so users can resume review. Nothing touches positions until the batch is committed. The target account must be an active, non-demo account owned by the user. Rate limited to 10 uploads per hour.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        accountId: string;
+                        files: {
+                            /** @description Raw CSV text */
+                            content: string;
+                            fileName: string;
+                            /** @enum {string} */
+                            kind: "trades" | "ledgers";
+                        }[];
+                        /** @enum {string} */
+                        source: "KRAKEN";
+                    };
+                };
+            };
+            responses: {
+                /** @description Batch created. `data.batch` is null when no new events need storing. Duplicate events may still need review and commit; they do not prove positions exist. */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            data?: {
+                                batch?: {
+                                    [key: string]: unknown;
+                                } | null;
+                                duplicates?: number;
+                                eventCounts?: {
+                                    [key: string]: number;
+                                };
+                                existingBatches?: {
+                                    accountId: string;
+                                    accountName: string;
+                                    eventCount: number;
+                                    id: string;
+                                    /** @enum {string} */
+                                    status: "PENDING_REVIEW" | "PARTIALLY_APPLIED" | "COMMITTED" | "DISCARDED" | "FAILED";
+                                }[];
+                                plan?: {
+                                    [key: string]: unknown;
+                                } | null;
+                                warnings?: string[];
+                            };
+                            success?: boolean;
+                        };
+                    };
+                };
+                /** @description Validation error, missing file or unrecognised CSV format */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Account not found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Upload larger than 10 MB */
+                413: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Too many uploads */
+                429: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/imports/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Get a batch with its full, freshly computed plan
+         * @description The plan lists new positions, sells with suggested (FIFO) allocations and eligible parcels, staking months (applied, dust, deferred), unsupported events, blocking issues and the ledger reconciliation.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Batch and plan */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Batch not found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        /**
+         * Discard a batch and its unapplied events
+         * @description Positions already created by the batch are kept.
+         */
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Batch discarded */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Batch not found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/imports/{id}/commit": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Apply the plan — create positions and SELL transactions
+         * @description Without `eventIds`, applies the whole plan and returns 409 while blocking issues remain. With `eventIds`, applies only those events and returns 409 if an earlier event of the same asset is unresolved or not included. Runs in one database transaction, in chronological order.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": {
+                        eventIds?: string[];
+                    };
+                };
+            };
+            responses: {
+                /** @description Created position ids and applied event count */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Batch not found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Blocking issues or chronology violation (see details) */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/imports/{id}/events/{eventId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Save the user's resolution for one event
+         * @description Skip the event, replace a sell's allocation (specific identification), override the close reason, or enter the AUD value of a staking reward. Returns the updated plan.
+         */
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                    eventId: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        /** @description Send null to clear the override and restore the FIFO suggestion */
+                        allocations?: {
+                            positionRef: string;
+                            quantity: string;
+                        }[] | null;
+                        /** @enum {string|null} */
+                        closeReason?: "STOP_LOSS" | "TARGET" | "MANUAL" | "OTHER" | null;
+                        fmvAud?: string;
+                        skip?: boolean;
+                    };
+                };
+            };
+            responses: {
+                /** @description Updated plan */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Validation error */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Batch or event not found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Event already processed */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        trace?: never;
+    };
     "/api/portfolio/history": {
         parameters: {
             query?: never;
@@ -907,7 +1391,10 @@ export interface paths {
             };
         };
         put?: never;
-        /** Open a new position */
+        /**
+         * Open a new position
+         * @description Creates one acquisition parcel with one BUY. Crypto venues infer CRYPTO when assetType is omitted and require a BASE-QUOTE symbol matching the venue currency. Kraken markets are validated against the public catalogue; an unavailable catalogue returns 503. Alias XBT is stored as BTC. Quantities support up to twelve decimal places.
+         */
         post: {
             parameters: {
                 query?: never;
@@ -964,7 +1451,7 @@ export interface paths {
                     };
                     content?: never;
                 };
-                /** @description Validation error or exchange not found */
+                /** @description Invalid fields or instrument identity */
                 400: {
                     headers: {
                         [name: string]: unknown;
@@ -973,6 +1460,27 @@ export interface paths {
                 };
                 /** @description Unauthorized */
                 401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Exchange not found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Existing asset has an incompatible classification */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Kraken market validation temporarily unavailable */
+                503: {
                     headers: {
                         [name: string]: unknown;
                     };
@@ -1175,7 +1683,10 @@ export interface paths {
         };
         options?: never;
         head?: never;
-        /** Update metadata on an open position */
+        /**
+         * Update metadata on an open position
+         * @description Crypto symbols must match the venue quote currency. Changing a Kraken instrument validates its market; unchanged historical instruments remain editable.
+         */
         patch: {
             parameters: {
                 query?: never;
@@ -1243,6 +1754,20 @@ export interface paths {
                 };
                 /** @description Position not found */
                 404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Existing asset has an incompatible classification */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Kraken market validation temporarily unavailable */
+                503: {
                     headers: {
                         [name: string]: unknown;
                     };
@@ -2092,6 +2617,9 @@ export interface paths {
          * @description Returns the current market price, day change and day change % for each
          *     symbol via FMP, with Yahoo Finance as a fallback. Maximum 50 symbols
          *     per request.
+         *     BASE-AUD and BASE-USD crypto symbols use the crypto quote provider with
+         *     AUD FX fallback when necessary. Crypto day changes are unavailable (null).
+         *     Unresolved symbols are omitted; crypto quotes retain the requested currency.
          */
         get: {
             parameters: {
@@ -2247,7 +2775,7 @@ export interface paths {
         put?: never;
         /**
          * Generate (or regenerate) an ATO capital gains tax report
-         * @description Computes a capital gains summary for the given Australian financial year across an explicit set of Trading Accounts (a "declaration"), renders a PDF, and stores it as a new revision for that (financial year, account selection) combination. Previous revisions are retained and stay downloadable so an already-lodged report is never overwritten. Regenerating with unchanged content returns the existing current revision instead of creating a new one.
+         * @description Computes a capital gains summary for the given Australian financial year across an explicit set of Trading Accounts (a "declaration"), renders a PDF, and stores it as a new revision for that (financial year, account selection) combination. Previous revisions are retained and stay downloadable so an already-lodged report is never overwritten. Regenerating with unchanged content returns the existing current revision instead of creating a new one. Dates in newly generated PDFs use dd/MM/yyyy; regenerating a report with the older date format creates a new revision without modifying the original PDF.
          */
         post: {
             parameters: {

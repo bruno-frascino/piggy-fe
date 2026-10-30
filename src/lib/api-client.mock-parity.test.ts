@@ -152,6 +152,16 @@ describe('apiClient mock-mode parity', () => {
     },
     { name: 'deletePosition', call: () => apiClient.deletePosition('pos-1') },
     // stocks
+    {
+      name: 'getExchanges',
+      call: () => apiClient.getExchanges('equity'),
+      expectRejection: /not available in mock mode/i,
+    },
+    {
+      name: 'searchKrakenAssets',
+      call: () => apiClient.searchKrakenAssets('BTC', 'AUD'),
+      expectRejection: /not available in mock mode/i,
+    },
     { name: 'searchStocks', call: () => apiClient.searchStocks('AAPL') },
     { name: 'getQuotes', call: () => apiClient.getQuotes(['AAPL']) },
     // tax reports
@@ -179,6 +189,38 @@ describe('apiClient mock-mode parity', () => {
       expectRejection: /not available in mock mode/i,
     },
     { name: 'deleteTaxReport', call: () => apiClient.deleteTaxReport('rep-1') },
+    // imports (online-only, no realistic mock)
+    { name: 'getImports', call: () => apiClient.getImports() },
+    {
+      name: 'createImport',
+      call: () =>
+        apiClient.createImport({
+          source: 'KRAKEN',
+          accountId: 'acc-1',
+          files: [],
+        }),
+      expectRejection: /not available in mock mode/i,
+    },
+    {
+      name: 'getImport',
+      call: () => apiClient.getImport('imp-1'),
+      expectRejection: /not available in mock mode/i,
+    },
+    {
+      name: 'resolveImportEvent',
+      call: () => apiClient.resolveImportEvent('imp-1', 'e-1', { skip: true }),
+      expectRejection: /not available in mock mode/i,
+    },
+    {
+      name: 'commitImport',
+      call: () => apiClient.commitImport('imp-1'),
+      expectRejection: /not available in mock mode/i,
+    },
+    {
+      name: 'discardImport',
+      call: () => apiClient.discardImport('imp-1'),
+      expectRejection: /not available in mock mode/i,
+    },
     // screener
     {
       name: 'runScreener',

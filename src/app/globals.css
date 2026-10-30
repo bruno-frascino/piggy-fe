@@ -41,6 +41,7 @@
    ──────────────────────────────────────────────────────────────────────
 */
 :root {
+  --tr-mobile-nav-height: 60px;
   /*
    * Lock the browser to light mode.
    * This prevents macOS/Windows dark-mode from making the canvas black
@@ -259,6 +260,7 @@ body {
   border-top: 1px solid var(--tr-border);
   box-shadow: 0 -1px 4px rgba(0, 0, 0, 0.06);
   padding-bottom: env(safe-area-inset-bottom, 0);
+  height: calc(var(--tr-mobile-nav-height) + env(safe-area-inset-bottom, 0px));
 }
 .mobile-tab-bar-link {
   flex: 1 1 0;
@@ -281,8 +283,72 @@ body {
   color: var(--tr-brand);
 }
 
+@media (min-width: 768px) {
+  .mobile-tab-bar {
+    display: none;
+  }
+}
+
 @media (max-width: 767px) {
   body {
-    padding-bottom: calc(60px + env(safe-area-inset-bottom, 0px));
+    padding-bottom: calc(
+      var(--tr-mobile-nav-height) + env(safe-area-inset-bottom, 0px)
+    );
+  }
+}
+
+.import-review {
+  --import-actions-height: 5rem;
+  --import-actions-offset: 0px;
+}
+
+.import-review--blocked {
+  --import-actions-height: 7rem;
+}
+
+.import-review--editable {
+  padding-bottom: calc(
+    var(--import-actions-height) + var(--import-actions-offset) + 1rem
+  );
+}
+
+.import-review-actions {
+  position: fixed;
+  bottom: var(--import-actions-offset);
+  left: 0;
+  right: 0;
+  z-index: 30;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-content: center;
+  align-items: center;
+  gap: 0.5rem 1rem;
+  height: var(--import-actions-height);
+  padding: 0.75rem;
+  border-top: 1px solid var(--tr-border);
+  background: var(--tr-surface);
+}
+
+.import-review-actions-issues {
+  grid-column: 1 / -1;
+  text-align: right;
+}
+
+.import-review-actions-commit {
+  justify-self: end;
+}
+
+@media (max-width: 767px) {
+  .import-review {
+    --import-actions-offset: calc(
+      var(--tr-mobile-nav-height) + env(safe-area-inset-bottom, 0px)
+    );
+  }
+
+  .import-review-actions .p-button {
+    min-height: 44px;
+    padding: 0.625rem 0.75rem;
+    font-size: 0.875rem;
+    white-space: nowrap;
   }
 }

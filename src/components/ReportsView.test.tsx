@@ -112,6 +112,7 @@ describe('ReportsView', () => {
     expect(screen.getByText('FY2025-26')).toBeInTheDocument();
     expect(screen.getByText('My Portfolio')).toBeInTheDocument();
     expect(screen.getByText('$235.00')).toBeInTheDocument();
+    expect(screen.getByText(/Generated 24\/07\/2026/)).toBeInTheDocument();
   });
 
   it('badges the revision number and superseded state, and toggles history', () => {

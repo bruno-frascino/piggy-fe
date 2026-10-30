@@ -82,7 +82,8 @@ describe('EditClosedTradeDialog', () => {
     expect(screen.getByText('AAPL')).toBeInTheDocument();
     expect(screen.getByText('Apple Inc.')).toBeInTheDocument();
     expect(screen.getByText('NASDAQ')).toBeInTheDocument();
-    expect(screen.getByText('2026-07-10')).toBeInTheDocument();
+    expect(screen.getByText('10/07/2026')).toBeInTheDocument();
+    expect(screen.queryByText('2026-07-10')).not.toBeInTheDocument();
     expect(screen.getByText('5.000')).toBeInTheDocument();
   });
 

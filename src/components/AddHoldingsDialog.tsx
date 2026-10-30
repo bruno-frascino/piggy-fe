@@ -8,6 +8,19 @@ import { Calendar } from 'primereact/calendar';
 import { InputTextarea } from 'primereact/inputtextarea';
 import { Button } from 'primereact/button';
 import { AutoComplete } from 'primereact/autocomplete';
+import { Dropdown } from 'primereact/dropdown';
+import { SelectButton } from 'primereact/selectbutton';
+import { Message } from 'primereact/message';
+import CryptoCoinPicker from './CryptoCoinPicker';
+import { useExchanges } from '@/hooks/api';
+import {
+  cryptoQuote,
+  exchangeCurrency,
+  exchangeLabel,
+  instrumentType,
+  isCryptoExchange,
+} from '@/lib/crypto';
+import type { CryptoQuote } from '@/lib/types';
 import type { HoldingPosition } from '@/lib/types';
 import type { StockSearchResult } from '@/lib/types';
 import { useSymbolSearch } from '@/hooks/useSymbolSearch';
@@ -35,8 +48,10 @@ export default function AddHoldingsDialog({
   exchangeCode,
   onHide,
   onSubmit,
-  onExchangeSelected,
   onDelete,
+  onImport,
+  busy = false,
+  error,
 }: {
   visible: boolean;
   mode?: 'add' | 'edit';
@@ -46,8 +61,10 @@ export default function AddHoldingsDialog({
   exchangeCode?: string;
   onHide: () => void;
   onSubmit: (value: LocalHolding) => void;
-  onExchangeSelected?: (exchange: string) => void;
   onDelete?: () => void;
+  onImport?: () => void;
+  busy?: boolean;
+  error?: string;
 }) {
   const [form, setForm] = useState<Partial<LocalHolding>>({
     openDate: new Date().toISOString().slice(0, 10),
@@ -68,6 +85,15 @@ export default function AddHoldingsDialog({
   const { accountSuggestions, searchAccount, resetAccountSuggestions } =
     useAccountNameSuggestions(visible, exchangeCode);
   const [manualSymbol, setManualSymbol] = useState(false);
+  const [stockSelected, setStockSelected] = useState(false);
+  const [crypto, setCrypto] = useState(false);
+  const [quote, setQuote] = useState<CryptoQuote>('AUD');
+  const equityExchanges = useExchanges(
+    'equity',
+    visible && manualSymbol && !crypto
+  );
+  const coin = form.symbol?.split('-')[0] ?? '';
+  const currency = crypto ? cryptoQuote(form.symbol || `COIN-${quote}`) : '';
 
   // Load initial values when dialog opens or mode changes
   useEffect(() => {
@@ -86,23 +112,36 @@ export default function AddHoldingsDialog({
       buyComments: '',
       ...initial,
     };
+    const initialQuote = initial?.symbol
+      ? cryptoQuote(initial.symbol)
+      : (exchangeCurrency(initial?.exchangeCode ?? exchangeCode) ?? 'AUD');
+    if (mode === 'add' && isCryptoExchange(base.exchangeCode)) {
+      base.exchangeCode = initialQuote === 'USD' ? 'KRAKEN_USD' : 'KRAKEN';
+    }
     setForm(base);
     setErrors({});
     setSymbolSuggestions([]);
     resetAccountSuggestions();
     setManualSymbol(false);
+    setStockSelected(Boolean(initial?.symbol && initial?.exchangeCode));
+    setCrypto(
+      instrumentType(
+        initial?.assetType,
+        initial?.exchangeCode ?? exchangeCode
+      ) === 'CRYPTO'
+    );
+    setQuote(initialQuote);
   }, [visible, mode, initial, accountName]);
 
   const handleSymbolSelect = (result: StockSearchResult) => {
+    setStockSelected(true);
     setForm(f => ({
       ...f,
       symbol: result.symbol,
       name: result.name,
       exchangeCode: result.exchange,
+      assetType: /etf/i.test(result.type) ? 'ETF' : 'EQUITY',
     }));
-    if (mode === 'add') {
-      onExchangeSelected?.(result.exchange);
-    }
   };
 
   const handleSubmit = () => {
@@ -129,19 +168,38 @@ export default function AddHoldingsDialog({
     if (typeof form.buyPrice !== 'number' || isNaN(form.buyPrice!))
       e.buyPrice = 'Enter a number';
     if (!/\d{4}-\d{2}-\d{2}/.test(form.openDate ?? ''))
-      e.openDate = 'Use YYYY-MM-DD';
+      e.openDate = 'Enter a valid date (DD/MM/YYYY)';
 
     const resolvedExchange =
       form.exchangeCode?.trim() || exchangeCode?.trim() || '';
     if (!resolvedExchange) {
       e.symbol = 'Select a symbol from search so exchange can be detected';
     }
+    if (
+      mode === 'add' &&
+      !crypto &&
+      !manualSymbol &&
+      form.symbol &&
+      !stockSelected
+    ) {
+      e.symbol =
+        'Choose a stock from search, or enter it manually and choose its exchange.';
+    }
+    if (crypto && (!form.symbol || !isCryptoExchange(resolvedExchange))) {
+      e.symbol = 'Choose a coin from Kraken search before saving.';
+    }
+    if (!crypto && isCryptoExchange(resolvedExchange)) {
+      e.symbol = 'Choose a stock exchange, or switch to Crypto.';
+    }
+    if (form.buyPrice !== undefined && form.buyPrice <= 0)
+      e.buyPrice = 'Enter a price greater than 0';
 
     setErrors(e);
     if (Object.keys(e).length) return;
 
     const value: LocalHolding = {
       symbol: form.symbol!,
+      assetType: crypto ? 'CRYPTO' : (form.assetType ?? 'EQUITY'),
       name: form.name ?? '',
       openDate: form.openDate!,
       units: form.units!,
@@ -177,6 +235,52 @@ export default function AddHoldingsDialog({
       onHide={onHide}
     >
       <div className='space-y-4'>
+        {error && <Message severity='error' text={error} />}
+        {mode === 'add' && (
+          <div>
+            <label
+              id='investment-type-label'
+              className='block text-sm font-medium mb-1'
+            >
+              Investment type
+            </label>
+            <SelectButton
+              aria-labelledby='investment-type-label'
+              allowEmpty={false}
+              value={crypto ? 'crypto' : 'stocks'}
+              options={[
+                { label: 'Shares / ETFs', value: 'stocks' },
+                { label: 'Crypto', value: 'crypto' },
+              ]}
+              onChange={event => {
+                const nextCrypto = event.value === 'crypto';
+                setCrypto(nextCrypto);
+                setManualSymbol(false);
+                setStockSelected(false);
+                setErrors({});
+                setForm(f => ({
+                  ...f,
+                  symbol: '',
+                  name: '',
+                  assetType: nextCrypto ? 'CRYPTO' : 'EQUITY',
+                  exchangeCode: nextCrypto
+                    ? quote === 'AUD'
+                      ? 'KRAKEN'
+                      : 'KRAKEN_USD'
+                    : '',
+                }));
+              }}
+            />
+            {onImport && (
+              <Button
+                type='button'
+                label='Import Kraken CSVs instead'
+                text
+                onClick={onImport}
+              />
+            )}
+          </div>
+        )}
         {/* Row 1: Trading Account */}
         <div className='grid grid-cols-12 gap-3'>
           <div className='col-span-12 md:col-span-4'>
@@ -204,118 +308,224 @@ export default function AddHoldingsDialog({
               />
             )}
             <p className='text-xs text-gray-500 mt-1'>
-              Use different account names to separate holdings on the same
-              exchange.
+              An account can hold shares and crypto from different exchanges.
             </p>
           </div>
         </div>
 
         {/* Row 2: Symbol, Name */}
-        <div className='grid grid-cols-12 gap-3'>
-          <div className='col-span-12 md:col-span-3'>
-            <label className='block text-sm font-medium mb-1'>Symbol *</label>
+        {crypto ? (
+          <div className='space-y-3'>
+            <div className='grid grid-cols-2 gap-3'>
+              <div>
+                <label className='block text-sm font-medium mb-1'>
+                  Bought on
+                </label>
+                <InputText
+                  value={exchangeLabel(
+                    form.exchangeCode ||
+                      (quote === 'AUD' ? 'KRAKEN' : 'KRAKEN_USD')
+                  ).replace(/ \((AUD|USD)\)$/, '')}
+                  readOnly
+                  className='w-full'
+                  aria-label='Bought on'
+                />
+              </div>
+              <div>
+                <label
+                  id='crypto-quote-label'
+                  className='block text-sm font-medium mb-1'
+                >
+                  Paid with
+                </label>
+                <SelectButton
+                  aria-labelledby='crypto-quote-label'
+                  allowEmpty={false}
+                  value={quote}
+                  disabled={mode === 'edit'}
+                  options={['AUD', 'USD']}
+                  onChange={event => {
+                    const next: CryptoQuote = event.value;
+                    setQuote(next);
+                    setForm(f => ({
+                      ...f,
+                      symbol: '',
+                      name: '',
+                      exchangeCode: next === 'AUD' ? 'KRAKEN' : 'KRAKEN_USD',
+                    }));
+                  }}
+                />
+              </div>
+            </div>
             {mode === 'add' ? (
-              <>
-                {manualSymbol ? (
-                  <InputText
-                    value={(form.symbol ?? '').toUpperCase()}
-                    onChange={e =>
-                      setForm(f => ({
-                        ...f,
-                        symbol: e.target.value.toUpperCase(),
-                      }))
-                    }
-                    placeholder='e.g. AAPL'
-                    className='w-full uppercase'
-                  />
-                ) : (
-                  <AutoComplete
-                    value={form.symbol ?? ''}
-                    suggestions={symbolSuggestions}
-                    completeMethod={searchSymbol}
-                    field='symbol'
-                    itemTemplate={(item: StockSearchResult) => (
-                      <div className='flex flex-col py-1'>
-                        <div>
-                          <span className='font-semibold'>{item.symbol}</span>
-                          <span className='text-xs ml-2 text-gray-400'>
-                            {item.exchange}
+              <CryptoCoinPicker
+                key={`${quote}-${visible}`}
+                quote={quote}
+                onClear={() => setForm(f => ({ ...f, symbol: '', name: '' }))}
+                onSelect={market =>
+                  setForm(f => ({
+                    ...f,
+                    symbol: market.symbol,
+                    name: market.name,
+                    exchangeCode: market.exchangeCode,
+                    assetType: 'CRYPTO',
+                  }))
+                }
+              />
+            ) : (
+              <p>
+                {form.name} · {coin} · {currency}
+              </p>
+            )}
+            <Message
+              severity='info'
+              text='Each purchase creates a separate position. If you plan to import these trades later, use CSV import instead to avoid recording the same purchase twice.'
+            />
+            {errors.symbol && <Message severity='error' text={errors.symbol} />}
+          </div>
+        ) : (
+          <div className='grid grid-cols-12 gap-3'>
+            <div className='col-span-12 md:col-span-3'>
+              <label className='block text-sm font-medium mb-1'>Symbol *</label>
+              {mode === 'add' ? (
+                <>
+                  {manualSymbol ? (
+                    <InputText
+                      value={(form.symbol ?? '').toUpperCase()}
+                      onChange={e =>
+                        setForm(f => ({
+                          ...f,
+                          symbol: e.target.value.toUpperCase(),
+                        }))
+                      }
+                      placeholder='e.g. AAPL'
+                      className='w-full uppercase'
+                    />
+                  ) : (
+                    <AutoComplete
+                      value={form.symbol ?? ''}
+                      suggestions={symbolSuggestions}
+                      completeMethod={searchSymbol}
+                      field='symbol'
+                      itemTemplate={(item: StockSearchResult) => (
+                        <div className='flex flex-col py-1'>
+                          <div>
+                            <span className='font-semibold'>{item.symbol}</span>
+                            <span className='text-xs ml-2 text-gray-400'>
+                              {item.exchange}
+                            </span>
+                          </div>
+                          <span className='text-sm text-gray-500'>
+                            {item.name}
                           </span>
                         </div>
-                        <span className='text-sm text-gray-500'>
-                          {item.name}
-                        </span>
-                      </div>
-                    )}
-                    onChange={e => {
-                      const v = e.value as unknown;
-                      if (typeof v === 'string') {
-                        setForm(f => ({ ...f, symbol: v.toUpperCase() }));
+                      )}
+                      onChange={e => {
+                        const v = e.value as unknown;
+                        if (typeof v === 'string') {
+                          setStockSelected(false);
+                          setForm(f => ({
+                            ...f,
+                            symbol: v.toUpperCase(),
+                            exchangeCode: '',
+                            name: '',
+                          }));
+                        }
+                      }}
+                      onSelect={e =>
+                        handleSymbolSelect(e.value as StockSearchResult)
                       }
+                      placeholder='Search symbol…'
+                      className='w-full'
+                      inputClassName='w-full uppercase'
+                      delay={0}
+                      appendTo='self'
+                      scrollHeight='240px'
+                    />
+                  )}
+                  <button
+                    type='button'
+                    className='text-xs text-blue-500 hover:underline mt-1 block'
+                    onClick={() => {
+                      setManualSymbol(m => !m);
+                      setSymbolSuggestions([]);
                     }}
-                    onSelect={e =>
-                      handleSymbolSelect(e.value as StockSearchResult)
-                    }
-                    placeholder='Search symbol…'
-                    className='w-full'
-                    inputClassName='w-full uppercase'
-                    delay={0}
-                    appendTo='self'
-                    scrollHeight='240px'
-                  />
-                )}
-                <button
-                  type='button'
-                  className='text-xs text-blue-500 hover:underline mt-1 block'
-                  onClick={() => {
-                    setManualSymbol(m => !m);
-                    setSymbolSuggestions([]);
-                  }}
-                >
-                  {manualSymbol
-                    ? '← Search symbol'
-                    : "Can't find it? Enter manually"}
-                </button>
-                {(form.exchangeCode || exchangeCode) && (
-                  <p className='text-xs text-gray-500 mt-1'>
-                    Exchange:{' '}
-                    {(form.exchangeCode || exchangeCode || '').toUpperCase()}
-                  </p>
-                )}
-              </>
-            ) : (
+                  >
+                    {manualSymbol
+                      ? '← Search symbol'
+                      : "Can't find it? Enter manually"}
+                  </button>
+                  {(form.exchangeCode || exchangeCode) && (
+                    <p className='text-xs text-gray-500 mt-1'>
+                      Exchange:{' '}
+                      {(form.exchangeCode || exchangeCode || '').toUpperCase()}
+                    </p>
+                  )}
+                  {manualSymbol && (
+                    <div className='mt-2'>
+                      <label
+                        htmlFor='manual-exchange'
+                        className='block text-sm'
+                      >
+                        Stock exchange
+                      </label>
+                      <Dropdown
+                        inputId='manual-exchange'
+                        value={form.exchangeCode || null}
+                        options={equityExchanges.data ?? []}
+                        optionLabel='name'
+                        optionValue='code'
+                        placeholder='Choose stock exchange'
+                        loading={equityExchanges.isFetching}
+                        onChange={event =>
+                          setForm(f => ({ ...f, exchangeCode: event.value }))
+                        }
+                      />
+                      {equityExchanges.isError && (
+                        <Message
+                          severity='error'
+                          text='Could not load stock exchanges. Try symbol search or reopen this form.'
+                        />
+                      )}
+                    </div>
+                  )}
+                </>
+              ) : (
+                <InputText
+                  value={(form.symbol ?? '').toUpperCase()}
+                  onChange={e =>
+                    setForm(f => ({
+                      ...f,
+                      symbol: e.target.value.toUpperCase(),
+                    }))
+                  }
+                  placeholder='e.g. AAPL'
+                  className='w-full uppercase'
+                />
+              )}
+              {errors.symbol && (
+                <p className='text-xs text-red-600 mt-1'>{errors.symbol}</p>
+              )}
+            </div>
+            <div className='col-span-12 md:col-span-9'>
+              <label className='block text-sm font-medium mb-1'>Name</label>
               <InputText
-                value={(form.symbol ?? '').toUpperCase()}
-                onChange={e =>
-                  setForm(f => ({ ...f, symbol: e.target.value.toUpperCase() }))
-                }
-                placeholder='e.g. AAPL'
-                className='w-full uppercase'
+                value={form.name ?? ''}
+                onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
+                placeholder='Company name'
+                className='w-full'
               />
-            )}
-            {errors.symbol && (
-              <p className='text-xs text-red-600 mt-1'>{errors.symbol}</p>
-            )}
+              {errors.name && (
+                <p className='text-xs text-red-600 mt-1'>{errors.name}</p>
+              )}
+            </div>
           </div>
-          <div className='col-span-12 md:col-span-9'>
-            <label className='block text-sm font-medium mb-1'>Name</label>
-            <InputText
-              value={form.name ?? ''}
-              onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
-              placeholder='Company name'
-              className='w-full'
-            />
-            {errors.name && (
-              <p className='text-xs text-red-600 mt-1'>{errors.name}</p>
-            )}
-          </div>
-        </div>
-
+        )}
         {/* Row 3: Open Date, Units, Industry */}
         <div className='grid grid-cols-12 gap-3'>
           <div className='col-span-12 md:col-span-4'>
             <label className='block text-sm font-medium mb-1'>
-              Open Date *
+              {crypto ? 'Purchase date *' : 'Open Date *'}
             </label>
             <Calendar
               value={(() => {
@@ -351,15 +561,21 @@ export default function AddHoldingsDialog({
             )}
           </div>
           <div className='col-span-12 md:col-span-2'>
-            <label className='block text-sm font-medium mb-1'>Units *</label>
+            <label
+              htmlFor='position-units'
+              className='block text-sm font-medium mb-1'
+            >
+              {crypto ? `Quantity${coin ? ` (${coin})` : ''} *` : 'Units *'}
+            </label>
             <InputNumber
               value={form.units ?? 0}
               onValueChange={e =>
                 setForm(f => ({ ...f, units: (e.value ?? 0) as number }))
               }
               mode='decimal'
+              inputId='position-units'
               minFractionDigits={0}
-              maxFractionDigits={6}
+              maxFractionDigits={crypto ? 12 : 6}
               placeholder='e.g. 10.5'
               className='w-full'
               inputClassName='w-full'
@@ -368,34 +584,42 @@ export default function AddHoldingsDialog({
               <p className='text-xs text-red-600 mt-1'>{errors.units}</p>
             )}
           </div>
-          <div className='col-span-12 md:col-span-6'>
-            <label className='block text-sm font-medium mb-1'>Industry</label>
-            <InputText
-              value={form.industry ?? ''}
-              onChange={e => setForm(f => ({ ...f, industry: e.target.value }))}
-              placeholder='Sector'
-              className='w-full'
-            />
-            {errors.industry && (
-              <p className='text-xs text-red-600 mt-1'>{errors.industry}</p>
-            )}
-          </div>
+          {!crypto && (
+            <div className='col-span-12 md:col-span-6'>
+              <label className='block text-sm font-medium mb-1'>Industry</label>
+              <InputText
+                value={form.industry ?? ''}
+                onChange={e =>
+                  setForm(f => ({ ...f, industry: e.target.value }))
+                }
+                placeholder='Sector'
+                className='w-full'
+              />
+              {errors.industry && (
+                <p className='text-xs text-red-600 mt-1'>{errors.industry}</p>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Row 4: Buy Price, Buy Fee, Stop Loss */}
         <div className='grid grid-cols-12 gap-3'>
           <div className='col-span-12 md:col-span-4'>
-            <label className='block text-sm font-medium mb-1'>
-              Buy Price *
+            <label
+              htmlFor='position-price'
+              className='block text-sm font-medium mb-1'
+            >
+              {crypto ? `Price per coin (${currency}) *` : 'Buy Price *'}
             </label>
             <InputNumber
+              inputId='position-price'
               value={form.buyPrice ?? 0}
               onValueChange={e =>
                 setForm(f => ({ ...f, buyPrice: (e.value ?? 0) as number }))
               }
               mode='decimal'
               minFractionDigits={0}
-              maxFractionDigits={3}
+              maxFractionDigits={crypto ? 12 : 3}
               placeholder='e.g. 175.250'
               className='w-full'
               inputClassName='w-full'
@@ -405,7 +629,9 @@ export default function AddHoldingsDialog({
             )}
           </div>
           <div className='col-span-12 md:col-span-4'>
-            <label className='block text-sm font-medium mb-1'>Buy Fee</label>
+            <label className='block text-sm font-medium mb-1'>
+              {crypto ? `Purchase fees (${currency})` : 'Buy Fee'}
+            </label>
             <InputNumber
               value={form.buyFee ?? 0}
               onValueChange={e =>
@@ -413,7 +639,7 @@ export default function AddHoldingsDialog({
               }
               mode='decimal'
               minFractionDigits={0}
-              maxFractionDigits={3}
+              maxFractionDigits={crypto ? 8 : 3}
               placeholder='e.g. 5.500'
               className='w-full'
               inputClassName='w-full'
@@ -423,7 +649,9 @@ export default function AddHoldingsDialog({
             )}
           </div>
           <div className='col-span-12 md:col-span-4'>
-            <label className='block text-sm font-medium mb-1'>Stop Loss</label>
+            <label className='block text-sm font-medium mb-1'>
+              {crypto ? `Stop Loss (${currency})` : 'Stop Loss'}
+            </label>
             <InputNumber
               value={form.stopLoss ?? null}
               onValueChange={e =>
@@ -434,7 +662,7 @@ export default function AddHoldingsDialog({
               }
               mode='decimal'
               minFractionDigits={0}
-              maxFractionDigits={3}
+              maxFractionDigits={crypto ? 12 : 3}
               placeholder='e.g. 150.000'
               className='w-full'
               inputClassName='w-full'
@@ -445,6 +673,19 @@ export default function AddHoldingsDialog({
           </div>
         </div>
 
+        {crypto && (
+          <p className='font-semibold' role='status'>
+            Total purchase cost:{' '}
+            {(
+              (form.units ?? 0) * (form.buyPrice ?? 0) +
+              (form.buyFee ?? 0)
+            ).toLocaleString('en-AU', {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 8,
+            })}{' '}
+            {currency}
+          </p>
+        )}
         {/* Row 5: Buy Comments */}
         <div>
           <label className='block text-sm font-medium mb-1'>Buy Comments</label>
@@ -481,6 +722,7 @@ export default function AddHoldingsDialog({
             />
             <Button
               label={mode === 'edit' ? 'Save' : 'Add Position'}
+              loading={busy}
               icon={mode === 'edit' ? 'pi pi-check' : 'pi pi-plus'}
               onClick={handleSubmit}
             />

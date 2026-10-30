@@ -2,6 +2,7 @@ import { AxiosInstance } from 'axios';
 import { exchanges } from '../mock-portfolio';
 import type { EquityPoint, ExchangePortfolio } from '../types';
 import { isRecord, mapSnapshotToEquityPoint, unwrapArray } from './mappers';
+import { fetchOpenPositionRecords } from './positions';
 
 const USE_MOCK_API = process.env.NEXT_PUBLIC_USE_MOCK_API === 'true';
 
@@ -33,15 +34,7 @@ export function createPortfolioApi(client: AxiosInstance) {
         return exchanges;
       }
 
-      const response = await client.get('/positions', {
-        params: {
-          status: 'OPEN',
-          limit: 100,
-          ...(accountId ? { accountId } : {}),
-        },
-      });
-
-      const positions = unwrapArray<unknown>(response.data);
+      const positions = await fetchOpenPositionRecords(client, { accountId });
       const exchangeMap = new Map<
         string,
         {

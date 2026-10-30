@@ -18,6 +18,24 @@ describe('date formatting helpers', () => {
     expect(formatDateDDMMYYYY('2026-05-27T12:00:00.000Z')).toBe('27/05/2026');
   });
 
+  it.each([
+    ['2025-11-01', '01/11/2025'],
+    ['2026-01-05', '05/01/2026'],
+    ['2024-02-29', '29/02/2024'],
+    ['2026-12-31', '31/12/2026'],
+  ])('keeps the calendar day and pads %s as %s', (value, expected) => {
+    expect(formatDateDDMMYYYY(value)).toBe(expected);
+  });
+
+  it('formats Date values in local time with padded day and month', () => {
+    expect(formatDateDDMMYYYY(new Date(2026, 0, 5, 23, 30))).toBe('05/01/2026');
+  });
+
+  it('preserves the existing fallback for absent and invalid values', () => {
+    expect(formatDateDDMMYYYY('')).toBe('');
+    expect(formatDateDDMMYYYY('not a date')).toBe('not a date');
+  });
+
   it('formats local date string to yyyy-mm-dd', () => {
     const value = toLocalDateString(new Date(2026, 4, 27, 12, 0, 0));
     expect(value).toBe('2026-05-27');

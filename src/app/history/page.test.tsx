@@ -132,10 +132,22 @@ beforeEach(() => {
 
 afterEach(() => {
   cleanup();
+  window.history.replaceState({}, '', '/');
   privacyState.hidden = false;
 });
 
 describe('HistoryPage', () => {
+  it('honors an import link account and all-history scope', async () => {
+    window.history.replaceState({}, '', '/history?accountId=acc-1&period=all');
+    render(<HistoryPage />);
+    await waitFor(() =>
+      expect(closedPositionsMock).toHaveBeenLastCalledWith({
+        accountId: 'acc-1',
+        dateFrom: undefined,
+        dateTo: undefined,
+      })
+    );
+  });
   it('persists edited open-side and close-side fields to their owning records', async () => {
     render(<HistoryPage />);
 

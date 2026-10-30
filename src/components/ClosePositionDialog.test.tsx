@@ -19,6 +19,37 @@ afterEach(() => {
 });
 
 describe('ClosePositionDialog', () => {
+  it('preserves tiny crypto quantities and sub-cent exit prices', () => {
+    const onSubmit = vi.fn();
+    render(
+      <ClosePositionDialog
+        visible
+        initial={{
+          symbol: 'SHIB-AUD',
+          name: 'Shiba Inu',
+          exchangeCode: 'KRAKEN',
+          assetType: 'CRYPTO',
+          industry: '',
+          openDate: '2026-01-01',
+          units: 0.00000000001,
+          buyPrice: 0.00001234,
+          currentPrice: 0.00002345,
+          buyFee: 0,
+        }}
+        onHide={vi.fn()}
+        onSubmit={onSubmit}
+      />
+    );
+    expect(screen.getByText('Sell Price (AUD) *')).toBeInTheDocument();
+    expect(screen.getByDisplayValue('0.00002345')).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: /close position/i }));
+    expect(onSubmit).toHaveBeenCalledWith(
+      expect.objectContaining({
+        closeUnits: 0.00000000001,
+        sellPrice: 0.00002345,
+      })
+    );
+  });
   it('renders the close date as a calendar picker', () => {
     const onHide = vi.fn();
     const onSubmit = vi.fn();

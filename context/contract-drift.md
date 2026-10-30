@@ -23,9 +23,11 @@ In sync. ✅
 
 (Not necessarily a problem — many app-only shapes have no 1:1 backend schema.)
 
+- `KrakenMarket`
 - `EquityPoint`
 - `ExchangePortfolio`
 - `AvailableExchange`
+- `ExchangeSummary`
 - `HoldingPosition`
 - `StockSearchResult`
 - `QuoteResult`
@@ -56,3 +58,17 @@ In sync. ✅
 - `WatchlistItem`
 - `WatchlistDetail`
 - `AddWatchlistItemPayload`
+- `ImportBatch`
+- `ImportFilePayload`
+- `ImportPlannedParcel`
+- `ImportPlannedAllocation`
+- `ImportEligibleParcel`
+- `ImportPlannedSell`
+- `ImportStakingMonth`
+- `ImportPlanIssue`
+- `ImportReconciliation`
+- `ImportPlan`
+- `ImportDetail`
+- `ImportUploadResult`
+- `ImportEventResolution`
+- `ImportCommitResult`

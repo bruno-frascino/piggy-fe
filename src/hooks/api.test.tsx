@@ -15,6 +15,10 @@ const {
   downloadTaxReportPdfMock,
   getClosedPositionsMock,
   getRealizedPnLMock,
+  commitImportMock,
+  resolveImportEventMock,
+  searchKrakenAssetsMock,
+  getExchangesMock,
 } = vi.hoisted(() => ({
   updatePositionMock: vi.fn(),
   updateCloseEventMock: vi.fn(),
@@ -25,6 +29,10 @@ const {
   downloadTaxReportPdfMock: vi.fn(),
   getClosedPositionsMock: vi.fn(),
   getRealizedPnLMock: vi.fn(),
+  commitImportMock: vi.fn(),
+  resolveImportEventMock: vi.fn(),
+  searchKrakenAssetsMock: vi.fn(),
+  getExchangesMock: vi.fn(),
 }));
 
 vi.mock('@/lib/api-client', () => ({
@@ -38,11 +46,17 @@ vi.mock('@/lib/api-client', () => ({
     downloadTaxReportPdf: downloadTaxReportPdfMock,
     getClosedPositions: getClosedPositionsMock,
     getRealizedPnL: getRealizedPnLMock,
+    commitImport: commitImportMock,
+    resolveImportEvent: resolveImportEventMock,
+    searchKrakenAssets: searchKrakenAssetsMock,
+    getExchanges: getExchangesMock,
   },
 }));
 
 import {
   useCheckStopLoss,
+  useCommitImport,
+  useResolveImportEvent,
   useClosedPositions,
   useDownloadTaxReportPdf,
   useLogout,
@@ -51,6 +65,8 @@ import {
   useStockSearch,
   useUpdateCloseEvent,
   useUpdatePosition,
+  useExchanges,
+  useKrakenAssetSearch,
 } from './api';
 import { useSymbolSearch } from './useSymbolSearch';
 
@@ -64,6 +80,52 @@ function createWrapper(queryClient: QueryClient) {
 
 beforeEach(() => {
   vi.clearAllMocks();
+});
+
+describe('Kraken discovery query hooks', () => {
+  it('keys coin search by both text and purchase currency and keeps empty search disabled', async () => {
+    const client = new QueryClient({
+      defaultOptions: { queries: { retry: false } },
+    });
+    searchKrakenAssetsMock.mockResolvedValue([]);
+    const { result, rerender } = renderHook(
+      ({ q, quote }: { q: string; quote: 'AUD' | 'USD' }) =>
+        useKrakenAssetSearch(q, quote),
+      {
+        initialProps: { q: '', quote: 'AUD' },
+        wrapper: createWrapper(client),
+      }
+    );
+    expect(searchKrakenAssetsMock).not.toHaveBeenCalled();
+    rerender({ q: 'BTC', quote: 'AUD' });
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+    rerender({ q: 'BTC', quote: 'USD' });
+    await waitFor(() =>
+      expect(searchKrakenAssetsMock).toHaveBeenCalledWith('BTC', 'USD')
+    );
+    expect(
+      client.getQueryCache().find({ queryKey: ['kraken-assets', 'AUD', 'BTC'] })
+    ).toBeDefined();
+    expect(
+      client.getQueryCache().find({ queryKey: ['kraken-assets', 'USD', 'BTC'] })
+    ).toBeDefined();
+  });
+
+  it('loads exchange choices only when needed', async () => {
+    const client = new QueryClient();
+    getExchangesMock.mockResolvedValue([]);
+    const { result, rerender } = renderHook(
+      ({ enabled }) => useExchanges('equity', enabled),
+      {
+        initialProps: { enabled: false },
+        wrapper: createWrapper(client),
+      }
+    );
+    expect(getExchangesMock).not.toHaveBeenCalled();
+    rerender({ enabled: true });
+    await waitFor(() => expect(result.current.isSuccess).toBe(true));
+    expect(getExchangesMock).toHaveBeenCalledWith('equity');
+  });
 });
 
 describe('central API mutation hooks', () => {
@@ -253,5 +315,66 @@ describe('central API query hooks', () => {
       expect(result.current.symbolSuggestions).toEqual(matches)
     );
     expect(searchStocksMock).toHaveBeenCalledWith('AAPL', 10);
+  });
+});
+
+describe('import hooks', () => {
+  it('commits an import and refreshes positions, statistics and imports', async () => {
+    commitImportMock.mockResolvedValue({
+      createdPositionIds: ['p1'],
+      appliedEvents: 2,
+    });
+    const queryClient = new QueryClient({
+      defaultOptions: { mutations: { retry: false } },
+    });
+    queryClient.setQueryData(['statistics-summary', {}], { x: 1 });
+    const invalidateQueries = vi.spyOn(queryClient, 'invalidateQueries');
+    const { result } = renderHook(() => useCommitImport('imp-1'), {
+      wrapper: createWrapper(queryClient),
+    });
+
+    await act(() => result.current.mutateAsync(undefined));
+
+    expect(commitImportMock).toHaveBeenCalledWith('imp-1', undefined);
+    for (const key of [
+      ['holdings'],
+      ['closed-positions'],
+      ['realized-pnl'],
+      ['portfolio-history'],
+      ['user-portfolio'],
+      ['imports'],
+      ['import', 'imp-1'],
+    ]) {
+      expect(invalidateQueries).toHaveBeenCalledWith({ queryKey: key });
+    }
+    expect(invalidateQueries).toHaveBeenCalledWith({
+      queryKey: ['tax-reports', 'position-usage'],
+    });
+    const predicateCall = invalidateQueries.mock.calls.find(
+      ([filters]) => filters && 'predicate' in filters
+    );
+    const predicate = predicateCall?.[0]?.predicate;
+    expect(predicate?.({ queryKey: ['statistics-summary', {}] } as never)).toBe(
+      true
+    );
+    expect(predicate?.({ queryKey: ['holdings'] } as never)).toBe(false);
+  });
+
+  it('stores the re-computed plan returned by a resolution', async () => {
+    const detail = { plan: { issues: [] } };
+    resolveImportEventMock.mockResolvedValue(detail);
+    const queryClient = new QueryClient();
+    const { result } = renderHook(() => useResolveImportEvent('imp-1'), {
+      wrapper: createWrapper(queryClient),
+    });
+
+    await act(() =>
+      result.current.mutateAsync({ eventId: 'e1', resolution: { skip: true } })
+    );
+
+    expect(resolveImportEventMock).toHaveBeenCalledWith('imp-1', 'e1', {
+      skip: true,
+    });
+    expect(queryClient.getQueryData(['import', 'imp-1'])).toBe(detail);
   });
 });

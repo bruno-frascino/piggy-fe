@@ -65,6 +65,145 @@ describe('api-client', () => {
     vi.clearAllMocks();
   });
 
+  it('discovers Kraken pairs and rejects malformed or wrong-currency responses', async () => {
+    const api = await loadClient();
+    const market = {
+      base: 'BTC',
+      name: 'Bitcoin',
+      symbol: 'BTC-AUD',
+      quote: 'AUD',
+      exchangeCode: 'KRAKEN',
+    };
+    axiosClientMock.get.mockResolvedValueOnce({ data: { data: [market] } });
+    expect(await api.searchKrakenAssets(' bitcoin ', 'AUD')).toEqual([market]);
+    expect(axiosClientMock.get).toHaveBeenCalledWith(
+      '/exchanges/kraken/assets',
+      { params: { q: 'bitcoin', quote: 'AUD' } }
+    );
+    axiosClientMock.get.mockResolvedValueOnce({ data: { data: [market] } });
+    await expect(api.searchKrakenAssets('BTC', 'USD')).rejects.toThrow(
+      'Unexpected Kraken search response'
+    );
+    axiosClientMock.get.mockResolvedValueOnce({
+      data: { data: [{ base: 'BTC' }] },
+    });
+    await expect(api.searchKrakenAssets('BTC', 'AUD')).rejects.toThrow(
+      'Unexpected Kraken search response'
+    );
+    const exchange = {
+      code: 'KRAKEN',
+      name: 'Kraken (AUD)',
+      currency: 'AUD',
+      isCrypto: true,
+    };
+    axiosClientMock.get.mockResolvedValueOnce({ data: { data: [exchange] } });
+    expect(await api.getExchanges('crypto')).toEqual([exchange]);
+    expect(axiosClientMock.get).toHaveBeenCalledWith('/exchanges', {
+      params: { assetClass: 'crypto' },
+    });
+  });
+
+  it('preserves imported crypto metadata when loading a holding', async () => {
+    const api = await loadClient();
+    axiosClientMock.get.mockResolvedValueOnce({
+      data: {
+        data: [
+          {
+            id: 'btc',
+            accountId: 'acc1',
+            quantity: 0.00000001,
+            entryPrice: '80000',
+            buyFees: '0',
+            origin: 'IMPORT_TRADE',
+            externalRef: 'kraken-order',
+            openDate: '2026-01-01',
+            asset: {
+              symbol: 'BTC-AUD',
+              assetType: 'CRYPTO',
+              exchange: { code: 'KRAKEN', currency: 'AUD' },
+            },
+          },
+        ],
+      },
+    });
+    expect(await api.getHoldings('KRAKEN', 'acc1')).toEqual([
+      expect.objectContaining({
+        assetType: 'CRYPTO',
+        origin: 'IMPORT_TRADE',
+        externalRef: 'kraken-order',
+        exchangeCode: 'KRAKEN',
+        units: 0.00000001,
+      }),
+    ]);
+  });
+
+  it('sends explicit crypto identity and tiny quantities without rounding', async () => {
+    const api = await loadClient();
+    axiosClientMock.post.mockResolvedValueOnce({
+      data: { data: { id: 'tiny' } },
+    });
+    await api.createPosition({
+      symbol: 'BTC-AUD',
+      exchangeCode: 'KRAKEN',
+      assetType: 'CRYPTO',
+      accountId: 'acc1',
+      openDate: '2026-01-01',
+      entryPrice: 80000,
+      quantity: 0.00000001,
+      buyFees: 0,
+    });
+    expect(axiosClientMock.post).toHaveBeenCalledWith(
+      '/positions',
+      expect.objectContaining({
+        symbol: 'BTC-AUD',
+        exchangeCode: 'KRAKEN',
+        assetType: 'CRYPTO',
+        quantity: 0.00000001,
+        capitalAllocated: 0.0008,
+      })
+    );
+  });
+
+  it('discovers venues on later pages, including partially sold crypto parcels', async () => {
+    const api = await loadClient();
+    const stock = {
+      openDate: '2026-01-01',
+      asset: {
+        assetType: 'EQUITY',
+        exchange: { code: 'ASX', currency: 'AUD' },
+      },
+    };
+    axiosClientMock.get.mockResolvedValueOnce({
+      data: { data: Array.from({ length: 100 }, () => stock) },
+    });
+    axiosClientMock.get.mockResolvedValueOnce({
+      data: {
+        data: [
+          {
+            status: 'PARTIAL',
+            asset: {
+              assetType: 'CRYPTO',
+              exchange: { code: 'KRAKEN_USD', currency: 'USD' },
+            },
+          },
+        ],
+      },
+    });
+    const portfolio = await api.getUserPortfolio('acc1');
+    expect(portfolio.map(exchange => exchange.name)).toEqual([
+      'ASX',
+      'KRAKEN_USD',
+    ]);
+    expect(axiosClientMock.get).toHaveBeenLastCalledWith('/positions', {
+      params: {
+        status: 'OPEN,PARTIAL',
+        limit: 100,
+        offset: 100,
+        accountId: 'acc1',
+      },
+    });
+  });
+
   it('adds bearer token through request interceptor', async () => {
     await loadClient();
     localStorage.setItem('authToken', 'token-1');
@@ -792,7 +931,7 @@ describe('api-client', () => {
 
     expect(axiosClientMock.get).toHaveBeenCalledWith('/positions', {
       params: {
-        status: 'OPEN',
+        status: 'OPEN,PARTIAL',
         limit: 100,
         accountId: 'acc1',
       },

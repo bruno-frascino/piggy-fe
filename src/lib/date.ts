@@ -1,5 +1,11 @@
+/** Date-only strings keep their calendar day; timestamps use the viewer's local time. */
 export function formatDateDDMMYYYY(value: string | Date): string {
-  const d = value instanceof Date ? value : new Date(value);
+  const d =
+    value instanceof Date
+      ? value
+      : new Date(
+          /^\d{4}-\d{2}-\d{2}$/.test(value) ? `${value}T00:00:00` : value
+        );
   if (isNaN(d.getTime())) return String(value);
 
   const dd = String(d.getDate()).padStart(2, '0');

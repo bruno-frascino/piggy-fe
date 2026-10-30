@@ -8,6 +8,9 @@ import { apiClient } from '@/lib/api-client';
 import type {
   AddWatchlistItemPayload,
   CloseReason,
+  ImportEventResolution,
+  ImportFilePayload,
+  ImportSource,
   ClosedTradesQuery,
   ScreenerFilters,
   StatisticsBreakdownBy,
@@ -15,7 +18,29 @@ import type {
   StatisticsClosedTradesSortBy,
   StatisticsClosedTradesSortDir,
   StatisticsFilters,
+  CryptoQuote,
 } from '@/lib/types';
+
+export const useExchanges = (assetClass: 'crypto' | 'equity', enabled = true) =>
+  useQuery({
+    queryKey: ['exchanges', assetClass],
+    queryFn: () => apiClient.getExchanges(assetClass),
+    enabled,
+    staleTime: 10 * 60 * 1000,
+  });
+
+export const useKrakenAssetSearch = (
+  q: string,
+  quote: CryptoQuote,
+  enabled = true
+) =>
+  useQuery({
+    queryKey: ['kraken-assets', quote, q.trim()],
+    queryFn: () => apiClient.searchKrakenAssets(q, quote),
+    enabled: enabled && q.trim().length > 0,
+    staleTime: 10 * 60 * 1000,
+    retry: false,
+  });
 
 function invalidatePositionQueries(queryClient: QueryClient) {
   return Promise.all([
@@ -697,6 +722,83 @@ export const useRemoveWatchlistItem = () => {
         queryKey: ['watchlist', variables.watchlistId],
       });
       queryClient.invalidateQueries({ queryKey: ['screener'] });
+    },
+  });
+};
+
+// Exchange import hooks
+export const useImports = () =>
+  useQuery({
+    queryKey: ['imports'],
+    queryFn: () => apiClient.getImports(),
+    staleTime: 30_000,
+  });
+
+export const useImport = (id: string | undefined) =>
+  useQuery({
+    queryKey: ['import', id],
+    queryFn: () => apiClient.getImport(id as string),
+    enabled: Boolean(id),
+    staleTime: 0,
+  });
+
+export const useCreateImport = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (payload: {
+      source: ImportSource;
+      accountId: string;
+      files: ImportFilePayload[];
+    }) => apiClient.createImport(payload),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['imports'] });
+    },
+  });
+};
+
+export const useResolveImportEvent = (importId: string) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      eventId,
+      resolution,
+    }: {
+      eventId: string;
+      resolution: ImportEventResolution;
+    }) => apiClient.resolveImportEvent(importId, eventId, resolution),
+    onSuccess: detail => {
+      queryClient.setQueryData(['import', importId], detail);
+    },
+  });
+};
+
+export const useCommitImport = (importId: string) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (eventIds?: string[]) =>
+      apiClient.commitImport(importId, eventIds),
+    onSuccess: async () => {
+      await Promise.all([
+        invalidatePositionQueries(queryClient),
+        queryClient.invalidateQueries({ queryKey: ['imports'] }),
+        queryClient.invalidateQueries({ queryKey: ['import', importId] }),
+        queryClient.invalidateQueries({
+          predicate: query =>
+            typeof query.queryKey[0] === 'string' &&
+            query.queryKey[0].startsWith('statistics'),
+        }),
+      ]);
+    },
+  });
+};
+
+export const useDiscardImport = (importId: string) => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: () => apiClient.discardImport(importId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['imports'] });
+      queryClient.removeQueries({ queryKey: ['import', importId] });
     },
   });
 };

@@ -10,6 +10,8 @@
 | `/auth/reset-password` | page | 'use client' | CoreHeader | [src/app/auth/reset-password/page.tsx](../src/app/auth/reset-password/page.tsx) |
 | `/auth/signup` | page | 'use client' | CoreHeader | [src/app/auth/signup/page.tsx](../src/app/auth/signup/page.tsx) |
 | `/history` | page | 'use client' | EditClosedTradeDialog, PageHeader | [src/app/history/page.tsx](../src/app/history/page.tsx) |
+| `/imports/[id]` | page | 'use client' | ImportReview | [src/app/imports/[id]/page.tsx](../src/app/imports/[id]/page.tsx) |
+| `/imports` | page | — | ImportsList | [src/app/imports/page.tsx](../src/app/imports/page.tsx) |
 | `/` | layout | — | TopNavGate | [src/app/layout.tsx](../src/app/layout.tsx) |
 | `/offline` | page | — | — | [src/app/offline/page.tsx](../src/app/offline/page.tsx) |
 | `/` | page | — | DashboardView | [src/app/page.tsx](../src/app/page.tsx) |

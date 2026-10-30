@@ -46,6 +46,7 @@ const {
 }));
 
 vi.mock('@/hooks/api', () => ({
+  useExchanges: () => ({ data: undefined }),
   useHoldings: useHoldingsMock,
   useQuotes: useQuotesMock,
   useRealizedPnL: useRealizedPnLMock,
@@ -79,7 +80,11 @@ vi.mock('@/lib/privacy-context', () => ({
 
 import HoldingsTable from './HoldingsTable';
 
-function renderTable(onLiveTotals?: (t: unknown) => void, isDemo = false) {
+function renderTable(
+  onLiveTotals?: (t: unknown) => void,
+  isDemo = false,
+  selectedExchange?: string
+) {
   const queryClient = new QueryClient({
     defaultOptions: { queries: { retry: false }, mutations: { retry: false } },
   });
@@ -89,6 +94,7 @@ function renderTable(onLiveTotals?: (t: unknown) => void, isDemo = false) {
         selectedAccountId='acc-1'
         selectedAccountName='Main'
         isDemo={isDemo}
+        selectedExchange={selectedExchange}
         onLiveTotals={onLiveTotals}
       />
     </QueryClientProvider>
@@ -138,6 +144,52 @@ afterEach(() => {
 });
 
 describe('HoldingsTable row/total computation', () => {
+  it('does not value an AUD crypto position using a mismatched USD quote', () => {
+    setHoldings([
+      {
+        ...baseHolding,
+        symbol: 'BTC-AUD',
+        exchangeCode: 'KRAKEN',
+        assetType: 'CRYPTO',
+        currentPrice: 101,
+      },
+    ]);
+    useQuotesMock.mockReturnValue({
+      data: [{ symbol: 'BTC-AUD', price: 9999, currency: 'USD', change: 5 }],
+    });
+    const onLiveTotals = vi.fn();
+    renderTable(onLiveTotals, false, 'KRAKEN');
+    expect(onLiveTotals).toHaveBeenLastCalledWith({
+      totalEquity: 1010,
+      totalPL: 5,
+      dayPL: 0,
+    });
+    expect(
+      screen.getByText(/Some live crypto prices are unavailable/)
+    ).toBeInTheDocument();
+  });
+  it.each([0, 1])(
+    'preserves crypto metadata when opening the close form from layout %s',
+    layoutIndex => {
+      setHoldings([
+        {
+          ...baseHolding,
+          symbol: 'SHIB-AUD',
+          name: 'Shiba Inu',
+          exchangeCode: 'KRAKEN',
+          assetType: 'CRYPTO',
+          units: 0.00000000001,
+          buyPrice: 0.00001234,
+          currentPrice: 0.00002345,
+        },
+      ]);
+      renderTable();
+      fireEvent.click(screen.getAllByTitle('Close position')[layoutIndex]);
+      expect(screen.getByText('Sell Price (AUD) *')).toBeInTheDocument();
+      expect(screen.getByDisplayValue('0.00002345')).toBeInTheDocument();
+      expect(screen.getByDisplayValue('0.00000000001')).toBeInTheDocument();
+    }
+  );
   it('uses the dashboard chart height as both its minimum and maximum height', () => {
     setHoldings([]);
     setQuotes([]);

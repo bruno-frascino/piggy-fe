@@ -18,13 +18,22 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 // hook-extraction refactor (e.g. pulling symbol search / account loading into
 // dedicated hooks).
 
-const { getTradingAccountsMock, searchStocksMock } = vi.hoisted(() => ({
+const {
+  getTradingAccountsMock,
+  searchStocksMock,
+  getExchangesMock,
+  searchKrakenAssetsMock,
+} = vi.hoisted(() => ({
+  searchKrakenAssetsMock: vi.fn(),
+  getExchangesMock: vi.fn(),
   getTradingAccountsMock: vi.fn(),
   searchStocksMock: vi.fn(),
 }));
 
 vi.mock('@/lib/api-client', () => ({
   apiClient: {
+    getExchanges: getExchangesMock,
+    searchKrakenAssets: searchKrakenAssetsMock,
     getTradingAccounts: getTradingAccountsMock,
     searchStocks: searchStocksMock,
   },
@@ -53,9 +62,156 @@ function enterManualSymbol(symbol: string) {
 beforeEach(() => {
   vi.clearAllMocks();
   getTradingAccountsMock.mockResolvedValue([]);
+  getExchangesMock.mockResolvedValue([
+    { code: 'NASDAQ', name: 'Nasdaq', currency: 'USD', isCrypto: false },
+  ]);
+  searchKrakenAssetsMock.mockImplementation(
+    async (_q: string, quote: 'AUD' | 'USD') => [
+      {
+        base: 'BTC',
+        name: 'Bitcoin',
+        quote,
+        symbol: `BTC-${quote}`,
+        exchangeCode: quote === 'AUD' ? 'KRAKEN' : 'KRAKEN_USD',
+      },
+    ]
+  );
 });
 
 afterEach(cleanup);
+
+describe('Kraken purchase entry', () => {
+  async function openCrypto() {
+    await waitFor(() =>
+      expect(screen.getByRole('dialog')).toHaveClass('p-dialog-enter-done')
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Crypto' }));
+  }
+
+  async function chooseBitcoin() {
+    fireEvent.change(screen.getByPlaceholderText(/Search Bitcoin/), {
+      target: { value: 'bitcoin' },
+    });
+    await waitFor(() =>
+      expect(screen.getByText('Bitcoin')).toBeInTheDocument()
+    );
+    fireEvent.click(screen.getByText('Bitcoin'));
+  }
+
+  it('creates a canonical Kraken crypto purchase from an ASX dashboard without changing context early', async () => {
+    const onSubmit = vi.fn();
+    render(
+      <AddHoldingsDialog
+        visible
+        exchangeCode='ASX'
+        accountName='Crypto savings'
+        initial={{ units: 0.00000001, buyPrice: 80000 }}
+        onHide={vi.fn()}
+        onSubmit={onSubmit}
+      />
+    );
+    await openCrypto();
+    expect(screen.getByLabelText('Bought on')).toHaveValue('Kraken');
+    await chooseBitcoin();
+    expect(searchKrakenAssetsMock).toHaveBeenCalledWith('bitcoin', 'AUD');
+    expect(screen.getByLabelText('Quantity (BTC) *')).toHaveValue('0.00000001');
+    expect(onSubmit).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByRole('button', { name: 'Add Position' }));
+    expect(onSubmit).toHaveBeenCalledWith(
+      expect.objectContaining({
+        symbol: 'BTC-AUD',
+        name: 'Bitcoin',
+        assetType: 'CRYPTO',
+        exchangeCode: 'KRAKEN',
+        units: 0.00000001,
+        buyPrice: 80000,
+        accountName: 'Crypto savings',
+      })
+    );
+  });
+
+  it('clears a selected coin when purchase currency changes and requires a fresh selection', async () => {
+    const onSubmit = vi.fn();
+    render(
+      <AddHoldingsDialog
+        visible
+        exchangeCode='ASX'
+        initial={{ units: 1, buyPrice: 100 }}
+        onHide={vi.fn()}
+        onSubmit={onSubmit}
+      />
+    );
+    await openCrypto();
+    await chooseBitcoin();
+    fireEvent.click(screen.getByRole('button', { name: 'USD' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Add Position' }));
+    expect(onSubmit).not.toHaveBeenCalled();
+    expect(
+      screen.getByText('Choose a coin from Kraken search before saving.')
+    ).toBeInTheDocument();
+    await chooseBitcoin();
+    fireEvent.click(screen.getByRole('button', { name: 'Add Position' }));
+    expect(onSubmit).toHaveBeenCalledWith(
+      expect.objectContaining({
+        symbol: 'BTC-USD',
+        exchangeCode: 'KRAKEN_USD',
+        assetType: 'CRYPTO',
+      })
+    );
+  });
+
+  it('explains unavailable search and retries without losing purchase details', async () => {
+    searchKrakenAssetsMock.mockRejectedValueOnce(new Error('503'));
+    const onSubmit = vi.fn();
+    render(
+      <AddHoldingsDialog
+        visible
+        exchangeCode='ASX'
+        initial={{ units: 2, buyPrice: 123 }}
+        onHide={vi.fn()}
+        onSubmit={onSubmit}
+      />
+    );
+    await openCrypto();
+    fireEvent.change(screen.getByPlaceholderText(/Search Bitcoin/), {
+      target: { value: 'BTC' },
+    });
+    await waitFor(() =>
+      expect(
+        screen.getByRole('button', { name: 'Retry search' })
+      ).toBeInTheDocument()
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Retry search' }));
+    await waitFor(() =>
+      expect(searchKrakenAssetsMock).toHaveBeenCalledTimes(2)
+    );
+    expect(screen.getByLabelText('Quantity *')).toHaveValue('2');
+  });
+
+  it('distinguishes no matching pair from a provider outage', async () => {
+    searchKrakenAssetsMock.mockResolvedValue([]);
+    render(
+      <AddHoldingsDialog
+        visible
+        exchangeCode='ASX'
+        onHide={vi.fn()}
+        onSubmit={vi.fn()}
+      />
+    );
+    await openCrypto();
+    fireEvent.change(screen.getByPlaceholderText(/Search Bitcoin/), {
+      target: { value: 'unknown' },
+    });
+    await waitFor(() =>
+      expect(
+        screen.getByText(/No matching Kraken AUD pair/)
+      ).toBeInTheDocument()
+    );
+    expect(
+      screen.queryByRole('button', { name: 'Retry search' })
+    ).not.toBeInTheDocument();
+  });
+});
 
 describe('AddHoldingsDialog validation', () => {
   it('blocks submission and shows the exchange-detection error when no symbol/exchange is resolved', () => {
