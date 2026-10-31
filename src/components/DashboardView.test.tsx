@@ -24,18 +24,36 @@ const {
   mockRouter,
   mockSearchParams,
   emptyPortfolio,
-  emptyHistory,
   useTradingAccountsMock,
   createAccountMock,
   privacyState,
+  historyState,
+  portfolioState,
 } = vi.hoisted(() => ({
   mockRouter: { replace: vi.fn() },
   mockSearchParams: new URLSearchParams(),
   emptyPortfolio: [] as unknown[],
-  emptyHistory: [] as unknown[],
   useTradingAccountsMock: vi.fn(),
   createAccountMock: vi.fn(),
   privacyState: { hidden: false },
+  historyState: {
+    data: [{ date: '2026-10-01', equity: 100 }] as
+      | { date: string; equity: number }[]
+      | undefined,
+    isFetched: true,
+    isLoading: false,
+    isError: false,
+    isFetching: false,
+    refetch: vi.fn(),
+  },
+  portfolioState: {
+    data: [] as unknown[] | undefined,
+    isFetched: true,
+    isLoading: false,
+    isError: false,
+    isFetching: false,
+    refetch: vi.fn(),
+  },
 }));
 
 vi.mock('@/hooks/api', () => ({
@@ -49,12 +67,8 @@ vi.mock('@/hooks/api', () => ({
   useReopenAccount: () => ({ mutateAsync: vi.fn(), isPending: false }),
   useUpdateAccount: () => ({ mutateAsync: vi.fn(), isPending: false }),
   useCreatePortfolioSnapshot: () => ({ mutate: vi.fn(), isPending: false }),
-  usePortfolioHistory: () => ({ data: emptyHistory, isFetched: true }),
-  useUserPortfolio: () => ({
-    data: emptyPortfolio,
-    isLoading: false,
-    isFetched: true,
-  }),
+  usePortfolioHistory: () => historyState,
+  useUserPortfolio: () => portfolioState,
 }));
 
 vi.mock('next/navigation', () => ({
@@ -87,6 +101,12 @@ afterEach(() => {
   vi.clearAllMocks();
   localStorage.clear();
   privacyState.hidden = false;
+  historyState.data = [{ date: '2026-10-01', equity: 100 }];
+  historyState.isError = false;
+  historyState.isLoading = false;
+  portfolioState.isError = false;
+  portfolioState.isLoading = false;
+  portfolioState.data = emptyPortfolio;
   useTradingAccountsMock.mockReturnValue({
     data: mockAccounts,
     isLoading: false,
@@ -99,6 +119,91 @@ useTradingAccountsMock.mockReturnValue({
 });
 
 describe('DashboardView accounts', () => {
+  it('shows an account retry rather than a misleading welcome state on initial failure', () => {
+    const refetch = vi.fn();
+    useTradingAccountsMock.mockReturnValue({
+      data: undefined,
+      isError: true,
+      isLoading: false,
+      refetch,
+    });
+    render(<DashboardView />);
+    expect(screen.queryByText('Welcome to Truffles')).not.toBeInTheDocument();
+    expect(screen.getByText(/Could not load accounts/)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Retry accounts' }));
+    expect(refetch).toHaveBeenCalledOnce();
+  });
+
+  it('keeps loaded accounts visible during a failed background refresh', () => {
+    useTradingAccountsMock.mockReturnValue({
+      data: mockAccounts,
+      isError: true,
+      isLoading: false,
+    });
+    render(<DashboardView />);
+    expect(screen.getByText('Account 1')).toBeInTheDocument();
+    expect(screen.getByText(/Could not refresh accounts/)).toBeInTheDocument();
+  });
+
+  it('shows layout-matched placeholders while accounts load', () => {
+    useTradingAccountsMock.mockReturnValue({ isLoading: true });
+    render(<DashboardView />);
+    expect(
+      screen.getByRole('status', { name: 'Loading portfolio' })
+    ).toHaveAttribute('aria-busy', 'true');
+    expect(screen.queryByText('Welcome to Truffles')).not.toBeInTheDocument();
+  });
+
+  it('explains empty chart periods and preserves the timeframe controls', () => {
+    historyState.data = [];
+    render(<DashboardView />);
+    expect(
+      screen.getByText(/No equity points for this period/)
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'ALL', exact: true })
+    ).toBeInTheDocument();
+  });
+
+  it('keeps cached history visible on failure and exposes a scoped retry', () => {
+    historyState.isError = true;
+    render(<DashboardView />);
+    expect(screen.getByTestId('chart-stub')).toBeInTheDocument();
+    expect(
+      screen.getByText(/Could not refresh equity history/)
+    ).toBeInTheDocument();
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Retry equity history' })
+    );
+    expect(historyState.refetch).toHaveBeenCalledOnce();
+  });
+  it('expands and collapses the existing chart without resetting its timeframe or hiding holdings', () => {
+    render(<DashboardView />);
+    const chart = screen.getByTestId('chart-stub');
+    const container = chart.parentElement;
+    const expand = screen.getByRole('button', { name: 'Expand chart' });
+    expect(expand).toHaveAttribute('aria-expanded', 'false');
+    expect(expand).toHaveAttribute('aria-controls', container?.id);
+    expect(container).not.toHaveClass('portfolio-chart-expanded');
+    fireEvent.click(screen.getByRole('button', { name: '3M', exact: true }));
+
+    fireEvent.click(expand);
+    expect(container).toHaveClass('portfolio-chart-expanded');
+    const collapse = screen.getByRole('button', { name: 'Collapse chart' });
+    expect(collapse).toHaveAttribute('aria-expanded', 'true');
+    expect(screen.getByTestId('chart-stub')).toBe(chart);
+    expect(screen.getByTestId('holdings-table-stub')).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: '3M', exact: true })
+    ).toHaveAttribute('aria-pressed', 'true');
+
+    fireEvent.click(collapse);
+    expect(container).not.toHaveClass('portfolio-chart-expanded');
+    expect(
+      screen.getByRole('button', { name: 'Expand chart' })
+    ).toHaveAttribute('aria-expanded', 'false');
+  });
+
   it('exposes the chart timeframe selection as a pressed button', () => {
     render(<DashboardView />);
     expect(

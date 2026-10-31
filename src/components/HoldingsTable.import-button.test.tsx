@@ -56,6 +56,35 @@ function renderTable(isDemo = false) {
 afterEach(cleanup);
 
 describe('HoldingsTable import entry point', () => {
+  it('offers explicit empty-state entry points for adding or importing', () => {
+    renderTable();
+    expect(screen.getByText('No open positions yet')).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'Add your first position' })
+    ).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Import trades' }));
+    expect(screen.getByText('Import dialog for acc-1')).toBeInTheDocument();
+  });
+
+  it('does not suggest imports in the demo empty state', () => {
+    renderTable(true);
+    expect(
+      screen.queryByRole('button', { name: 'Import trades' })
+    ).not.toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'Add your first position' })
+    ).toBeInTheDocument();
+  });
+  it('labels the responsive add-position action without replacing the import action', () => {
+    renderTable();
+    const button = screen.getByRole('button', { name: 'Add Position' });
+    expect(button).toHaveTextContent('Add position');
+    expect(button).toHaveClass('portfolio-primary-action');
+    expect(
+      screen.getByRole('button', { name: 'Import from exchange' })
+    ).toBeInTheDocument();
+  });
+
   it('opens the import dialog locked to the selected account', () => {
     renderTable();
     expect(screen.queryByText(/Import dialog/)).not.toBeInTheDocument();

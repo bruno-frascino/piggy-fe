@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useId, useRef, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { Card } from 'primereact/card';
 import { Message } from 'primereact/message';
@@ -8,6 +8,10 @@ import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Button } from 'primereact/button';
 import ImportUploadDialog from '@/components/ImportUploadDialog';
+import PositionDetailsDialog from '@/components/PositionDetailsDialog';
+import QueryFeedback from './QueryFeedback';
+import { useNetworkStatus } from '@/hooks/useNetworkStatus';
+import { Skeleton } from 'primereact/skeleton';
 import AddHoldingsDialog, {
   LocalHolding,
 } from '@/components/AddHoldingsDialog';
@@ -21,7 +25,12 @@ import {
   type QueuedWriteActionInput,
 } from '@/lib/offline-write-queue';
 import { useToast } from '@/lib/toast-context';
-import { formatCurrency, formatPct, returnClass } from '@/lib/format';
+import {
+  formatCurrency,
+  formatNumber,
+  formatPct,
+  returnClass,
+} from '@/lib/format';
 import { exchangeLabel, isCryptoExchange } from '@/lib/crypto';
 import { usePrivacy } from '@/lib/privacy-context';
 import { useHoldingRows, type HoldingRow } from '@/hooks/useHoldingRows';
@@ -31,12 +40,6 @@ import {
   useDeletePosition,
   useUpdatePosition,
 } from '@/hooks/api';
-
-function formatNumber(n: number) {
-  return new Intl.NumberFormat(undefined, {
-    maximumFractionDigits: 12,
-  }).format(n);
-}
 
 function StopLossTriggeredMark({ inGain = false }: { inGain?: boolean }) {
   return (
@@ -89,6 +92,15 @@ export default function HoldingsTable({
     dayPL: number;
   }) => void;
 }) {
+  const online = useNetworkStatus();
+  const tableId = useId();
+  const [showAdvancedColumns, setShowAdvancedColumns] = useState(false);
+  const [detailsSelection, setDetailsSelection] = useState<{
+    id?: string;
+    index: number;
+    accountId: string;
+    exchange?: ExchangeKey;
+  } | null>(null);
   const queryClient = useQueryClient();
   const { show: showToast } = useToast();
   const { mask, hidden } = usePrivacy();
@@ -112,6 +124,9 @@ export default function HoldingsTable({
     handleResetMaxDrawdown,
     handleResetMaxRunUp,
     handleRecalculateDrawdown,
+    holdingsQuery,
+    quotesQuery,
+    realizedQuery,
   } = useHoldingRows({
     selectedExchange,
     selectedAccountId,
@@ -131,6 +146,52 @@ export default function HoldingsTable({
   const [closeIdx, setCloseIdx] = useState<number | null>(null);
   const [closeInitial, setCloseInitial] = useState<LocalHolding | null>(null);
   const replayInFlightRef = useRef(false);
+
+  const detailsRow =
+    detailsSelection?.accountId === selectedAccountId &&
+    detailsSelection.exchange === selectedExchange
+      ? rows.find(row =>
+          detailsSelection.id
+            ? row.id === detailsSelection.id
+            : row.originalIndex === detailsSelection.index
+        )
+      : undefined;
+
+  const openDetails = (row: HoldingRow) => {
+    setDetailsSelection({
+      id: row.id,
+      index: row.originalIndex,
+      accountId: selectedAccountId,
+      exchange: selectedExchange,
+    });
+  };
+
+  const openEdit = (row: HoldingRow) => {
+    setDetailsSelection(null);
+    setSubmitError('');
+    setMode('edit');
+    setEditIdx(row.originalIndex);
+    setDialogInitial({
+      ...row,
+      currentPrice: row.currentPrice ?? row.buyPrice,
+    });
+    setShowDialog(true);
+  };
+
+  const openClose = (row: HoldingRow) => {
+    setDetailsSelection(null);
+    setCloseIdx(row.originalIndex);
+    setCloseInitial({ ...row, currentPrice: row.effectivePrice });
+    setShowCloseDialog(true);
+  };
+
+  const openAdd = () => {
+    setSubmitError('');
+    setMode('add');
+    setEditIdx(null);
+    setDialogInitial(undefined);
+    setShowDialog(true);
+  };
 
   const isOnline = () => {
     if (typeof navigator === 'undefined') return true;
@@ -279,6 +340,20 @@ export default function HoldingsTable({
           {selectedExchange ? ` · ${exchangeLabel(selectedExchange)}` : ''}
         </h3>
         <div className='holdings-header-actions'>
+          {rows.length > 0 && (
+            <Button
+              type='button'
+              label='Advanced columns'
+              icon='pi pi-sliders-h'
+              outlined
+              severity='secondary'
+              size='small'
+              className='holdings-column-toggle'
+              aria-pressed={showAdvancedColumns}
+              aria-controls={tableId}
+              onClick={() => setShowAdvancedColumns(value => !value)}
+            />
+          )}
           {!isDemo && (
             <Button
               icon='pi pi-upload'
@@ -294,19 +369,59 @@ export default function HoldingsTable({
           )}
           <Button
             icon='pi pi-plus'
-            rounded
+            label='Add position'
             aria-label='Add Position'
-            className='!w-11 !h-11'
-            onClick={() => {
-              setSubmitError('');
-              setMode('add');
-              setEditIdx(null);
-              setDialogInitial(undefined);
-              setShowDialog(true);
-            }}
+            className='portfolio-primary-action'
+            onClick={openAdd}
           />
         </div>
       </div>
+      {holdingsQuery && (
+        <QueryFeedback
+          label='Holdings'
+          isError={holdingsQuery.isError}
+          isFetching={holdingsQuery.isFetching}
+          hasData={holdingsQuery.data !== undefined}
+          onRetry={() => void holdingsQuery.refetch()}
+        />
+      )}
+      {rows.length > 0 && quotesQuery && (
+        <>
+          <QueryFeedback
+            label='Quotes'
+            showOffline={false}
+            isError={quotesQuery.isError}
+            isFetching={quotesQuery.isFetching}
+            hasData={quotesQuery.data !== undefined}
+            onRetry={() => void quotesQuery.refetch()}
+          />
+          <p className='text-xs text-gray-500 my-3' role='status'>
+            {quotesQuery.isFetching
+              ? 'Updating quotes…'
+              : quotesQuery.dataUpdatedAt > 0
+                ? `Quotes last fetched ${new Date(quotesQuery.dataUpdatedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}.`
+                : 'No live quotes loaded yet.'}{' '}
+            Quote fetch time is not the exchange trading time.
+          </p>
+          {rows.some(row => !quoteMap.has(row.symbol)) &&
+            !isCryptoExchange(selectedExchange) && (
+              <Message
+                severity='warn'
+                text='Some live prices are unavailable. Those positions use stored prices; returns are estimates and daily movement may be incomplete.'
+              />
+            )}
+        </>
+      )}
+      {realizedQuery?.isError && (
+        <QueryFeedback
+          label='Realised P/L'
+          showOffline={false}
+          isError
+          isFetching={realizedQuery.isFetching}
+          hasData={realizedQuery.data !== undefined}
+          onRetry={() => void realizedQuery.refetch()}
+        />
+      )}
 
       {submitError && (
         <div className='mb-3 text-sm text-red-600'>{submitError}</div>
@@ -325,10 +440,38 @@ export default function HoldingsTable({
         />
       )}
 
-      {rows.length === 0 ? (
-        <div className='p-4 text-center text-blue-600'>
-          There are no open positions yet
+      {online && holdingsQuery?.isLoading && rows.length === 0 ? (
+        <div role='status' aria-label='Loading holdings' className='space-y-3'>
+          {[0, 1, 2].map(key => (
+            <Skeleton key={key} height='2.75rem' />
+          ))}
         </div>
+      ) : rows.length === 0 ? (
+        holdingsQuery?.isError ||
+        (!online && holdingsQuery?.data === undefined) ? null : (
+          <div className='portfolio-empty-state'>
+            <h4 className='font-semibold'>No open positions yet</h4>
+            <p className='text-sm text-gray-500'>
+              Add a purchase to start tracking this portfolio
+              {!isDemo ? ', or import your exchange trades.' : '.'}
+            </p>
+            <div className='flex flex-wrap justify-center gap-2'>
+              <Button
+                label='Add your first position'
+                icon='pi pi-plus'
+                onClick={openAdd}
+              />
+              {!isDemo && (
+                <Button
+                  label='Import trades'
+                  icon='pi pi-upload'
+                  outlined
+                  onClick={() => setShowImportDialog(true)}
+                />
+              )}
+            </div>
+          </div>
+        )
       ) : (
         <>
           {/* Mobile portrait: compact 4-column table */}
@@ -367,28 +510,8 @@ export default function HoldingsTable({
                     <div className='min-w-0'>
                       <button
                         className='font-semibold text-blue-600 text-xs hover:underline block truncate max-w-full'
-                        onClick={() => {
-                          setMode('edit');
-                          setEditIdx(r.originalIndex);
-                          setDialogInitial({
-                            id: r.id,
-                            assetType: r.assetType,
-                            accountName: r.accountName,
-                            exchangeCode: r.exchangeCode,
-                            symbol: r.symbol,
-                            name: r.name,
-                            openDate: r.openDate,
-                            units: r.units,
-                            buyPrice: r.buyPrice,
-                            buyFee: r.buyFee,
-                            stopLoss: r.stopLoss,
-                            industry: r.industry,
-                            currentPrice: r.currentPrice ?? r.buyPrice,
-                            buyComments: r.buyComments,
-                            maxDrawdownPercent: r.maxDrawdownPercent,
-                          });
-                          setShowDialog(true);
-                        }}
+                        title='View position details'
+                        onClick={() => openDetails(r)}
                       >
                         {r.symbol}
                       </button>
@@ -406,24 +529,7 @@ export default function HoldingsTable({
                       <button
                         className='text-blue-600 hover:underline text-xs block w-full text-right truncate'
                         title='Close position'
-                        onClick={() => {
-                          setCloseIdx(r.originalIndex);
-                          setCloseInitial({
-                            id: r.id,
-                            assetType: r.assetType,
-                            exchangeCode: r.exchangeCode,
-                            symbol: r.symbol,
-                            name: r.name,
-                            openDate: r.openDate,
-                            units: r.units,
-                            buyPrice: r.buyPrice,
-                            buyFee: r.buyFee,
-                            stopLoss: r.stopLoss,
-                            industry: r.industry,
-                            currentPrice: r.effectivePrice,
-                          });
-                          setShowCloseDialog(true);
-                        }}
+                        onClick={() => openClose(r)}
                       >
                         {mask(formatCurrency(r.currentPosition, currency))}
                       </button>
@@ -509,8 +615,11 @@ export default function HoldingsTable({
             </div>
           </div>
 
-          {/* Tablet/desktop or mobile landscape: full scrollable table */}
-          <div className='table-region hidden md:block holdings-landscape-table'>
+          {/* Tablet/desktop: summary with optional advanced columns */}
+          <div
+            id={tableId}
+            className='table-region hidden md:block holdings-landscape-table'
+          >
             <DataTable
               value={rows}
               size='small'
@@ -528,28 +637,8 @@ export default function HoldingsTable({
                   <span className='inline-flex items-center gap-1'>
                     <button
                       className='font-semibold text-blue-600 hover:underline'
-                      onClick={() => {
-                        setMode('edit');
-                        setEditIdx(r.originalIndex);
-                        setDialogInitial({
-                          id: r.id,
-                          assetType: r.assetType,
-                          accountName: r.accountName,
-                          exchangeCode: r.exchangeCode,
-                          symbol: r.symbol,
-                          name: r.name,
-                          openDate: r.openDate,
-                          units: r.units,
-                          buyPrice: r.buyPrice,
-                          buyFee: r.buyFee,
-                          stopLoss: r.stopLoss,
-                          industry: r.industry,
-                          currentPrice: r.currentPrice ?? r.buyPrice,
-                          buyComments: r.buyComments,
-                          maxDrawdownPercent: r.maxDrawdownPercent,
-                        });
-                        setShowDialog(true);
-                      }}
+                      title='View position details'
+                      onClick={() => openDetails(r)}
                     >
                       {r.symbol}
                     </button>
@@ -581,6 +670,7 @@ export default function HoldingsTable({
               />
               <Column
                 header='Buy'
+                hidden={!showAdvancedColumns}
                 body={(r: HoldingRow) =>
                   formatCurrency(
                     r.buyPrice,
@@ -592,6 +682,7 @@ export default function HoldingsTable({
               />
               <Column
                 header='Open'
+                hidden={!showAdvancedColumns}
                 body={(r: HoldingRow) =>
                   mask(formatCurrency(r.openPosition, currency))
                 }
@@ -653,29 +744,12 @@ export default function HoldingsTable({
                 }
               />
               <Column
-                header='Position'
+                header='Position value'
                 body={(r: HoldingRow) => (
                   <button
                     className='text-blue-600 hover:underline'
                     title='Close position'
-                    onClick={() => {
-                      setCloseIdx(r.originalIndex);
-                      setCloseInitial({
-                        id: r.id,
-                        assetType: r.assetType,
-                        exchangeCode: r.exchangeCode,
-                        symbol: r.symbol,
-                        name: r.name,
-                        openDate: r.openDate,
-                        units: r.units,
-                        buyPrice: r.buyPrice,
-                        buyFee: r.buyFee,
-                        stopLoss: r.stopLoss,
-                        industry: r.industry,
-                        currentPrice: r.effectivePrice,
-                      });
-                      setShowCloseDialog(true);
-                    }}
+                    onClick={() => openClose(r)}
                   >
                     {mask(formatCurrency(r.currentPosition, currency))}
                   </button>
@@ -725,6 +799,7 @@ export default function HoldingsTable({
               />
               <Column
                 header='Max Drawdown %'
+                hidden={!showAdvancedColumns}
                 body={(r: HoldingRow) => (
                   <span className='inline-flex items-center gap-1'>
                     {r.maxDrawdownPercent != null &&
@@ -759,6 +834,7 @@ export default function HoldingsTable({
               />
               <Column
                 header='Max Run-up %'
+                hidden={!showAdvancedColumns}
                 body={(r: HoldingRow) => (
                   <span className='inline-flex items-center gap-1'>
                     {r.maxRunUpPercent != null && r.maxRunUpPercent > 0 ? (
@@ -788,6 +864,7 @@ export default function HoldingsTable({
               {anyStopLoss && (
                 <Column
                   header='Stop Loss'
+                  hidden={!showAdvancedColumns}
                   body={(r: HoldingRow) =>
                     typeof r.stopLoss === 'number' && r.stopLoss > 0
                       ? formatCurrency(
@@ -803,6 +880,7 @@ export default function HoldingsTable({
               {anyStopLoss && (
                 <Column
                   header='SL Return'
+                  hidden={!showAdvancedColumns}
                   body={(r: HoldingRow) =>
                     isNaN(r.stopLossPosition)
                       ? ''
@@ -814,6 +892,7 @@ export default function HoldingsTable({
               {anyStopLoss && (
                 <Column
                   header='SL Return %'
+                  hidden={!showAdvancedColumns}
                   body={(r: HoldingRow) =>
                     isNaN(r.stopLossReturnPct) ? (
                       ''
@@ -830,22 +909,37 @@ export default function HoldingsTable({
               )}
               <Column
                 header='Days Open'
+                hidden={!showAdvancedColumns}
                 body={(r: HoldingRow) => formatNumber(r.daysOpen)}
                 style={{ minWidth: '120px' }}
               />
               <Column
                 header='Allocation'
+                hidden={!showAdvancedColumns}
                 body={(r: HoldingRow) => formatPct(r.allocationPct)}
                 style={{ minWidth: '120px' }}
               />
               <Column
                 field='industry'
                 header='Industry'
+                hidden={!showAdvancedColumns}
                 style={{ minWidth: '180px' }}
               />
             </DataTable>
           </div>
         </>
+      )}
+
+      {detailsRow && (
+        <PositionDetailsDialog
+          row={detailsRow}
+          currency={currency}
+          accountName={selectedAccountName}
+          hasQuote={quoteMap.has(detailsRow.symbol)}
+          onHide={() => setDetailsSelection(null)}
+          onEdit={() => openEdit(detailsRow)}
+          onClose={() => openClose(detailsRow)}
+        />
       )}
 
       {showImportDialog && (

@@ -6,6 +6,7 @@ import {
   fireEvent,
   render,
   screen,
+  within,
   waitFor,
 } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -144,6 +145,285 @@ afterEach(() => {
 });
 
 describe('HoldingsTable row/total computation', () => {
+  it('does not claim an empty portfolio when holdings have not loaded offline', () => {
+    Object.defineProperty(navigator, 'onLine', {
+      configurable: true,
+      value: false,
+    });
+    useHoldingsMock.mockReturnValue({ data: undefined, isLoading: false });
+    setQuotes([]);
+    renderTable();
+    expect(
+      screen.getByText(/holdings is unavailable. Reconnect/)
+    ).toBeInTheDocument();
+    expect(screen.queryByText('No open positions yet')).not.toBeInTheDocument();
+  });
+  it('does not present the previous scope holdings as cached data when a new scope has no loaded data', async () => {
+    setHoldings([baseHolding]);
+    setQuotes([]);
+    const client = new QueryClient({
+      defaultOptions: { queries: { retry: false } },
+    });
+    const tree = (accountId: string) => (
+      <QueryClientProvider client={client}>
+        <HoldingsTable selectedAccountId={accountId} />
+      </QueryClientProvider>
+    );
+    const view = render(tree('acc-1'));
+    expect(screen.getAllByTitle('View position details')).toHaveLength(2);
+    useHoldingsMock.mockReturnValue({
+      data: undefined,
+      isError: true,
+      refetch: vi.fn(),
+    });
+    view.rerender(tree('acc-2'));
+    await waitFor(() =>
+      expect(
+        screen.queryByTitle('View position details')
+      ).not.toBeInTheDocument()
+    );
+    expect(screen.getByText(/Could not load holdings/)).toBeInTheDocument();
+    expect(
+      screen.queryByText(/Showing last loaded data/)
+    ).not.toBeInTheDocument();
+  });
+  it('shows a skeleton rather than an empty-state CTA while holdings load', () => {
+    useHoldingsMock.mockReturnValue({ isLoading: true, data: undefined });
+    setQuotes([]);
+    renderTable();
+    expect(
+      screen.getByRole('status', { name: 'Loading holdings' })
+    ).toBeInTheDocument();
+    expect(screen.queryByText('No open positions yet')).not.toBeInTheDocument();
+  });
+
+  it('shows a retry instead of an empty-state CTA when holdings fail to load', () => {
+    const refetch = vi.fn();
+    useHoldingsMock.mockReturnValue({
+      isError: true,
+      data: undefined,
+      refetch,
+    });
+    setQuotes([]);
+    renderTable();
+    expect(screen.queryByText('No open positions yet')).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Retry holdings' }));
+    expect(refetch).toHaveBeenCalledOnce();
+  });
+
+  it('keeps cached rows and totals visible on a failed refresh', () => {
+    useHoldingsMock.mockReturnValue({ isError: true, data: [baseHolding] });
+    setQuotes([]);
+    const totals = vi.fn();
+    renderTable(totals);
+    expect(screen.getAllByTitle('View position details')).toHaveLength(2);
+    expect(screen.getByText(/Could not refresh holdings/)).toBeInTheDocument();
+    expect(totals).toHaveBeenLastCalledWith({
+      totalEquity: 1000,
+      totalPL: -5,
+      dayPL: 0,
+    });
+  });
+
+  it('keeps details on the selected parcel as quotes update and hides them when the parcel disappears', async () => {
+    setHoldings([{ ...baseHolding }]);
+    setQuotes([]);
+    const view = renderTable();
+    fireEvent.click(screen.getAllByTitle('View position details')[0]);
+    expect(
+      within(screen.getByRole('dialog')).getByText('$1,000.00')
+    ).toBeInTheDocument();
+    setQuotes([{ symbol: 'AAPL', price: 101, currency: 'USD', change: 1 }]);
+    view.rerender(view.tree());
+    await waitFor(() =>
+      expect(
+        within(screen.getByRole('dialog')).getByText('$1,010.00')
+      ).toBeInTheDocument()
+    );
+    setHoldings([]);
+    view.rerender(view.tree());
+    await waitFor(() =>
+      expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    );
+  });
+
+  it.each([
+    { selectedAccountId: 'other-account', selectedExchange: 'NASDAQ' },
+    { selectedAccountId: 'acc-1', selectedExchange: 'ASX' },
+  ])('hides details when the scope changes to %s', nextScope => {
+    setHoldings([{ ...baseHolding }]);
+    setQuotes([]);
+    const client = new QueryClient({
+      defaultOptions: { queries: { retry: false } },
+    });
+    const tree = (scope: {
+      selectedAccountId: string;
+      selectedExchange: string;
+    }) => (
+      <QueryClientProvider client={client}>
+        <HoldingsTable {...scope} />
+      </QueryClientProvider>
+    );
+    const view = render(
+      tree({ selectedAccountId: 'acc-1', selectedExchange: 'NASDAQ' })
+    );
+    fireEvent.click(screen.getAllByTitle('View position details')[0]);
+    expect(screen.getByRole('dialog')).toBeInTheDocument();
+    view.rerender(tree(nextScope));
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+  });
+
+  it.each([0, 1])(
+    'opens read-only details from symbol layout %s and explicitly enters edit with comments intact',
+    layoutIndex => {
+      setHoldings([{ ...baseHolding, buyComments: 'Long-term rationale' }]);
+      setQuotes([]);
+      renderTable();
+      fireEvent.click(
+        screen.getAllByTitle('View position details')[layoutIndex]
+      );
+      const dialog = screen.getByRole('dialog');
+      expect(dialog).toHaveAccessibleName('Position details · AAPL');
+      expect(
+        within(dialog).getByText('Long-term rationale')
+      ).toBeInTheDocument();
+      expect(dialog.querySelector('input, textarea, select')).toBeNull();
+      expect(screen.queryByText('Edit Position')).not.toBeInTheDocument();
+
+      fireEvent.click(
+        within(dialog).getByRole('button', { name: 'Edit position' })
+      );
+      expect(
+        screen.queryByText('Position details · AAPL')
+      ).not.toBeInTheDocument();
+      expect(screen.getByText('Edit Position')).toBeInTheDocument();
+      expect(
+        screen.getByDisplayValue('Long-term rationale')
+      ).toBeInTheDocument();
+    }
+  );
+
+  it('closes the selected crypto parcel from details without losing precision or metadata', () => {
+    setHoldings([
+      {
+        ...baseHolding,
+        symbol: 'SHIB-AUD',
+        exchangeCode: 'KRAKEN',
+        assetType: 'CRYPTO',
+        units: 0.00000000001,
+        buyPrice: 0.00001234,
+        currentPrice: 0.00002345,
+      },
+    ]);
+    setQuotes([]);
+    renderTable(undefined, false, 'KRAKEN');
+    fireEvent.click(screen.getAllByTitle('View position details')[1]);
+    fireEvent.click(
+      within(screen.getByRole('dialog')).getByRole('button', {
+        name: 'Close position',
+      })
+    );
+    expect(
+      screen.queryByText('Position details · SHIB-AUD')
+    ).not.toBeInTheDocument();
+    expect(screen.getByText('Sell Price (AUD) *')).toBeInTheDocument();
+    expect(screen.getByDisplayValue('0.00002345')).toBeInTheDocument();
+    expect(screen.getByDisplayValue('0.00000000001')).toBeInTheDocument();
+  });
+
+  it('dismisses details without opening a form or submitting a mutation', () => {
+    setHoldings([{ ...baseHolding }]);
+    setQuotes([]);
+    renderTable();
+    fireEvent.click(screen.getAllByTitle('View position details')[0]);
+    fireEvent.click(
+      within(screen.getByRole('dialog')).getByRole('button', { name: 'Done' })
+    );
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    expect(updatePositionMock).not.toHaveBeenCalled();
+    expect(mutationMock).not.toHaveBeenCalled();
+  });
+
+  it('defaults to seven essential columns and restores all metrics without changing row order or mobile content', () => {
+    setHoldings([
+      { ...baseHolding, maxRunUpPercent: 15, stopLoss: 95 },
+      { ...baseHolding, id: 'p2', symbol: 'MSFT', openDate: '2026-02-01' },
+    ]);
+    setQuotes([]);
+    const { container } = renderTable();
+    const table = screen.getByRole('table');
+    const headers = () =>
+      within(table)
+        .getAllByRole('columnheader')
+        .map(cell => cell.textContent);
+    expect(headers()).toEqual([
+      'Symbol',
+      'Units',
+      'Price',
+      'Day Change',
+      'Position value',
+      'Return',
+      'Return %',
+    ]);
+    const rowOrder = () =>
+      Array.from(table.querySelectorAll('tbody tr')).map(
+        row => row.querySelector('td')?.textContent
+      );
+    const order = rowOrder();
+    const mobile = container.querySelector('.holdings-portrait-cards');
+    const mobileContent = mobile?.textContent;
+    const toggle = screen.getByRole('button', { name: 'Advanced columns' });
+    expect(toggle).toHaveAttribute('aria-pressed', 'false');
+    expect(toggle).toHaveAttribute(
+      'aria-controls',
+      container.querySelector('.holdings-landscape-table')?.id
+    );
+
+    fireEvent.click(toggle);
+    expect(toggle).toHaveAttribute('aria-pressed', 'true');
+    expect(headers()).toHaveLength(17);
+    expect(headers()).toEqual(
+      expect.arrayContaining([
+        'Buy',
+        'Open',
+        'Max Drawdown %',
+        'Max Run-up %',
+        'Stop Loss',
+        'SL Return',
+        'SL Return %',
+        'Days Open',
+        'Allocation',
+        'Industry',
+      ])
+    );
+    expect(rowOrder()).toEqual(order);
+    expect(mobile?.textContent).toBe(mobileContent);
+    fireEvent.click(toggle);
+    expect(headers()).toHaveLength(7);
+    expect(rowOrder()).toEqual(order);
+  });
+
+  it('preserves long crypto units and price precision in summary and advanced views', () => {
+    setHoldings([
+      {
+        ...baseHolding,
+        symbol: 'SHIB-AUD',
+        exchangeCode: 'KRAKEN',
+        assetType: 'CRYPTO',
+        units: 1234567890.123456,
+        buyPrice: 0.000012345678,
+        currentPrice: 0.000023456789,
+      },
+    ]);
+    setQuotes([]);
+    renderTable(undefined, false, 'KRAKEN');
+    const table = screen.getByRole('table');
+    expect(within(table).getByText('1,234,567,890.123456')).toBeInTheDocument();
+    expect(within(table).getByText('A$0.000023456789')).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Advanced columns' }));
+    expect(within(table).getByText('A$0.000012345678')).toBeInTheDocument();
+  });
+
   it('does not value an AUD crypto position using a mismatched USD quote', () => {
     setHoldings([
       {
@@ -494,6 +774,7 @@ describe('HoldingsTable stop-loss highlight', () => {
 
     const { container } = renderTable();
 
+    fireEvent.click(screen.getByRole('button', { name: 'Advanced columns' }));
     const cells = Array.from(
       container.querySelectorAll('.holdings-table tbody tr')
     ).map(tr => tr.textContent ?? '');
@@ -579,6 +860,7 @@ describe('HoldingsTable max-drawdown ratchet effect', () => {
 
     renderTable();
 
+    fireEvent.click(screen.getByRole('button', { name: 'Advanced columns' }));
     expect(screen.getByText('Max Run-up %')).toBeInTheDocument();
     expect(screen.getByText('+15.00%')).toBeInTheDocument();
 
@@ -648,6 +930,7 @@ describe('HoldingsTable privacy mode', () => {
 
     renderTable();
 
+    fireEvent.click(screen.getByRole('button', { name: 'Advanced columns' }));
     // Units (mobile card) and Buy price (desktop column) render side by side —
     // units must be masked, the per-unit buy price must not.
     expect(screen.getAllByText(MASKED_VALUE).length).toBeGreaterThan(0);
@@ -661,6 +944,9 @@ describe('HoldingsTable privacy mode', () => {
 
     const { container } = renderTable();
 
+    expect(container.querySelector('.text-green-600')).toBeNull();
+    expect(container.querySelector('.text-red-600')).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: 'Advanced columns' }));
     expect(container.querySelector('.text-green-600')).toBeNull();
     expect(container.querySelector('.text-red-600')).toBeNull();
   });

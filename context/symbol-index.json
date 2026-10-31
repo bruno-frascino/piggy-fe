@@ -189,7 +189,7 @@
     "startLine": 17
   },
   {
-    "endLine": 185,
+    "endLine": 187,
     "file": "src/components/AccountsBar.tsx",
     "jsdoc": "",
     "kind": "FunctionDeclaration",
@@ -279,22 +279,22 @@
     "startLine": 10
   },
   {
-    "endLine": 72,
+    "endLine": 75,
     "file": "src/components/DashboardView.tsx",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "ExchangeDefinition",
     "signature": "export interface ExchangeDefinition",
-    "startLine": 66
+    "startLine": 69
   },
   {
-    "endLine": 764,
+    "endLine": 859,
     "file": "src/components/DashboardView.tsx",
     "jsdoc": "",
     "kind": "FunctionDeclaration",
     "name": "default",
     "signature": "export default function DashboardView()",
-    "startLine": 82
+    "startLine": 85
   },
   {
     "endLine": 150,
@@ -342,13 +342,13 @@
     "startLine": 28
   },
   {
-    "endLine": 1062,
+    "endLine": 1156,
     "file": "src/components/HoldingsTable.tsx",
     "jsdoc": "",
     "kind": "FunctionDeclaration",
     "name": "default",
     "signature": "export default function HoldingsTable(",
-    "startLine": 69
+    "startLine": 72
   },
   {
     "endLine": 439,
@@ -403,6 +403,33 @@
     "name": "default",
     "signature": "export default function PageHeader(",
     "startLine": 15
+  },
+  {
+    "endLine": 32,
+    "file": "src/components/PortfolioSkeleton.tsx",
+    "jsdoc": "",
+    "kind": "FunctionDeclaration",
+    "name": "default",
+    "signature": "export default function PortfolioSkeleton()",
+    "startLine": 4
+  },
+  {
+    "endLine": 221,
+    "file": "src/components/PositionDetailsDialog.tsx",
+    "jsdoc": "",
+    "kind": "FunctionDeclaration",
+    "name": "default",
+    "signature": "export default function PositionDetailsDialog(",
+    "startLine": 16
+  },
+  {
+    "endLine": 59,
+    "file": "src/components/QueryFeedback.tsx",
+    "jsdoc": "",
+    "kind": "FunctionDeclaration",
+    "name": "default",
+    "signature": "export default function QueryFeedback(",
+    "startLine": 7
   },
   {
     "endLine": 171,
@@ -468,7 +495,7 @@
     "startLine": 5
   },
   {
-    "endLine": 255,
+    "endLine": 260,
     "file": "src/components/TopNav.tsx",
     "jsdoc": "",
     "kind": "FunctionDeclaration",
@@ -1071,7 +1098,7 @@
     "startLine": 14
   },
   {
-    "endLine": 198,
+    "endLine": 202,
     "file": "src/hooks/useExchangeDiscovery.ts",
     "jsdoc": "Owns exchange discovery/selection for the dashboard: seeding the exchange list from the user's portfolio (merging on subsequent fetches so locally -edited fields survive), resolving the initially-selected exchange from the URL -> localStorage -> first-exchange (in that priority order), keeping the URL/localStorage in sync, and ensuring a snapshot exists for today once history has loaded. Extracted verbatim (same effects/deps) from DashboardView.tsx.",
     "kind": "FunctionDeclaration",
@@ -1089,7 +1116,7 @@
     "startLine": 14
   },
   {
-    "endLine": 379,
+    "endLine": 378,
     "file": "src/hooks/useHoldingRows.ts",
     "jsdoc": "Owns all data-derivation concerns for HoldingsTable: syncing remote holdings into local state, merging in live quotes, computing per-row and aggregate totals, bubbling live totals to the parent, and the rate-limited max-drawdown ratchet effect. Extracted verbatim (same effects/deps) from HoldingsTable.tsx so behavior is unchanged — see src/components/HoldingsTable.test.tsx for characterization tests covering the row computation and the ratchet effect.",
     "kind": "FunctionDeclaration",
@@ -1114,6 +1141,15 @@
     "name": "useLongPress",
     "signature": "export function useLongPress<T extends Element = Element>( onLongPress: () => void, opts: LongPressOptions =",
     "startLine": 10
+  },
+  {
+    "endLine": 16,
+    "file": "src/hooks/useNetworkStatus.ts",
+    "jsdoc": "",
+    "kind": "FunctionDeclaration",
+    "name": "useNetworkStatus",
+    "signature": "export function useNetworkStatus()",
+    "startLine": 3
   },
   {
     "endLine": 4,
@@ -1530,31 +1566,40 @@
     "startLine": 2
   },
   {
-    "endLine": 14,
+    "endLine": 8,
+    "file": "src/lib/format.ts",
+    "jsdoc": "",
+    "kind": "FunctionDeclaration",
+    "name": "formatNumber",
+    "signature": "export function formatNumber(n: number)",
+    "startLine": 4
+  },
+  {
+    "endLine": 20,
     "file": "src/lib/format.ts",
     "jsdoc": "",
     "kind": "FunctionDeclaration",
     "name": "formatCurrency",
     "signature": "export function formatCurrency( n: number, currency: string = 'USD', maximumFractionDigits = 3 )",
-    "startLine": 4
+    "startLine": 10
   },
   {
-    "endLine": 19,
+    "endLine": 25,
     "file": "src/lib/format.ts",
     "jsdoc": "",
     "kind": "FunctionDeclaration",
     "name": "formatPct",
     "signature": "export function formatPct(v: number)",
-    "startLine": 16
+    "startLine": 22
   },
   {
-    "endLine": 23,
+    "endLine": 29,
     "file": "src/lib/format.ts",
     "jsdoc": "",
     "kind": "VariableDeclaration",
     "name": "returnClass",
     "signature": "returnClass = (v: number, neutral = false) => neutral ? 'text-gray-500' : v >= 0 ? 'text-green-600' : 'text-red-600'",
-    "startLine": 22
+    "startLine": 28
   },
   {
     "endLine": 3522,

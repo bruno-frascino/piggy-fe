@@ -62,6 +62,16 @@ beforeEach(() => {
 });
 
 describe('TopNav privacy toggle', () => {
+  it('marks the current desktop destination for assistive technology', () => {
+    renderTopNav();
+    expect(screen.getByRole('link', { name: 'Dashboard' })).toHaveAttribute(
+      'aria-current',
+      'page'
+    );
+    expect(screen.getByRole('link', { name: 'History' })).not.toHaveAttribute(
+      'aria-current'
+    );
+  });
   it('keeps appearance settings out of navigation and links to the profile', () => {
     renderTopNav();
     expect(

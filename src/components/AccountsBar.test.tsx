@@ -37,6 +37,17 @@ function renderBar(overrides: Partial<Parameters<typeof AccountsBar>[0]> = {}) {
 }
 
 describe('AccountsBar', () => {
+  it('retains the complete account name as a title when its visible text is truncated', () => {
+    const name =
+      'A deliberately long portfolio account name for narrow screens';
+    renderBar({
+      activeAccounts: [{ ...activeAccounts[0], name }, activeAccounts[1]],
+    });
+    expect(screen.getByTitle(name)).toHaveTextContent(name);
+    expect(
+      screen.getByRole('button', { name: `Actions for account ${name}` })
+    ).toBeInTheDocument();
+  });
   it('shows only the currently selected account, not every account', () => {
     renderBar();
 
@@ -118,7 +129,10 @@ describe('AccountsBar', () => {
   it('triggers onAddAccount from the add button', () => {
     const props = renderBar();
 
-    fireEvent.click(screen.getByRole('button', { name: 'Add Account' }));
+    const button = screen.getByRole('button', { name: 'Add Account' });
+    expect(button).toHaveTextContent('Add account');
+    expect(button).toHaveClass('portfolio-primary-action');
+    fireEvent.click(button);
 
     expect(props.onAddAccount).toHaveBeenCalledOnce();
   });

@@ -74,8 +74,10 @@ export default function AccountsBar({
         <div className='flex items-center flex-1 min-w-0'>
           {selectedAccount ? (
             <div className='account-pill inline-flex items-center border transition select-none shrink-0 max-w-full'>
-              <span className='min-h-11 pl-4 pr-2 flex items-center font-medium truncate'>
-                {selectedAccount.name}
+              <span className='account-pill-name min-h-11 pl-4 pr-2 flex items-center font-medium'>
+                <span className='truncate' title={selectedAccount.name}>
+                  {selectedAccount.name}
+                </span>
                 {selectedAccount.isDemo && <DemoBadge className='ml-2' />}
               </span>
               {activeAccounts.length > 1 && (
@@ -111,9 +113,9 @@ export default function AccountsBar({
         <Button
           type='button'
           icon='pi pi-plus'
-          rounded
+          label='Add account'
           aria-label='Add Account'
-          className='!w-11 !h-11 shrink-0'
+          className='portfolio-primary-action shrink-0'
           onClick={onAddAccount}
         />
 

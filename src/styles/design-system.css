@@ -448,6 +448,43 @@ textarea {
   font-variant-numeric: tabular-nums;
 }
 
+.position-details-dialog .p-dialog-content {
+  overflow-wrap: anywhere;
+}
+
+.position-details-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+  gap: 1rem;
+}
+
+.position-details-grid > *,
+.position-details-dialog .task-summary dl > * {
+  min-width: 0;
+}
+
+.position-details-grid dt {
+  color: var(--tr-text-2);
+  font-size: 0.75rem;
+}
+
+.position-details-grid dd {
+  color: var(--tr-text);
+  font-size: 0.875rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.position-details-comments {
+  max-height: 200px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+  padding: 0.875rem;
+  border-radius: 10px;
+  background: var(--tr-surface-2);
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
 .optional-fields {
   border-top: 1px solid var(--tr-border);
   padding-top: 0.875rem;
@@ -525,6 +562,66 @@ textarea {
   color: var(--tr-text-2);
 }
 
+.account-pill-name {
+  min-width: 0;
+}
+
+.account-pill-name > .truncate {
+  min-width: 0;
+}
+
+.account-pill .p-tag {
+  flex-shrink: 0;
+}
+
+.portfolio-exchange-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 0.75rem;
+}
+
+.portfolio-exchange-toolbar > :is(.query-feedback, .p-message) {
+  flex-basis: 100%;
+}
+
+.portfolio-exchange-label {
+  flex-shrink: 0;
+}
+
+.portfolio-exchange-toolbar .portfolio-filters {
+  min-width: 0;
+}
+
+.mobile-tab-bar-link {
+  min-width: 0;
+  min-height: 44px;
+}
+
+.mobile-tab-bar-link i {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 28px;
+  border-radius: 10px;
+}
+
+.mobile-tab-bar-link.active i {
+  background: var(--tr-brand-bg);
+}
+
+.mobile-tab-bar-link.active {
+  font-weight: 600;
+}
+
+@media (max-width: 359px) {
+  .mobile-tab-bar-link {
+    font-size: 10px;
+    padding-inline: 2px;
+  }
+}
+
 .portfolio-workspace {
   max-width: 1440px;
 }
@@ -592,10 +689,74 @@ textarea {
 }
 
 .portfolio-chart {
-  height: 240px;
+  height: 180px;
   min-width: 0;
   overflow: hidden;
   position: relative;
+}
+
+.portfolio-chart-message,
+.portfolio-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  text-align: center;
+  color: var(--tr-text-2);
+  padding: 1rem;
+}
+
+.portfolio-chart-message {
+  height: 100%;
+}
+
+.query-feedback {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+  margin-block: 0.75rem;
+}
+
+.query-feedback .p-message {
+  flex: 1 1 240px;
+}
+
+.metric-explanation {
+  color: var(--tr-text-2);
+  font-size: 0.8125rem;
+  line-height: 1.6;
+}
+
+.metric-explanation summary {
+  cursor: pointer;
+  min-height: 44px;
+  align-content: center;
+}
+
+.metric-explanation p {
+  padding-block: 0.5rem;
+}
+
+.portfolio-chart.portfolio-chart-expanded {
+  height: 320px;
+}
+
+.portfolio-primary-action.p-button {
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border-radius: 50%;
+  justify-content: center;
+}
+
+.portfolio-primary-action .p-button-label {
+  display: none;
+}
+
+.portfolio-primary-action .p-button-icon {
+  margin: 0;
 }
 
 .chart-timeframes {
@@ -637,6 +798,10 @@ textarea {
   flex-shrink: 0;
   gap: 0.5rem;
   padding: 4px;
+}
+
+.holdings-column-toggle.p-button {
+  display: none;
 }
 
 .holdings-portrait-cards button {
@@ -768,6 +933,9 @@ body :is(.hover\:bg-gray-50:hover, .hover\:bg-black\/5:hover) {
 }
 
 @media (min-width: 768px) {
+  .holdings-column-toggle.p-button {
+    display: inline-flex;
+  }
   .metric-grid {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
@@ -781,7 +949,19 @@ body :is(.hover\:bg-gray-50:hover, .hover\:bg-black\/5:hover) {
     grid-column: auto;
   }
   .portfolio-chart {
-    height: 300px;
+    height: 220px;
+  }
+  .portfolio-chart.portfolio-chart-expanded {
+    height: 420px;
+  }
+  .portfolio-primary-action.p-button {
+    width: auto;
+    padding-inline: 0.875rem;
+    border-radius: 10px;
+    gap: 0.5rem;
+  }
+  .portfolio-primary-action .p-button-label {
+    display: block;
   }
 }
 

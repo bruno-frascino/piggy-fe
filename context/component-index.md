@@ -19,7 +19,7 @@
 
 ## `AccountsBar`
 
-- File: [src/components/AccountsBar.tsx](../src/components/AccountsBar.tsx) (186 lines)
+- File: [src/components/AccountsBar.tsx](../src/components/AccountsBar.tsx) (188 lines)
 - API hooks used: —
 - Other hooks used: useRef, useState
 - Props:
@@ -82,9 +82,9 @@
 
 ## `ExchangeDefinition`
 
-- File: [src/components/DashboardView.tsx](../src/components/DashboardView.tsx) (765 lines)
+- File: [src/components/DashboardView.tsx](../src/components/DashboardView.tsx) (860 lines)
 - API hooks used: useCloseAccount, useCreateAccount, useDeleteAccount, useReopenAccount, useTradingAccounts, useUpdateAccount
-- Other hooks used: useAccountSelection, useEffect, useExchangeDiscovery, useMemo, usePrivacy, useState, useTheme
+- Other hooks used: useAccountSelection, useEffect, useExchangeDiscovery, useId, useMemo, useNetworkStatus, usePrivacy, useState, useTheme
 
 ## `DeleteAccountDialog`
 
@@ -137,9 +137,9 @@
 
 ## `HoldingsTable`
 
-- File: [src/components/HoldingsTable.tsx](../src/components/HoldingsTable.tsx) (1063 lines)
+- File: [src/components/HoldingsTable.tsx](../src/components/HoldingsTable.tsx) (1157 lines)
 - API hooks used: useClosePosition, useCreatePosition, useDeletePosition, useUpdatePosition
-- Other hooks used: useCallback, useEffect, useHoldingRows, usePrivacy, useQueryClient, useRef, useState, useToast
+- Other hooks used: useCallback, useEffect, useHoldingRows, useId, useNetworkStatus, usePrivacy, useQueryClient, useRef, useState, useToast
 
 ## `ImportReview`
 
@@ -191,6 +191,24 @@
   - `title: string`
   - `subtitle?: string`
   - `action?: ReactNode`
+
+## `PortfolioSkeleton`
+
+- File: [src/components/PortfolioSkeleton.tsx](../src/components/PortfolioSkeleton.tsx) (33 lines)
+- API hooks used: —
+- Other hooks used: —
+
+## `PositionDetailsDialog`
+
+- File: [src/components/PositionDetailsDialog.tsx](../src/components/PositionDetailsDialog.tsx) (222 lines)
+- API hooks used: —
+- Other hooks used: usePrivacy
+
+## `QueryFeedback`
+
+- File: [src/components/QueryFeedback.tsx](../src/components/QueryFeedback.tsx) (60 lines)
+- API hooks used: —
+- Other hooks used: useNetworkStatus
 
 ## `ReportDetailDialog`
 
@@ -246,7 +264,7 @@
 
 ## `TopNav`
 
-- File: [src/components/TopNav.tsx](../src/components/TopNav.tsx) (256 lines)
+- File: [src/components/TopNav.tsx](../src/components/TopNav.tsx) (261 lines)
 - API hooks used: useCurrentUser, useLogout
 - Other hooks used: useEffect, usePathname, usePrivacy, useQueryClient, useRouter, useState, useToast
 

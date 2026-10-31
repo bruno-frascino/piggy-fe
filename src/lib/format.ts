@@ -1,6 +1,12 @@
 // Fixed-width placeholder so masked figures never hint at magnitude.
 export const MASKED_VALUE = '••••••';
 
+export function formatNumber(n: number) {
+  return new Intl.NumberFormat(undefined, {
+    maximumFractionDigits: 12,
+  }).format(n);
+}
+
 export function formatCurrency(
   n: number,
   currency: string = 'USD',

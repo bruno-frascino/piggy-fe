@@ -10,7 +10,7 @@
     },
     "component-index.md": {
       "path": "context/component-index.md",
-      "sha256": "093a3727ed222a6b7dec3b9f6ec7e0e6125d579fe7688e8e5f4080a406435abb"
+      "sha256": "17fc8343b6dc55e26bfe9fe114d659711c64745d704e61f7fb3e30522ce8d3cd"
     },
     "contract-drift.md": {
       "path": "context/contract-drift.md",
@@ -22,11 +22,11 @@
     },
     "module-graph.json": {
       "path": "context/module-graph.json",
-      "sha256": "d3af720ae2bf961a825cf93a2a294cf82dd118926575fc7d542856f9fccf9ad3"
+      "sha256": "cd300019edf5f303edeeb0d71c49ee0c55a42738c2d349017dcb368426bcd142"
     },
     "module-graph.md": {
       "path": "context/module-graph.md",
-      "sha256": "3f451f697f78ed6bada4847ee7a8e8c4d5d9b38a7614e23b329c951a9bbc923a"
+      "sha256": "816136f802dbb97a3771d0f636ea521d339c9180a431a0811280d7e0161ac804"
     },
     "route-map.md": {
       "path": "context/route-map.md",
@@ -34,13 +34,13 @@
     },
     "symbol-index.json": {
       "path": "context/symbol-index.json",
-      "sha256": "5fd6aac58bbb05d42b86d4c7a173df0d8641ae82b8153eed31d1d85bd86529da"
+      "sha256": "89c212c6e8c8e59f3f88112b0d69f768c79eebdd68aab49fb73156a3f896e6d3"
     },
     "unused.json": {
       "path": "context/unused.json",
-      "sha256": "6566271877d1a452cb58c397b98567dbc100519f05795fc30730e23941ad4e80"
+      "sha256": "c21f9ae3b93ba9eceb21a4bac05e0285f79f893e71298aa683c4d5ff27d3ff0f"
     }
   },
-  "generatedAt": "2026-10-31T02:26:11.512Z",
+  "generatedAt": "2026-10-31T04:55:10.442Z",
   "generatorVersion": 1
 }

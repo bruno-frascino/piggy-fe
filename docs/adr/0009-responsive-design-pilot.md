@@ -27,6 +27,20 @@ neutral surfaces and a blue accent. Its approved patterns now extend across the 
 - Use natural page scrolling for holdings, compact metric cards and a shorter, theme-aware chart.
   Retain account-first/exchange-scoped behaviour and privacy masking. Confine horizontal scrolling
   to the holdings table, not the card header, so action focus rings remain visible.
+- Dashboard hierarchy refinement: default the chart plot to 180px on mobile and 220px on desktop,
+  with an explicit Expand/Collapse control (320px/420px) that retains timeframe and data. Tighten
+  dashboard spacing without combining or changing account/exchange selection. Label Add account and
+  Add position at 768px and above; retain accessible 44px icon actions on smaller screens.
+- Holdings at 768px and above defaults to Symbol, Units, Price, Day Change, Position value, Return
+  and Return %. An Advanced columns toggle reveals all remaining metrics, including conditional
+  stop-loss columns and their existing actions. Keep row ordering, totals, privacy masking, per-unit
+  crypto precision and the compact mobile view unchanged. Column visibility is local view state and
+  does not affect calculations or fetched data.
+- Holding symbols open a read-only position details drawer in both layouts. Show purchase facts,
+  performance, stop-loss status and scrollable buy comments without editable controls. Explicit Edit
+  position and Close position actions transition to the existing forms; clicking position value
+  retains its existing direct Close flow. Details resolve the selected parcel from current rows and
+  are hidden when the account/exchange scope changes or the parcel disappears.
 - Share page headers, compact cards, responsive filter grids and locally contained tables across
   History, Statistics, Reports, Screener, Imports and Account Settings. On mobile, History defaults
   to symbol, disposal date and P/L; an explicit All columns toggle retains access to the full table.
@@ -55,6 +69,21 @@ neutral surfaces and a blue accent. Its approved patterns now extend across the 
   destinations in the bottom bar below that breakpoint.
 
 ## Consequences
+
+Navigation refinement retains all six mobile destinations and the separate sticky account switcher.
+Use an inset icon background plus label weight for the active mobile destination, and `aria-current`
+for active desktop links. At very narrow widths, compact label spacing without reducing touch target
+height. Account names truncate within the pill while keeping a full-name title and accessible menu
+label. Exchange filters use a wrapping inline toolbar rather than repeating the account name in a
+separate heading; selection behaviour and destinations remain unchanged.
+
+Dashboard feedback uses layout-matched initial-loading skeletons, scoped retry controls and explicit
+last-loaded-data notices after refresh failures or loss of connectivity. Do not replace cached rows
+with an empty state on a failed refresh. Empty holdings offers Add/Import actions (no import for
+demo accounts); empty chart periods retain timeframe controls. Quote fetch time is labelled
+separately from snapshot dates and exchange trading time. Expandable portfolio-value guidance
+documents the existing realised/unrealised and daily-movement calculation scope; calculations remain
+unchanged.
 
 Both themes require testing. Existing colour utility names resolve through the semantic palette in
 both modes, including warning and destructive states. Dashboard and Statistics share a chart palette

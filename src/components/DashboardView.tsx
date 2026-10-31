@@ -2,8 +2,12 @@
 
 import { exchangeLabel } from '@/lib/crypto';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useId, useMemo, useState } from 'react';
 import { Card } from 'primereact/card';
+import { Message } from 'primereact/message';
+import PortfolioSkeleton from './PortfolioSkeleton';
+import QueryFeedback from './QueryFeedback';
+import { useNetworkStatus } from '@/hooks/useNetworkStatus';
 import type { ExchangeKey, EquityPoint, TradingAccount } from '@/lib/types';
 import {
   useCreateAccount,
@@ -20,7 +24,6 @@ import { InputText } from 'primereact/inputtext';
 import { Checkbox } from 'primereact/checkbox';
 import Dialog from './AppDialog';
 import HoldingsTable from '@/components/HoldingsTable';
-import DemoBadge from '@/components/DemoBadge';
 import AccountActionDialog from '@/components/AccountActionDialog';
 import AccountsBar from '@/components/AccountsBar';
 import EmptyAccountsState from '@/components/EmptyAccountsState';
@@ -80,10 +83,14 @@ function summarize(series: EquityPoint[]) {
 }
 
 export default function DashboardView() {
+  const online = useNetworkStatus();
+  const chartId = useId();
+  const [chartExpanded, setChartExpanded] = useState(false);
   const { resolvedTheme } = useTheme();
   const chartColors = CHART_COLORS[resolvedTheme];
+  const accountsQuery = useTradingAccounts(true);
   const { data: accountList = [], isLoading: isAccountsLoading } =
-    useTradingAccounts(true);
+    accountsQuery;
   const createAccount = useCreateAccount();
   const closeAccount = useCloseAccount();
   const deleteAccount = useDeleteAccount();
@@ -122,6 +129,8 @@ export default function DashboardView() {
     isCreatingSnapshot,
     handleExchangeDetected,
     handleExchangeSelected,
+    portfolioQuery,
+    historyQuery,
   } = useExchangeDiscovery(selectedAccountId);
 
   const numberFormatter = useMemo(() => new Intl.NumberFormat('en-US'), []);
@@ -282,11 +291,11 @@ export default function DashboardView() {
   // Replace (or append) today's point with the live equity so the chart's
   // rightmost value always matches the stat cards.
   const liveChartSeries = useMemo(() => {
-    if (!liveTotals) return chartSeries;
+    if (!liveTotals || !selected) return chartSeries;
     const today = toLocalDateString(new Date());
     const withoutToday = chartSeries.filter(p => p.date !== today);
     return [...withoutToday, { date: today, equity: liveTotals.totalEquity }];
-  }, [chartSeries, liveTotals]);
+  }, [chartSeries, liveTotals, selected]);
 
   const filteredChartSeries = useMemo(() => {
     if (timeframe === 'ALL') return liveChartSeries;
@@ -368,28 +377,28 @@ export default function DashboardView() {
     [valuesHidden, mask, numberFormatter, chartColors]
   );
 
-  if (isAccountsLoading) {
+  if (isAccountsLoading && online) {
+    return <PortfolioSkeleton />;
+  }
+
+  if (accountsQuery.data === undefined && (accountsQuery.isError || !online)) {
     return (
-      <div className='min-h-screen bg-[--tr-bg] flex items-center justify-center'>
-        <div className='flex flex-col items-center gap-3 text-slate-400'>
-          <i className='pi pi-spin pi-spinner text-4xl text-blue-400' />
-          <span className='text-sm font-medium'>Loading portfolio…</span>
-        </div>
+      <div className='app-page'>
+        <QueryFeedback
+          label='Accounts'
+          isError={accountsQuery.isError}
+          isFetching={accountsQuery.isFetching}
+          hasData={false}
+          onRetry={() => void accountsQuery.refetch()}
+        />
       </div>
     );
   }
 
   const hasAnyAccount = accountList.length > 0;
 
-  if (hasAnyAccount && !seededFromPortfolio && isPortfolioLoading) {
-    return (
-      <div className='min-h-screen bg-[--tr-bg] flex items-center justify-center'>
-        <div className='flex flex-col items-center gap-3 text-slate-400'>
-          <i className='pi pi-spin pi-spinner text-4xl text-blue-400' />
-          <span className='text-sm font-medium'>Loading portfolio…</span>
-        </div>
-      </div>
-    );
+  if (online && hasAnyAccount && !seededFromPortfolio && isPortfolioLoading) {
+    return <PortfolioSkeleton />;
   }
 
   return (
@@ -571,8 +580,15 @@ export default function DashboardView() {
       </Dialog>
 
       {hasAnyAccount ? (
-        <div className='px-4 sm:px-5 py-5 sm:py-7'>
-          <div className='portfolio-workspace mx-auto space-y-4 sm:space-y-5'>
+        <div className='px-4 sm:px-5 py-4 sm:py-5'>
+          <div className='portfolio-workspace mx-auto space-y-4'>
+            <QueryFeedback
+              label='Accounts'
+              isError={accountsQuery.isError}
+              isFetching={accountsQuery.isFetching}
+              hasData={accountsQuery.data !== undefined}
+              onRetry={() => void accountsQuery.refetch()}
+            />
             <header>
               <h1 className='portfolio-heading'>Your portfolio</h1>
               <p className='text-sm' style={{ color: 'var(--tr-text-2)' }}>
@@ -581,20 +597,27 @@ export default function DashboardView() {
             </header>
             {selectedAccountId ? (
               <>
-                <section aria-label='Exchange filters'>
-                  <div className='flex items-start justify-between mb-2'>
+                <section
+                  aria-label='Exchange filters'
+                  className='portfolio-exchange-toolbar'
+                >
+                  <QueryFeedback
+                    label='Exchanges'
+                    showOffline={false}
+                    isError={portfolioQuery.isError}
+                    isFetching={portfolioQuery.isFetching}
+                    hasData={portfolioQuery.data !== undefined}
+                    onRetry={() => void portfolioQuery.refetch()}
+                  />
+                  <div className='portfolio-exchange-label'>
                     <h3
                       className='text-sm font-medium'
                       style={{ color: 'var(--tr-text)' }}
                     >
-                      Exchanges{' '}
-                      {selectedAccount ? `· ${selectedAccount.name}` : ''}
-                      {selectedAccount?.isDemo && (
-                        <DemoBadge className='ml-2' />
-                      )}
+                      Exchange
                     </h3>
                   </div>
-                  {exchangeList.length === 0 && (
+                  {exchangeList.length === 0 && !portfolioQuery.isError && (
                     <div className='py-2'>
                       <p className='text-slate-500 text-sm max-w-xs'>
                         No exchanges yet for this account. Create your first
@@ -679,21 +702,68 @@ export default function DashboardView() {
                     </p>
                   </Card>
                 </div>
+                <details className='metric-explanation'>
+                  <summary>
+                    About portfolio values
+                    {exchange?.baseCurrency
+                      ? ` (${exchange.baseCurrency})`
+                      : ''}
+                  </summary>
+                  <p>
+                    Values cover the selected account and exchange. Total Equity
+                    includes current holdings value plus realised P/L; Total P/L
+                    combines open-position returns and realised P/L. Day P/L
+                    uses the available daily quote changes for open positions,
+                    not cash deposits or withdrawals. Missing quotes use stored
+                    prices and daily movement may be incomplete.
+                  </p>
+                </details>
 
                 <Card>
+                  <QueryFeedback
+                    label='Equity history'
+                    showOffline={false}
+                    isError={historyQuery.isError}
+                    isFetching={historyQuery.isFetching}
+                    hasData={historyQuery.data !== undefined}
+                    onRetry={() => void historyQuery.refetch()}
+                  />
                   <div className='flex flex-wrap gap-2 items-center justify-between mb-3'>
                     <h3 className='text-base font-semibold text-gray-800'>
                       Equity History
                     </h3>
-                    <span className='text-xs text-gray-500'>
-                      Last snapshot:{' '}
-                      {isCreatingSnapshot
-                        ? 'Updating...'
-                        : lastSnapshotDate
-                          ? formatDateDDMMYYYY(lastSnapshotDate)
-                          : 'No snapshot yet'}
-                    </span>
+                    <div className='flex flex-wrap items-center gap-2'>
+                      <span className='text-xs text-gray-500'>
+                        Last snapshot:{' '}
+                        {isCreatingSnapshot
+                          ? 'Updating...'
+                          : lastSnapshotDate
+                            ? formatDateDDMMYYYY(lastSnapshotDate)
+                            : 'No snapshot yet'}
+                      </span>
+                      <Button
+                        type='button'
+                        text
+                        size='small'
+                        icon={
+                          chartExpanded
+                            ? 'pi pi-window-minimize'
+                            : 'pi pi-window-maximize'
+                        }
+                        label={chartExpanded ? 'Collapse' : 'Expand'}
+                        aria-label={
+                          chartExpanded ? 'Collapse chart' : 'Expand chart'
+                        }
+                        aria-expanded={chartExpanded}
+                        aria-controls={chartId}
+                        onClick={() => setChartExpanded(value => !value)}
+                      />
+                    </div>
                   </div>
+                  <p className='text-xs text-gray-500 mb-3'>
+                    Daily snapshots with the latest holdings value shown for
+                    today; quote updates are separate from snapshots.
+                  </p>
                   <div
                     className='chart-timeframes mb-3'
                     role='group'
@@ -722,9 +792,34 @@ export default function DashboardView() {
                       </button>
                     ))}
                   </div>
-                  <div className='portfolio-chart'>
-                    <Line data={data} options={options} />
+                  <div
+                    id={chartId}
+                    className={`portfolio-chart${chartExpanded ? ' portfolio-chart-expanded' : ''}`}
+                  >
+                    {!online && historyQuery.data === undefined ? (
+                      <div className='portfolio-chart-message'>
+                        Equity history is unavailable offline.
+                      </div>
+                    ) : historyQuery.isLoading ? (
+                      <div role='status' className='portfolio-chart-message'>
+                        Loading equity history…
+                      </div>
+                    ) : filteredChartSeries.length > 0 ? (
+                      <Line data={data} options={options} />
+                    ) : (
+                      <div className='portfolio-chart-message'>
+                        {historyQuery.isError
+                          ? 'Equity history is unavailable.'
+                          : 'No equity points for this period. Try a wider timeframe, or add your first position below.'}
+                      </div>
+                    )}
                   </div>
+                  {historyQuery.isError && (
+                    <Message
+                      severity='warn'
+                      text='Historical equity may be incomplete until snapshots can be loaded.'
+                    />
+                  )}
                 </Card>
 
                 {/* Holdings */}

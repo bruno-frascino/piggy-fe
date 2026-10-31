@@ -210,6 +210,7 @@
         "src/components/AddHoldingsDialog.tsx",
         "src/components/ClosePositionDialog.tsx",
         "src/components/ImportUploadDialog.tsx",
+        "src/components/PositionDetailsDialog.tsx",
         "src/components/GenerateReportDialog.tsx",
         "src/components/ReportDetailDialog.tsx",
         "src/components/AddToWatchlistDialog.tsx",
@@ -1037,6 +1038,7 @@
         "src/components/DashboardView.tsx",
         "src/components/HoldingsTable.tsx",
         "src/components/ClosePositionDialog.tsx",
+        "src/components/PositionDetailsDialog.tsx",
         "src/components/ReportsView.tsx",
         "src/components/ReportDetailDialog.tsx",
         "src/components/StatisticsView.tsx",
@@ -1054,10 +1056,12 @@
         "src/app/history/page.test.tsx",
         "src/app/history/page.tsx",
         "src/components/HoldingsTable.tsx",
+        "src/components/PositionDetailsDialog.tsx",
         "src/components/StatisticsView.tsx",
         "src/components/DashboardView.test.tsx",
         "src/components/EditClosedTradeDialog.test.tsx",
         "src/components/HoldingsTable.test.tsx",
+        "src/components/PositionDetailsDialog.test.tsx",
         "src/components/ReportsView.test.tsx",
         "src/components/StatisticsView.test.tsx",
         "src/lib/crypto.test.ts",
@@ -1313,6 +1317,7 @@
         "src/components/ImportsList.tsx",
         "src/components/DashboardView.tsx",
         "src/components/ClosePositionDialog.tsx",
+        "src/components/PositionDetailsDialog.tsx",
         "src/components/ReportsView.tsx",
         "src/components/ReportDetailDialog.tsx",
         "src/components/StatisticsView.tsx",
@@ -1774,6 +1779,7 @@
         "src/components/HoldingsTable.tsx",
         "src/components/AddHoldingsDialog.tsx",
         "src/components/ClosePositionDialog.tsx",
+        "src/components/PositionDetailsDialog.tsx",
         "src/hooks/useHoldingRows.ts",
         "src/hooks/useExchangeDiscovery.ts",
         "src/lib/crypto.test.ts"
@@ -2349,7 +2355,8 @@
     {
       "dependencies": [],
       "dependents": [
-        "src/components/TopNavGate.tsx"
+        "src/components/TopNavGate.tsx",
+        "src/components/MobileTabBar.test.tsx"
       ],
       "orphan": false,
       "source": "src/components/MobileTabBar.tsx",
@@ -2534,6 +2541,40 @@
           "coreModule": false,
           "couldNotResolve": false,
           "dependencyTypes": [
+            "local",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "./PortfolioSkeleton",
+          "moduleSystem": "es6",
+          "resolved": "src/components/PortfolioSkeleton.tsx",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "local",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "./QueryFeedback",
+          "moduleSystem": "es6",
+          "resolved": "src/components/QueryFeedback.tsx",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
             "undetermined",
             "import"
           ],
@@ -2561,23 +2602,6 @@
           "module": "@/components/AccountsBar",
           "moduleSystem": "es6",
           "resolved": "src/components/AccountsBar.tsx",
-          "valid": true
-        },
-        {
-          "circular": false,
-          "coreModule": false,
-          "couldNotResolve": false,
-          "dependencyTypes": [
-            "undetermined",
-            "import"
-          ],
-          "dynamic": false,
-          "exoticallyRequired": false,
-          "followable": true,
-          "matchesDoNotFollow": false,
-          "module": "@/components/DemoBadge",
-          "moduleSystem": "es6",
-          "resolved": "src/components/DemoBadge.tsx",
           "valid": true
         },
         {
@@ -2677,6 +2701,23 @@
           "exoticallyRequired": false,
           "followable": true,
           "matchesDoNotFollow": false,
+          "module": "@/hooks/useNetworkStatus",
+          "moduleSystem": "es6",
+          "resolved": "src/hooks/useNetworkStatus.ts",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
           "module": "@/lib/crypto",
           "moduleSystem": "es6",
           "resolved": "src/lib/crypto.ts",
@@ -2760,6 +2801,55 @@
       "valid": true
     },
     {
+      "dependencies": [],
+      "dependents": [
+        "src/components/DashboardView.tsx"
+      ],
+      "orphan": false,
+      "source": "src/components/PortfolioSkeleton.tsx",
+      "valid": true
+    },
+    {
+      "dependencies": [
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/hooks/useNetworkStatus",
+          "moduleSystem": "es6",
+          "resolved": "src/hooks/useNetworkStatus.ts",
+          "valid": true
+        }
+      ],
+      "dependents": [
+        "src/components/DashboardView.tsx",
+        "src/components/HoldingsTable.tsx",
+        "src/components/QueryFeedback.test.tsx"
+      ],
+      "orphan": false,
+      "source": "src/components/QueryFeedback.tsx",
+      "valid": true
+    },
+    {
+      "dependencies": [],
+      "dependents": [
+        "src/components/DashboardView.tsx",
+        "src/components/QueryFeedback.tsx",
+        "src/components/HoldingsTable.tsx"
+      ],
+      "orphan": false,
+      "source": "src/hooks/useNetworkStatus.ts",
+      "valid": true
+    },
+    {
       "dependencies": [
         {
           "circular": false,
@@ -2835,7 +2925,6 @@
     {
       "dependencies": [],
       "dependents": [
-        "src/components/DashboardView.tsx",
         "src/components/AccountsBar.tsx"
       ],
       "orphan": false,
@@ -2854,6 +2943,23 @@
     },
     {
       "dependencies": [
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "local",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "./QueryFeedback",
+          "moduleSystem": "es6",
+          "resolved": "src/components/QueryFeedback.tsx",
+          "valid": true
+        },
         {
           "circular": false,
           "coreModule": false,
@@ -2917,6 +3023,23 @@
           "exoticallyRequired": false,
           "followable": true,
           "matchesDoNotFollow": false,
+          "module": "@/components/PositionDetailsDialog",
+          "moduleSystem": "es6",
+          "resolved": "src/components/PositionDetailsDialog.tsx",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
           "module": "@/hooks/api",
           "moduleSystem": "es6",
           "resolved": "src/hooks/api.ts",
@@ -2937,6 +3060,23 @@
           "module": "@/hooks/useHoldingRows",
           "moduleSystem": "es6",
           "resolved": "src/hooks/useHoldingRows.ts",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/hooks/useNetworkStatus",
+          "moduleSystem": "es6",
+          "resolved": "src/hooks/useNetworkStatus.ts",
           "valid": true
         },
         {
@@ -3387,6 +3527,102 @@
       ],
       "orphan": false,
       "source": "src/components/ImportUploadDialog.tsx",
+      "valid": true
+    },
+    {
+      "dependencies": [
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "local",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "./AppDialog",
+          "moduleSystem": "es6",
+          "resolved": "src/components/AppDialog.tsx",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/lib/crypto",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/crypto.ts",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/lib/date",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/date.ts",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/lib/format",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/format.ts",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/lib/privacy-context",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/privacy-context.tsx",
+          "valid": true
+        }
+      ],
+      "dependents": [
+        "src/components/HoldingsTable.tsx",
+        "src/components/PositionDetailsDialog.test.tsx"
+      ],
+      "orphan": false,
+      "source": "src/components/PositionDetailsDialog.tsx",
       "valid": true
     },
     {
@@ -4893,6 +5129,31 @@
           "exoticallyRequired": false,
           "followable": true,
           "matchesDoNotFollow": false,
+          "module": "./MobileTabBar",
+          "moduleSystem": "es6",
+          "resolved": "src/components/MobileTabBar.tsx",
+          "valid": true
+        }
+      ],
+      "dependents": [],
+      "orphan": false,
+      "source": "src/components/MobileTabBar.test.tsx",
+      "valid": true
+    },
+    {
+      "dependencies": [
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "local",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
           "module": "./CoreHeader",
           "moduleSystem": "es6",
           "resolved": "src/components/CoreHeader.tsx",
@@ -4919,6 +5180,73 @@
       "dependents": [],
       "orphan": false,
       "source": "src/components/PageHeader.test.tsx",
+      "valid": true
+    },
+    {
+      "dependencies": [
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "local",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "./PositionDetailsDialog",
+          "moduleSystem": "es6",
+          "resolved": "src/components/PositionDetailsDialog.tsx",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/lib/format",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/format.ts",
+          "valid": true
+        }
+      ],
+      "dependents": [],
+      "orphan": false,
+      "source": "src/components/PositionDetailsDialog.test.tsx",
+      "valid": true
+    },
+    {
+      "dependencies": [
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "local",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "./QueryFeedback",
+          "moduleSystem": "es6",
+          "resolved": "src/components/QueryFeedback.tsx",
+          "valid": true
+        }
+      ],
+      "dependents": [],
+      "orphan": false,
+      "source": "src/components/QueryFeedback.test.tsx",
       "valid": true
     },
     {
@@ -5857,8 +6185,8 @@
         }
       ]
     },
-    "totalCruised": 142,
-    "totalDependenciesCruised": 254,
+    "totalCruised": 149,
+    "totalDependenciesCruised": 269,
     "violations": [],
     "warn": 0
   }

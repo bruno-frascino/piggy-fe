@@ -166,12 +166,14 @@ export default function TopNav() {
         <div className='hidden lg:flex items-center gap-1 text-sm'>
           <Link
             href='/'
+            aria-current={isActive('/') ? 'page' : undefined}
             className={`nav-link px-3 py-2 rounded-lg transition-colors ${isActive('/') ? 'active font-semibold' : ''}`}
           >
             Dashboard
           </Link>
           <Link
             href='/history'
+            aria-current={isActive('/history') ? 'page' : undefined}
             className={`nav-link px-3 py-2 rounded-lg transition-colors ${isActive('/history') ? 'active font-semibold' : ''}`}
           >
             History
@@ -187,18 +189,21 @@ export default function TopNav() {
           </Link>
           <Link
             href='/reports'
+            aria-current={isActive('/reports') ? 'page' : undefined}
             className={`nav-link px-3 py-2 rounded-lg transition-colors ${isActive('/reports') ? 'active font-semibold' : ''}`}
           >
             Reports
           </Link>
           <Link
             href='/screener'
+            aria-current={isActive('/screener') ? 'page' : undefined}
             className={`nav-link px-3 py-2 rounded-lg transition-colors ${isActive('/screener') ? 'active font-semibold' : ''}`}
           >
             Screener
           </Link>
           <Link
             href='/statistics'
+            aria-current={isActive('/statistics') ? 'page' : undefined}
             className={`nav-link px-3 py-2 rounded-lg transition-colors ${isActive('/statistics') ? 'active font-semibold' : ''}`}
           >
             Statistics

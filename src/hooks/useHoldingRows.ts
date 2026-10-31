@@ -71,19 +71,14 @@ export function useHoldingRows({
   const MS_PER_DAY = 24 * 60 * 60 * 1000;
   const now = Date.now();
 
-  const { data: remoteHoldings } = useHoldings(
-    selectedExchange,
-    selectedAccountId
-  );
-  const { data: totalRealizedPnL = 0 } = useRealizedPnL(
-    selectedAccountId,
-    selectedExchange
-  );
+  const holdingsQuery = useHoldings(selectedExchange, selectedAccountId);
+  const { data: remoteHoldings } = holdingsQuery;
+  const realizedQuery = useRealizedPnL(selectedAccountId, selectedExchange);
+  const { data: totalRealizedPnL = 0 } = realizedQuery;
   const [holdings, setHoldings] = useState<LocalHolding[]>([]);
   useEffect(() => {
+    setHoldings(remoteHoldings ?? []);
     if (remoteHoldings) {
-      setHoldings(remoteHoldings);
-
       if (onExchangeDetected) {
         const seen = new Set<string>();
         for (const holding of remoteHoldings) {
@@ -94,14 +89,15 @@ export function useHoldingRows({
         }
       }
     }
-  }, [remoteHoldings, onExchangeDetected]);
+  }, [remoteHoldings, onExchangeDetected, selectedAccountId, selectedExchange]);
 
   // Live quotes for all symbols in current holdings
   const symbols = useMemo(
     () => [...new Set(holdings.map(h => h.symbol))],
     [holdings]
   );
-  const { data: quotesData } = useQuotes(symbols);
+  const quotesQuery = useQuotes(symbols);
+  const { data: quotesData } = quotesQuery;
   const quoteMap = useMemo(() => {
     if (!quotesData) return new Map<string, QuoteResult>();
     const expectedCurrency = exchangeCurrency(selectedExchange);
@@ -375,5 +371,8 @@ export function useHoldingRows({
     handleResetMaxDrawdown,
     handleResetMaxRunUp,
     handleRecalculateDrawdown,
+    holdingsQuery,
+    realizedQuery,
+    quotesQuery,
   };
 }

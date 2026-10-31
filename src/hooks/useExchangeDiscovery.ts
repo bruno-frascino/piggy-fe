@@ -23,14 +23,16 @@ export function useExchangeDiscovery(selectedAccountId: string) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
+  const portfolioQuery = useUserPortfolio(selectedAccountId);
   const {
     data: remotePortfolio,
     isLoading: isPortfolioLoading,
     isFetched: isPortfolioFetched,
-  } = useUserPortfolio(selectedAccountId);
+  } = portfolioQuery;
   const [selected, setSelected] = useState<ExchangeKey>('');
+  const historyQuery = usePortfolioHistory(selectedAccountId, selected);
   const { data: portfolioHistory = [], isFetched: isHistoryFetched } =
-    usePortfolioHistory(selectedAccountId, selected);
+    historyQuery;
   const createSnapshot = useCreatePortfolioSnapshot();
 
   const [exchangeList, setExchangeList] = useState<ExchangePortfolio[]>([]);
@@ -192,6 +194,8 @@ export function useExchangeDiscovery(selectedAccountId: string) {
     portfolioHistory,
     isHistoryFetched,
     isCreatingSnapshot: createSnapshot.isPending,
+    portfolioQuery,
+    historyQuery,
     handleExchangeDetected,
     handleExchangeSelected,
   };

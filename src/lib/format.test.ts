@@ -1,5 +1,18 @@
 import { describe, expect, it } from 'vitest';
-import { formatCurrency, formatPct, returnClass, MASKED_VALUE } from './format';
+import {
+  formatCurrency,
+  formatNumber,
+  formatPct,
+  returnClass,
+  MASKED_VALUE,
+} from './format';
+
+describe('formatNumber', () => {
+  it('retains tiny crypto quantities and groups long quantities', () => {
+    expect(formatNumber(0.00000000001)).toBe('0.00000000001');
+    expect(formatNumber(1234567890.123456)).toBe('1,234,567,890.123456');
+  });
+});
 
 describe('MASKED_VALUE', () => {
   it('is a fixed placeholder independent of any real figure', () => {
