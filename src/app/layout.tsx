@@ -2,14 +2,15 @@ import type { Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 import './globals.css';
 import { Providers } from './providers';
+import { themeBootstrap } from '@/lib/theme';
 
 // PrimeReact theme imports
-import 'primereact/resources/themes/lara-light-blue/theme.css';
 import 'primereact/resources/primereact.min.css';
 import 'primeicons/primeicons.css';
 
 // Custom styles for component fixes
 import '../styles/password-fix.css';
+import '../styles/design-system.css';
 import TopNavGate from '@/components/TopNavGate';
 
 const geistSans = Geist({
@@ -47,7 +48,18 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang='en' style={{ colorScheme: 'light' }}>
+    <html lang='en' suppressHydrationWarning>
+      <head>
+        <link rel='stylesheet' href='/themes/light.css' />
+        <link
+          id='truffles-dark-theme'
+          rel='stylesheet'
+          href='/themes/dark.css'
+          media='not all'
+          suppressHydrationWarning
+        />
+        <script dangerouslySetInnerHTML={{ __html: themeBootstrap }} />
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >

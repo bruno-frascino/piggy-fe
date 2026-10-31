@@ -66,6 +66,23 @@ beforeEach(() => {
 });
 
 describe('AddToWatchlistDialog', () => {
+  it('keeps watchlist creation outside the scrolling selection list', () => {
+    render(<AddToWatchlistDialog visible stock={stock} onHide={vi.fn()} />);
+    expect(screen.getByRole('dialog')).toHaveClass('task-dialog');
+    expect(
+      screen
+        .getByLabelText('Create a new watchlist')
+        .closest('.p-dialog-footer')
+    ).not.toBeNull();
+    expect(
+      screen
+        .getByRole('button', { name: 'Create & add' })
+        .closest('.p-dialog-footer')
+    ).not.toBeNull();
+    expect(
+      screen.getByRole('button', { name: 'Tech' }).closest('.p-dialog-content')
+    ).not.toBeNull();
+  });
   it('adds the stock to an existing watchlist', async () => {
     addItemMutateAsyncMock.mockResolvedValue({ id: 'item1' });
     render(<AddToWatchlistDialog visible stock={stock} onHide={vi.fn()} />);

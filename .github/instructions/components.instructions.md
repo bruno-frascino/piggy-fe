@@ -7,8 +7,11 @@ applyTo: 'src/components/**'
 - Functional components + hooks only, no class components. Complex effect/memo logic that isn't
   purely presentational belongs in a `use*` hook under `src/hooks/`, not inline in the component
   (see `useHoldingRows.ts`, `useAccountSelection.ts` for the extraction pattern).
-- UI library: PrimeReact v10 + PrimeFlex v4 + Primeicons v7 (theme `lara-light-blue`) + Tailwind CSS
-  v4. Light-mode-only design tokens (`--tr-*` in `globals.css`) — no dark mode.
+- UI library: PrimeReact v10 + PrimeFlex v4 + Primeicons v7 + Tailwind CSS v4. `ThemeProvider`
+  switches Lara light/dark palettes alongside the semantic `--tr-*` tokens. Use tokens rather than
+  hardcoded colours and verify both modes (ADR 0009). Long position forms use `AppDialog` with
+  `task` and a `footer` outside scrolling content; optional sections must retain their values when
+  collapsed.
 - Local state: React `useState` for feature state; no Zustand/Redux. React Context is allowed only
   for cross-cutting UI concerns (e.g. toast notifications via `useToast()`).
 - Components call the backend only through hooks in `src/hooks/api.ts` — never import

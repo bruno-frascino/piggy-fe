@@ -13,7 +13,7 @@ const TABS = [
 ] as const;
 
 /**
- * Bottom-fixed primary navigation shown only below the `md` breakpoint —
+ * Bottom-fixed primary navigation shown below the desktop breakpoint —
  * thumb-reachable navigation is a standard mobile/PWA UX pattern. Mirrors the
  * same routes as the desktop TopNav; hidden on /auth/* by the same gate
  * (TopNavGate) that hides TopNav.
@@ -24,7 +24,7 @@ export default function MobileTabBar() {
     href === '/' ? pathname === '/' : pathname?.startsWith(href);
 
   return (
-    <nav className='mobile-tab-bar md:hidden' aria-label='Primary'>
+    <nav className='mobile-tab-bar lg:hidden' aria-label='Primary'>
       {TABS.map(tab => (
         <Link
           key={tab.href}

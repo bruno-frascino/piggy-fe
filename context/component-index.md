@@ -4,7 +4,7 @@
 
 ## `AccountActionDialog`
 
-- File: [src/components/AccountActionDialog.tsx](../src/components/AccountActionDialog.tsx) (113 lines)
+- File: [src/components/AccountActionDialog.tsx](../src/components/AccountActionDialog.tsx) (114 lines)
 - API hooks used: —
 - Other hooks used: —
 - Props:
@@ -19,7 +19,7 @@
 
 ## `AccountsBar`
 
-- File: [src/components/AccountsBar.tsx](../src/components/AccountsBar.tsx) (187 lines)
+- File: [src/components/AccountsBar.tsx](../src/components/AccountsBar.tsx) (186 lines)
 - API hooks used: —
 - Other hooks used: useRef, useState
 - Props:
@@ -37,13 +37,13 @@
 
 ## `LocalHolding`
 
-- File: [src/components/AddHoldingsDialog.tsx](../src/components/AddHoldingsDialog.tsx) (735 lines)
+- File: [src/components/AddHoldingsDialog.tsx](../src/components/AddHoldingsDialog.tsx) (789 lines)
 - API hooks used: useExchanges
 - Other hooks used: useAccountNameSuggestions, useEffect, useState, useSymbolSearch
 
 ## `AddToWatchlistDialog`
 
-- File: [src/components/AddToWatchlistDialog.tsx](../src/components/AddToWatchlistDialog.tsx) (125 lines)
+- File: [src/components/AddToWatchlistDialog.tsx](../src/components/AddToWatchlistDialog.tsx) (144 lines)
 - API hooks used: useAddWatchlistItem, useCreateWatchlist, useWatchlists
 - Other hooks used: useState, useToast
 - Props:
@@ -53,13 +53,13 @@
 
 ## `focusFirstField`
 
-- File: [src/components/AppDialog.tsx](../src/components/AppDialog.tsx) (59 lines)
+- File: [src/components/AppDialog.tsx](../src/components/AppDialog.tsx) (136 lines)
 - API hooks used: —
-- Other hooks used: useRef
+- Other hooks used: useEffect, useRef
 
 ## `ClosePositionPayload`
 
-- File: [src/components/ClosePositionDialog.tsx](../src/components/ClosePositionDialog.tsx) (358 lines)
+- File: [src/components/ClosePositionDialog.tsx](../src/components/ClosePositionDialog.tsx) (361 lines)
 - API hooks used: —
 - Other hooks used: useEffect, useMemo, usePrivacy, useState
 
@@ -82,13 +82,13 @@
 
 ## `ExchangeDefinition`
 
-- File: [src/components/DashboardView.tsx](../src/components/DashboardView.tsx) (752 lines)
+- File: [src/components/DashboardView.tsx](../src/components/DashboardView.tsx) (765 lines)
 - API hooks used: useCloseAccount, useCreateAccount, useDeleteAccount, useReopenAccount, useTradingAccounts, useUpdateAccount
-- Other hooks used: useAccountSelection, useEffect, useExchangeDiscovery, useMemo, usePrivacy, useState
+- Other hooks used: useAccountSelection, useEffect, useExchangeDiscovery, useMemo, usePrivacy, useState, useTheme
 
 ## `DeleteAccountDialog`
 
-- File: [src/components/DeleteAccountDialog.tsx](../src/components/DeleteAccountDialog.tsx) (150 lines)
+- File: [src/components/DeleteAccountDialog.tsx](../src/components/DeleteAccountDialog.tsx) (151 lines)
 - API hooks used: —
 - Other hooks used: useState
 - Props:
@@ -107,7 +107,7 @@
 
 ## `EditClosedTradeDialog`
 
-- File: [src/components/EditClosedTradeDialog.tsx](../src/components/EditClosedTradeDialog.tsx) (394 lines)
+- File: [src/components/EditClosedTradeDialog.tsx](../src/components/EditClosedTradeDialog.tsx) (440 lines)
 - API hooks used: —
 - Other hooks used: useEffect, useMemo, usePrivacy, useState
 - Props:
@@ -127,7 +127,7 @@
 
 ## `GenerateReportDialog`
 
-- File: [src/components/GenerateReportDialog.tsx](../src/components/GenerateReportDialog.tsx) (175 lines)
+- File: [src/components/GenerateReportDialog.tsx](../src/components/GenerateReportDialog.tsx) (181 lines)
 - API hooks used: useGenerateTaxReport, useTradingAccounts
 - Other hooks used: useEffect, useState, useToast
 - Props:
@@ -137,19 +137,19 @@
 
 ## `HoldingsTable`
 
-- File: [src/components/HoldingsTable.tsx](../src/components/HoldingsTable.tsx) (1064 lines)
+- File: [src/components/HoldingsTable.tsx](../src/components/HoldingsTable.tsx) (1063 lines)
 - API hooks used: useClosePosition, useCreatePosition, useDeletePosition, useUpdatePosition
 - Other hooks used: useCallback, useEffect, useHoldingRows, usePrivacy, useQueryClient, useRef, useState, useToast
 
 ## `ImportReview`
 
-- File: [src/components/ImportReview.tsx](../src/components/ImportReview.tsx) (431 lines)
+- File: [src/components/ImportReview.tsx](../src/components/ImportReview.tsx) (440 lines)
 - API hooks used: useCommitImport, useDiscardImport, useImport, useResolveImportEvent
 - Other hooks used: useRouter, useState, useToast
 
 ## `ImportSellAllocation`
 
-- File: [src/components/ImportSellAllocation.tsx](../src/components/ImportSellAllocation.tsx) (206 lines)
+- File: [src/components/ImportSellAllocation.tsx](../src/components/ImportSellAllocation.tsx) (211 lines)
 - API hooks used: —
 - Other hooks used: useState
 - Props:
@@ -161,13 +161,13 @@
 
 ## `ImportsList`
 
-- File: [src/components/ImportsList.tsx](../src/components/ImportsList.tsx) (68 lines)
+- File: [src/components/ImportsList.tsx](../src/components/ImportsList.tsx) (77 lines)
 - API hooks used: useImports, useTradingAccounts
 - Other hooks used: —
 
 ## `ImportUploadDialog`
 
-- File: [src/components/ImportUploadDialog.tsx](../src/components/ImportUploadDialog.tsx) (305 lines)
+- File: [src/components/ImportUploadDialog.tsx](../src/components/ImportUploadDialog.tsx) (308 lines)
 - API hooks used: useCreateImport
 - Other hooks used: useRouter, useState, useToast
 - Props:
@@ -184,7 +184,7 @@
 
 ## `PageHeader`
 
-- File: [src/components/PageHeader.tsx](../src/components/PageHeader.tsx) (36 lines)
+- File: [src/components/PageHeader.tsx](../src/components/PageHeader.tsx) (34 lines)
 - API hooks used: —
 - Other hooks used: —
 - Props:
@@ -194,7 +194,7 @@
 
 ## `ReportDetailDialog`
 
-- File: [src/components/ReportDetailDialog.tsx](../src/components/ReportDetailDialog.tsx) (182 lines)
+- File: [src/components/ReportDetailDialog.tsx](../src/components/ReportDetailDialog.tsx) (202 lines)
 - API hooks used: useTaxReportDetail
 - Other hooks used: usePrivacy
 - Props:
@@ -209,7 +209,7 @@
 
 ## `ScreenerFiltersForm`
 
-- File: [src/components/ScreenerFiltersForm.tsx](../src/components/ScreenerFiltersForm.tsx) (295 lines)
+- File: [src/components/ScreenerFiltersForm.tsx](../src/components/ScreenerFiltersForm.tsx) (299 lines)
 - API hooks used: useCreateSavedScreen, useDeleteSavedScreen, useSavedScreens
 - Other hooks used: useState, useToast
 - Props:
@@ -228,15 +228,21 @@
 
 ## `ScreenerView`
 
-- File: [src/components/ScreenerView.tsx](../src/components/ScreenerView.tsx) (113 lines)
+- File: [src/components/ScreenerView.tsx](../src/components/ScreenerView.tsx) (115 lines)
 - API hooks used: useScreener
 - Other hooks used: useEffect, useState
 
 ## `StatisticsView`
 
-- File: [src/components/StatisticsView.tsx](../src/components/StatisticsView.tsx) (1187 lines)
+- File: [src/components/StatisticsView.tsx](../src/components/StatisticsView.tsx) (1217 lines)
 - API hooks used: useStatisticsBreakdowns, useStatisticsClosedTrades, useStatisticsDistributions, useStatisticsRisk, useStatisticsSummary, useStatisticsTimeSeries, useTradingAccounts
-- Other hooks used: useAccountSelection, useMemo, usePrivacy, useState, useStatisticsExchanges
+- Other hooks used: useAccountSelection, useMemo, usePrivacy, useState, useStatisticsExchanges, useTheme
+
+## `ThemePicker`
+
+- File: [src/components/ThemePicker.tsx](../src/components/ThemePicker.tsx) (30 lines)
+- API hooks used: —
+- Other hooks used: useTheme
 
 ## `TopNav`
 
@@ -252,6 +258,6 @@
 
 ## `WatchlistsPanel`
 
-- File: [src/components/WatchlistsPanel.tsx](../src/components/WatchlistsPanel.tsx) (203 lines)
+- File: [src/components/WatchlistsPanel.tsx](../src/components/WatchlistsPanel.tsx) (205 lines)
 - API hooks used: useCreateWatchlist, useDeleteWatchlist, useRemoveWatchlistItem, useRenameWatchlist, useWatchlistDetail, useWatchlists
 - Other hooks used: useState, useToast

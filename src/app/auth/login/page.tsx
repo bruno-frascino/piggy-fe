@@ -86,14 +86,14 @@ export default function LoginPage() {
   };
 
   return (
-    <div className='min-h-screen flex items-center justify-center bg-[--tr-bg] p-4'>
+    <div className='auth-page'>
       <div className='w-full max-w-md'>
         {/* Logo/Header */}
         <CoreHeader description='Welcome back! Please sign in to your account.' />
 
         {/* Login Card */}
-        <Card className='shadow-lg'>
-          <form onSubmit={handleSubmit} className='space-y-6' noValidate>
+        <Card>
+          <form onSubmit={handleSubmit} className='space-y-4' noValidate>
             {/* Error Message */}
             {error && (
               <Message severity='error' text={error} className='w-full' />
@@ -152,7 +152,7 @@ export default function LoginPage() {
                 Password
               </label>
               <Password
-                id='password'
+                inputId='password'
                 value={password}
                 onChange={e => setPassword(e.target.value)}
                 placeholder='Enter your password'

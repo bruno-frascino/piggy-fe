@@ -228,8 +228,37 @@ export default function AddHoldingsDialog({
     <Dialog
       header={mode === 'edit' ? 'Edit Position' : 'Add Position'}
       visible={visible}
-      style={{ width: '800px', maxWidth: '95vw' }}
-      contentStyle={{ maxHeight: 'calc(85vh - 6rem)', overflowY: 'auto' }}
+      style={{ width: '640px', maxWidth: '95vw' }}
+      task
+      validationErrors={errors}
+      footer={
+        <div className='task-actions'>
+          {mode === 'edit' && onDelete && (
+            <Button
+              className='task-delete'
+              label='Delete'
+              icon='pi pi-trash'
+              severity='danger'
+              text
+              onClick={onDelete}
+              disabled={busy}
+            />
+          )}
+          <Button
+            label='Cancel'
+            severity='secondary'
+            outlined
+            onClick={onHide}
+            disabled={busy}
+          />
+          <Button
+            label={mode === 'edit' ? 'Save' : 'Add Position'}
+            loading={busy}
+            icon={mode === 'edit' ? 'pi pi-check' : 'pi pi-plus'}
+            onClick={handleSubmit}
+          />
+        </div>
+      }
       modal
       blockScroll
       onHide={onHide}
@@ -245,6 +274,7 @@ export default function AddHoldingsDialog({
               Investment type
             </label>
             <SelectButton
+              className='segmented-control'
               aria-labelledby='investment-type-label'
               allowEmpty={false}
               value={crypto ? 'crypto' : 'stocks'}
@@ -283,33 +313,32 @@ export default function AddHoldingsDialog({
         )}
         {/* Row 1: Trading Account */}
         <div className='grid grid-cols-12 gap-3'>
-          <div className='col-span-12 md:col-span-4'>
-            <label className='block text-sm font-medium mb-1'>Account</label>
+          <div className='col-span-12'>
             {lockAccount ? (
-              <InputText
-                value={form.accountName ?? 'Main'}
-                disabled
-                className='w-full'
-              />
+              <p className='task-summary'>
+                Account <strong>{form.accountName ?? 'Main'}</strong>
+              </p>
             ) : (
-              <AutoComplete
-                value={form.accountName ?? 'Main'}
-                suggestions={accountSuggestions}
-                completeMethod={searchAccount}
-                onChange={e =>
-                  setForm(f => ({ ...f, accountName: String(e.value ?? '') }))
-                }
-                dropdown
-                forceSelection={false}
-                placeholder='Main'
-                className='w-full'
-                inputClassName='w-full'
-                appendTo='self'
-              />
+              <>
+                <label className='block text-sm font-medium mb-1'>
+                  Account
+                </label>
+                <AutoComplete
+                  value={form.accountName ?? 'Main'}
+                  suggestions={accountSuggestions}
+                  completeMethod={searchAccount}
+                  onChange={e =>
+                    setForm(f => ({ ...f, accountName: String(e.value ?? '') }))
+                  }
+                  dropdown
+                  forceSelection={false}
+                  placeholder='Main'
+                  className='w-full'
+                  inputClassName='w-full'
+                  appendTo='self'
+                />
+              </>
             )}
-            <p className='text-xs text-gray-500 mt-1'>
-              An account can hold shares and crypto from different exchanges.
-            </p>
           </div>
         </div>
 
@@ -339,6 +368,7 @@ export default function AddHoldingsDialog({
                   Paid with
                 </label>
                 <SelectButton
+                  className='segmented-control'
                   aria-labelledby='crypto-quote-label'
                   allowEmpty={false}
                   value={quote}
@@ -385,12 +415,19 @@ export default function AddHoldingsDialog({
           </div>
         ) : (
           <div className='grid grid-cols-12 gap-3'>
-            <div className='col-span-12 md:col-span-3'>
-              <label className='block text-sm font-medium mb-1'>Symbol *</label>
+            <div className='col-span-12'>
+              <label
+                htmlFor='position-symbol'
+                className='block text-sm font-medium mb-1'
+              >
+                Symbol *
+              </label>
               {mode === 'add' ? (
                 <>
                   {manualSymbol ? (
                     <InputText
+                      id='position-symbol'
+                      aria-invalid={Boolean(errors.symbol)}
                       value={(form.symbol ?? '').toUpperCase()}
                       onChange={e =>
                         setForm(f => ({
@@ -403,6 +440,8 @@ export default function AddHoldingsDialog({
                     />
                   ) : (
                     <AutoComplete
+                      inputId='position-symbol'
+                      invalid={Boolean(errors.symbol)}
                       value={form.symbol ?? ''}
                       suggestions={symbolSuggestions}
                       completeMethod={searchSymbol}
@@ -492,6 +531,8 @@ export default function AddHoldingsDialog({
                 </>
               ) : (
                 <InputText
+                  id='position-symbol'
+                  aria-invalid={Boolean(errors.symbol)}
                   value={(form.symbol ?? '').toUpperCase()}
                   onChange={e =>
                     setForm(f => ({
@@ -507,27 +548,23 @@ export default function AddHoldingsDialog({
                 <p className='text-xs text-red-600 mt-1'>{errors.symbol}</p>
               )}
             </div>
-            <div className='col-span-12 md:col-span-9'>
-              <label className='block text-sm font-medium mb-1'>Name</label>
-              <InputText
-                value={form.name ?? ''}
-                onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
-                placeholder='Company name'
-                className='w-full'
-              />
-              {errors.name && (
-                <p className='text-xs text-red-600 mt-1'>{errors.name}</p>
-              )}
-            </div>
+            {form.name && (
+              <p className='col-span-12 text-sm text-gray-500'>{form.name}</p>
+            )}
           </div>
         )}
         {/* Row 3: Open Date, Units, Industry */}
         <div className='grid grid-cols-12 gap-3'>
-          <div className='col-span-12 md:col-span-4'>
-            <label className='block text-sm font-medium mb-1'>
+          <div className='col-span-12 sm:col-span-6'>
+            <label
+              htmlFor='position-date'
+              className='block text-sm font-medium mb-1'
+            >
               {crypto ? 'Purchase date *' : 'Open Date *'}
             </label>
             <Calendar
+              inputId='position-date'
+              invalid={Boolean(errors.openDate)}
               value={(() => {
                 const parts = (form.openDate ?? '').split('-').map(Number);
                 return parts.length === 3 && parts[0] > 0
@@ -560,7 +597,7 @@ export default function AddHoldingsDialog({
               <p className='text-xs text-red-600 mt-1'>{errors.openDate}</p>
             )}
           </div>
-          <div className='col-span-12 md:col-span-2'>
+          <div className='col-span-12 sm:col-span-6'>
             <label
               htmlFor='position-units'
               className='block text-sm font-medium mb-1'
@@ -574,6 +611,7 @@ export default function AddHoldingsDialog({
               }
               mode='decimal'
               inputId='position-units'
+              invalid={Boolean(errors.units)}
               minFractionDigits={0}
               maxFractionDigits={crypto ? 12 : 6}
               placeholder='e.g. 10.5'
@@ -584,27 +622,11 @@ export default function AddHoldingsDialog({
               <p className='text-xs text-red-600 mt-1'>{errors.units}</p>
             )}
           </div>
-          {!crypto && (
-            <div className='col-span-12 md:col-span-6'>
-              <label className='block text-sm font-medium mb-1'>Industry</label>
-              <InputText
-                value={form.industry ?? ''}
-                onChange={e =>
-                  setForm(f => ({ ...f, industry: e.target.value }))
-                }
-                placeholder='Sector'
-                className='w-full'
-              />
-              {errors.industry && (
-                <p className='text-xs text-red-600 mt-1'>{errors.industry}</p>
-              )}
-            </div>
-          )}
         </div>
 
         {/* Row 4: Buy Price, Buy Fee, Stop Loss */}
         <div className='grid grid-cols-12 gap-3'>
-          <div className='col-span-12 md:col-span-4'>
+          <div className='col-span-12 sm:col-span-6'>
             <label
               htmlFor='position-price'
               className='block text-sm font-medium mb-1'
@@ -613,6 +635,7 @@ export default function AddHoldingsDialog({
             </label>
             <InputNumber
               inputId='position-price'
+              invalid={Boolean(errors.buyPrice)}
               value={form.buyPrice ?? 0}
               onValueChange={e =>
                 setForm(f => ({ ...f, buyPrice: (e.value ?? 0) as number }))
@@ -628,11 +651,15 @@ export default function AddHoldingsDialog({
               <p className='text-xs text-red-600 mt-1'>{errors.buyPrice}</p>
             )}
           </div>
-          <div className='col-span-12 md:col-span-4'>
-            <label className='block text-sm font-medium mb-1'>
+          <div className='col-span-12 sm:col-span-6'>
+            <label
+              htmlFor='position-fee'
+              className='block text-sm font-medium mb-1'
+            >
               {crypto ? `Purchase fees (${currency})` : 'Buy Fee'}
             </label>
             <InputNumber
+              inputId='position-fee'
               value={form.buyFee ?? 0}
               onValueChange={e =>
                 setForm(f => ({ ...f, buyFee: (e.value ?? 0) as number }))
@@ -648,33 +675,9 @@ export default function AddHoldingsDialog({
               <p className='text-xs text-red-600 mt-1'>{errors.buyFee}</p>
             )}
           </div>
-          <div className='col-span-12 md:col-span-4'>
-            <label className='block text-sm font-medium mb-1'>
-              {crypto ? `Stop Loss (${currency})` : 'Stop Loss'}
-            </label>
-            <InputNumber
-              value={form.stopLoss ?? null}
-              onValueChange={e =>
-                setForm(f => ({
-                  ...f,
-                  stopLoss: typeof e.value === 'number' ? e.value : undefined,
-                }))
-              }
-              mode='decimal'
-              minFractionDigits={0}
-              maxFractionDigits={crypto ? 12 : 3}
-              placeholder='e.g. 150.000'
-              className='w-full'
-              inputClassName='w-full'
-            />
-            {errors.stopLoss && (
-              <p className='text-xs text-red-600 mt-1'>{errors.stopLoss}</p>
-            )}
-          </div>
         </div>
-
         {crypto && (
-          <p className='font-semibold' role='status'>
+          <p className='task-summary' role='status'>
             Total purchase cost:{' '}
             {(
               (form.units ?? 0) * (form.buyPrice ?? 0) +
@@ -686,48 +689,99 @@ export default function AddHoldingsDialog({
             {currency}
           </p>
         )}
-        {/* Row 5: Buy Comments */}
-        <div>
-          <label className='block text-sm font-medium mb-1'>Buy Comments</label>
-          <InputTextarea
-            autoResize
-            value={form.buyComments ?? ''}
-            onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
-              setForm(f => ({ ...f, buyComments: e.target.value }))
-            }
-            rows={3}
-            className='w-full'
-            placeholder='Optional notes for this purchase'
-          />
-        </div>
-
-        <div className='flex items-center justify-between pt-3 border-t border-gray-100 mt-2'>
-          <div>
-            {mode === 'edit' && onDelete && (
-              <Button
-                label='Delete'
-                icon='pi pi-trash'
-                severity='danger'
-                outlined
-                onClick={onDelete}
+        <details className='optional-fields'>
+          <summary>Risk settings and notes (optional)</summary>
+          <div className='space-y-4'>
+            <div>
+              <label
+                htmlFor='position-stop-loss'
+                className='block text-sm font-medium mb-1'
+              >
+                {crypto ? `Stop Loss (${currency})` : 'Stop Loss'}
+              </label>
+              <InputNumber
+                inputId='position-stop-loss'
+                value={form.stopLoss ?? null}
+                onValueChange={e =>
+                  setForm(f => ({
+                    ...f,
+                    stopLoss: typeof e.value === 'number' ? e.value : undefined,
+                  }))
+                }
+                mode='decimal'
+                minFractionDigits={0}
+                maxFractionDigits={crypto ? 12 : 3}
+                placeholder='e.g. 150.000'
+                className='w-full'
+                inputClassName='w-full'
               />
-            )}
+              {errors.stopLoss && (
+                <p className='text-xs text-red-600 mt-1'>{errors.stopLoss}</p>
+              )}
+            </div>
+
+            {/* Row 5: Buy Comments */}
+            <div>
+              <label
+                htmlFor='position-comments'
+                className='block text-sm font-medium mb-1'
+              >
+                Buy Comments
+              </label>
+              <InputTextarea
+                id='position-comments'
+                autoResize
+                style={{ maxHeight: '200px' }}
+                value={form.buyComments ?? ''}
+                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
+                  setForm(f => ({ ...f, buyComments: e.target.value }))
+                }
+                rows={3}
+                className='w-full position-comments'
+                placeholder='Optional notes for this purchase'
+              />
+            </div>
           </div>
-          <div className='flex gap-2'>
-            <Button
-              label='Cancel'
-              severity='secondary'
-              outlined
-              onClick={onHide}
-            />
-            <Button
-              label={mode === 'edit' ? 'Save' : 'Add Position'}
-              loading={busy}
-              icon={mode === 'edit' ? 'pi pi-check' : 'pi pi-plus'}
-              onClick={handleSubmit}
-            />
-          </div>
-        </div>
+        </details>
+        {!crypto && (
+          <details className='optional-fields'>
+            <summary>Asset details (optional)</summary>
+            <div className='grid gap-3 sm:grid-cols-2'>
+              <div>
+                <label
+                  htmlFor='position-name'
+                  className='block text-sm font-medium mb-1'
+                >
+                  Name
+                </label>
+                <InputText
+                  id='position-name'
+                  value={form.name ?? ''}
+                  onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
+                  placeholder='Company name'
+                  className='w-full'
+                />
+              </div>
+              <div>
+                <label
+                  htmlFor='position-industry'
+                  className='block text-sm font-medium mb-1'
+                >
+                  Industry
+                </label>
+                <InputText
+                  id='position-industry'
+                  value={form.industry ?? ''}
+                  onChange={e =>
+                    setForm(f => ({ ...f, industry: e.target.value }))
+                  }
+                  placeholder='Sector'
+                  className='w-full'
+                />
+              </div>
+            </div>
+          </details>
+        )}
       </div>
     </Dialog>
   );

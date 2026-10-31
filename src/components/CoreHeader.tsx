@@ -13,18 +13,18 @@ export default function CoreHeader({
   description,
 }: CoreHeaderProps) {
   return (
-    <div className='text-center mb-8'>
+    <div className='auth-header'>
       <Image
         src='/icons/launchericon-192x192.png'
         alt=''
         aria-hidden
-        width={144}
-        height={144}
-        className='mx-auto mb-2'
+        width={72}
+        height={72}
+        className='mx-auto mb-3'
         priority
       />
       <h1
-        className='text-4xl font-bold mb-2'
+        className='portfolio-heading mb-2'
         style={{ color: 'var(--tr-text)' }}
       >
         {title}

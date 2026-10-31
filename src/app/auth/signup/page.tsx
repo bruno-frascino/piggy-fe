@@ -64,13 +64,13 @@ export default function SignupPage() {
   };
 
   return (
-    <div className='min-h-screen bg-[--tr-bg] flex items-center justify-center p-4'>
+    <div className='auth-page'>
       <div className='w-full max-w-md'>
         {/* Logo/Header */}
         <CoreHeader />
 
         {success ? (
-          <Card className='shadow-lg'>
+          <Card>
             <div className='text-center space-y-6 py-4'>
               <div className='flex justify-center'>
                 <span className='text-6xl'>🎉</span>
@@ -91,8 +91,8 @@ export default function SignupPage() {
             </div>
           </Card>
         ) : (
-          <Card className='shadow-lg'>
-            <form onSubmit={handleSubmit} className='space-y-6' noValidate>
+          <Card>
+            <form onSubmit={handleSubmit} className='space-y-4' noValidate>
               {/* Header */}
               <div className='text-center mb-6'>
                 <h2 className='text-2xl font-bold text-gray-900 mb-2'>
@@ -155,7 +155,7 @@ export default function SignupPage() {
                   Password
                 </label>
                 <Password
-                  id='password'
+                  inputId='password'
                   value={password}
                   onChange={e => setPassword(e.target.value)}
                   placeholder='Create a password'
@@ -181,7 +181,7 @@ export default function SignupPage() {
                   Confirm Password
                 </label>
                 <Password
-                  id='confirmPassword'
+                  inputId='confirmPassword'
                   value={confirmPassword}
                   onChange={e => setConfirmPassword(e.target.value)}
                   placeholder='Confirm your password'
@@ -200,7 +200,7 @@ export default function SignupPage() {
                     ? 'Creating Account...'
                     : 'Create Account'
                 }
-                className='w-full p-3 text-lg'
+                className='w-full'
                 loading={signupMutation.isPending}
                 disabled={signupMutation.isPending || !!success}
               />

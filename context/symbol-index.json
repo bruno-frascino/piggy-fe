@@ -1,12 +1,12 @@
 [
   {
-    "endLine": 357,
+    "endLine": 393,
     "file": "src/app/account/page.tsx",
     "jsdoc": "",
     "kind": "FunctionDeclaration",
     "name": "default",
     "signature": "export default function AccountPage()",
-    "startLine": 34
+    "startLine": 36
   },
   {
     "endLine": 149,
@@ -16,6 +16,15 @@
     "name": "default",
     "signature": "export default function ForgotPasswordPage()",
     "startLine": 12
+  },
+  {
+    "endLine": 5,
+    "file": "src/app/auth/layout.tsx",
+    "jsdoc": "",
+    "kind": "FunctionDeclaration",
+    "name": "default",
+    "signature": "export default function AuthLayout(",
+    "startLine": 3
   },
   {
     "endLine": 215,
@@ -45,13 +54,13 @@
     "startLine": 14
   },
   {
-    "endLine": 701,
+    "endLine": 720,
     "file": "src/app/history/page.tsx",
     "jsdoc": "",
     "kind": "FunctionDeclaration",
     "name": "default",
     "signature": "export default function HistoryPage()",
-    "startLine": 343
+    "startLine": 362
   },
   {
     "endLine": 9,
@@ -72,31 +81,31 @@
     "startLine": 3
   },
   {
-    "endLine": 37,
+    "endLine": 38,
     "file": "src/app/layout.tsx",
     "jsdoc": "",
     "kind": "VariableDeclaration",
     "name": "metadata",
     "signature": "metadata: Metadata =",
-    "startLine": 25
+    "startLine": 26
   },
   {
-    "endLine": 42,
+    "endLine": 43,
     "file": "src/app/layout.tsx",
     "jsdoc": "",
     "kind": "VariableDeclaration",
     "name": "viewport",
     "signature": "viewport =",
-    "startLine": 40
+    "startLine": 41
   },
   {
-    "endLine": 61,
+    "endLine": 73,
     "file": "src/app/layout.tsx",
     "jsdoc": "",
     "kind": "FunctionDeclaration",
     "name": "default",
     "signature": "export default function RootLayout(",
-    "startLine": 44
+    "startLine": 45
   },
   {
     "endLine": 22,
@@ -117,7 +126,7 @@
     "startLine": 1
   },
   {
-    "endLine": 22,
+    "endLine": 23,
     "file": "src/app/offline/page.tsx",
     "jsdoc": "",
     "kind": "FunctionDeclaration",
@@ -135,13 +144,13 @@
     "startLine": 8
   },
   {
-    "endLine": 31,
+    "endLine": 34,
     "file": "src/app/providers.tsx",
     "jsdoc": "",
     "kind": "FunctionDeclaration",
     "name": "Providers",
     "signature": "export function Providers(",
-    "startLine": 9
+    "startLine": 10
   },
   {
     "endLine": 5,
@@ -171,7 +180,7 @@
     "startLine": 8
   },
   {
-    "endLine": 112,
+    "endLine": 113,
     "file": "src/components/AccountActionDialog.tsx",
     "jsdoc": "",
     "kind": "FunctionDeclaration",
@@ -180,7 +189,7 @@
     "startLine": 17
   },
   {
-    "endLine": 186,
+    "endLine": 185,
     "file": "src/components/AccountsBar.tsx",
     "jsdoc": "",
     "kind": "FunctionDeclaration",
@@ -198,7 +207,7 @@
     "startLine": 29
   },
   {
-    "endLine": 734,
+    "endLine": 788,
     "file": "src/components/AddHoldingsDialog.tsx",
     "jsdoc": "",
     "kind": "FunctionDeclaration",
@@ -207,7 +216,7 @@
     "startLine": 42
   },
   {
-    "endLine": 124,
+    "endLine": 143,
     "file": "src/components/AddToWatchlistDialog.tsx",
     "jsdoc": "Lets the user add a screened stock to an existing watchlist or a brand-new one.",
     "kind": "FunctionDeclaration",
@@ -216,40 +225,40 @@
     "startLine": 22
   },
   {
-    "endLine": 36,
+    "endLine": 58,
     "file": "src/components/AppDialog.tsx",
     "jsdoc": "",
     "kind": "FunctionDeclaration",
     "name": "focusFirstField",
     "signature": "export function focusFirstField(root: HTMLElement | null): boolean",
-    "startLine": 24
+    "startLine": 46
   },
   {
-    "endLine": 58,
+    "endLine": 135,
     "file": "src/components/AppDialog.tsx",
     "jsdoc": "Drop-in replacement for PrimeReact's Dialog that focuses the first enabled input field when the dialog opens (PrimeReact otherwise focuses the close icon). Dialogs without any editable field keep PrimeReact's default focus behaviour.",
     "kind": "FunctionDeclaration",
     "name": "default",
     "signature": "export default function AppDialog(",
-    "startLine": 43
+    "startLine": 65
   },
   {
-    "endLine": 25,
+    "endLine": 24,
     "file": "src/components/ClosePositionDialog.tsx",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "ClosePositionPayload",
     "signature": "export interface ClosePositionPayload",
-    "startLine": 18
+    "startLine": 17
   },
   {
-    "endLine": 357,
+    "endLine": 360,
     "file": "src/components/ClosePositionDialog.tsx",
     "jsdoc": "",
     "kind": "FunctionDeclaration",
     "name": "default",
     "signature": "export default function ClosePositionDialog(",
-    "startLine": 27
+    "startLine": 26
   },
   {
     "endLine": 45,
@@ -270,25 +279,25 @@
     "startLine": 10
   },
   {
-    "endLine": 70,
+    "endLine": 72,
     "file": "src/components/DashboardView.tsx",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "ExchangeDefinition",
     "signature": "export interface ExchangeDefinition",
-    "startLine": 64
+    "startLine": 66
   },
   {
-    "endLine": 751,
+    "endLine": 764,
     "file": "src/components/DashboardView.tsx",
     "jsdoc": "",
     "kind": "FunctionDeclaration",
     "name": "default",
     "signature": "export default function DashboardView()",
-    "startLine": 80
+    "startLine": 82
   },
   {
-    "endLine": 149,
+    "endLine": 150,
     "file": "src/components/DeleteAccountDialog.tsx",
     "jsdoc": "",
     "kind": "FunctionDeclaration",
@@ -306,7 +315,7 @@
     "startLine": 1
   },
   {
-    "endLine": 393,
+    "endLine": 439,
     "file": "src/components/EditClosedTradeDialog.tsx",
     "jsdoc": "",
     "kind": "FunctionDeclaration",
@@ -324,7 +333,7 @@
     "startLine": 9
   },
   {
-    "endLine": 174,
+    "endLine": 180,
     "file": "src/components/GenerateReportDialog.tsx",
     "jsdoc": "",
     "kind": "FunctionDeclaration",
@@ -333,7 +342,7 @@
     "startLine": 28
   },
   {
-    "endLine": 1063,
+    "endLine": 1062,
     "file": "src/components/HoldingsTable.tsx",
     "jsdoc": "",
     "kind": "FunctionDeclaration",
@@ -342,16 +351,16 @@
     "startLine": 69
   },
   {
-    "endLine": 430,
+    "endLine": 439,
     "file": "src/components/ImportReview.tsx",
     "jsdoc": "",
     "kind": "FunctionDeclaration",
     "name": "default",
     "signature": "export default function ImportReview(",
-    "startLine": 120
+    "startLine": 122
   },
   {
-    "endLine": 205,
+    "endLine": 210,
     "file": "src/components/ImportSellAllocation.tsx",
     "jsdoc": "",
     "kind": "FunctionDeclaration",
@@ -360,7 +369,7 @@
     "startLine": 31
   },
   {
-    "endLine": 67,
+    "endLine": 76,
     "file": "src/components/ImportsList.tsx",
     "jsdoc": "",
     "kind": "FunctionDeclaration",
@@ -369,7 +378,7 @@
     "startLine": 19
   },
   {
-    "endLine": 304,
+    "endLine": 307,
     "file": "src/components/ImportUploadDialog.tsx",
     "jsdoc": "",
     "kind": "FunctionDeclaration",
@@ -380,14 +389,14 @@
   {
     "endLine": 41,
     "file": "src/components/MobileTabBar.tsx",
-    "jsdoc": "Bottom-fixed primary navigation shown only below the `md` breakpoint — thumb-reachable navigation is a standard mobile/PWA UX pattern. Mirrors the same routes as the desktop TopNav; hidden on /auth/* by the same gate (TopNavGate) that hides TopNav.",
+    "jsdoc": "Bottom-fixed primary navigation shown below the desktop breakpoint — thumb-reachable navigation is a standard mobile/PWA UX pattern. Mirrors the same routes as the desktop TopNav; hidden on /auth/* by the same gate (TopNavGate) that hides TopNav.",
     "kind": "FunctionDeclaration",
     "name": "default",
     "signature": "export default function MobileTabBar()",
     "startLine": 21
   },
   {
-    "endLine": 35,
+    "endLine": 33,
     "file": "src/components/PageHeader.tsx",
     "jsdoc": "Shared page header used across Dashboard/History/Reports for a consistent title + optional subtitle + right-aligned primary action.",
     "kind": "FunctionDeclaration",
@@ -396,13 +405,13 @@
     "startLine": 15
   },
   {
-    "endLine": 151,
+    "endLine": 171,
     "file": "src/components/ReportDetailDialog.tsx",
     "jsdoc": "",
     "kind": "FunctionDeclaration",
     "name": "default",
     "signature": "export default function ReportDetailDialog(",
-    "startLine": 24
+    "startLine": 25
   },
   {
     "endLine": 222,
@@ -414,7 +423,7 @@
     "startLine": 26
   },
   {
-    "endLine": 294,
+    "endLine": 298,
     "file": "src/components/ScreenerFiltersForm.tsx",
     "jsdoc": "Toggles between a plain symbol/name lookup and fundamental-criteria filtering (market cap, dividend, sector, industry) — the two are mutually exclusive on the backend.",
     "kind": "FunctionDeclaration",
@@ -432,7 +441,7 @@
     "startLine": 27
   },
   {
-    "endLine": 112,
+    "endLine": 114,
     "file": "src/components/ScreenerView.tsx",
     "jsdoc": "Top-level Screener page: market-wide stock discovery plus the user's named watchlists, nested under one route/nav entry (mobile-first — avoids a crowded bottom tab bar).",
     "kind": "FunctionDeclaration",
@@ -441,13 +450,22 @@
     "startLine": 41
   },
   {
-    "endLine": 1186,
+    "endLine": 1216,
     "file": "src/components/StatisticsView.tsx",
     "jsdoc": "",
     "kind": "FunctionDeclaration",
     "name": "default",
     "signature": "export default function StatisticsView()",
-    "startLine": 186
+    "startLine": 188
+  },
+  {
+    "endLine": 29,
+    "file": "src/components/ThemePicker.tsx",
+    "jsdoc": "",
+    "kind": "FunctionDeclaration",
+    "name": "default",
+    "signature": "export default function ThemePicker()",
+    "startLine": 5
   },
   {
     "endLine": 255,
@@ -468,7 +486,7 @@
     "startLine": 7
   },
   {
-    "endLine": 202,
+    "endLine": 204,
     "file": "src/components/WatchlistsPanel.tsx",
     "jsdoc": "\"My Watchlists\" tab: create/rename/delete named watchlists and manage their items.",
     "kind": "FunctionDeclaration",
@@ -1906,6 +1924,69 @@
     "name": "clearClientSession",
     "signature": "export async function clearClientSession(queryClient: QueryClient)",
     "startLine": 10
+  },
+  {
+    "endLine": 98,
+    "file": "src/lib/theme-context.tsx",
+    "jsdoc": "",
+    "kind": "FunctionDeclaration",
+    "name": "ThemeProvider",
+    "signature": "export function ThemeProvider(",
+    "startLine": 39
+  },
+  {
+    "endLine": 104,
+    "file": "src/lib/theme-context.tsx",
+    "jsdoc": "",
+    "kind": "FunctionDeclaration",
+    "name": "useTheme",
+    "signature": "export function useTheme()",
+    "startLine": 100
+  },
+  {
+    "endLine": 1,
+    "file": "src/lib/theme.ts",
+    "jsdoc": "",
+    "kind": "TypeAliasDeclaration",
+    "name": "ThemePreference",
+    "signature": "export type ThemePreference = 'light' | 'dark' | 'system';",
+    "startLine": 1
+  },
+  {
+    "endLine": 2,
+    "file": "src/lib/theme.ts",
+    "jsdoc": "",
+    "kind": "VariableDeclaration",
+    "name": "THEME_STORAGE_KEY",
+    "signature": "THEME_STORAGE_KEY = 'truffles-theme'",
+    "startLine": 2
+  },
+  {
+    "endLine": 25,
+    "file": "src/lib/theme.ts",
+    "jsdoc": "",
+    "kind": "VariableDeclaration",
+    "name": "CHART_COLORS",
+    "signature": "CHART_COLORS =",
+    "startLine": 4
+  },
+  {
+    "endLine": 29,
+    "file": "src/lib/theme.ts",
+    "jsdoc": "",
+    "kind": "FunctionDeclaration",
+    "name": "isThemePreference",
+    "signature": "export function isThemePreference(value: unknown): value is ThemePreference",
+    "startLine": 27
+  },
+  {
+    "endLine": 44,
+    "file": "src/lib/theme.ts",
+    "jsdoc": "",
+    "kind": "VariableDeclaration",
+    "name": "themeBootstrap",
+    "signature": "themeBootstrap = `(() =>",
+    "startLine": 32
   },
   {
     "endLine": 26,

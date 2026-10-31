@@ -4,8 +4,9 @@
 
 | Route | Type | Client boundary | Components imported | File |
 | ----- | ---- | ---------------- | -------------------- | ---- |
-| `/account` | page | 'use client' | DeleteAccountDialog | [src/app/account/page.tsx](../src/app/account/page.tsx) |
+| `/account` | page | 'use client' | DeleteAccountDialog, PageHeader, ThemePicker | [src/app/account/page.tsx](../src/app/account/page.tsx) |
 | `/auth/forgot-password` | page | 'use client' | CoreHeader | [src/app/auth/forgot-password/page.tsx](../src/app/auth/forgot-password/page.tsx) |
+| `/auth` | layout | — | — | [src/app/auth/layout.tsx](../src/app/auth/layout.tsx) |
 | `/auth/login` | page | 'use client' | CoreHeader | [src/app/auth/login/page.tsx](../src/app/auth/login/page.tsx) |
 | `/auth/reset-password` | page | 'use client' | CoreHeader | [src/app/auth/reset-password/page.tsx](../src/app/auth/reset-password/page.tsx) |
 | `/auth/signup` | page | 'use client' | CoreHeader | [src/app/auth/signup/page.tsx](../src/app/auth/signup/page.tsx) |

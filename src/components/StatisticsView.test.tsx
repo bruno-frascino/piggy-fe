@@ -23,6 +23,8 @@ const {
   useAccountSelectionMock,
   useStatisticsExchangesMock,
   privacyState,
+  themeState,
+  chartProps,
 } = vi.hoisted(() => ({
   useTradingAccountsMock: vi.fn(),
   useStatisticsSummaryMock: vi.fn(),
@@ -34,12 +36,22 @@ const {
   useAccountSelectionMock: vi.fn(),
   useStatisticsExchangesMock: vi.fn(),
   privacyState: { hidden: false },
+  themeState: { resolvedTheme: 'light' },
+  chartProps: vi.fn(),
 }));
 
 vi.mock('react-chartjs-2', () => ({
-  Line: () => <div data-testid='chart-stub' />,
-  Bar: () => <div data-testid='bar-chart-stub' />,
+  Line: (props: unknown) => {
+    chartProps(props);
+    return <div data-testid='chart-stub' />;
+  },
+  Bar: (props: unknown) => {
+    chartProps(props);
+    return <div data-testid='bar-chart-stub' />;
+  },
 }));
+
+vi.mock('@/lib/theme-context', () => ({ useTheme: () => themeState }));
 
 vi.mock('@/hooks/api', () => ({
   useTradingAccounts: useTradingAccountsMock,
@@ -69,10 +81,47 @@ vi.mock('@/lib/privacy-context', () => ({
 }));
 
 import StatisticsView from './StatisticsView';
+import { CHART_COLORS } from '@/lib/theme';
+
+it('updates chart strokes, grids and labels when the appearance changes', () => {
+  const { rerender } = render(<StatisticsView />);
+  expect(chartProps).toHaveBeenCalledWith(
+    expect.objectContaining({
+      options: expect.objectContaining({
+        scales: expect.objectContaining({
+          x: expect.objectContaining({
+            ticks: expect.objectContaining({ color: CHART_COLORS.light.text }),
+          }),
+        }),
+      }),
+    })
+  );
+  chartProps.mockClear();
+  themeState.resolvedTheme = 'dark';
+  rerender(<StatisticsView />);
+  expect(chartProps).toHaveBeenCalledWith(
+    expect.objectContaining({
+      data: expect.objectContaining({
+        datasets: expect.arrayContaining([
+          expect.objectContaining({ borderColor: CHART_COLORS.dark.line }),
+        ]),
+      }),
+      options: expect.objectContaining({
+        scales: expect.objectContaining({
+          x: expect.objectContaining({
+            grid: { color: CHART_COLORS.dark.grid },
+            ticks: expect.objectContaining({ color: CHART_COLORS.dark.text }),
+          }),
+        }),
+      }),
+    })
+  );
+});
 
 afterEach(() => {
   cleanup();
   privacyState.hidden = false;
+  themeState.resolvedTheme = 'light';
 });
 
 beforeEach(() => {
@@ -401,6 +450,12 @@ describe('StatisticsView', () => {
     });
 
     const dialog = screen.getByRole('dialog');
+    expect(dialog).toHaveClass('task-dialog');
+    expect(
+      screen
+        .getByRole('button', { name: 'Close trade details' })
+        .closest('.p-dialog-footer')
+    ).not.toBeNull();
     expect(
       within(dialog).getByText(formatCurrency(20, 'AUD'))
     ).toBeInTheDocument();

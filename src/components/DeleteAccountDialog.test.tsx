@@ -65,6 +65,12 @@ describe('DeleteAccountDialog', () => {
 
   it('warns that tax records may only exist in the app', () => {
     renderDialog({});
+    expect(screen.getByRole('dialog')).not.toHaveClass('task-dialog');
+    expect(
+      screen
+        .getByRole('button', { name: 'Delete my account' })
+        .closest('.p-dialog-footer')
+    ).not.toBeNull();
 
     expect(screen.getByText(/five years/i)).toBeInTheDocument();
     expect(

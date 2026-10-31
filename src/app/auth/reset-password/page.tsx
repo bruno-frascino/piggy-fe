@@ -62,12 +62,12 @@ function ResetPasswordForm() {
   };
 
   return (
-    <div className='min-h-screen bg-[--tr-bg] flex items-center justify-center p-4'>
+    <div className='auth-page'>
       <div className='w-full max-w-md'>
         <CoreHeader />
 
-        <Card className='shadow-lg'>
-          <form onSubmit={handleSubmit} className='space-y-6' noValidate>
+        <Card>
+          <form onSubmit={handleSubmit} className='space-y-4' noValidate>
             <div className='text-center mb-6'>
               <h2 className='text-2xl font-bold text-gray-900 mb-2'>
                 Set New Password
@@ -92,7 +92,7 @@ function ResetPasswordForm() {
                 New Password
               </label>
               <Password
-                id='password'
+                inputId='password'
                 value={password}
                 onChange={e => setPassword(e.target.value)}
                 placeholder='Enter new password'
@@ -117,7 +117,7 @@ function ResetPasswordForm() {
                 Confirm New Password
               </label>
               <Password
-                id='confirmPassword'
+                inputId='confirmPassword'
                 value={confirmPassword}
                 onChange={e => setConfirmPassword(e.target.value)}
                 placeholder='Confirm new password'

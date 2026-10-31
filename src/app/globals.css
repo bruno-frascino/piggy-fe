@@ -1,65 +1,20 @@
 @import 'tailwindcss';
 
-/* ==========================================================================
-   TRUFFLES — Design Token Palette
-   Inspired by N26 / Coinbase / Trading 212 fintech aesthetic.
-   All colours are explicitly light-mode values. Dark-mode is deliberately
-   NOT implemented — the app uses the lara-light-blue PrimeReact theme which
-   only ships a light variant. `color-scheme: light` below locks the browser
-   to light rendering regardless of the OS preference.
-   ==========================================================================
-
-   Canvas / surfaces
-   ──────────────────────────────────────────────────────────────────────
-   --tr-bg          #F0F4FF   Warm blue-tinted canvas  (all pages)
-   --tr-surface     #FFFFFF   Cards, dialogs, nav bar
-   --tr-surface-2   #F8FAFF   Slightly elevated surface (inner panels)
-   --tr-border      #DDE3F0   Dividers, card outlines
-
-   Typography  (high contrast on every surface above)
-   ──────────────────────────────────────────────────────────────────────
-   --tr-text        #1A2B4B   Deep navy — 12:1 on white, elegant
-   --tr-text-2      #52698A   Blue-grey secondary — 5.9:1 on white
-   --tr-text-3      #9AAAC0   Muted / placeholders
-
-   Brand  (matches PrimeReact lara-light-blue primary ~blue-600)
-   ──────────────────────────────────────────────────────────────────────
-   --tr-brand       #2563EB   Primary actions, links, active nav
-   --tr-brand-h     #1D4ED8   Hover state
-   --tr-brand-bg    #EEF3FF   Subtle brand tint (e.g. table footer)
-
-   Semantic
-   ──────────────────────────────────────────────────────────────────────
-   --tr-success     #0CAF60   Positive P/L, success toasts
-   --tr-danger      #E5343A   Errors, destructive actions
-   --tr-danger-bg   #FDECEC   Soft rose row tint (stop loss triggered)
-   --tr-danger-bg-h #FBDADA   Same, on hover
-  --tr-success-bg  #E9F8F0   Soft green row tint (demo account positions in gain)
-  --tr-success-bg-h #D6F1E3  Same, on hover
-   --tr-demo-bg     #FEF3C7   Demo account badge background
-   --tr-demo-text   #92400E   Demo account badge text
-   ──────────────────────────────────────────────────────────────────────
-*/
+/* Semantic palettes switch alongside the PrimeReact Lara themes. */
 :root {
   --tr-mobile-nav-height: 60px;
-  /*
-   * Lock the browser to light mode.
-   * This prevents macOS/Windows dark-mode from making the canvas black
-   * and inverting system UI elements (scrollbars, form controls, etc.)
-   * while the app hasn't implemented a full dark-mode theme.
-   */
   color-scheme: light;
 
   /* Canvas / surfaces */
-  --tr-bg: #f0f4ff;
+  --tr-bg: #f6f7f9;
   --tr-surface: #ffffff;
-  --tr-surface-2: #f8faff;
-  --tr-border: #dde3f0;
+  --tr-surface-2: #f0f2f6;
+  --tr-border: #e2e6ed;
 
   /* Typography */
-  --tr-text: #1a2b4b;
-  --tr-text-2: #52698a;
-  --tr-text-3: #9aaac0;
+  --tr-text: #172033;
+  --tr-text-2: #586579;
+  --tr-text-3: #68758a;
 
   /* Brand */
   --tr-brand: #2563eb;
@@ -67,8 +22,8 @@
   --tr-brand-bg: #eef3ff;
 
   /* Semantic */
-  --tr-success: #0caf60;
-  --tr-danger: #e5343a;
+  --tr-success: #087c50;
+  --tr-danger: #c82c40;
   --tr-danger-bg: #fdecec;
   --tr-danger-bg-h: #fbdada;
   --tr-success-bg: #e9f8f0;
@@ -79,6 +34,39 @@
   /* Legacy aliases (kept for Tailwind @theme resolution) */
   --background: var(--tr-surface);
   --foreground: var(--tr-text);
+  --tr-chart-fill: rgba(37, 99, 235, 0.1);
+  --tr-on-brand: #ffffff;
+  --tr-warning: #925b0d;
+  --tr-warning-bg: #fff4df;
+  --tr-warning-border: #e8c98a;
+  --tr-muted: var(--tr-surface-2);
+}
+
+html[data-theme='dark'] {
+  color-scheme: dark;
+  --tr-bg: #0e1420;
+  --tr-surface: #161f2e;
+  --tr-surface-2: #1e293b;
+  --tr-border: #334155;
+  --tr-text: #edf2fa;
+  --tr-text-2: #b1bed0;
+  --tr-text-3: #96a6bd;
+  --tr-brand: #80b0ff;
+  --tr-brand-h: #a4c7ff;
+  --tr-brand-bg: #1d3354;
+  --tr-success: #61d5a1;
+  --tr-danger: #ff91a0;
+  --tr-danger-bg: #3a202e;
+  --tr-danger-bg-h: #482737;
+  --tr-success-bg: #17352d;
+  --tr-success-bg-h: #1c4337;
+  --tr-demo-bg: #40321a;
+  --tr-demo-text: #f5d38a;
+  --tr-chart-fill: rgba(128, 176, 255, 0.12);
+  --tr-on-brand: #10203a;
+  --tr-warning: #f5cc80;
+  --tr-warning-bg: #382d1d;
+  --tr-warning-border: #75603d;
 }
 
 /* Slight shake animation for delete/manage mode */
@@ -124,11 +112,11 @@ body {
 
 /* Frozen column — must be opaque and above scrolling columns */
 .holdings-table .p-datatable-thead > tr > th.p-frozen-column {
-  background-color: #ffffff;
+  background-color: var(--tr-surface);
   z-index: 2;
 }
 .holdings-table .p-datatable-tbody > tr > td.p-frozen-column {
-  background-color: #ffffff;
+  background-color: var(--tr-surface);
   z-index: 1;
 }
 /* Match the PrimeReact lara stripedRows even-row tint */
@@ -137,12 +125,12 @@ body {
   .p-datatable-tbody
   > tr:nth-child(even)
   > td.p-frozen-column {
-  background-color: #f8f9fa;
+  background-color: var(--tr-surface-2);
   z-index: 1;
 }
 /* Keep frozen cell opaque on row hover */
 .holdings-table .p-datatable-tbody > tr:hover > td.p-frozen-column {
-  background-color: #eef3ff;
+  background-color: var(--tr-brand-bg);
   z-index: 1;
 }
 /* Footer frozen cell matches footer background */
@@ -236,7 +224,7 @@ body {
 .topnav .user-badge {
   background: var(--tr-brand);
   border: none;
-  color: var(--tr-surface);
+  color: var(--tr-on-brand);
   font-weight: 600;
 }
 .topnav .signout-btn {
@@ -283,13 +271,13 @@ body {
   color: var(--tr-brand);
 }
 
-@media (min-width: 768px) {
+@media (min-width: 1024px) {
   .mobile-tab-bar {
     display: none;
   }
 }
 
-@media (max-width: 767px) {
+@media (max-width: 1023px) {
   body {
     padding-bottom: calc(
       var(--tr-mobile-nav-height) + env(safe-area-inset-bottom, 0px)
@@ -338,7 +326,7 @@ body {
   justify-self: end;
 }
 
-@media (max-width: 767px) {
+@media (max-width: 1023px) {
   .import-review {
     --import-actions-offset: calc(
       var(--tr-mobile-nav-height) + env(safe-area-inset-bottom, 0px)

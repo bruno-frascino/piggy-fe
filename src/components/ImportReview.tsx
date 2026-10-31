@@ -61,26 +61,28 @@ function ReconciliationBanner({ detail }: { detail: ImportDetail }) {
         className='w-full justify-start'
         text='Holdings do not match the ledger. This usually means the export does not cover your full history.'
       />
-      <table className='text-sm mt-2'>
-        <thead>
-          <tr className='text-left'>
-            <th className='pr-4'>Asset</th>
-            <th className='pr-4'>Kraken ledger</th>
-            <th className='pr-4'>Imported</th>
-            <th>Difference</th>
-          </tr>
-        </thead>
-        <tbody>
-          {reconciliation.rows.map(row => (
-            <tr key={row.asset}>
-              <td className='pr-4'>{row.asset}</td>
-              <td className='pr-4'>{row.expected}</td>
-              <td className='pr-4'>{row.simulated}</td>
-              <td>{row.difference}</td>
+      <div className='table-region'>
+        <table className='data-grid text-sm mt-2'>
+          <thead>
+            <tr className='text-left'>
+              <th className='pr-4'>Asset</th>
+              <th className='pr-4'>Kraken ledger</th>
+              <th className='pr-4'>Imported</th>
+              <th>Difference</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {reconciliation.rows.map(row => (
+              <tr key={row.asset}>
+                <td className='pr-4'>{row.asset}</td>
+                <td className='pr-4'>{row.expected}</td>
+                <td className='pr-4'>{row.simulated}</td>
+                <td>{row.difference}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }
@@ -96,7 +98,7 @@ function FmvInput({
 }) {
   const [value, setValue] = useState('');
   return (
-    <div className='flex items-center gap-2 mt-1'>
+    <div className='responsive-actions mt-1'>
       <span role='alert' className='text-sm text-red-600'>
         {issue.message}
       </span>
@@ -191,7 +193,7 @@ export default function ImportReview({ importId }: { importId: string }) {
 
   return (
     <div
-      className={`import-review p-4 md:p-6${!done ? ' import-review--editable' : ''}${blocking > 0 ? ' import-review--blocked' : ''}`}
+      className={`app-page import-review${!done ? ' import-review--editable' : ''}${blocking > 0 ? ' import-review--blocked' : ''}`}
     >
       <PageHeader
         title='Review import'
@@ -299,30 +301,34 @@ export default function ImportReview({ importId }: { importId: string }) {
 
       {plan.newPositions.length > 0 && (
         <Section title='New positions'>
-          <table className='text-sm w-full'>
-            <thead>
-              <tr className='text-left'>
-                <th>Symbol</th>
-                <th>Opened</th>
-                <th>Quantity</th>
-                <th>Entry price</th>
-                <th>Fees</th>
-                <th>Type</th>
-              </tr>
-            </thead>
-            <tbody>
-              {plan.newPositions.map(p => (
-                <tr key={p.ref}>
-                  <td>{p.symbol}</td>
-                  <td>{formatDateDDMMYYYY(p.openDate.slice(0, 10))}</td>
-                  <td>{p.quantity}</td>
-                  <td>{p.entryPrice}</td>
-                  <td>{p.buyFees}</td>
-                  <td>{p.origin === 'STAKING_REWARD' ? 'Staking' : 'Trade'}</td>
+          <div className='table-region'>
+            <table className='data-grid text-sm w-full'>
+              <thead>
+                <tr className='text-left'>
+                  <th>Symbol</th>
+                  <th>Opened</th>
+                  <th>Quantity</th>
+                  <th>Entry price</th>
+                  <th>Fees</th>
+                  <th>Type</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {plan.newPositions.map(p => (
+                  <tr key={p.ref}>
+                    <td>{p.symbol}</td>
+                    <td>{formatDateDDMMYYYY(p.openDate.slice(0, 10))}</td>
+                    <td>{p.quantity}</td>
+                    <td>{p.entryPrice}</td>
+                    <td>{p.buyFees}</td>
+                    <td>
+                      {p.origin === 'STAKING_REWARD' ? 'Staking' : 'Trade'}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </Section>
       )}
 
@@ -343,37 +349,40 @@ export default function ImportReview({ importId }: { importId: string }) {
 
       {plan.staking.length > 0 && (
         <Section title='Staking rewards'>
-          <table className='text-sm w-full'>
-            <thead>
-              <tr className='text-left'>
-                <th>Asset</th>
-                <th>Month</th>
-                <th>Quantity</th>
-                <th>Value (AUD)</th>
-                <th>Result</th>
-              </tr>
-            </thead>
-            <tbody>
-              {plan.staking.map(m => (
-                <tr key={m.key}>
-                  <td>{m.baseAsset}</td>
-                  <td>{m.month.split('-').reverse().join('/')}</td>
-                  <td>{m.quantity}</td>
-                  <td>
-                    {m.status === 'DEFERRED'
-                      ? '—'
-                      : Number(m.fmvAud).toFixed(2)}
-                  </td>
-                  <td>
-                    {m.status === 'APPLY' && 'Added as a position'}
-                    {m.status === 'DUST' && 'Skipped (below A$1)'}
-                    {m.status === 'DEFERRED' && 'Deferred — month not finished'}
-                    {m.status === 'BLOCKED' && 'Needs a value'}
-                  </td>
+          <div className='table-region'>
+            <table className='data-grid text-sm w-full'>
+              <thead>
+                <tr className='text-left'>
+                  <th>Asset</th>
+                  <th>Month</th>
+                  <th>Quantity</th>
+                  <th>Value (AUD)</th>
+                  <th>Result</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {plan.staking.map(m => (
+                  <tr key={m.key}>
+                    <td>{m.baseAsset}</td>
+                    <td>{m.month.split('-').reverse().join('/')}</td>
+                    <td>{m.quantity}</td>
+                    <td>
+                      {m.status === 'DEFERRED'
+                        ? '—'
+                        : Number(m.fmvAud).toFixed(2)}
+                    </td>
+                    <td>
+                      {m.status === 'APPLY' && 'Added as a position'}
+                      {m.status === 'DUST' && 'Skipped (below A$1)'}
+                      {m.status === 'DEFERRED' &&
+                        'Deferred — month not finished'}
+                      {m.status === 'BLOCKED' && 'Needs a value'}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
           {!done &&
             fmvIssues.map(issue => (
               <FmvInput

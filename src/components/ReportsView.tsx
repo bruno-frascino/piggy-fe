@@ -63,8 +63,8 @@ export default function ReportsView() {
   };
 
   return (
-    <div className='min-h-screen bg-[--tr-bg] p-4'>
-      <div className='max-w-6xl xl:max-w-7xl 2xl:max-w-screen-2xl 3xl:max-w-[1800px] mx-auto space-y-6'>
+    <div className='app-page'>
+      <div className='space-y-5'>
         <PageHeader
           title='Tax Reports'
           subtitle='ATO capital gains summaries, generated per financial year and account selection'
@@ -90,7 +90,7 @@ export default function ReportsView() {
 
         {!isLoading && reports.length === 0 && (
           <Card>
-            <div className='flex flex-col items-center justify-center py-10 gap-3 text-center'>
+            <div className='empty-state'>
               <i
                 className='pi pi-file-pdf text-4xl'
                 style={{ color: 'var(--tr-text-3)' }}
@@ -187,7 +187,7 @@ export default function ReportsView() {
                   ` · ${mask(formatAud(report.carriedForwardLossClosingAud))} loss carried forward`}
               </p>
 
-              <div className='flex gap-2'>
+              <div className='responsive-actions'>
                 <Button
                   label='View'
                   icon='pi pi-eye'

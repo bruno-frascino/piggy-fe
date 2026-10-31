@@ -29,13 +29,13 @@ interface Props {
 function ReadOnlyField({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <label className='block text-sm font-medium mb-1'>{label}</label>
+      <p className='text-xs mb-1' style={{ color: 'var(--tr-text-2)' }}>
+        {label}
+      </p>
       <p
-        className='min-h-10 px-3 py-2 rounded border text-sm flex items-center'
+        className='text-sm font-medium'
         style={{
-          borderColor: 'var(--tr-border)',
-          background: 'var(--tr-bg-2, #f8fafc)',
-          color: 'var(--tr-text-2)',
+          color: 'var(--tr-text)',
         }}
       >
         {value || '—'}
@@ -55,6 +55,11 @@ export default function EditClosedTradeDialog({
   const [errors, setErrors] = useState<Record<string, string>>({});
   const { mask } = usePrivacy();
   const crypto = isCryptoExchange(trade.exchange);
+  // Calendar forwards this to InputText, despite declaring HTML-attribute typing.
+  const closeDateInputPt = {
+    'aria-invalid': Boolean(errors.closeDate),
+    root: { 'aria-invalid': Boolean(errors.closeDate) },
+  };
 
   useEffect(() => {
     setForm(trade);
@@ -130,10 +135,37 @@ export default function EditClosedTradeDialog({
     <Dialog
       header={`Edit Closed Position — ${trade.symbol}`}
       visible
+      task
+      className='closed-trade-dialog'
+      validationErrors={errors}
       modal
       blockScroll
-      style={{ width: '900px', maxWidth: '95vw' }}
+      style={{ width: '640px', maxWidth: '95vw' }}
       onHide={onHide}
+      footer={
+        <div className='task-actions'>
+          <Button
+            label='Delete Position'
+            severity='danger'
+            text
+            icon='pi pi-trash'
+            onClick={handleDelete}
+            disabled={!form.positionId}
+            title={
+              form.positionId
+                ? 'Delete this position'
+                : 'Cannot delete: missing position id'
+            }
+          />
+          <Button
+            label='Cancel'
+            severity='secondary'
+            outlined
+            onClick={onHide}
+          />
+          <Button label='Save Changes' icon='pi pi-save' onClick={handleSave} />
+        </div>
+      }
     >
       <div className='space-y-4'>
         {reportUsage.length > 0 && (
@@ -156,14 +188,14 @@ export default function EditClosedTradeDialog({
           />
         )}
 
-        <div className='grid grid-cols-12 gap-3'>
-          <div className='col-span-12 md:col-span-3'>
+        <div className='closed-trade-facts'>
+          <div>
             <ReadOnlyField label='Symbol' value={form.symbol} />
           </div>
-          <div className='col-span-12 md:col-span-6'>
+          <div>
             <ReadOnlyField label='Name' value={form.name ?? ''} />
           </div>
-          <div className='col-span-12 md:col-span-3'>
+          <div>
             <ReadOnlyField
               label='Exchange'
               value={exchangeLabel(form.exchange ?? '')}
@@ -177,8 +209,7 @@ export default function EditClosedTradeDialog({
           from the dashboard.
         </p>
 
-        {/* Summary Metrics */}
-        <div className='grid grid-cols-2 md:grid-cols-4 gap-3 text-center bg-blue-50 rounded-md p-3 text-sm'>
+        <div className='task-summary closed-trade-summary'>
           <div>
             <p className='text-gray-600'>Open Position</p>
             <p className='font-semibold'>
@@ -209,18 +240,24 @@ export default function EditClosedTradeDialog({
           </div>
         </div>
 
-        <div className='grid grid-cols-12 gap-3'>
-          <div className='col-span-12 md:col-span-4'>
+        <div className='closed-trade-fields'>
+          <div>
             <ReadOnlyField
               label='Open Date'
               value={formatDateDDMMYYYY(form.openDate)}
             />
           </div>
-          <div className='col-span-12 md:col-span-4'>
-            <label className='block text-sm font-medium mb-1'>
+          <div>
+            <label
+              htmlFor='closed-date'
+              className='block text-sm font-medium mb-1'
+            >
               Close Date *
             </label>
             <Calendar
+              inputId='closed-date'
+              invalid={!!errors.closeDate}
+              pt={{ input: closeDateInputPt }}
               value={(() => {
                 const parts = (form.closeDate ?? '').split('-').map(Number);
                 return parts.length === 3 && parts[0] > 0
@@ -254,7 +291,7 @@ export default function EditClosedTradeDialog({
               <p className='text-xs text-red-600 mt-1'>{errors.closeDate}</p>
             )}
           </div>
-          <div className='col-span-12 md:col-span-4'>
+          <div>
             <ReadOnlyField
               label='Units Closed'
               value={mask(form.unitsClosed.toFixed(3))}
@@ -262,24 +299,30 @@ export default function EditClosedTradeDialog({
           </div>
         </div>
 
-        <div className='grid grid-cols-12 gap-3'>
-          <div className='col-span-12 md:col-span-3'>
+        <div className='closed-trade-fields'>
+          <div>
             <ReadOnlyField
               label='Buy Price'
               value={formatCurrency(form.buyPrice)}
             />
           </div>
-          <div className='col-span-12 md:col-span-3'>
+          <div>
             <ReadOnlyField
               label='Buy Fee'
               value={mask(formatCurrency(form.buyFee))}
             />
           </div>
-          <div className='col-span-12 md:col-span-3'>
-            <label className='block text-sm font-medium mb-1'>
+          <div>
+            <label
+              htmlFor='closed-sell-price'
+              className='block text-sm font-medium mb-1'
+            >
               Sell Price *
             </label>
             <InputNumber
+              inputId='closed-sell-price'
+              invalid={!!errors.sellPrice}
+              pt={{ input: { root: { 'aria-invalid': !!errors.sellPrice } } }}
               value={form.sellPrice}
               onValueChange={e =>
                 setForm(f => ({ ...f, sellPrice: (e.value ?? 0) as number }))
@@ -293,9 +336,17 @@ export default function EditClosedTradeDialog({
               <p className='text-xs text-red-600 mt-1'>{errors.sellPrice}</p>
             )}
           </div>
-          <div className='col-span-12 md:col-span-3'>
-            <label className='block text-sm font-medium mb-1'>Sell Fee *</label>
+          <div>
+            <label
+              htmlFor='closed-sell-fee'
+              className='block text-sm font-medium mb-1'
+            >
+              Sell Fee *
+            </label>
             <InputNumber
+              inputId='closed-sell-fee'
+              invalid={!!errors.sellFee}
+              pt={{ input: { root: { 'aria-invalid': !!errors.sellFee } } }}
               value={form.sellFee}
               onValueChange={e =>
                 setForm(f => ({ ...f, sellFee: (e.value ?? 0) as number }))
@@ -312,9 +363,15 @@ export default function EditClosedTradeDialog({
         </div>
 
         <div className='grid grid-cols-12 gap-3'>
-          <div className='col-span-12 md:col-span-3'>
-            <label className='block text-sm font-medium mb-1'>Closed By</label>
+          <div className='col-span-12'>
+            <label
+              htmlFor='closed-reason'
+              className='block text-sm font-medium mb-1'
+            >
+              Closed By
+            </label>
             <Dropdown
+              inputId='closed-reason'
               value={form.closeReason ?? null}
               options={CLOSE_REASON_OPTIONS}
               onChange={e =>
@@ -332,60 +389,49 @@ export default function EditClosedTradeDialog({
           </div>
         </div>
 
-        <div className='grid grid-cols-12 gap-3'>
-          <div className='col-span-12 md:col-span-6'>
-            <label className='block text-sm font-medium mb-1'>
-              Buy Comments
-            </label>
-            <InputTextarea
-              autoResize
-              value={form.buyComments ?? ''}
-              onChange={e =>
-                setForm(f => ({ ...f, buyComments: e.target.value }))
-              }
-              rows={3}
-              className='w-full'
-            />
+        <details className='optional-fields'>
+          <summary>Buy and sell notes (optional)</summary>
+          <div className='grid gap-4 pt-3'>
+            <div>
+              <label
+                htmlFor='closed-buy-notes'
+                className='block text-sm font-medium mb-1'
+              >
+                Buy Comments
+              </label>
+              <InputTextarea
+                id='closed-buy-notes'
+                autoResize
+                style={{ maxHeight: '200px' }}
+                value={form.buyComments ?? ''}
+                onChange={e =>
+                  setForm(f => ({ ...f, buyComments: e.target.value }))
+                }
+                rows={3}
+                className='w-full position-comments'
+              />
+            </div>
+            <div>
+              <label
+                htmlFor='closed-sell-notes'
+                className='block text-sm font-medium mb-1'
+              >
+                Sell Comments
+              </label>
+              <InputTextarea
+                id='closed-sell-notes'
+                autoResize
+                style={{ maxHeight: '200px' }}
+                value={form.sellComments ?? ''}
+                onChange={e =>
+                  setForm(f => ({ ...f, sellComments: e.target.value }))
+                }
+                rows={3}
+                className='w-full position-comments'
+              />
+            </div>
           </div>
-          <div className='col-span-12 md:col-span-6'>
-            <label className='block text-sm font-medium mb-1'>
-              Sell Comments
-            </label>
-            <InputTextarea
-              autoResize
-              value={form.sellComments ?? ''}
-              onChange={e =>
-                setForm(f => ({ ...f, sellComments: e.target.value }))
-              }
-              rows={3}
-              className='w-full'
-            />
-          </div>
-        </div>
-
-        <div className='flex justify-between pt-2'>
-          <Button
-            label='Delete Position'
-            severity='danger'
-            icon='pi pi-trash'
-            onClick={handleDelete}
-            disabled={!form.positionId}
-            title={
-              form.positionId
-                ? 'Delete this position'
-                : 'Cannot delete: missing position id'
-            }
-          />
-          <div className='flex gap-2'>
-            <Button label='Cancel' severity='secondary' onClick={onHide} />
-            <Button
-              label='Save Changes'
-              icon='pi pi-save'
-              severity='info'
-              onClick={handleSave}
-            />
-          </div>
-        </div>
+        </details>
       </div>
       <ConfirmDialog />
     </Dialog>

@@ -1,6 +1,7 @@
 'use client';
 
 import Dialog from './AppDialog';
+import { Button } from 'primereact/button';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import { Message } from 'primereact/message';
@@ -31,10 +32,21 @@ export default function ReportDetailDialog({ reportId, onHide }: Props) {
         report ? `${report.financialYearLabel} — Detail` : 'Report Detail'
       }
       visible={!!reportId}
+      task
       modal
       blockScroll
-      style={{ width: '900px', maxWidth: '95vw' }}
+      style={{ width: '720px', maxWidth: '95vw' }}
       onHide={onHide}
+      footer={
+        <div className='task-actions'>
+          <Button
+            label='Close report'
+            severity='secondary'
+            outlined
+            onClick={onHide}
+          />
+        </div>
+      }
     >
       {isLoading && (
         <div
@@ -88,62 +100,70 @@ export default function ReportDetailDialog({ reportId, onHide }: Props) {
             />
           </div>
 
-          <DataTable
-            value={report.lineItems ?? []}
-            size='small'
-            scrollable
-            scrollHeight='320px'
-            stripedRows
-            cellMemo={false}
-          >
-            <Column field='symbol' header='Symbol' />
-            <Column field='accountName' header='Account' />
-            <Column
-              field='acquireDate'
-              header='Acquired'
-              body={(l: TaxReportLineItem) => formatDateDDMMYYYY(l.acquireDate)}
-            />
-            <Column
-              field='disposeDate'
-              header='Disposed'
-              body={(l: TaxReportLineItem) => formatDateDDMMYYYY(l.disposeDate)}
-            />
-            <Column
-              field='quantity'
-              header='Qty'
-              body={(l: TaxReportLineItem) => mask(String(l.quantity))}
-            />
-            <Column
-              header='Proceeds (AUD)'
-              body={(l: TaxReportLineItem) => mask(formatAud(l.proceedsAud))}
-            />
-            <Column
-              header='Cost base (AUD)'
-              body={(l: TaxReportLineItem) => mask(formatAud(l.costBaseAud))}
-            />
-            <Column
-              header='Gain/(Loss)'
-              body={(l: TaxReportLineItem) => (
-                <span
-                  className={
-                    hidden
-                      ? 'text-gray-500'
-                      : l.capitalGainAud >= 0
-                        ? 'text-green-600'
-                        : 'text-red-600'
-                  }
-                >
-                  {mask(formatAud(l.capitalGainAud))}
-                </span>
-              )}
-            />
-            <Column
-              header='Discount'
-              body={(l: TaxReportLineItem) =>
-                l.discountEligible ? 'Yes' : 'No'
-              }
-            />
-          </DataTable>
+          <div className='table-region'>
+            <DataTable
+              value={report.lineItems ?? []}
+              size='small'
+              scrollable
+              paginator
+              rows={10}
+              rowsPerPageOptions={[10, 25, 50]}
+              stripedRows
+              cellMemo={false}
+            >
+              <Column field='symbol' header='Symbol' />
+              <Column field='accountName' header='Account' />
+              <Column
+                field='acquireDate'
+                header='Acquired'
+                body={(l: TaxReportLineItem) =>
+                  formatDateDDMMYYYY(l.acquireDate)
+                }
+              />
+              <Column
+                field='disposeDate'
+                header='Disposed'
+                body={(l: TaxReportLineItem) =>
+                  formatDateDDMMYYYY(l.disposeDate)
+                }
+              />
+              <Column
+                field='quantity'
+                header='Qty'
+                body={(l: TaxReportLineItem) => mask(String(l.quantity))}
+              />
+              <Column
+                header='Proceeds (AUD)'
+                body={(l: TaxReportLineItem) => mask(formatAud(l.proceedsAud))}
+              />
+              <Column
+                header='Cost base (AUD)'
+                body={(l: TaxReportLineItem) => mask(formatAud(l.costBaseAud))}
+              />
+              <Column
+                header='Gain/(Loss)'
+                body={(l: TaxReportLineItem) => (
+                  <span
+                    className={
+                      hidden
+                        ? 'text-gray-500'
+                        : l.capitalGainAud >= 0
+                          ? 'text-green-600'
+                          : 'text-red-600'
+                    }
+                  >
+                    {mask(formatAud(l.capitalGainAud))}
+                  </span>
+                )}
+              />
+              <Column
+                header='Discount'
+                body={(l: TaxReportLineItem) =>
+                  l.discountEligible ? 'Yes' : 'No'
+                }
+              />
+            </DataTable>
+          </div>
         </div>
       )}
     </Dialog>

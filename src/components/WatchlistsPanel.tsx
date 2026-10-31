@@ -112,12 +112,12 @@ export default function WatchlistsPanel() {
 
   return (
     <div className='flex flex-col gap-3'>
-      <div className='flex items-center gap-2'>
+      <div className='responsive-actions'>
         <InputText
           value={newName}
           onChange={e => setNewName(e.target.value)}
           placeholder='New watchlist name'
-          className='flex-1'
+          className='flex-1 min-w-0'
         />
         <Button
           label='Create'
@@ -184,15 +184,17 @@ export default function WatchlistsPanel() {
 
       <Dialog
         header='Rename watchlist'
+        modal
+        blockScroll
         visible={Boolean(renaming)}
         onHide={() => setRenaming(null)}
         style={{ width: '24rem', maxWidth: '95vw' }}
       >
-        <div className='flex items-center gap-2'>
+        <div className='responsive-actions'>
           <InputText
             value={renameValue}
             onChange={e => setRenameValue(e.target.value)}
-            className='flex-1'
+            className='flex-1 min-w-0'
           />
           <Button label='Save' onClick={handleRename} />
         </div>

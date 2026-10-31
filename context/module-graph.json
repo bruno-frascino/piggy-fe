@@ -7,6 +7,65 @@
           "coreModule": false,
           "couldNotResolve": false,
           "dependencyTypes": [
+            "local",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "./page",
+          "moduleSystem": "es6",
+          "resolved": "src/app/account/page.tsx",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/lib/theme",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/theme.ts",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/lib/theme-context",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/theme-context.tsx",
+          "valid": true
+        }
+      ],
+      "dependents": [],
+      "orphan": false,
+      "source": "src/app/account/page.test.tsx",
+      "valid": true
+    },
+    {
+      "dependencies": [
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
             "undetermined",
             "import"
           ],
@@ -17,6 +76,40 @@
           "module": "@/components/DeleteAccountDialog",
           "moduleSystem": "es6",
           "resolved": "src/components/DeleteAccountDialog.tsx",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/components/PageHeader",
+          "moduleSystem": "es6",
+          "resolved": "src/components/PageHeader.tsx",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/components/ThemePicker",
+          "moduleSystem": "es6",
+          "resolved": "src/components/ThemePicker.tsx",
           "valid": true
         },
         {
@@ -71,7 +164,9 @@
           "valid": true
         }
       ],
-      "dependents": [],
+      "dependents": [
+        "src/app/account/page.test.tsx"
+      ],
       "orphan": false,
       "source": "src/app/account/page.tsx",
       "valid": true
@@ -125,6 +220,97 @@
       ],
       "orphan": false,
       "source": "src/components/AppDialog.tsx",
+      "valid": true
+    },
+    {
+      "dependencies": [],
+      "dependents": [
+        "src/app/account/page.tsx",
+        "src/app/history/page.tsx",
+        "src/components/ImportReview.tsx",
+        "src/components/ImportsList.tsx",
+        "src/components/ReportsView.tsx",
+        "src/components/ScreenerView.tsx",
+        "src/components/StatisticsView.tsx",
+        "src/components/PageHeader.test.tsx"
+      ],
+      "orphan": false,
+      "source": "src/components/PageHeader.tsx",
+      "valid": true
+    },
+    {
+      "dependencies": [
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/lib/theme-context",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/theme-context.tsx",
+          "valid": true
+        }
+      ],
+      "dependents": [
+        "src/app/account/page.tsx",
+        "src/lib/theme-context.test.tsx"
+      ],
+      "orphan": false,
+      "source": "src/components/ThemePicker.tsx",
+      "valid": true
+    },
+    {
+      "dependencies": [
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "local",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "./theme",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/theme.ts",
+          "valid": true
+        }
+      ],
+      "dependents": [
+        "src/app/account/page.test.tsx",
+        "src/components/ThemePicker.tsx",
+        "src/app/providers.tsx",
+        "src/components/DashboardView.tsx",
+        "src/components/StatisticsView.tsx",
+        "src/lib/theme-context.test.tsx"
+      ],
+      "orphan": false,
+      "source": "src/lib/theme-context.tsx",
+      "valid": true
+    },
+    {
+      "dependencies": [],
+      "dependents": [
+        "src/app/account/page.test.tsx",
+        "src/lib/theme-context.tsx",
+        "src/app/layout.tsx",
+        "src/components/DashboardView.tsx",
+        "src/components/StatisticsView.tsx",
+        "src/components/StatisticsView.test.tsx",
+        "src/lib/theme-context.test.tsx"
+      ],
+      "orphan": false,
+      "source": "src/lib/theme.ts",
       "valid": true
     },
     {
@@ -989,10 +1175,45 @@
         "src/app/auth/forgot-password/page.tsx",
         "src/app/auth/login/page.tsx",
         "src/app/auth/reset-password/page.tsx",
-        "src/app/auth/signup/page.tsx"
+        "src/app/auth/signup/page.tsx",
+        "src/components/PageHeader.test.tsx"
       ],
       "orphan": false,
       "source": "src/components/CoreHeader.tsx",
+      "valid": true
+    },
+    {
+      "dependencies": [
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "local",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "./layout",
+          "moduleSystem": "es6",
+          "resolved": "src/app/auth/layout.tsx",
+          "valid": true
+        }
+      ],
+      "dependents": [],
+      "orphan": false,
+      "source": "src/app/auth/layout.test.tsx",
+      "valid": true
+    },
+    {
+      "dependencies": [],
+      "dependents": [
+        "src/app/auth/layout.test.tsx"
+      ],
+      "orphan": false,
+      "source": "src/app/auth/layout.tsx",
       "valid": true
     },
     {
@@ -1566,20 +1787,6 @@
       "dependents": [
         "src/app/history/page.tsx",
         "src/components/ImportReview.tsx",
-        "src/components/ImportsList.tsx",
-        "src/components/ReportsView.tsx",
-        "src/components/ScreenerView.tsx",
-        "src/components/StatisticsView.tsx"
-      ],
-      "orphan": false,
-      "source": "src/components/PageHeader.tsx",
-      "valid": true
-    },
-    {
-      "dependencies": [],
-      "dependents": [
-        "src/app/history/page.tsx",
-        "src/components/ImportReview.tsx",
         "src/app/providers.tsx",
         "src/components/TopNav.tsx",
         "src/components/HoldingsTable.tsx",
@@ -1887,6 +2094,23 @@
           "exoticallyRequired": false,
           "followable": false,
           "matchesDoNotFollow": false,
+          "module": "../styles/design-system.css",
+          "moduleSystem": "es6",
+          "resolved": "src/styles/design-system.css",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "local",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": false,
+          "matchesDoNotFollow": false,
           "module": "../styles/password-fix.css",
           "moduleSystem": "es6",
           "resolved": "src/styles/password-fix.css",
@@ -1942,11 +2166,45 @@
           "moduleSystem": "es6",
           "resolved": "src/components/TopNavGate.tsx",
           "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/lib/theme",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/theme.ts",
+          "valid": true
         }
       ],
       "dependents": [],
       "orphan": false,
       "source": "src/app/layout.tsx",
+      "valid": true
+    },
+    {
+      "coreModule": false,
+      "couldNotResolve": false,
+      "dependencies": [],
+      "dependencyTypes": [
+        "local",
+        "import"
+      ],
+      "dependents": [
+        "src/app/layout.tsx"
+      ],
+      "followable": false,
+      "matchesDoNotFollow": false,
+      "orphan": false,
+      "source": "src/styles/design-system.css",
       "valid": true
     },
     {
@@ -2000,6 +2258,23 @@
           "module": "@/lib/privacy-context",
           "moduleSystem": "es6",
           "resolved": "src/lib/privacy-context.tsx",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/lib/theme-context",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/theme-context.tsx",
           "valid": true
         },
         {
@@ -2439,6 +2714,40 @@
           "module": "@/lib/privacy-context",
           "moduleSystem": "es6",
           "resolved": "src/lib/privacy-context.tsx",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/lib/theme",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/theme.ts",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/lib/theme-context",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/theme-context.tsx",
           "valid": true
         }
       ],
@@ -3997,6 +4306,40 @@
           "moduleSystem": "es6",
           "resolved": "src/lib/privacy-context.tsx",
           "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/lib/theme",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/theme.ts",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/lib/theme-context",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/theme-context.tsx",
+          "valid": true
         }
       ],
       "dependents": [
@@ -4550,6 +4893,48 @@
           "exoticallyRequired": false,
           "followable": true,
           "matchesDoNotFollow": false,
+          "module": "./CoreHeader",
+          "moduleSystem": "es6",
+          "resolved": "src/components/CoreHeader.tsx",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "local",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "./PageHeader",
+          "moduleSystem": "es6",
+          "resolved": "src/components/PageHeader.tsx",
+          "valid": true
+        }
+      ],
+      "dependents": [],
+      "orphan": false,
+      "source": "src/components/PageHeader.test.tsx",
+      "valid": true
+    },
+    {
+      "dependencies": [
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "local",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
           "module": "./ReportDetailDialog",
           "moduleSystem": "es6",
           "resolved": "src/components/ReportDetailDialog.tsx",
@@ -4712,6 +5097,23 @@
           "module": "@/lib/format",
           "moduleSystem": "es6",
           "resolved": "src/lib/format.ts",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/lib/theme",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/theme.ts",
           "valid": true
         }
       ],
@@ -5312,6 +5714,65 @@
       "valid": true
     },
     {
+      "dependencies": [
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "local",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "./theme",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/theme.ts",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "local",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "./theme-context",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/theme-context.tsx",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/components/ThemePicker",
+          "moduleSystem": "es6",
+          "resolved": "src/components/ThemePicker.tsx",
+          "valid": true
+        }
+      ],
+      "dependents": [],
+      "orphan": false,
+      "source": "src/lib/theme-context.test.tsx",
+      "valid": true
+    },
+    {
       "dependencies": [],
       "dependents": [],
       "orphan": true,
@@ -5396,8 +5857,8 @@
         }
       ]
     },
-    "totalCruised": 133,
-    "totalDependenciesCruised": 233,
+    "totalCruised": 142,
+    "totalDependenciesCruised": 254,
     "violations": [],
     "warn": 0
   }

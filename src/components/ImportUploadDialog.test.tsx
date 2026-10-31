@@ -62,6 +62,8 @@ describe('ImportUploadDialog', () => {
     setup();
     const upload = screen.getByRole('button', { name: /Upload and review/i });
     expect(upload).toBeDisabled();
+    expect(screen.getByRole('dialog')).toHaveClass('task-dialog');
+    expect(upload.closest('.p-dialog-footer')).not.toBeNull();
 
     fireEvent.change(screen.getByLabelText('Trades CSV'), {
       target: { files: [csv('trades.csv', 'a')] },

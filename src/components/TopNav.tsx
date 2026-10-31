@@ -157,13 +157,13 @@ export default function TopNav() {
             className='h-11 w-11 sm:h-16 sm:w-16'
             priority
           />
-          <span className='font-bold text-slate-800 text-xl tracking-tight hidden sm:inline'>
+          <span className='font-bold text-slate-800 text-xl tracking-tight hidden lg:inline'>
             Truffles
           </span>
         </Link>
 
         {/* Center: Nav links */}
-        <div className='hidden md:flex items-center gap-1 text-sm md:text-base'>
+        <div className='hidden lg:flex items-center gap-1 text-sm'>
           <Link
             href='/'
             className={`nav-link px-3 py-2 rounded-lg transition-colors ${isActive('/') ? 'active font-semibold' : ''}`}
@@ -241,12 +241,12 @@ export default function TopNav() {
           </Link>
           <button
             onClick={handleSignOut}
-            className='signout-btn flex items-center justify-center gap-1 text-sm h-9 w-9 md:w-auto md:px-2 py-1 rounded-lg transition-colors'
+            className='signout-btn flex items-center justify-center gap-1 text-sm h-9 w-9 xl:w-auto xl:px-2 py-1 rounded-lg transition-colors'
             title='Sign out'
             aria-label='Sign out'
           >
             <i className='pi pi-sign-out text-base' aria-hidden />
-            <span className='hidden md:inline'>Sign out</span>
+            <span className='hidden xl:inline'>Sign out</span>
           </button>
         </div>
       </div>

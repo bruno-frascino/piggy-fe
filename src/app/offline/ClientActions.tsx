@@ -6,14 +6,14 @@ export default function OfflineActions() {
   return (
     <div className='flex items-center justify-center gap-3'>
       <button
-        className='px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700'
+        className='p-button p-component'
         onClick={() => window.location.reload()}
       >
         Retry
       </button>
       <Link
         href='/'
-        className='px-4 py-2 rounded-md border border-gray-300 text-gray-700 hover:bg-gray-50'
+        className='p-button p-component p-button-secondary p-button-outlined'
       >
         Go Home
       </Link>

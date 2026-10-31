@@ -19,6 +19,44 @@ afterEach(() => {
 });
 
 describe('ClosePositionDialog', () => {
+  it('shows compact reference information and keeps actions outside the scrolling form', () => {
+    render(
+      <ClosePositionDialog
+        visible
+        initial={{
+          symbol: 'AAPL',
+          name: 'Apple Inc.',
+          industry: '',
+          openDate: '2026-07-01',
+          units: 10,
+          buyPrice: 100,
+          buyFee: 0,
+        }}
+        onHide={vi.fn()}
+        onSubmit={vi.fn()}
+      />
+    );
+    expect(
+      screen
+        .getByRole('region', { name: 'Position summary' })
+        .querySelector('input')
+    ).toBeNull();
+    expect(
+      screen
+        .getByRole('button', { name: 'Close Position' })
+        .closest('.p-dialog-footer')
+    ).not.toBeNull();
+    expect(
+      screen.getByText('Sell comments (optional)').closest('details')
+    ).not.toHaveAttribute('open');
+    expect(screen.getByLabelText('Sell Comments')).toHaveClass(
+      'position-comments'
+    );
+    expect(screen.getByLabelText('Sell Comments')).toHaveStyle({
+      maxHeight: '200px',
+    });
+  });
+
   it('preserves tiny crypto quantities and sub-cent exit prices', () => {
     const onSubmit = vi.fn();
     render(
@@ -75,7 +113,7 @@ describe('ClosePositionDialog', () => {
     );
 
     expect(screen.getByText('Close Position — AAPL')).toBeInTheDocument();
-    expect(screen.getByDisplayValue('01/07/2026')).toBeInTheDocument();
+    expect(screen.getByText('01/07/2026')).toBeInTheDocument();
     expect(screen.getByPlaceholderText('DD/MM/YYYY')).toBeInTheDocument();
     expect(screen.queryByPlaceholderText('YYYY-MM-DD')).not.toBeInTheDocument();
   });
@@ -198,8 +236,7 @@ describe('ClosePositionDialog', () => {
       />
     );
     expect(screen.getByText('Stop Loss')).toBeInTheDocument();
-    const field = screen.getByDisplayValue('92.5');
-    expect(field).toHaveAttribute('readonly');
+    expect(screen.getByText('92.5').tagName).toBe('DD');
 
     rerender(
       <ClosePositionDialog
@@ -209,6 +246,6 @@ describe('ClosePositionDialog', () => {
         onSubmit={vi.fn()}
       />
     );
-    expect(screen.getByDisplayValue('—')).toBeInTheDocument();
+    expect(screen.getByText('—').tagName).toBe('DD');
   });
 });

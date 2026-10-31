@@ -74,7 +74,7 @@ export default function ScreenerResultsList({
       </div>
 
       {/* Desktop: table */}
-      <div className='hidden md:block'>
+      <div className='table-region hidden md:block'>
         <DataTable value={results} stripedRows size='small'>
           <Column field='symbol' header='Symbol' />
           <Column field='name' header='Name' />

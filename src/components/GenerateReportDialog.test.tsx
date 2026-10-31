@@ -100,5 +100,13 @@ describe('GenerateReportDialog', () => {
     expect(
       screen.getByText(/not professional tax advice/i)
     ).toBeInTheDocument();
+    expect(screen.getByRole('dialog')).toHaveClass('task-dialog');
+    expect(
+      screen
+        .getByRole('button', { name: 'Generate' })
+        .closest('.p-dialog-footer')
+    ).not.toBeNull();
+    expect(screen.getByLabelText('Financial year')).toBeInTheDocument();
+    expect(screen.getByLabelText('Accounts to include')).toBeInTheDocument();
   });
 });

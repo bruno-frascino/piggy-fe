@@ -69,11 +69,11 @@ export default function AccountsBar({
     : [];
 
   return (
-    <div className='sticky top-16 z-30 bg-white border-b border-gray-200 shadow-sm'>
+    <div className='accounts-bar sticky top-16 z-30'>
       <div className='max-w-6xl xl:max-w-7xl 2xl:max-w-screen-2xl 3xl:max-w-[1800px] mx-auto px-4 sm:px-5 py-2 flex items-center gap-2'>
         <div className='flex items-center flex-1 min-w-0'>
           {selectedAccount ? (
-            <div className='inline-flex items-center rounded-full border bg-blue-600 text-white border-blue-600 transition select-none shrink-0 max-w-full'>
+            <div className='account-pill inline-flex items-center border transition select-none shrink-0 max-w-full'>
               <span className='min-h-11 pl-4 pr-2 flex items-center font-medium truncate'>
                 {selectedAccount.name}
                 {selectedAccount.isDemo && <DemoBadge className='ml-2' />}
@@ -112,7 +112,6 @@ export default function AccountsBar({
           type='button'
           icon='pi pi-plus'
           rounded
-          severity='success'
           aria-label='Add Account'
           className='!w-11 !h-11 shrink-0'
           onClick={onAddAccount}

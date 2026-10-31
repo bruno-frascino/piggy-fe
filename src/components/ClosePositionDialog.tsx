@@ -2,7 +2,6 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import Dialog from './AppDialog';
-import { InputText } from 'primereact/inputtext';
 import { Calendar } from 'primereact/calendar';
 import { InputNumber } from 'primereact/inputnumber';
 import { InputTextarea } from 'primereact/inputtextarea';
@@ -126,40 +125,64 @@ export default function ClosePositionDialog({
     <Dialog
       header={`Close Position — ${initial.symbol}`}
       visible={visible}
-      style={{ width: '720px', maxWidth: '95vw' }}
-      contentStyle={{ maxHeight: 'calc(85vh - 6rem)', overflowY: 'auto' }}
+      style={{ width: '600px', maxWidth: '95vw' }}
+      task
+      validationErrors={errors}
+      footer={
+        <div className='task-actions'>
+          <Button
+            label='Cancel'
+            severity='secondary'
+            outlined
+            onClick={onHide}
+          />
+          <Button
+            label='Close Position'
+            icon='pi pi-check'
+            severity='danger'
+            onClick={handleSubmit}
+          />
+        </div>
+      }
       modal
       blockScroll
       onHide={onHide}
     >
       <div className='space-y-4'>
-        {/* Summary row */}
-        <div className='grid grid-cols-12 gap-3'>
-          <div className='col-span-12 md:col-span-3'>
-            <label className='block text-sm font-medium mb-1'>Symbol</label>
-            <InputText value={initial.symbol} readOnly className='w-full' />
-          </div>
-          <div className='col-span-12 md:col-span-6'>
-            <label className='block text-sm font-medium mb-1'>Name</label>
-            <InputText value={initial.name ?? ''} readOnly className='w-full' />
-          </div>
-          <div className='col-span-12 md:col-span-3'>
-            <label className='block text-sm font-medium mb-1'>Open Date</label>
-            <InputText
-              value={formatDateDDMMYYYY(initial.openDate)}
-              readOnly
-              className='w-full'
-            />
-          </div>
-        </div>
+        <section className='task-summary' aria-label='Position summary'>
+          <strong>{initial.symbol}</strong> {initial.name}
+          <dl>
+            <div>
+              <dt>Open Date</dt>
+              <dd>{formatDateDDMMYYYY(initial.openDate)}</dd>
+            </div>
+            <div>
+              <dt>Open Units</dt>
+              <dd>{initial.units}</dd>
+            </div>
+            <div>
+              <dt>Period (days)</dt>
+              <dd>{periodDays}</dd>
+            </div>
+            <div>
+              <dt>Stop Loss</dt>
+              <dd>{stopLoss ?? '—'}</dd>
+            </div>
+          </dl>
+        </section>
 
         {/* Close info */}
         <div className='grid grid-cols-12 gap-3'>
-          <div className='col-span-12 md:col-span-3'>
-            <label className='block text-sm font-medium mb-1'>
+          <div className='col-span-12 sm:col-span-6'>
+            <label
+              htmlFor='close-date'
+              className='block text-sm font-medium mb-1'
+            >
               Close Date *
             </label>
             <Calendar
+              inputId='close-date'
+              invalid={Boolean(errors.closeDate)}
               value={parseIsoDate(form.closeDate)}
               onChange={e =>
                 setForm(f => ({
@@ -183,40 +206,16 @@ export default function ClosePositionDialog({
               <p className='text-xs text-red-600 mt-1'>{errors.closeDate}</p>
             )}
           </div>
-          <div className='col-span-12 md:col-span-3'>
-            <label className='block text-sm font-medium mb-1'>
-              Period (days)
-            </label>
-            <InputText value={String(periodDays)} readOnly className='w-full' />
-          </div>
-          <div className='col-span-12 md:col-span-3'>
-            <label className='block text-sm font-medium mb-1'>Open Units</label>
-            <InputText
-              value={String(initial.units)}
-              readOnly
-              className='w-full'
-            />
-          </div>
-          <div className='col-span-12 md:col-span-3'>
-            <label className='block text-sm font-medium mb-1'>Stop Loss</label>
-            <InputText
-              value={
-                typeof initial.stopLoss === 'number' && initial.stopLoss > 0
-                  ? String(initial.stopLoss)
-                  : '—'
-              }
-              readOnly
-              className='w-full'
-            />
-          </div>
-        </div>
-
-        <div className='grid grid-cols-12 gap-3'>
-          <div className='col-span-12 md:col-span-4'>
-            <label className='block text-sm font-medium mb-1'>
+          <div className='col-span-12 sm:col-span-6'>
+            <label
+              htmlFor='close-units'
+              className='block text-sm font-medium mb-1'
+            >
               Close Units *
             </label>
             <InputNumber
+              inputId='close-units'
+              invalid={Boolean(errors.closeUnits)}
               value={form.closeUnits}
               onValueChange={e =>
                 setForm(f => ({ ...f, closeUnits: (e.value ?? 0) as number }))
@@ -231,13 +230,18 @@ export default function ClosePositionDialog({
               <p className='text-xs text-red-600 mt-1'>{errors.closeUnits}</p>
             )}
           </div>
-          <div className='col-span-12 md:col-span-4'>
-            <label className='block text-sm font-medium mb-1'>
+          <div className='col-span-12 sm:col-span-6'>
+            <label
+              htmlFor='sell-price'
+              className='block text-sm font-medium mb-1'
+            >
               {crypto
                 ? `Sell Price (${cryptoQuote(initial.symbol)}) *`
                 : 'Sell Price *'}
             </label>
             <InputNumber
+              inputId='sell-price'
+              invalid={Boolean(errors.sellPrice)}
               value={form.sellPrice}
               onValueChange={e =>
                 setForm(f => ({ ...f, sellPrice: (e.value ?? 0) as number }))
@@ -271,9 +275,16 @@ export default function ClosePositionDialog({
               }
             />
           </div>
-          <div className='col-span-12 md:col-span-4'>
-            <label className='block text-sm font-medium mb-1'>Sell Fee</label>
+          <div className='col-span-12 sm:col-span-6'>
+            <label
+              htmlFor='sell-fee'
+              className='block text-sm font-medium mb-1'
+            >
+              Sell Fee
+            </label>
             <InputNumber
+              inputId='sell-fee'
+              invalid={Boolean(errors.sellFee)}
               value={form.sellFee}
               onValueChange={e =>
                 setForm(f => ({ ...f, sellFee: (e.value ?? 0) as number }))
@@ -291,19 +302,15 @@ export default function ClosePositionDialog({
         </div>
 
         <div className='grid grid-cols-12 gap-3'>
-          <div className='col-span-12 md:col-span-6'>
-            <label className='block text-sm font-medium mb-1'>
-              Closing Position
+          <div className='col-span-12'>
+            <label
+              htmlFor='close-reason'
+              className='block text-sm font-medium mb-1'
+            >
+              Closed By
             </label>
-            <InputText
-              value={mask(closingPosition.toFixed(6))}
-              readOnly
-              className='w-full'
-            />
-          </div>
-          <div className='col-span-12 md:col-span-6'>
-            <label className='block text-sm font-medium mb-1'>Closed By</label>
             <Dropdown
+              inputId='close-reason'
               value={form.closeReason}
               options={CLOSE_REASON_OPTIONS}
               onChange={e =>
@@ -319,38 +326,34 @@ export default function ClosePositionDialog({
           </div>
         </div>
 
-        <div className='grid grid-cols-12 gap-3'>
-          <div className='col-span-12'>
-            <label className='block text-sm font-medium mb-1'>
-              Sell Comments
-            </label>
-            <InputTextarea
-              autoResize
-              value={form.comments ?? ''}
-              onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
-                setForm(f => ({ ...f, comments: e.target.value }))
-              }
-              rows={3}
-              className='w-full'
-              placeholder='Optional notes'
-            />
+        <p className='task-summary'>
+          Closing Position <strong>{mask(closingPosition.toFixed(6))}</strong>
+        </p>
+        <details className='optional-fields'>
+          <summary>Sell comments (optional)</summary>
+          <div className='grid grid-cols-12 gap-3'>
+            <div className='col-span-12'>
+              <label
+                htmlFor='sell-comments'
+                className='block text-sm font-medium mb-1'
+              >
+                Sell Comments
+              </label>
+              <InputTextarea
+                id='sell-comments'
+                autoResize
+                style={{ maxHeight: '200px' }}
+                value={form.comments ?? ''}
+                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
+                  setForm(f => ({ ...f, comments: e.target.value }))
+                }
+                rows={3}
+                className='w-full position-comments'
+                placeholder='Optional notes'
+              />
+            </div>
           </div>
-        </div>
-
-        <div className='flex justify-end gap-2 pt-3 border-t border-gray-100 mt-2'>
-          <Button
-            label='Cancel'
-            severity='secondary'
-            outlined
-            onClick={onHide}
-          />
-          <Button
-            label='Close Position'
-            icon='pi pi-check'
-            severity='danger'
-            onClick={handleSubmit}
-          />
-        </div>
+        </details>
       </div>
     </Dialog>
   );

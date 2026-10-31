@@ -18,18 +18,16 @@ export default function PageHeader({
   action,
 }: PageHeaderProps) {
   return (
-    <div className='flex items-start justify-between gap-4 mb-6 flex-wrap'>
-      <div>
-        <h1 className='text-2xl font-bold' style={{ color: 'var(--tr-text)' }}>
-          {title}
-        </h1>
+    <header className='page-header'>
+      <div className='min-w-0'>
+        <h1 className='portfolio-heading'>{title}</h1>
         {subtitle && (
           <p className='text-sm mt-1' style={{ color: 'var(--tr-text-2)' }}>
             {subtitle}
           </p>
         )}
       </div>
-      {action && <div className='shrink-0'>{action}</div>}
-    </div>
+      {action && <div className='page-header-actions'>{action}</div>}
+    </header>
   );
 }

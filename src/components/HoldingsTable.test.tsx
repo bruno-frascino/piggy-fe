@@ -190,14 +190,20 @@ describe('HoldingsTable row/total computation', () => {
       expect(screen.getByDisplayValue('0.00000000001')).toBeInTheDocument();
     }
   );
-  it('uses the dashboard chart height as both its minimum and maximum height', () => {
+  it('uses natural page flow instead of a fixed-height nested scroll area', () => {
     setHoldings([]);
     setQuotes([]);
 
     renderTable();
 
     const card = screen.getByText('Holdings · Main').closest('.p-card');
-    expect(card).toHaveClass('h-[26rem]', 'sm:h-[28rem]', 'md:h-[32rem]');
+    expect(card).toHaveClass('holdings-panel');
+    expect(card).not.toHaveClass('h-[26rem]', 'overflow-hidden');
+    expect(
+      screen
+        .getByRole('button', { name: 'Add Position', exact: true })
+        .closest('.holdings-header-actions')
+    ).not.toBeNull();
   });
 
   it('derives effectivePrice/currentPosition from the live quote and bubbles totals to the parent', async () => {

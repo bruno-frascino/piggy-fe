@@ -41,8 +41,10 @@ lockfiles. Env var: `NEXT_PUBLIC_API_URL` (default `http://localhost:4000/api`).
    on account deletion** — both go through `clearClientSession` in `src/lib/session.ts`.
 8. Every feature/bugfix ships with tests in the same change set (`@testing-library/react` for
    components, mocked Axios + `QueryClientProvider` for hooks).
-9. Light-mode-only design system (`--tr-*` tokens in `globals.css`) — no dark mode, no rebrand, per
-   deliberate decision (ADR 0005).
+9. Light/dark/system appearance uses `--tr-*` tokens in `globals.css` and `ThemeProvider`. Keep both
+   palettes accessible; retain PrimeReact and the Truffles identity (ADR 0009, superseding ADR
+   0005). `yarn dev` and `yarn build` generate local PrimeReact theme assets automatically; run
+   `yarn theme:build` before using a direct Next CLI command.
 
 ## Where to look
 

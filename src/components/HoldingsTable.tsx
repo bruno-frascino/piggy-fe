@@ -271,14 +271,14 @@ export default function HoldingsTable({
   // Dialog state is managed inside AddHoldingsDialog
 
   return (
-    <Card className='h-[26rem] sm:h-[28rem] md:h-[32rem] overflow-hidden [&_.p-card-body]:h-full [&_.p-card-content]:h-full [&_.p-card-content]:overflow-y-auto'>
-      <div className='flex items-center justify-between mb-4 pb-2 border-b border-gray-200'>
+    <Card className='holdings-panel'>
+      <div className='holdings-header mb-4 border-b border-gray-200'>
         <h3 className='text-xl font-semibold text-gray-900'>
           Holdings
           {selectedAccountName ? ` · ${selectedAccountName}` : ''}
           {selectedExchange ? ` · ${exchangeLabel(selectedExchange)}` : ''}
         </h3>
-        <div className='flex items-center gap-2'>
+        <div className='holdings-header-actions'>
           {!isDemo && (
             <Button
               icon='pi pi-upload'
@@ -295,7 +295,6 @@ export default function HoldingsTable({
           <Button
             icon='pi pi-plus'
             rounded
-            severity='success'
             aria-label='Add Position'
             className='!w-11 !h-11'
             onClick={() => {
@@ -511,7 +510,7 @@ export default function HoldingsTable({
           </div>
 
           {/* Tablet/desktop or mobile landscape: full scrollable table */}
-          <div className='hidden md:block holdings-landscape-table'>
+          <div className='table-region hidden md:block holdings-landscape-table'>
             <DataTable
               value={rows}
               size='small'

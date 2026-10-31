@@ -62,6 +62,15 @@ beforeEach(() => {
 });
 
 describe('TopNav privacy toggle', () => {
+  it('keeps appearance settings out of navigation and links to the profile', () => {
+    renderTopNav();
+    expect(
+      screen.queryByRole('combobox', { name: 'Appearance' })
+    ).not.toBeInTheDocument();
+    expect(
+      screen.getByRole('link', { name: 'Manage account' })
+    ).toHaveAttribute('href', '/account');
+  });
   it('starts hidden and flips to visible on click', () => {
     renderTopNav();
 

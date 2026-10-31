@@ -23,23 +23,32 @@ export default function ImportsList() {
     accounts.data?.find(a => a.id === id)?.name ?? 'Unknown account';
 
   return (
-    <div className='p-4 md:p-6'>
+    <div className='app-page'>
       <PageHeader
         title='Imports'
         subtitle='Positions imported from exchange exports. Start an import from the Add Position area on the dashboard.'
       />
+      {imports.isLoading && (
+        <div className='empty-state surface-panel' role='status'>
+          <i className='pi pi-spin pi-spinner empty-state-icon' aria-hidden />
+          Loading imports...
+        </div>
+      )}
       {imports.isError && (
         <Message severity='error' text='Could not load your imports.' />
       )}
       {imports.data?.length === 0 && (
-        <div className='text-sm' style={{ color: 'var(--tr-text-2)' }}>
+        <div
+          className='empty-state surface-panel'
+          style={{ color: 'var(--tr-text-2)' }}
+        >
           No imports yet.
         </div>
       )}
       {imports.data?.map(batch => (
         <Card key={batch.id} className='mb-3'>
           <div className='flex flex-wrap justify-between gap-2'>
-            <div>
+            <div className='min-w-0 break-words'>
               <Link
                 href={`/imports/${batch.id}`}
                 className='font-semibold underline'
@@ -52,7 +61,7 @@ export default function ImportsList() {
               </div>
             </div>
             <div className='text-sm text-right'>
-              <div>{STATUS_LABELS[batch.status]}</div>
+              <span className='status-chip'>{STATUS_LABELS[batch.status]}</span>
               <div style={{ color: 'var(--tr-text-2)' }}>
                 {Object.entries(batch.eventCounts ?? {})
                   .map(([status, count]) => `${count} ${status.toLowerCase()}`)

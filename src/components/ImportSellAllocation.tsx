@@ -63,7 +63,7 @@ export default function ImportSellAllocation({
           </div>
         </div>
         {!readOnly && (
-          <div className='flex items-center gap-2'>
+          <div className='responsive-actions'>
             <Dropdown
               value={closeReasonValue}
               aria-label='Close reason'
@@ -131,50 +131,55 @@ export default function ImportSellAllocation({
           />
           {open && (
             <div>
-              <table className='text-sm w-full'>
-                <thead>
-                  <tr className='text-left'>
-                    <th>Acquired</th>
-                    <th>Available</th>
-                    <th>Sell from this parcel</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {sell.eligible.map(parcel => (
-                    <tr key={parcel.positionRef}>
-                      <td>
-                        {formatDateDDMMYYYY(parcel.acquiredAt.slice(0, 10))}
-                      </td>
-                      <td>{parcel.remaining}</td>
-                      <td>
-                        <input
-                          className='border rounded px-2 py-1 w-40'
-                          inputMode='decimal'
-                          aria-label={`Quantity from parcel acquired ${formatDateDDMMYYYY(parcel.acquiredAt.slice(0, 10))}`}
-                          value={input[parcel.positionRef] ?? ''}
-                          onChange={e =>
-                            setInput(prev => ({
-                              ...prev,
-                              [parcel.positionRef]: e.target.value,
-                            }))
-                          }
-                        />
-                      </td>
+              <div className='table-region'>
+                <table className='data-grid text-sm w-full'>
+                  <thead>
+                    <tr className='text-left'>
+                      <th>Acquired</th>
+                      <th>Available</th>
+                      <th>Sell from this parcel</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {sell.eligible.map(parcel => (
+                      <tr key={parcel.positionRef}>
+                        <td>
+                          {formatDateDDMMYYYY(parcel.acquiredAt.slice(0, 10))}
+                        </td>
+                        <td>{parcel.remaining}</td>
+                        <td>
+                          <input
+                            className='border rounded px-2 py-1 w-40'
+                            inputMode='decimal'
+                            aria-label={`Quantity from parcel acquired ${formatDateDDMMYYYY(parcel.acquiredAt.slice(0, 10))}`}
+                            value={input[parcel.positionRef] ?? ''}
+                            onChange={e =>
+                              setInput(prev => ({
+                                ...prev,
+                                [parcel.positionRef]: e.target.value,
+                              }))
+                            }
+                          />
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
               <div
                 className='mt-2 text-sm'
                 data-testid='remaining-to-allocate'
                 style={{
-                  color: Math.abs(remaining) < 1e-9 ? 'inherit' : '#b45309',
+                  color:
+                    Math.abs(remaining) < 1e-9
+                      ? 'inherit'
+                      : 'var(--tr-warning)',
                 }}
               >
                 Remaining to allocate: {Number(remaining.toFixed(12))}{' '}
                 {sell.baseAsset}
               </div>
-              <div className='mt-2 flex gap-2'>
+              <div className='mt-2 responsive-actions'>
                 <Button
                   label='Save allocation'
                   size='small'

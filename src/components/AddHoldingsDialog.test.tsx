@@ -80,6 +80,76 @@ beforeEach(() => {
 
 afterEach(cleanup);
 
+describe('responsive purchase form', () => {
+  it('keeps actions outside scrolling content and retains collapsed optional fields on save', () => {
+    const onSubmit = vi.fn();
+    render(
+      <AddHoldingsDialog
+        visible
+        mode='edit'
+        lockAccount
+        accountName='Main'
+        initial={{
+          symbol: 'AAPL',
+          name: 'Apple Inc.',
+          industry: 'Technology',
+          openDate: '2026-07-01',
+          units: 10,
+          buyPrice: 100,
+          buyFee: 5,
+          exchangeCode: 'NASDAQ',
+          stopLoss: 90,
+          buyComments: 'Long-term purchase',
+        }}
+        onHide={vi.fn()}
+        onSubmit={onSubmit}
+      />
+    );
+    const optional = screen
+      .getByText('Risk settings and notes (optional)')
+      .closest('details');
+    expect(optional).not.toHaveAttribute('open');
+    expect(screen.getByLabelText('Buy Comments')).toHaveClass(
+      'position-comments'
+    );
+    expect(screen.getByLabelText('Buy Comments')).toHaveStyle({
+      maxHeight: '200px',
+    });
+    const save = screen.getByRole('button', { name: 'Save' });
+    expect(save.closest('.p-dialog-footer')).not.toBeNull();
+    expect(screen.queryByDisplayValue('Main')).not.toBeInTheDocument();
+    fireEvent.click(save);
+    expect(onSubmit).toHaveBeenCalledWith(
+      expect.objectContaining({
+        stopLoss: 90,
+        buyComments: 'Long-term purchase',
+        industry: 'Technology',
+        name: 'Apple Inc.',
+        buyFee: 5,
+      })
+    );
+  });
+
+  it('focuses an invalid purchase field when submission fails', () => {
+    render(
+      <AddHoldingsDialog
+        visible
+        mode='edit'
+        initial={{
+          symbol: 'AAPL',
+          exchangeCode: 'NASDAQ',
+          units: 0,
+          buyPrice: 100,
+        }}
+        onHide={vi.fn()}
+        onSubmit={vi.fn()}
+      />
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Save' }));
+    expect(screen.getByLabelText('Units *')).toHaveFocus();
+  });
+});
+
 describe('Kraken purchase entry', () => {
   async function openCrypto() {
     await waitFor(() =>

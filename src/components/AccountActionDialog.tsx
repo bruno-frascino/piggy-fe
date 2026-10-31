@@ -54,6 +54,27 @@ export default function AccountActionDialog({
       closeOnEscape={!loading}
       style={{ width: '560px', maxWidth: '95vw' }}
       onHide={onCancel}
+      footer={
+        <div className='task-actions'>
+          <Button
+            type='button'
+            label='Cancel'
+            severity='secondary'
+            outlined
+            onClick={onCancel}
+            disabled={loading}
+          />
+          <Button
+            type='button'
+            label={isDelete ? 'Delete account' : 'Close account'}
+            icon={isDelete ? 'pi pi-trash' : 'pi pi-lock'}
+            severity={isDelete ? 'danger' : 'warning'}
+            onClick={onConfirm}
+            loading={loading}
+            disabled={loading}
+          />
+        </div>
+      }
     >
       <div className='space-y-5'>
         <div
@@ -85,26 +106,6 @@ export default function AccountActionDialog({
         <div className='space-y-2'>
           {footnote && <p className='text-sm text-gray-600'>{footnote}</p>}
           {error && <p className='text-sm text-red-600'>{error}</p>}
-        </div>
-
-        <div className='flex justify-end gap-2 pt-1'>
-          <Button
-            type='button'
-            label='Cancel'
-            severity='secondary'
-            outlined
-            onClick={onCancel}
-            disabled={loading}
-          />
-          <Button
-            type='button'
-            label={isDelete ? 'Delete account' : 'Close account'}
-            icon={isDelete ? 'pi pi-trash' : 'pi pi-lock'}
-            severity={isDelete ? 'danger' : 'warning'}
-            onClick={onConfirm}
-            loading={loading}
-            disabled={loading}
-          />
         </div>
       </div>
     </Dialog>

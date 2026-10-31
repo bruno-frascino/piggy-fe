@@ -52,6 +52,9 @@ describe('ScreenerFiltersForm', () => {
   it('defaults to filter mode and submits sector/industry filters', () => {
     const onSearch = vi.fn();
     render(<ScreenerFiltersForm onSearch={onSearch} />);
+    expect(screen.getByRole('group', { name: 'Search mode' })).toHaveClass(
+      'segmented-control'
+    );
 
     fireEvent.click(screen.getByRole('button', { name: 'Search' }));
 
@@ -100,6 +103,9 @@ describe('ScreenerFiltersForm', () => {
     fireEvent.click(
       screen.getByRole('button', { name: 'Save current filters' })
     );
+    expect(
+      screen.getByRole('dialog', { name: 'Save current filters' })
+    ).not.toHaveClass('task-dialog');
     fireEvent.change(screen.getByPlaceholderText('Screen name'), {
       target: { value: 'My Screen' },
     });

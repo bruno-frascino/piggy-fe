@@ -84,6 +84,40 @@ export default function AddToWatchlistDialog({
     <Dialog
       header={`Add ${stock.symbol} to watchlist`}
       visible={visible}
+      modal
+      blockScroll
+      task
+      footer={
+        <div className='space-y-3'>
+          <label
+            htmlFor='new-watchlist-name'
+            className='block text-sm text-left'
+          >
+            Create a new watchlist
+          </label>
+          <div className='responsive-actions'>
+            <InputText
+              id='new-watchlist-name'
+              value={newWatchlistName}
+              onChange={e => setNewWatchlistName(e.target.value)}
+              placeholder='New watchlist name'
+              className='flex-1 min-w-0'
+            />
+            <Button
+              label='Create & add'
+              icon='pi pi-plus'
+              disabled={!newWatchlistName.trim() || createPending || addPending}
+              onClick={handleCreateAndAdd}
+            />
+            <Button
+              label='Done'
+              severity='secondary'
+              outlined
+              onClick={onHide}
+            />
+          </div>
+        </div>
+      }
       onHide={onHide}
       style={{ width: '28rem', maxWidth: '95vw' }}
     >
@@ -103,21 +137,6 @@ export default function AddToWatchlistDialog({
             onClick={() => handleAdd(watchlist.id)}
           />
         ))}
-
-        <div className='flex items-center gap-2 mt-3'>
-          <InputText
-            value={newWatchlistName}
-            onChange={e => setNewWatchlistName(e.target.value)}
-            placeholder='New watchlist name'
-            className='flex-1'
-          />
-          <Button
-            label='Create & add'
-            icon='pi pi-plus'
-            disabled={!newWatchlistName.trim() || createPending || addPending}
-            onClick={handleCreateAndAdd}
-          />
-        </div>
       </div>
     </Dialog>
   );

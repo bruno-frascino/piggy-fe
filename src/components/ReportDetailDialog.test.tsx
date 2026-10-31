@@ -51,5 +51,11 @@ describe('ReportDetailDialog', () => {
     expect(screen.queryByText('2025-01-05')).not.toBeInTheDocument();
     expect(screen.queryByText('2026-03-09')).not.toBeInTheDocument();
     expect(screen.getByText(/not professional tax advice/)).toBeInTheDocument();
+    expect(screen.getByRole('dialog')).toHaveClass('task-dialog');
+    expect(
+      screen
+        .getByRole('button', { name: 'Close report' })
+        .closest('.p-dialog-footer')
+    ).not.toBeNull();
   });
 });

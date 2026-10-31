@@ -11,6 +11,10 @@ import {
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { MASKED_VALUE } from '@/lib/format';
 
+vi.mock('@/lib/theme-context', () => ({
+  useTheme: () => ({ resolvedTheme: 'light' }),
+}));
+
 const mockAccounts = [
   { id: 'acc-1', name: 'Account 1', status: 'ACTIVE' as const },
   { id: 'acc-2', name: 'Account 2', status: 'ACTIVE' as const },
@@ -95,6 +99,23 @@ useTradingAccountsMock.mockReturnValue({
 });
 
 describe('DashboardView accounts', () => {
+  it('exposes the chart timeframe selection as a pressed button', () => {
+    render(<DashboardView />);
+    expect(
+      screen.getByRole('heading', { name: 'Your portfolio' })
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'ALL', exact: true })
+    ).toHaveAttribute('aria-pressed', 'true');
+    fireEvent.click(screen.getByRole('button', { name: '3M', exact: true }));
+    expect(
+      screen.getByRole('button', { name: '3M', exact: true })
+    ).toHaveAttribute('aria-pressed', 'true');
+    expect(
+      screen.getByRole('button', { name: 'ALL', exact: true })
+    ).toHaveAttribute('aria-pressed', 'false');
+  });
+
   it('shows only the selected account in the bar, with a switcher and a single actions trigger', () => {
     render(<DashboardView />);
 
@@ -222,9 +243,11 @@ describe('DashboardView demo accounts', () => {
     fireEvent.change(screen.getByPlaceholderText(/Account name/), {
       target: { value: 'Practice' },
     });
-    fireEvent.click(
-      screen.getByLabelText(/Demo account \(practice — excluded from tax/)
+    const demoCheckbox = screen.getByLabelText(
+      /Demo account \(practice — excluded from tax/
     );
+    expect(demoCheckbox.closest('.flex')).toHaveClass('pt-2');
+    fireEvent.click(demoCheckbox);
     fireEvent.click(screen.getByRole('button', { name: 'Create Account' }));
 
     await waitFor(() =>

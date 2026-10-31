@@ -44,6 +44,9 @@ describe('ScreenerView', () => {
     render(<ScreenerView />);
 
     expect(screen.getByRole('button', { name: 'Search' })).toBeInTheDocument();
+    expect(screen.getByRole('group', { name: 'Screener view' })).toHaveClass(
+      'segmented-control'
+    );
     expect(
       screen.queryByPlaceholderText('New watchlist name')
     ).not.toBeInTheDocument();

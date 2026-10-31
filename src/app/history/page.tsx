@@ -68,6 +68,7 @@ function ExchangeTable({
   usageFor,
   onEdit,
 }: ExchangeTableProps) {
+  const [showAllColumns, setShowAllColumns] = useState(false);
   const totals = calcTotals(trades);
   const plPct = totals.cost > 0 ? totals.pl / totals.cost : 0;
   const groupCurrency = trades[0]?.baseCurrency ?? 'USD';
@@ -76,11 +77,11 @@ function ExchangeTable({
   return (
     <Card>
       <div
-        className='pb-2 mb-4 border-b flex items-center justify-between'
+        className='pb-3 mb-3 border-b flex flex-wrap items-center justify-between gap-2'
         style={{ borderColor: 'var(--tr-border)' }}
       >
         <h3
-          className='text-xl font-semibold'
+          className='text-base font-semibold'
           style={{ color: 'var(--tr-text)' }}
         >
           {exchangeLabel(exchange)}
@@ -97,245 +98,263 @@ function ExchangeTable({
           {trades.length} position{trades.length !== 1 ? 's' : ''}
         </span>
       </div>
-      <DataTable
-        value={trades}
-        size='small'
-        scrollable
-        scrollHeight='400px'
-        stripedRows
-        className='holdings-table'
-        cellMemo={false}
-      >
-        <Column
-          header='Symbol'
-          body={(r: ClosedTrade) => {
-            const usage = usageFor(r);
-            const stale = usage.filter(u => u.stale);
-            return (
-              <span className='inline-flex items-center gap-1'>
-                <button
-                  className='text-blue-600 font-semibold hover:underline'
-                  onClick={() => onEdit(r)}
-                  title='View / Edit Closed Position'
-                >
-                  {r.symbol}
-                </button>
-                {usage.length > 0 && (
-                  <i
-                    className={
-                      stale.length > 0
-                        ? 'pi pi-exclamation-triangle text-amber-500 text-xs'
-                        : 'pi pi-file-pdf text-gray-400 text-xs'
-                    }
-                    title={
-                      stale.length > 0
-                        ? `Changed since ${stale.map(u => u.financialYearLabel).join(', ')} tax report was generated — regenerate it`
-                        : `Included in the ${usage.map(u => u.financialYearLabel).join(', ')} tax report`
-                    }
-                  />
-                )}
-              </span>
-            );
-          }}
-          style={{ minWidth: '120px' }}
-          frozen
-          alignFrozen='left'
-          footer={
-            <span className='font-bold text-gray-700 tracking-wide'>
-              TOTALS
-            </span>
-          }
+      <div className='flex items-center justify-between gap-2 mb-3 md:hidden'>
+        <p className='text-xs' style={{ color: 'var(--tr-text-2)' }}>
+          Tap a symbol to view or edit.
+        </p>
+        <Button
+          label={showAllColumns ? 'Summary' : 'All columns'}
+          aria-pressed={showAllColumns}
+          size='small'
+          text
+          onClick={() => setShowAllColumns(current => !current)}
         />
-        <Column
-          header='Name'
-          field='name'
-          style={{ minWidth: '180px' }}
-          footer={
-            <span>
-              <span className='text-gray-600 font-medium'>Positions:</span>{' '}
+      </div>
+      <div className='table-region'>
+        <DataTable
+          value={trades}
+          size='small'
+          scrollable
+          paginator
+          rows={25}
+          rowsPerPageOptions={[25, 50, 100]}
+          stripedRows
+          className={`holdings-table history-table${showAllColumns ? '' : ' history-table--compact'}`}
+          cellMemo={false}
+        >
+          <Column
+            header='Symbol'
+            body={(r: ClosedTrade) => {
+              const usage = usageFor(r);
+              const stale = usage.filter(u => u.stale);
+              return (
+                <span className='inline-flex items-center gap-1'>
+                  <button
+                    className='text-blue-600 font-semibold hover:underline'
+                    onClick={() => onEdit(r)}
+                    title='View / Edit Closed Position'
+                  >
+                    {r.symbol}
+                  </button>
+                  {usage.length > 0 && (
+                    <i
+                      className={
+                        stale.length > 0
+                          ? 'pi pi-exclamation-triangle text-amber-500 text-xs'
+                          : 'pi pi-file-pdf text-gray-400 text-xs'
+                      }
+                      title={
+                        stale.length > 0
+                          ? `Changed since ${stale.map(u => u.financialYearLabel).join(', ')} tax report was generated — regenerate it`
+                          : `Included in the ${usage.map(u => u.financialYearLabel).join(', ')} tax report`
+                      }
+                    />
+                  )}
+                </span>
+              );
+            }}
+            style={{ minWidth: '120px' }}
+            frozen
+            alignFrozen='left'
+            footer={
+              <span className='font-bold text-gray-700 tracking-wide'>
+                TOTALS
+              </span>
+            }
+          />
+          <Column
+            header='Name'
+            field='name'
+            style={{ minWidth: '180px' }}
+            footer={
+              <span>
+                <span className='text-gray-600 font-medium'>Positions:</span>{' '}
+                <span className='font-semibold text-gray-900'>
+                  {trades.length}
+                </span>
+              </span>
+            }
+          />
+          <Column
+            header='Open Date'
+            body={(r: ClosedTrade) => formatDateDDMMYYYY(r.openDate)}
+            style={{ minWidth: '120px' }}
+          />
+          <Column
+            header='Close Date'
+            body={(r: ClosedTrade) => formatDateDDMMYYYY(r.closeDate)}
+            style={{ minWidth: '120px' }}
+          />
+          <Column
+            header='Period'
+            body={(r: ClosedTrade) => `${r.periodDays}d`}
+            style={{ minWidth: '90px' }}
+          />
+          <Column
+            header='Units Closed'
+            body={(r: ClosedTrade) =>
+              mask(
+                isCryptoExchange(r.exchange)
+                  ? r.unitsClosed.toLocaleString('en-AU', {
+                      maximumFractionDigits: 12,
+                    })
+                  : r.unitsClosed.toFixed(3)
+              )
+            }
+            style={{ minWidth: '130px' }}
+          />
+          <Column
+            header='Buy Price'
+            body={(r: ClosedTrade) =>
+              formatCurrency(
+                r.buyPrice,
+                r.baseCurrency ?? groupCurrency,
+                isCryptoExchange(r.exchange) ? 12 : 3
+              )
+            }
+            style={{ minWidth: '120px' }}
+          />
+          <Column
+            header='Sell Price'
+            body={(r: ClosedTrade) =>
+              formatCurrency(
+                r.sellPrice,
+                r.baseCurrency ?? groupCurrency,
+                isCryptoExchange(r.exchange) ? 12 : 3
+              )
+            }
+            style={{ minWidth: '120px' }}
+          />
+          <Column
+            header='Buy Fee'
+            body={(r: ClosedTrade) =>
+              mask(formatCurrency(r.buyFee, r.baseCurrency ?? groupCurrency))
+            }
+            style={{ minWidth: '110px' }}
+          />
+          <Column
+            header='Sell Fee'
+            body={(r: ClosedTrade) =>
+              mask(formatCurrency(r.sellFee, r.baseCurrency ?? groupCurrency))
+            }
+            style={{ minWidth: '110px' }}
+          />
+          <Column
+            header='Open Position'
+            body={(r: ClosedTrade) =>
+              mask(
+                formatCurrency(
+                  closedTradeAmounts(r).open,
+                  r.baseCurrency ?? groupCurrency
+                )
+              )
+            }
+            style={{ minWidth: '150px' }}
+            footer={
               <span className='font-semibold text-gray-900'>
-                {trades.length}
+                {mask(formatCurrency(totals.open, groupCurrency))}
               </span>
-            </span>
-          }
-        />
-        <Column
-          header='Open Date'
-          body={(r: ClosedTrade) => formatDateDDMMYYYY(r.openDate)}
-          style={{ minWidth: '120px' }}
-        />
-        <Column
-          header='Close Date'
-          body={(r: ClosedTrade) => formatDateDDMMYYYY(r.closeDate)}
-          style={{ minWidth: '120px' }}
-        />
-        <Column
-          header='Period'
-          body={(r: ClosedTrade) => `${r.periodDays}d`}
-          style={{ minWidth: '90px' }}
-        />
-        <Column
-          header='Units Closed'
-          body={(r: ClosedTrade) =>
-            mask(
-              isCryptoExchange(r.exchange)
-                ? r.unitsClosed.toLocaleString('en-AU', {
-                    maximumFractionDigits: 12,
-                  })
-                : r.unitsClosed.toFixed(3)
-            )
-          }
-          style={{ minWidth: '130px' }}
-        />
-        <Column
-          header='Buy Price'
-          body={(r: ClosedTrade) =>
-            formatCurrency(
-              r.buyPrice,
-              r.baseCurrency ?? groupCurrency,
-              isCryptoExchange(r.exchange) ? 12 : 3
-            )
-          }
-          style={{ minWidth: '120px' }}
-        />
-        <Column
-          header='Sell Price'
-          body={(r: ClosedTrade) =>
-            formatCurrency(
-              r.sellPrice,
-              r.baseCurrency ?? groupCurrency,
-              isCryptoExchange(r.exchange) ? 12 : 3
-            )
-          }
-          style={{ minWidth: '120px' }}
-        />
-        <Column
-          header='Buy Fee'
-          body={(r: ClosedTrade) =>
-            mask(formatCurrency(r.buyFee, r.baseCurrency ?? groupCurrency))
-          }
-          style={{ minWidth: '110px' }}
-        />
-        <Column
-          header='Sell Fee'
-          body={(r: ClosedTrade) =>
-            mask(formatCurrency(r.sellFee, r.baseCurrency ?? groupCurrency))
-          }
-          style={{ minWidth: '110px' }}
-        />
-        <Column
-          header='Open Position'
-          body={(r: ClosedTrade) =>
-            mask(
-              formatCurrency(
-                closedTradeAmounts(r).open,
-                r.baseCurrency ?? groupCurrency
+            }
+          />
+          <Column
+            header='Close Position'
+            body={(r: ClosedTrade) =>
+              mask(
+                formatCurrency(
+                  closedTradeAmounts(r).close,
+                  r.baseCurrency ?? groupCurrency
+                )
               )
-            )
-          }
-          style={{ minWidth: '150px' }}
-          footer={
-            <span className='font-semibold text-gray-900'>
-              {mask(formatCurrency(totals.open, groupCurrency))}
-            </span>
-          }
-        />
-        <Column
-          header='Close Position'
-          body={(r: ClosedTrade) =>
-            mask(
-              formatCurrency(
-                closedTradeAmounts(r).close,
-                r.baseCurrency ?? groupCurrency
+            }
+            style={{ minWidth: '150px' }}
+            footer={
+              <span className='font-semibold text-gray-900'>
+                {mask(formatCurrency(totals.close, groupCurrency))}
+              </span>
+            }
+          />
+          <Column
+            header='P/L'
+            body={(r: ClosedTrade) => {
+              const { pl } = closedTradeAmounts(r);
+              return (
+                <span className={returnClass(pl, hidden)}>
+                  {mask(formatCurrency(pl, r.baseCurrency ?? groupCurrency))}
+                </span>
+              );
+            }}
+            style={{ minWidth: '130px' }}
+            footer={
+              <span className={returnClass(totals.pl, hidden)}>
+                {mask(formatCurrency(totals.pl, groupCurrency))}
+              </span>
+            }
+          />
+          <Column
+            header='P/L %'
+            body={(r: ClosedTrade) => {
+              const pct = closedTradeAmounts(r).returnFraction;
+              return (
+                <span className={returnClass(pct, hidden)}>
+                  {formatPct(pct)}
+                </span>
+              );
+            }}
+            style={{ minWidth: '130px' }}
+            footer={
+              <span className={returnClass(plPct, hidden)}>
+                {formatPct(plPct)}
+              </span>
+            }
+          />
+          <Column
+            header='Max Drawdown %'
+            body={(r: ClosedTrade) =>
+              r.maxDrawdownPercent != null && r.maxDrawdownPercent > 0 ? (
+                <span className={hidden ? 'text-gray-500' : 'text-red-600'}>
+                  -{r.maxDrawdownPercent.toFixed(2)}%
+                </span>
+              ) : (
+                <span className='text-gray-400'>—</span>
               )
-            )
-          }
-          style={{ minWidth: '150px' }}
-          footer={
-            <span className='font-semibold text-gray-900'>
-              {mask(formatCurrency(totals.close, groupCurrency))}
-            </span>
-          }
-        />
-        <Column
-          header='P/L'
-          body={(r: ClosedTrade) => {
-            const { pl } = closedTradeAmounts(r);
-            return (
-              <span className={returnClass(pl, hidden)}>
-                {mask(formatCurrency(pl, r.baseCurrency ?? groupCurrency))}
-              </span>
-            );
-          }}
-          style={{ minWidth: '130px' }}
-          footer={
-            <span className={returnClass(totals.pl, hidden)}>
-              {mask(formatCurrency(totals.pl, groupCurrency))}
-            </span>
-          }
-        />
-        <Column
-          header='P/L %'
-          body={(r: ClosedTrade) => {
-            const pct = closedTradeAmounts(r).returnFraction;
-            return (
-              <span className={returnClass(pct, hidden)}>{formatPct(pct)}</span>
-            );
-          }}
-          style={{ minWidth: '130px' }}
-          footer={
-            <span className={returnClass(plPct, hidden)}>
-              {formatPct(plPct)}
-            </span>
-          }
-        />
-        <Column
-          header='Max Drawdown %'
-          body={(r: ClosedTrade) =>
-            r.maxDrawdownPercent != null && r.maxDrawdownPercent > 0 ? (
-              <span className={hidden ? 'text-gray-500' : 'text-red-600'}>
-                -{r.maxDrawdownPercent.toFixed(2)}%
-              </span>
-            ) : (
-              <span className='text-gray-400'>—</span>
-            )
-          }
-          style={{ minWidth: '150px' }}
-        />
-        <Column
-          header='Max Run-up %'
-          body={(r: ClosedTrade) =>
-            r.maxRunUpPercent != null && r.maxRunUpPercent > 0 ? (
-              <span className={hidden ? 'text-gray-500' : 'text-green-600'}>
-                +{r.maxRunUpPercent.toFixed(2)}%
-              </span>
-            ) : (
-              <span className='text-gray-400'>—</span>
-            )
-          }
-          style={{ minWidth: '150px' }}
-        />
-        <Column
-          header='Closed By'
-          body={(r: ClosedTrade) => {
-            return closeReasonLabel(
-              r.closeReason,
-              closedTradeAmounts(r).returnFraction
-            );
-          }}
-          style={{ minWidth: '170px' }}
-        />
-        <Column
-          header='Buy Comments'
-          body={(r: ClosedTrade) => r.buyComments || ''}
-          style={{ minWidth: '180px' }}
-        />
-        <Column
-          header='Sell Comments'
-          body={(r: ClosedTrade) => r.sellComments || ''}
-          style={{ minWidth: '180px' }}
-        />
-      </DataTable>
+            }
+            style={{ minWidth: '150px' }}
+          />
+          <Column
+            header='Max Run-up %'
+            body={(r: ClosedTrade) =>
+              r.maxRunUpPercent != null && r.maxRunUpPercent > 0 ? (
+                <span className={hidden ? 'text-gray-500' : 'text-green-600'}>
+                  +{r.maxRunUpPercent.toFixed(2)}%
+                </span>
+              ) : (
+                <span className='text-gray-400'>—</span>
+              )
+            }
+            style={{ minWidth: '150px' }}
+          />
+          <Column
+            header='Closed By'
+            body={(r: ClosedTrade) => {
+              return closeReasonLabel(
+                r.closeReason,
+                closedTradeAmounts(r).returnFraction
+              );
+            }}
+            style={{ minWidth: '170px' }}
+          />
+          <Column
+            header='Buy Comments'
+            body={(r: ClosedTrade) => r.buyComments || ''}
+            style={{ minWidth: '180px' }}
+          />
+          <Column
+            header='Sell Comments'
+            body={(r: ClosedTrade) => r.sellComments || ''}
+            style={{ minWidth: '180px' }}
+          />
+        </DataTable>
+      </div>
     </Card>
   );
 }
@@ -456,8 +475,8 @@ export default function HistoryPage() {
   }, [filtered]);
 
   return (
-    <div className='min-h-screen bg-[--tr-bg] p-4'>
-      <div className='max-w-6xl xl:max-w-7xl 2xl:max-w-screen-2xl 3xl:max-w-[1800px] mx-auto space-y-6'>
+    <div className='app-page'>
+      <div className='space-y-5'>
         <PageHeader
           title='History'
           subtitle='Closed positions across your accounts and exchanges'
@@ -478,7 +497,7 @@ export default function HistoryPage() {
               </button>
             ))}
           </div>
-          <div className='flex flex-wrap gap-3 items-end'>
+          <div className='filter-grid items-end'>
             <div>
               <label
                 className='block text-sm font-medium mb-1'
@@ -565,7 +584,7 @@ export default function HistoryPage() {
                 optionLabel='label'
                 optionValue='value'
                 placeholder='All accounts'
-                className='w-12rem'
+                className='w-full'
               />
             </div>
             <div>
@@ -582,7 +601,7 @@ export default function HistoryPage() {
                 optionLabel='label'
                 optionValue='value'
                 placeholder='All exchanges'
-                className='w-12rem'
+                className='w-full'
               />
             </div>
             <Button

@@ -42,6 +42,8 @@ import {
   type ChartTimeframe,
 } from '@/lib/date';
 import { usePrivacy } from '@/lib/privacy-context';
+import { useTheme } from '@/lib/theme-context';
+import { CHART_COLORS } from '@/lib/theme';
 
 ChartJS.register(
   CategoryScale,
@@ -78,6 +80,8 @@ function summarize(series: EquityPoint[]) {
 }
 
 export default function DashboardView() {
+  const { resolvedTheme } = useTheme();
+  const chartColors = CHART_COLORS[resolvedTheme];
   const { data: accountList = [], isLoading: isAccountsLoading } =
     useTradingAccounts(true);
   const createAccount = useCreateAccount();
@@ -311,8 +315,8 @@ export default function DashboardView() {
         {
           label: 'Portfolio Equity',
           data: filteredChartSeries.map(p => p.equity),
-          borderColor: 'rgb(59,130,246)',
-          backgroundColor: 'rgba(59,130,246,0.15)',
+          borderColor: chartColors.line,
+          backgroundColor: chartColors.fill,
           tension: 0.25,
           fill: true,
           pointRadius: filteredChartSeries.length <= 1 ? 5 : 0,
@@ -320,7 +324,7 @@ export default function DashboardView() {
         },
       ],
     }),
-    [filteredChartSeries]
+    [filteredChartSeries, chartColors]
   );
 
   const options = useMemo(
@@ -331,6 +335,11 @@ export default function DashboardView() {
       plugins: {
         legend: { display: false },
         tooltip: {
+          backgroundColor: chartColors.surface,
+          titleColor: chartColors.text,
+          bodyColor: chartColors.text,
+          borderColor: chartColors.grid,
+          borderWidth: 1,
           callbacks: {
             label: (ctx: { parsed: { y: number | null } }) =>
               valuesHidden || ctx.parsed.y == null
@@ -340,10 +349,14 @@ export default function DashboardView() {
         },
       },
       scales: {
-        x: { grid: { display: false }, ticks: { maxTicksLimit: 6 } },
+        x: {
+          grid: { display: false },
+          ticks: { maxTicksLimit: 4, color: chartColors.text },
+        },
         y: {
-          grid: { color: 'rgba(0,0,0,0.06)' },
+          grid: { color: chartColors.grid },
           ticks: {
+            color: chartColors.text,
             callback: (value: number | string) =>
               valuesHidden
                 ? mask('')
@@ -352,7 +365,7 @@ export default function DashboardView() {
         },
       },
     }),
-    [valuesHidden, mask, numberFormatter]
+    [valuesHidden, mask, numberFormatter, chartColors]
   );
 
   if (isAccountsLoading) {
@@ -520,7 +533,7 @@ export default function DashboardView() {
             className='w-full'
             autoFocus
           />
-          <div className='flex items-start gap-2'>
+          <div className='flex items-start gap-2 pt-2'>
             <Checkbox
               inputId='new-account-demo'
               checked={newAccountIsDemo}
@@ -558,14 +571,20 @@ export default function DashboardView() {
       </Dialog>
 
       {hasAnyAccount ? (
-        <div className='px-4 sm:px-5 py-4'>
-          <div className='max-w-6xl xl:max-w-7xl 2xl:max-w-screen-2xl 3xl:max-w-[1800px] mx-auto space-y-6'>
+        <div className='px-4 sm:px-5 py-5 sm:py-7'>
+          <div className='portfolio-workspace mx-auto space-y-4 sm:space-y-5'>
+            <header>
+              <h1 className='portfolio-heading'>Your portfolio</h1>
+              <p className='text-sm' style={{ color: 'var(--tr-text-2)' }}>
+                Track your positions, performance and next move.
+              </p>
+            </header>
             {selectedAccountId ? (
               <>
-                <Card>
-                  <div className='flex items-start justify-between mb-4 pb-2 border-b border-gray-200'>
+                <section aria-label='Exchange filters'>
+                  <div className='flex items-start justify-between mb-2'>
                     <h3
-                      className='text-xl font-semibold'
+                      className='text-sm font-medium'
                       style={{ color: 'var(--tr-text)' }}
                     >
                       Exchanges{' '}
@@ -576,10 +595,7 @@ export default function DashboardView() {
                     </h3>
                   </div>
                   {exchangeList.length === 0 && (
-                    <div className='flex flex-col items-center justify-center py-8 gap-3 text-center'>
-                      <span className='text-4xl' aria-hidden>
-                        📊
-                      </span>
+                    <div className='py-2'>
                       <p className='text-slate-500 text-sm max-w-xs'>
                         No exchanges yet for this account. Create your first
                         position and the exchange will be inferred from the
@@ -587,18 +603,14 @@ export default function DashboardView() {
                       </p>
                     </div>
                   )}
-                  <div className='flex flex-wrap items-center gap-3 pr-16'>
+                  <div className='portfolio-filters'>
                     {exchangeList.map(e => {
                       const isSelected = selected === e.name;
                       return (
                         <div key={e.name} className='relative inline-block'>
                           <button
                             onClick={() => setSelected(e.name)}
-                            className={`px-3 py-1 rounded-full border transition select-none ${
-                              isSelected
-                                ? 'bg-blue-600 text-white border-blue-600'
-                                : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
-                            }`}
+                            className='portfolio-chip'
                             aria-pressed={isSelected}
                           >
                             {exchangeLabel(e.name)}
@@ -607,10 +619,10 @@ export default function DashboardView() {
                       );
                     })}
                   </div>
-                </Card>
+                </section>
 
-                <div className='grid grid-cols-1 sm:grid-cols-3 gap-4'>
-                  <Card className='text-center'>
+                <div className='portfolio-metrics'>
+                  <Card>
                     <h3
                       className='text-sm font-medium mb-1'
                       style={{ color: 'var(--tr-text-2)' }}
@@ -618,13 +630,13 @@ export default function DashboardView() {
                       Total Equity
                     </h3>
                     <p
-                      className='text-2xl font-bold'
+                      className='text-3xl sm:text-4xl font-semibold'
                       style={{ color: 'var(--tr-text)' }}
                     >
                       {mask(`$${numberFormatter.format(stats.totalEquity)}`)}
                     </p>
                   </Card>
-                  <Card className='text-center'>
+                  <Card>
                     <h3
                       className='text-sm font-medium mb-1'
                       style={{ color: 'var(--tr-text-2)' }}
@@ -645,7 +657,7 @@ export default function DashboardView() {
                       )}
                     </p>
                   </Card>
-                  <Card className='text-center'>
+                  <Card>
                     <h3
                       className='text-sm font-medium mb-1'
                       style={{ color: 'var(--tr-text-2)' }}
@@ -668,8 +680,8 @@ export default function DashboardView() {
                   </Card>
                 </div>
 
-                <Card className='h-[26rem] sm:h-[28rem] md:h-[32rem]'>
-                  <div className='flex items-center justify-between mb-3'>
+                <Card>
+                  <div className='flex flex-wrap gap-2 items-center justify-between mb-3'>
                     <h3 className='text-base font-semibold text-gray-800'>
                       Equity History
                     </h3>
@@ -682,7 +694,11 @@ export default function DashboardView() {
                           : 'No snapshot yet'}
                     </span>
                   </div>
-                  <div className='flex flex-wrap gap-1 mb-3'>
+                  <div
+                    className='chart-timeframes mb-3'
+                    role='group'
+                    aria-label='Chart timeframe'
+                  >
                     {(
                       [
                         'D',
@@ -699,17 +715,14 @@ export default function DashboardView() {
                       <button
                         key={tf}
                         onClick={() => setTimeframe(tf)}
-                        className={`min-h-10 px-3 inline-flex items-center justify-center text-xs rounded border transition select-none ${
-                          timeframe === tf
-                            ? 'bg-blue-600 text-white border-blue-600'
-                            : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'
-                        }`}
+                        className='portfolio-chip'
+                        aria-pressed={timeframe === tf}
                       >
                         {tf}
                       </button>
                     ))}
                   </div>
-                  <div className='h-72 sm:h-80 md:h-96'>
+                  <div className='portfolio-chart'>
                     <Line data={data} options={options} />
                   </div>
                 </Card>

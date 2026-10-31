@@ -45,6 +45,8 @@ import PageHeader from '@/components/PageHeader';
 import { formatDateDDMMYYYY, toLocalDateString } from '@/lib/date';
 import { formatCurrency, formatPct, returnClass } from '@/lib/format';
 import { usePrivacy } from '@/lib/privacy-context';
+import { useTheme } from '@/lib/theme-context';
+import { CHART_COLORS } from '@/lib/theme';
 
 type DateValue = Date | null;
 type DatePreset = '90D' | 'YTD' | '12M' | 'CUSTOM';
@@ -184,6 +186,8 @@ function BreakdownList({
 }
 
 export default function StatisticsView() {
+  const { resolvedTheme } = useTheme();
+  const chartColors = CHART_COLORS[resolvedTheme];
   const now = new Date();
   const defaultEnd = toLocalDateString(now);
   const defaultStart = toLocalDateString(
@@ -441,8 +445,8 @@ export default function StatisticsView() {
         {
           label: 'Current Equity',
           data: merged.currentValues,
-          borderColor: '#2563eb',
-          backgroundColor: 'rgba(37, 99, 235, 0.15)',
+          borderColor: chartColors.line,
+          backgroundColor: chartColors.fill,
           pointRadius: 2,
           tension: 0.35,
           fill: true,
@@ -452,8 +456,8 @@ export default function StatisticsView() {
               {
                 label: 'Previous Equity',
                 data: merged.previousValues,
-                borderColor: '#94a3b8',
-                backgroundColor: 'rgba(148, 163, 184, 0.08)',
+                borderColor: chartColors.previous,
+                backgroundColor: chartColors.fill,
                 borderDash: [6, 4],
                 pointRadius: 1,
                 tension: 0.35,
@@ -463,7 +467,7 @@ export default function StatisticsView() {
           : []),
       ],
     };
-  }, [equitySeries, previousEquitySeries, compareEnabled]);
+  }, [equitySeries, previousEquitySeries, compareEnabled, chartColors]);
 
   const realizedChartData = useMemo(() => {
     const merged = mergeSeries(
@@ -476,8 +480,8 @@ export default function StatisticsView() {
         {
           label: 'Current Realized P/L',
           data: merged.currentValues,
-          borderColor: '#0f766e',
-          backgroundColor: 'rgba(15, 118, 110, 0.15)',
+          borderColor: chartColors.success,
+          backgroundColor: chartColors.successFill,
           pointRadius: 2,
           tension: 0.35,
           fill: true,
@@ -487,8 +491,8 @@ export default function StatisticsView() {
               {
                 label: 'Previous Realized P/L',
                 data: merged.previousValues,
-                borderColor: '#94a3b8',
-                backgroundColor: 'rgba(148, 163, 184, 0.08)',
+                borderColor: chartColors.previous,
+                backgroundColor: chartColors.fill,
                 borderDash: [6, 4],
                 pointRadius: 1,
                 tension: 0.35,
@@ -498,15 +502,23 @@ export default function StatisticsView() {
           : []),
       ],
     };
-  }, [realizedSeries, previousRealizedSeries, compareEnabled]);
+  }, [realizedSeries, previousRealizedSeries, compareEnabled, chartColors]);
 
   const chartOptions = useMemo(
     () => ({
       responsive: true,
       maintainAspectRatio: false,
       plugins: {
-        legend: { display: compareEnabled },
+        legend: {
+          display: compareEnabled,
+          labels: { color: chartColors.text },
+        },
         tooltip: {
+          backgroundColor: chartColors.surface,
+          titleColor: chartColors.text,
+          bodyColor: chartColors.text,
+          borderColor: chartColors.grid,
+          borderWidth: 1,
           callbacks: {
             label: (ctx: {
               dataset: { label?: string };
@@ -520,19 +532,20 @@ export default function StatisticsView() {
       },
       scales: {
         x: {
-          ticks: { maxTicksLimit: 8 },
-          grid: { color: 'rgba(148, 163, 184, 0.18)' },
+          ticks: { maxTicksLimit: 8, color: chartColors.text },
+          grid: { color: chartColors.grid },
         },
         y: {
-          grid: { color: 'rgba(148, 163, 184, 0.18)' },
+          grid: { color: chartColors.grid },
           ticks: {
+            color: chartColors.text,
             callback: (value: number | string) =>
               valuesHidden ? mask('') : formatCurrency(Number(value), currency),
           },
         },
       },
     }),
-    [compareEnabled, valuesHidden, mask, currency]
+    [compareEnabled, valuesHidden, mask, currency, chartColors]
   );
 
   const distributionChartData = useMemo(() => {
@@ -560,13 +573,13 @@ export default function StatisticsView() {
                 ? 'Return % Distribution'
                 : 'Holding Days Distribution',
           data: source.map(bucket => bucket.count),
-          borderColor: '#1d4ed8',
-          backgroundColor: 'rgba(29, 78, 216, 0.28)',
+          borderColor: chartColors.line,
+          backgroundColor: chartColors.fill,
           borderWidth: 1,
         },
       ],
     };
-  }, [distributions, distributionMetric, mask]);
+  }, [distributions, distributionMetric, mask, chartColors]);
 
   const distributionChartOptions = useMemo(
     () => ({
@@ -574,34 +587,42 @@ export default function StatisticsView() {
       maintainAspectRatio: false,
       plugins: {
         legend: { display: false },
+        tooltip: {
+          backgroundColor: chartColors.surface,
+          titleColor: chartColors.text,
+          bodyColor: chartColors.text,
+          borderColor: chartColors.grid,
+          borderWidth: 1,
+        },
       },
       scales: {
         x: {
-          ticks: { maxTicksLimit: 6 },
-          grid: { color: 'rgba(148, 163, 184, 0.18)' },
+          ticks: { maxTicksLimit: 6, color: chartColors.text },
+          grid: { color: chartColors.grid },
         },
         y: {
           beginAtZero: true,
-          grid: { color: 'rgba(148, 163, 184, 0.18)' },
+          ticks: { color: chartColors.text },
+          grid: { color: chartColors.grid },
         },
       },
     }),
-    []
+    [chartColors]
   );
 
   return (
-    <div className='min-h-screen bg-[--tr-bg] p-4'>
-      <div className='max-w-6xl xl:max-w-7xl 2xl:max-w-screen-2xl 3xl:max-w-[1800px] mx-auto space-y-6'>
+    <div className='app-page'>
+      <div className='space-y-5'>
         <PageHeader
           title='Statistics'
           subtitle='Performance, risk and trade-quality analytics for the selected scope'
           action={
-            <div className='flex gap-2'>
+            <div className='responsive-actions'>
               <Button
                 label={compareMode ? 'Compare: ON' : 'Compare: OFF'}
                 icon='pi pi-chart-line'
                 onClick={() => setCompareMode(prev => !prev)}
-                severity={compareMode ? 'success' : 'secondary'}
+                severity={compareMode ? undefined : 'secondary'}
                 outlined={!compareMode}
               />
               <Button
@@ -622,15 +643,17 @@ export default function StatisticsView() {
         )}
 
         <Card>
-          <div className='grid grid-cols-1 md:grid-cols-4 gap-4'>
+          <div className='filter-grid'>
             <div>
               <label
+                htmlFor='statistics-from'
                 className='block text-sm mb-1'
                 style={{ color: 'var(--tr-text-2)' }}
               >
                 Date from
               </label>
               <Calendar
+                inputId='statistics-from'
                 value={fromDate}
                 onChange={e => {
                   setFromDate((e.value as Date) ?? null);
@@ -649,12 +672,14 @@ export default function StatisticsView() {
             </div>
             <div>
               <label
+                htmlFor='statistics-to'
                 className='block text-sm mb-1'
                 style={{ color: 'var(--tr-text-2)' }}
               >
                 Date to
               </label>
               <Calendar
+                inputId='statistics-to'
                 value={toDate}
                 onChange={e => {
                   setToDate((e.value as Date) ?? null);
@@ -733,7 +758,7 @@ export default function StatisticsView() {
               aria-label='Preset 90D'
               size='small'
               outlined={activePreset !== '90D'}
-              severity={activePreset === '90D' ? 'success' : 'secondary'}
+              severity={activePreset === '90D' ? undefined : 'secondary'}
               onClick={() => applyPreset('90D')}
             />
             <Button
@@ -741,7 +766,7 @@ export default function StatisticsView() {
               aria-label='Preset YTD'
               size='small'
               outlined={activePreset !== 'YTD'}
-              severity={activePreset === 'YTD' ? 'success' : 'secondary'}
+              severity={activePreset === 'YTD' ? undefined : 'secondary'}
               onClick={() => applyPreset('YTD')}
             />
             <Button
@@ -749,7 +774,7 @@ export default function StatisticsView() {
               aria-label='Preset 12M'
               size='small'
               outlined={activePreset !== '12M'}
-              severity={activePreset === '12M' ? 'success' : 'secondary'}
+              severity={activePreset === '12M' ? undefined : 'secondary'}
               onClick={() => applyPreset('12M')}
             />
             {activePreset === 'CUSTOM' && (
@@ -763,7 +788,7 @@ export default function StatisticsView() {
           </div>
         </Card>
 
-        <div className='grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4'>
+        <div className='metric-grid'>
           <Card>
             <p className='text-sm' style={{ color: 'var(--tr-text-2)' }}>
               Total P/L
@@ -881,7 +906,7 @@ export default function StatisticsView() {
                 No equity series data for this scope.
               </p>
             ) : (
-              <div className='h-64'>
+              <div className='portfolio-chart'>
                 <Line data={equityChartData} options={chartOptions} />
               </div>
             )}
@@ -897,7 +922,7 @@ export default function StatisticsView() {
                 No realized P/L data for this scope.
               </p>
             ) : (
-              <div className='h-64'>
+              <div className='portfolio-chart'>
                 <Line data={realizedChartData} options={chartOptions} />
               </div>
             )}
@@ -919,7 +944,7 @@ export default function StatisticsView() {
                 size='small'
                 outlined={distributionMetric !== 'pnl'}
                 severity={
-                  distributionMetric === 'pnl' ? 'success' : 'secondary'
+                  distributionMetric === 'pnl' ? undefined : 'secondary'
                 }
                 onClick={() => setDistributionMetric('pnl')}
               />
@@ -929,7 +954,7 @@ export default function StatisticsView() {
                 size='small'
                 outlined={distributionMetric !== 'returnPct'}
                 severity={
-                  distributionMetric === 'returnPct' ? 'success' : 'secondary'
+                  distributionMetric === 'returnPct' ? undefined : 'secondary'
                 }
                 onClick={() => setDistributionMetric('returnPct')}
               />
@@ -939,7 +964,7 @@ export default function StatisticsView() {
                 size='small'
                 outlined={distributionMetric !== 'holdingDays'}
                 severity={
-                  distributionMetric === 'holdingDays' ? 'success' : 'secondary'
+                  distributionMetric === 'holdingDays' ? undefined : 'secondary'
                 }
                 onClick={() => setDistributionMetric('holdingDays')}
               />
@@ -949,7 +974,7 @@ export default function StatisticsView() {
                 No histogram data for this scope.
               </p>
             ) : (
-              <div className='h-64'>
+              <div className='portfolio-chart'>
                 <Bar
                   data={distributionChartData}
                   options={distributionChartOptions}
@@ -966,94 +991,97 @@ export default function StatisticsView() {
               trades...
             </div>
           ) : (
-            <DataTable
-              value={closedTradeRows}
-              size='small'
-              stripedRows
-              className='holdings-table'
-              cellMemo={false}
-              paginator
-              lazy
-              first={pageFirst}
-              rows={pageRows}
-              totalRecords={closedTrades?.meta.total ?? 0}
-              onPage={e => {
-                setPageFirst(e.first);
-                setPageRows(e.rows);
-              }}
-            >
-              <Column
-                header={
-                  <button
-                    aria-label='Sort by Close Date'
-                    onClick={() => handleSort('closeDate')}
-                    className='font-semibold'
-                  >
-                    Close Date
-                    {sortDirectionForHeader(sortBy, sortDir, 'closeDate')}
-                  </button>
-                }
-                body={row => formatDateDDMMYYYY(row.closeDate)}
-              />
-              <Column
-                header='Symbol'
-                body={row => (
-                  <button
-                    aria-label={`View trade details ${row.symbol}`}
-                    className='text-blue-600 font-semibold hover:underline'
-                    onClick={() => setSelectedTrade(row)}
-                  >
-                    {row.symbol}
-                  </button>
-                )}
-              />
-              <Column
-                header={
-                  <button
-                    aria-label='Sort by P/L'
-                    onClick={() => handleSort('pnl')}
-                    className='font-semibold'
-                  >
-                    P/L{sortDirectionForHeader(sortBy, sortDir, 'pnl')}
-                  </button>
-                }
-                body={row => (
-                  <span className={returnClass(row.pnl, valuesHidden)}>
-                    {mask(formatCurrency(row.pnl, row.currency))}
-                  </span>
-                )}
-              />
-              <Column
-                header={
-                  <button
-                    aria-label='Sort by Return %'
-                    onClick={() => handleSort('returnPct')}
-                    className='font-semibold'
-                  >
-                    Return %
-                    {sortDirectionForHeader(sortBy, sortDir, 'returnPct')}
-                  </button>
-                }
-                body={row => (
-                  <span className={returnClass(row.returnPct, valuesHidden)}>
-                    {formatSignedPctValue(row.returnPct)}
-                  </span>
-                )}
-              />
-              <Column
-                header={
-                  <button
-                    aria-label='Sort by Holding Days'
-                    onClick={() => handleSort('holdingDays')}
-                    className='font-semibold'
-                  >
-                    Holding Days
-                    {sortDirectionForHeader(sortBy, sortDir, 'holdingDays')}
-                  </button>
-                }
-                field='holdingDays'
-              />
-            </DataTable>
+            <div className='table-region'>
+              <DataTable
+                scrollable
+                value={closedTradeRows}
+                size='small'
+                stripedRows
+                className='holdings-table'
+                cellMemo={false}
+                paginator
+                lazy
+                first={pageFirst}
+                rows={pageRows}
+                totalRecords={closedTrades?.meta.total ?? 0}
+                onPage={e => {
+                  setPageFirst(e.first);
+                  setPageRows(e.rows);
+                }}
+              >
+                <Column
+                  header={
+                    <button
+                      aria-label='Sort by Close Date'
+                      onClick={() => handleSort('closeDate')}
+                      className='font-semibold'
+                    >
+                      Close Date
+                      {sortDirectionForHeader(sortBy, sortDir, 'closeDate')}
+                    </button>
+                  }
+                  body={row => formatDateDDMMYYYY(row.closeDate)}
+                />
+                <Column
+                  header='Symbol'
+                  body={row => (
+                    <button
+                      aria-label={`View trade details ${row.symbol}`}
+                      className='text-blue-600 font-semibold hover:underline'
+                      onClick={() => setSelectedTrade(row)}
+                    >
+                      {row.symbol}
+                    </button>
+                  )}
+                />
+                <Column
+                  header={
+                    <button
+                      aria-label='Sort by P/L'
+                      onClick={() => handleSort('pnl')}
+                      className='font-semibold'
+                    >
+                      P/L{sortDirectionForHeader(sortBy, sortDir, 'pnl')}
+                    </button>
+                  }
+                  body={row => (
+                    <span className={returnClass(row.pnl, valuesHidden)}>
+                      {mask(formatCurrency(row.pnl, row.currency))}
+                    </span>
+                  )}
+                />
+                <Column
+                  header={
+                    <button
+                      aria-label='Sort by Return %'
+                      onClick={() => handleSort('returnPct')}
+                      className='font-semibold'
+                    >
+                      Return %
+                      {sortDirectionForHeader(sortBy, sortDir, 'returnPct')}
+                    </button>
+                  }
+                  body={row => (
+                    <span className={returnClass(row.returnPct, valuesHidden)}>
+                      {formatSignedPctValue(row.returnPct)}
+                    </span>
+                  )}
+                />
+                <Column
+                  header={
+                    <button
+                      aria-label='Sort by Holding Days'
+                      onClick={() => handleSort('holdingDays')}
+                      className='font-semibold'
+                    >
+                      Holding Days
+                      {sortDirectionForHeader(sortBy, sortDir, 'holdingDays')}
+                    </button>
+                  }
+                  field='holdingDays'
+                />
+              </DataTable>
+            </div>
           )}
         </Card>
 
@@ -1064,10 +1092,40 @@ export default function StatisticsView() {
               : 'Trade Details'
           }
           visible={selectedTrade !== null}
+          task
           onHide={() => setSelectedTrade(null)}
           style={{ width: '560px', maxWidth: '95vw' }}
           modal
           blockScroll
+          footer={
+            selectedTrade && (
+              <div className='task-actions'>
+                <Button
+                  label='Previous trade'
+                  aria-label='Previous trade details'
+                  severity='secondary'
+                  outlined
+                  disabled={!canGoToPreviousTrade}
+                  onClick={() => selectNeighborTrade(-1)}
+                />
+                <Button
+                  label='Next trade'
+                  aria-label='Next trade details'
+                  severity='secondary'
+                  outlined
+                  disabled={!canGoToNextTrade}
+                  onClick={() => selectNeighborTrade(1)}
+                />
+                <Button
+                  label='Close details'
+                  aria-label='Close trade details'
+                  severity='secondary'
+                  outlined
+                  onClick={() => setSelectedTrade(null)}
+                />
+              </div>
+            )
+          }
         >
           {selectedTrade && (
             <div className='space-y-4'>
@@ -1148,34 +1206,6 @@ export default function StatisticsView() {
                     {formatSignedPctValue(selectedTrade.returnPct)}
                   </p>
                 </div>
-              </div>
-
-              <div className='flex justify-end'>
-                <Button
-                  label='Previous trade'
-                  aria-label='Previous trade details'
-                  severity='secondary'
-                  outlined
-                  disabled={!canGoToPreviousTrade}
-                  onClick={() => selectNeighborTrade(-1)}
-                />
-                <Button
-                  label='Next trade'
-                  aria-label='Next trade details'
-                  severity='secondary'
-                  outlined
-                  disabled={!canGoToNextTrade}
-                  onClick={() => selectNeighborTrade(1)}
-                  className='ml-2'
-                />
-                <Button
-                  label='Close details'
-                  aria-label='Close trade details'
-                  severity='secondary'
-                  outlined
-                  className='ml-2'
-                  onClick={() => setSelectedTrade(null)}
-                />
               </div>
             </div>
           )}

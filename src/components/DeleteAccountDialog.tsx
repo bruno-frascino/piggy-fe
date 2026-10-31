@@ -50,6 +50,27 @@ export default function DeleteAccountDialog({
       closeOnEscape={!loading}
       style={{ width: '560px', maxWidth: '95vw' }}
       onHide={handleHide}
+      footer={
+        <div className='task-actions'>
+          <Button
+            type='button'
+            label='Cancel'
+            severity='secondary'
+            outlined
+            onClick={handleHide}
+            disabled={loading}
+          />
+          <Button
+            type='button'
+            label='Delete my account'
+            icon='pi pi-trash'
+            severity='danger'
+            onClick={() => onConfirm(currentPassword)}
+            loading={loading}
+            disabled={!canSubmit}
+          />
+        </div>
+      }
     >
       <div className='space-y-5'>
         <div className='rounded-2xl border border-red-200 bg-red-50 p-4 text-red-900'>
@@ -123,26 +144,6 @@ export default function DeleteAccountDialog({
         </div>
 
         {error && <Message severity='error' text={error} className='w-full' />}
-
-        <div className='flex justify-end gap-2 pt-1'>
-          <Button
-            type='button'
-            label='Cancel'
-            severity='secondary'
-            outlined
-            onClick={handleHide}
-            disabled={loading}
-          />
-          <Button
-            type='button'
-            label='Delete my account'
-            icon='pi pi-trash'
-            severity='danger'
-            onClick={() => onConfirm(currentPassword)}
-            loading={loading}
-            disabled={!canSubmit}
-          />
-        </div>
       </div>
     </Dialog>
   );

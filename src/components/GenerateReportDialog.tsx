@@ -89,6 +89,7 @@ export default function GenerateReportDialog({
     <Dialog
       header='Generate Capital Gains Report'
       visible={visible}
+      task
       modal
       blockScroll
       style={{ width: '560px', maxWidth: '95vw' }}
@@ -97,6 +98,25 @@ export default function GenerateReportDialog({
       onHide={() => {
         if (!generateReport.isPending) onHide();
       }}
+      footer={
+        <div className='task-actions'>
+          <Button
+            type='button'
+            label='Cancel'
+            severity='secondary'
+            outlined
+            onClick={onHide}
+            disabled={generateReport.isPending}
+          />
+          <Button
+            type='button'
+            label='Generate'
+            icon='pi pi-file-pdf'
+            onClick={handleGenerate}
+            loading={generateReport.isPending}
+          />
+        </div>
+      }
     >
       <div className='space-y-4'>
         <p className='text-sm' style={{ color: 'var(--tr-text-2)' }}>
@@ -107,12 +127,14 @@ export default function GenerateReportDialog({
 
         <div>
           <label
+            htmlFor='report-financial-year'
             className='block text-sm font-medium mb-1'
             style={{ color: 'var(--tr-text-2)' }}
           >
             Financial year
           </label>
           <Dropdown
+            inputId='report-financial-year'
             value={financialYearStartYear}
             options={fyOptions}
             onChange={e => setFinancialYearStartYear(e.value)}
@@ -123,12 +145,14 @@ export default function GenerateReportDialog({
 
         <div>
           <label
+            htmlFor='report-accounts'
             className='block text-sm font-medium mb-1'
             style={{ color: 'var(--tr-text-2)' }}
           >
             Accounts to include
           </label>
           <MultiSelect
+            inputId='report-accounts'
             value={selectedAccountIds}
             options={accounts.map(a => ({ label: a.name, value: a.id }))}
             onChange={e => setSelectedAccountIds(e.value)}
@@ -150,24 +174,6 @@ export default function GenerateReportDialog({
           severity='warn'
           text='This report is generated automatically and is not professional tax advice. Verify all figures with a registered tax agent before lodging.'
         />
-
-        <div className='flex justify-end gap-2 pt-1'>
-          <Button
-            type='button'
-            label='Cancel'
-            severity='secondary'
-            outlined
-            onClick={onHide}
-            disabled={generateReport.isPending}
-          />
-          <Button
-            type='button'
-            label='Generate'
-            icon='pi pi-file-pdf'
-            onClick={handleGenerate}
-            loading={generateReport.isPending}
-          />
-        </div>
       </div>
     </Dialog>
   );

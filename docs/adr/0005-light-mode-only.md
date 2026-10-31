@@ -1,6 +1,6 @@
 # 0005. Light-mode-only design tokens, no dark mode
 
-- **Status**: Accepted
+- **Status**: Superseded by [ADR 0009](0009-responsive-design-pilot.md)
 - **Date**: 2026-07-24 (retro-documented 2026-07-28)
 
 ## Context

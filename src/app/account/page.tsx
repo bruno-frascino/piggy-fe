@@ -10,6 +10,8 @@ import { Password } from 'primereact/password';
 import { Button } from 'primereact/button';
 import { Message } from 'primereact/message';
 import DeleteAccountDialog from '@/components/DeleteAccountDialog';
+import PageHeader from '@/components/PageHeader';
+import ThemePicker from '@/components/ThemePicker';
 import { clearClientSession } from '@/lib/session';
 import { usePrivacy } from '@/lib/privacy-context';
 import {
@@ -161,15 +163,11 @@ export default function AccountPage() {
   };
 
   return (
-    <main className='max-w-6xl xl:max-w-7xl 2xl:max-w-screen-2xl 3xl:max-w-[1800px] mx-auto p-5 space-y-5'>
-      <Card>
-        <h2 className='text-2xl font-semibold text-gray-900 mb-2'>
-          Account Settings
-        </h2>
-        <p className='text-sm text-gray-600'>
-          Manage your personal details and password.
-        </p>
-      </Card>
+    <main className='app-page space-y-5'>
+      <PageHeader
+        title='Account Settings'
+        subtitle='Manage your personal details and password.'
+      />
 
       <div className='grid grid-cols-1 xl:grid-cols-2 gap-5'>
         <Card>
@@ -204,17 +202,29 @@ export default function AccountPage() {
               )}
 
               <div className='space-y-2'>
-                <label className='block text-sm font-medium text-gray-700'>
+                <label
+                  htmlFor='profile-email'
+                  className='block text-sm font-medium text-gray-700'
+                >
                   Email
                 </label>
-                <InputText value={user.email} disabled className='w-full' />
+                <InputText
+                  id='profile-email'
+                  value={user.email}
+                  disabled
+                  className='w-full'
+                />
               </div>
 
               <div className='space-y-2'>
-                <label className='block text-sm font-medium text-gray-700'>
+                <label
+                  htmlFor='profile-name'
+                  className='block text-sm font-medium text-gray-700'
+                >
                   Name
                 </label>
                 <InputText
+                  id='profile-name'
                   value={name}
                   onChange={e => setName(e.target.value)}
                   className='w-full'
@@ -222,10 +232,14 @@ export default function AccountPage() {
               </div>
 
               <div className='space-y-2'>
-                <label className='block text-sm font-medium text-gray-700'>
+                <label
+                  htmlFor='profile-currency'
+                  className='block text-sm font-medium text-gray-700'
+                >
                   Base Currency
                 </label>
                 <Dropdown
+                  inputId='profile-currency'
                   value={baseCurrency}
                   options={POPULAR_CURRENCY_OPTIONS}
                   onChange={e => setBaseCurrency(String(e.value ?? ''))}
@@ -248,6 +262,16 @@ export default function AccountPage() {
               />
             </form>
           )}
+          <div
+            className='mt-5 pt-4 border-t'
+            style={{ borderColor: 'var(--tr-border)' }}
+          >
+            <ThemePicker />
+            <p className='text-xs mt-2' style={{ color: 'var(--tr-text-2)' }}>
+              System follows your device appearance. Changes apply immediately
+              and are saved on this device.
+            </p>
+          </div>
         </Card>
 
         <Card>
@@ -272,10 +296,14 @@ export default function AccountPage() {
             )}
 
             <div className='space-y-2'>
-              <label className='block text-sm font-medium text-gray-700'>
+              <label
+                htmlFor='current-password'
+                className='block text-sm font-medium text-gray-700'
+              >
                 Current Password
               </label>
               <Password
+                inputId='current-password'
                 value={currentPassword}
                 onChange={e => setCurrentPassword(e.target.value)}
                 feedback={false}
@@ -285,10 +313,14 @@ export default function AccountPage() {
             </div>
 
             <div className='space-y-2'>
-              <label className='block text-sm font-medium text-gray-700'>
+              <label
+                htmlFor='new-password'
+                className='block text-sm font-medium text-gray-700'
+              >
                 New Password
               </label>
               <Password
+                inputId='new-password'
                 value={newPassword}
                 onChange={e => setNewPassword(e.target.value)}
                 feedback={false}
@@ -298,10 +330,14 @@ export default function AccountPage() {
             </div>
 
             <div className='space-y-2'>
-              <label className='block text-sm font-medium text-gray-700'>
+              <label
+                htmlFor='confirm-password'
+                className='block text-sm font-medium text-gray-700'
+              >
                 Confirm New Password
               </label>
               <Password
+                inputId='confirm-password'
                 value={confirmPassword}
                 onChange={e => setConfirmPassword(e.target.value)}
                 feedback={false}

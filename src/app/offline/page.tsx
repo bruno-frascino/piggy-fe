@@ -6,8 +6,9 @@ import OfflineActions from './ClientActions';
 
 export default function OfflinePage() {
   return (
-    <div className='min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 p-6'>
-      <div className='w-full max-w-md text-center bg-white shadow rounded-lg p-8'>
+    <div className='auth-page'>
+      <div className='empty-state surface-panel w-full max-w-md'>
+        <i className='pi pi-wifi empty-state-icon' aria-hidden />
         <h1 className='text-2xl font-bold text-gray-900 mb-2'>
           You are offline
         </h1>

@@ -137,6 +137,22 @@ afterEach(() => {
 });
 
 describe('HistoryPage', () => {
+  it('defaults to a mobile summary and lets the user inspect every column', () => {
+    render(<HistoryPage />);
+    const toggle = screen.getByRole('button', { name: 'All columns' });
+    expect(toggle).toHaveAttribute('aria-pressed', 'false');
+    expect(document.querySelector('.history-table')).toHaveClass(
+      'history-table--compact'
+    );
+    fireEvent.click(toggle);
+    expect(screen.getByRole('button', { name: 'Summary' })).toHaveAttribute(
+      'aria-pressed',
+      'true'
+    );
+    expect(document.querySelector('.history-table')).not.toHaveClass(
+      'history-table--compact'
+    );
+  });
   it('honors an import link account and all-history scope', async () => {
     window.history.replaceState({}, '', '/history?accountId=acc-1&period=all');
     render(<HistoryPage />);

@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef } from 'react';
+import { useEffect, useRef } from 'react';
 import { Dialog, type DialogProps } from 'primereact/dialog';
 
 const FIELD_SELECTOR = [
@@ -19,6 +19,28 @@ function isFocusableField(el: HTMLElement): boolean {
   }
   const style = window.getComputedStyle(el);
   return style.display !== 'none' && style.visibility !== 'hidden';
+}
+
+function fitTaskViewport(root: HTMLElement | null) {
+  if (!root) return;
+  const mask = root.closest<HTMLElement>('.p-dialog-mask');
+  const mobile = window.matchMedia?.('(max-width: 767px)').matches;
+  if (mobile && window.visualViewport) {
+    root.style.setProperty(
+      '--task-height',
+      `${window.visualViewport.height}px`
+    );
+    if (mask) {
+      mask.style.height = `${window.visualViewport.height}px`;
+      mask.style.top = `${window.visualViewport.offsetTop}px`;
+    }
+  } else {
+    root.style.removeProperty('--task-height');
+    if (mask) {
+      mask.style.height = '100%';
+      mask.style.top = '0px';
+    }
+  }
 }
 
 export function focusFirstField(root: HTMLElement | null): boolean {
@@ -40,16 +62,71 @@ export function focusFirstField(root: HTMLElement | null): boolean {
  * input field when the dialog opens (PrimeReact otherwise focuses the close icon).
  * Dialogs without any editable field keep PrimeReact's default focus behaviour.
  */
-export default function AppDialog({ onShow, children, ...props }: DialogProps) {
+export default function AppDialog({
+  onShow,
+  children,
+  task = false,
+  validationErrors,
+  className,
+  ...props
+}: DialogProps & {
+  task?: boolean;
+  validationErrors?: Record<string, string>;
+}) {
   const ref = useRef<Dialog>(null);
+
+  useEffect(() => {
+    if (!task || !props.visible) return;
+    const update = () => fitTaskViewport(ref.current?.getElement() ?? null);
+    window.visualViewport?.addEventListener('resize', update);
+    window.visualViewport?.addEventListener('scroll', update);
+    window.addEventListener('resize', update);
+    return () => {
+      window.visualViewport?.removeEventListener('resize', update);
+      window.visualViewport?.removeEventListener('scroll', update);
+      window.removeEventListener('resize', update);
+    };
+  }, [task, props.visible]);
+
+  useEffect(() => {
+    if (
+      !props.visible ||
+      !validationErrors ||
+      !Object.keys(validationErrors).length
+    )
+      return;
+    const root = ref.current?.getElement();
+    const invalid = root?.querySelector<HTMLElement>(
+      '[aria-invalid="true"], .p-invalid input'
+    );
+    if (!invalid) return;
+    const details = invalid.closest('details');
+    if (details) details.open = true;
+    invalid.focus();
+    invalid.scrollIntoView?.({ block: 'nearest' });
+  }, [validationErrors, props.visible]);
 
   return (
     <Dialog
       {...props}
+      position={task ? 'right' : (props.position ?? 'center')}
+      draggable={task ? false : props.draggable}
+      resizable={task ? false : props.resizable}
+      className={[className, task ? 'task-dialog' : '']
+        .filter(Boolean)
+        .join(' ')}
       ref={ref}
       onShow={() => {
         onShow?.();
-        focusFirstField(ref.current?.getElement() ?? null);
+        const root = ref.current?.getElement() ?? null;
+        if (task) fitTaskViewport(root);
+        if (task && window.matchMedia?.('(max-width: 767px)').matches) {
+          const title = root?.querySelector<HTMLElement>('.p-dialog-title');
+          title?.setAttribute('tabindex', '-1');
+          title?.focus();
+        } else {
+          focusFirstField(root);
+        }
       }}
     >
       {children}

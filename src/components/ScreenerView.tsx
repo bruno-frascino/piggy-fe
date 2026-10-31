@@ -50,23 +50,25 @@ export default function ScreenerView() {
   );
 
   return (
-    <div className='min-h-screen bg-[--tr-bg] p-4'>
-      <div className='max-w-6xl xl:max-w-7xl 2xl:max-w-screen-2xl 3xl:max-w-[1800px] mx-auto space-y-6'>
+    <div className='app-page'>
+      <div className='space-y-5'>
         <PageHeader
           title='Screener'
           subtitle='Discover stocks by symbol or filters, or manage your watchlists'
         />
 
-        <Card>
+        <div>
           <SelectButton
+            className='segmented-control'
+            aria-label='Screener view'
             value={tab}
             onChange={e => e.value && setTab(e.value)}
             options={TABS}
           />
-        </Card>
+        </div>
 
         {tab === 'discover' ? (
-          <div className='flex flex-col gap-6'>
+          <div className='flex flex-col gap-4'>
             {!isOnline && (
               <Message
                 severity='warn'

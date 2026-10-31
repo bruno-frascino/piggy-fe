@@ -3,6 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "theme:build": "tsx scripts/build-ui-themes.ts",
+    "predev": "yarn theme:build",
+    "prebuild": "yarn theme:build",
     "prepare": "husky",
     "dev": "next dev",
     "build": "next build",

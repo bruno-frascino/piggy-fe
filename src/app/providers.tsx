@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { PrimeReactProvider } from 'primereact/api';
 import { ToastProvider } from '@/lib/toast-context';
 import { PrivacyProvider } from '@/lib/privacy-context';
+import { ThemeProvider } from '@/lib/theme-context';
 
 export function Providers({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(
@@ -21,11 +22,13 @@ export function Providers({ children }: { children: React.ReactNode }) {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <PrimeReactProvider>
-        <ToastProvider>
-          <PrivacyProvider>{children}</PrivacyProvider>
-        </ToastProvider>
-      </PrimeReactProvider>
+      <ThemeProvider>
+        <PrimeReactProvider>
+          <ToastProvider>
+            <PrivacyProvider>{children}</PrivacyProvider>
+          </ToastProvider>
+        </PrimeReactProvider>
+      </ThemeProvider>
     </QueryClientProvider>
   );
 }

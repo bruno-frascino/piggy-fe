@@ -173,7 +173,8 @@ export default function ScreenerFiltersForm({
         value={mode}
         onChange={e => e.value && setMode(e.value)}
         options={SEARCH_MODES}
-        className='self-start'
+        className='segmented-control self-start'
+        aria-label='Search mode'
         disabled={disabled}
       />
 
@@ -186,7 +187,7 @@ export default function ScreenerFiltersForm({
           disabled={disabled}
         />
       ) : (
-        <div className='grid grid-cols-2 sm:grid-cols-4 gap-3'>
+        <div className='filter-grid'>
           <label className='flex flex-col gap-1 text-sm text-gray-600'>
             Market cap min
             <InputNumber
@@ -272,15 +273,18 @@ export default function ScreenerFiltersForm({
       <Dialog
         header='Save current filters'
         visible={saveDialogVisible}
+        modal
+        blockScroll
         onHide={() => setSaveDialogVisible(false)}
         style={{ width: '24rem', maxWidth: '95vw' }}
       >
-        <div className='flex items-center gap-2'>
+        <div className='responsive-actions'>
           <InputText
+            aria-label='Screen name'
             value={saveName}
             onChange={e => setSaveName(e.target.value)}
             placeholder='Screen name'
-            className='flex-1'
+            className='flex-1 min-w-0'
           />
           <Button
             label='Save'

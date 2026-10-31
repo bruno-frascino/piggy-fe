@@ -38,6 +38,118 @@ const trade: ClosedTrade = {
 };
 
 describe('EditClosedTradeDialog', () => {
+  it('caps both comments at 200px with scrolling and preserves long text on save', () => {
+    const onSave = vi.fn();
+    const longText = 'Trading rationale\n'.repeat(60);
+    render(
+      <EditClosedTradeDialog
+        trade={{ ...trade, closeDate: '2026-07-15' }}
+        onHide={vi.fn()}
+        onSave={onSave}
+        onDeletePosition={vi.fn()}
+      />
+    );
+    const notes = screen
+      .getByText('Buy and sell notes (optional)')
+      .closest('details')!;
+    notes.open = true;
+    for (const label of ['Buy Comments', 'Sell Comments']) {
+      const field = screen.getByLabelText(label);
+      expect(field).toHaveClass('position-comments');
+      expect(field).toHaveStyle({ maxHeight: '200px' });
+      Object.defineProperty(field, 'offsetParent', {
+        configurable: true,
+        value: document.body,
+      });
+      vi.spyOn(field, 'getBoundingClientRect').mockReturnValue(
+        new DOMRect(0, 0, 300, 96)
+      );
+      let contentHeight = 96;
+      Object.defineProperty(field, 'scrollHeight', {
+        configurable: true,
+        get: () => contentHeight,
+      });
+      fireEvent.focus(field);
+      contentHeight = 150;
+      fireEvent.input(field, { target: { value: 'Short rationale' } });
+      expect(field).toHaveStyle({ height: '150px' });
+      contentHeight = 1000;
+      fireEvent.input(field, { target: { value: longText } });
+      expect(field).toHaveStyle({ height: '200px', overflowY: 'scroll' });
+      expect(field).toHaveValue(longText);
+    }
+    fireEvent.click(screen.getByRole('button', { name: 'Save Changes' }));
+    expect(onSave).toHaveBeenCalledWith(
+      expect.objectContaining({ buyComments: longText, sellComments: longText })
+    );
+    vi.restoreAllMocks();
+  });
+  it('uses drawer-width grids for long crypto values without rounding submitted prices', () => {
+    const cryptoTrade = {
+      ...trade,
+      symbol: 'BTC-AUD',
+      exchange: 'KRAKEN',
+      baseCurrency: 'AUD',
+      closeDate: '2026-07-15',
+      buyPrice: 125000,
+      sellPrice: 118952.400011012,
+      sellFee: 10.4143,
+    };
+    const onSave = vi.fn();
+    render(
+      <EditClosedTradeDialog
+        trade={cryptoTrade}
+        onHide={vi.fn()}
+        onSave={onSave}
+        onDeletePosition={vi.fn()}
+      />
+    );
+    const dialog = screen.getByRole('dialog');
+    expect(dialog).toHaveClass('closed-trade-dialog');
+    expect(dialog.querySelector('.task-summary')).toHaveClass(
+      'closed-trade-summary'
+    );
+    expect(dialog.querySelector('.task-summary')).not.toHaveClass(
+      'md:grid-cols-4'
+    );
+    expect(
+      screen.getByLabelText('Close Date *').closest('.closed-trade-fields')
+    ).not.toBeNull();
+    expect(
+      screen.getByLabelText('Sell Price *').closest('.closed-trade-fields')
+    ).not.toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: 'Save Changes' }));
+    expect(onSave).toHaveBeenCalledWith(cryptoTrade);
+  });
+  it('uses a task drawer with persistent actions and preserves all parcel facts on save', () => {
+    const onSave = vi.fn();
+    const validTrade = {
+      ...trade,
+      closeDate: '2026-07-15',
+      buyComments: 'Entry rationale',
+      sellComments: 'Exit rationale',
+    };
+    render(
+      <EditClosedTradeDialog
+        trade={validTrade}
+        onHide={vi.fn()}
+        onSave={onSave}
+        onDeletePosition={vi.fn()}
+      />
+    );
+    expect(screen.getByRole('dialog')).toHaveClass('task-dialog');
+    expect(
+      screen
+        .getByRole('button', { name: 'Save Changes' })
+        .closest('.p-dialog-footer')
+    ).not.toBeNull();
+    expect(screen.getByLabelText('Close Date *')).toBeInTheDocument();
+    expect(
+      screen.getByText('Buy and sell notes (optional)').closest('details')
+    ).not.toHaveAttribute('open');
+    fireEvent.click(screen.getByRole('button', { name: 'Save Changes' }));
+    expect(onSave).toHaveBeenCalledWith(validTrade);
+  });
   it('rejects a close date before the open date', () => {
     const onSave = vi.fn();
 
@@ -56,6 +168,10 @@ describe('EditClosedTradeDialog', () => {
     expect(
       screen.getByText('Close date cannot be before open date')
     ).toBeInTheDocument();
+    expect(screen.getByLabelText('Close Date *')).toHaveAttribute(
+      'aria-invalid',
+      'true'
+    );
   });
 
   it('renders parcel-defining fields as read-only text, not inputs', () => {

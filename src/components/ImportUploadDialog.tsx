@@ -173,7 +173,26 @@ export default function ImportUploadDialog({
     <AppDialog
       header={`Import from Kraken${accountName ? ` · ${accountName}` : ''}`}
       visible={visible}
+      task
       onHide={handleHide}
+      footer={
+        <div className='task-actions'>
+          <Button
+            label='Cancel'
+            severity='secondary'
+            outlined
+            onClick={handleHide}
+            disabled={createImport.isPending}
+          />
+          <Button
+            label='Upload and review'
+            icon='pi pi-upload'
+            loading={createImport.isPending}
+            disabled={!trades || !ledgers || previousImport !== null}
+            onClick={handleUpload}
+          />
+        </div>
+      }
       style={{ width: '32rem', maxWidth: '95vw' }}
       modal
     >
@@ -282,22 +301,6 @@ export default function ImportUploadDialog({
             ))}
           </div>
         )}
-
-        <div className='flex justify-end gap-2'>
-          <Button
-            label='Cancel'
-            severity='secondary'
-            text
-            onClick={handleHide}
-          />
-          <Button
-            label='Upload and review'
-            icon='pi pi-upload'
-            loading={createImport.isPending}
-            disabled={!trades || !ledgers || previousImport !== null}
-            onClick={handleUpload}
-          />
-        </div>
       </div>
     </AppDialog>
   );
