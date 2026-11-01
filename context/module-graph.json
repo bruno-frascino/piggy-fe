@@ -211,6 +211,7 @@
         "src/components/ClosePositionDialog.tsx",
         "src/components/ImportUploadDialog.tsx",
         "src/components/PositionDetailsDialog.tsx",
+        "src/components/OpeningPreviewDialog.tsx",
         "src/components/GenerateReportDialog.tsx",
         "src/components/ReportDetailDialog.tsx",
         "src/components/AddToWatchlistDialog.tsx",
@@ -352,6 +353,7 @@
         "src/hooks/useSymbolSearch.ts",
         "src/components/ImportUploadDialog.tsx",
         "src/hooks/useHoldingRows.ts",
+        "src/components/OpeningPreviewDialog.tsx",
         "src/hooks/useExchangeDiscovery.ts",
         "src/components/ReportsView.tsx",
         "src/components/GenerateReportDialog.tsx",
@@ -363,6 +365,7 @@
         "src/components/StatisticsView.tsx",
         "src/hooks/useStatisticsExchanges.ts",
         "src/hooks/api.test.tsx",
+        "src/hooks/opening-preview.test.tsx",
         "src/hooks/screener-watchlist-api.test.tsx"
       ],
       "orphan": false,
@@ -607,7 +610,8 @@
         }
       ],
       "dependents": [
-        "src/lib/api-client.ts"
+        "src/lib/api-client.ts",
+        "src/hooks/opening-preview.test.tsx"
       ],
       "orphan": false,
       "source": "src/lib/api/accounts.ts",
@@ -1039,9 +1043,11 @@
         "src/components/HoldingsTable.tsx",
         "src/components/ClosePositionDialog.tsx",
         "src/components/PositionDetailsDialog.tsx",
+        "src/components/OpeningPreviewDialog.tsx",
         "src/components/ReportsView.tsx",
         "src/components/ReportDetailDialog.tsx",
         "src/components/StatisticsView.tsx",
+        "src/components/OpeningPreviewDialog.test.tsx",
         "src/components/TopNav.test.tsx",
         "src/lib/privacy-context.test.tsx"
       ],
@@ -1318,6 +1324,7 @@
         "src/components/DashboardView.tsx",
         "src/components/ClosePositionDialog.tsx",
         "src/components/PositionDetailsDialog.tsx",
+        "src/components/OpeningPreviewDialog.tsx",
         "src/components/ReportsView.tsx",
         "src/components/ReportDetailDialog.tsx",
         "src/components/StatisticsView.tsx",
@@ -2650,6 +2657,23 @@
           "exoticallyRequired": false,
           "followable": true,
           "matchesDoNotFollow": false,
+          "module": "@/components/OpeningPreviewDialog",
+          "moduleSystem": "es6",
+          "resolved": "src/components/OpeningPreviewDialog.tsx",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
           "module": "@/hooks/api",
           "moduleSystem": "es6",
           "resolved": "src/hooks/api.ts",
@@ -2843,7 +2867,8 @@
       "dependents": [
         "src/components/DashboardView.tsx",
         "src/components/QueryFeedback.tsx",
-        "src/components/HoldingsTable.tsx"
+        "src/components/HoldingsTable.tsx",
+        "src/components/OpeningPreviewDialog.tsx"
       ],
       "orphan": false,
       "source": "src/hooks/useNetworkStatus.ts",
@@ -3667,6 +3692,102 @@
       ],
       "orphan": false,
       "source": "src/hooks/useHoldingRows.ts",
+      "valid": true
+    },
+    {
+      "dependencies": [
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "local",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "./AppDialog",
+          "moduleSystem": "es6",
+          "resolved": "src/components/AppDialog.tsx",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/hooks/api",
+          "moduleSystem": "es6",
+          "resolved": "src/hooks/api.ts",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/hooks/useNetworkStatus",
+          "moduleSystem": "es6",
+          "resolved": "src/hooks/useNetworkStatus.ts",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/lib/date",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/date.ts",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/lib/privacy-context",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/privacy-context.tsx",
+          "valid": true
+        }
+      ],
+      "dependents": [
+        "src/components/DashboardView.tsx",
+        "src/components/OpeningPreviewDialog.test.tsx"
+      ],
+      "orphan": false,
+      "source": "src/components/OpeningPreviewDialog.tsx",
       "valid": true
     },
     {
@@ -5154,6 +5275,48 @@
           "exoticallyRequired": false,
           "followable": true,
           "matchesDoNotFollow": false,
+          "module": "./OpeningPreviewDialog",
+          "moduleSystem": "es6",
+          "resolved": "src/components/OpeningPreviewDialog.tsx",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/lib/privacy-context",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/privacy-context.tsx",
+          "valid": true
+        }
+      ],
+      "dependents": [],
+      "orphan": false,
+      "source": "src/components/OpeningPreviewDialog.test.tsx",
+      "valid": true
+    },
+    {
+      "dependencies": [
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "local",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
           "module": "./CoreHeader",
           "moduleSystem": "es6",
           "resolved": "src/components/CoreHeader.tsx",
@@ -5557,6 +5720,48 @@
       "dependents": [],
       "orphan": false,
       "source": "src/hooks/api.test.tsx",
+      "valid": true
+    },
+    {
+      "dependencies": [
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "local",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "./api",
+          "moduleSystem": "es6",
+          "resolved": "src/hooks/api.ts",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "dynamic-import"
+          ],
+          "dynamic": true,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/lib/api/accounts",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/api/accounts.ts",
+          "valid": true
+        }
+      ],
+      "dependents": [],
+      "orphan": false,
+      "source": "src/hooks/opening-preview.test.tsx",
       "valid": true
     },
     {
@@ -6185,8 +6390,8 @@
         }
       ]
     },
-    "totalCruised": 149,
-    "totalDependenciesCruised": 269,
+    "totalCruised": 152,
+    "totalDependenciesCruised": 279,
     "violations": [],
     "warn": 0
   }

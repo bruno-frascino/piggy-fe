@@ -11,9 +11,11 @@
 | `['holdings', exchangeName ?? 'all', accountId ?? 'all']` | useHoldings | — |
 | `['holdings']` | useDeleteAccount, useCloseAccount | useDeleteAccount, useCloseAccount |
 | `['import', id]` | useImport | — |
-| `['import', importId]` | useCommitImport, useDiscardImport | useCommitImport |
-| `['imports']` | useImports, useCreateImport, useCommitImport, useDiscardImport | useCreateImport, useCommitImport, useDiscardImport |
+| `['import', importId]` | useDiscardImport | — |
+| `['imports']` | useImports, useCreateImport, useDiscardImport | useCreateImport, useDiscardImport |
 | `['kraken-assets', quote, q.trim()]` | useKrakenAssetSearch | — |
+| `['opening-statements', accountId, beforeVersion ?? 'latest']` | useOpeningStatements | — |
+| `['opening-statements', accountId]` | useSaveOpeningStatement, useDeleteAccount | useSaveOpeningStatement |
 | `['portfolio-history', accountId ?? 'none', exchangeCode ?? 'none',]` | usePortfolioHistory | — |
 | `['portfolio-history']` | useDeleteAccount, useCloseAccount, useCreatePortfolioSnapshot | useDeleteAccount, useCloseAccount, useCreatePortfolioSnapshot |
 | `['quotes', key]` | useQuotes | — |

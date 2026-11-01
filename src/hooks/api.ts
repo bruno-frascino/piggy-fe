@@ -5,6 +5,7 @@ import {
   type QueryClient,
 } from '@tanstack/react-query';
 import { apiClient } from '@/lib/api-client';
+import { isAxiosError } from 'axios';
 import type {
   AddWatchlistItemPayload,
   CloseReason,
@@ -19,6 +20,8 @@ import type {
   StatisticsClosedTradesSortDir,
   StatisticsFilters,
   CryptoQuote,
+  OpeningPreviewInput,
+  SaveOpeningStatementInput,
 } from '@/lib/types';
 
 export const useExchanges = (assetClass: 'crypto' | 'equity', enabled = true) =>
@@ -57,6 +60,64 @@ function invalidatePositionQueries(queryClient: QueryClient) {
 }
 
 // Account hooks
+export const useOpeningStatements = (
+  accountId: string,
+  beforeVersion?: number
+) =>
+  useQuery({
+    queryKey: ['opening-statements', accountId, beforeVersion ?? 'latest'],
+    queryFn: () => apiClient.getOpeningStatements(accountId, beforeVersion),
+    enabled: Boolean(accountId),
+    retry: false,
+    staleTime: 0,
+  });
+
+export const useSaveOpeningStatement = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      accountId,
+      input,
+    }: {
+      accountId: string;
+      input: SaveOpeningStatementInput;
+    }) => {
+      if (typeof navigator !== 'undefined' && !navigator.onLine)
+        throw new Error(
+          'Reconnect to save an opening draft. Offline changes are not queued.'
+        );
+      return apiClient.saveOpeningStatement(accountId, input);
+    },
+    retry: false,
+    networkMode: 'always',
+    gcTime: 0,
+    onSuccess: (_result, { accountId }) =>
+      queryClient.invalidateQueries({
+        queryKey: ['opening-statements', accountId],
+      }),
+  });
+};
+
+export const useOpeningPreview = () =>
+  useMutation({
+    mutationKey: ['opening-preview'],
+    mutationFn: ({
+      accountId,
+      input,
+    }: {
+      accountId: string;
+      input: OpeningPreviewInput;
+    }) => {
+      if (typeof navigator !== 'undefined' && !navigator.onLine) {
+        throw new Error('Reconnect to preview opening balances.');
+      }
+      return apiClient.previewAccountOpening(accountId, input);
+    },
+    retry: false,
+    networkMode: 'always',
+    gcTime: 0,
+  });
+
 export const useTradingAccounts = (includeClosed = false, enabled = true) => {
   return useQuery({
     queryKey: ['trading-accounts', includeClosed ? 'all' : 'active'],
@@ -83,13 +144,16 @@ export const useDeleteAccount = () => {
 
   return useMutation({
     mutationFn: (accountId: string) => apiClient.deleteAccount(accountId),
-    onSuccess: () => {
+    onSuccess: (_result, accountId) => {
       queryClient.invalidateQueries({ queryKey: ['trading-accounts'] });
       queryClient.invalidateQueries({ queryKey: ['user-portfolio'] });
       queryClient.invalidateQueries({ queryKey: ['portfolio-history'] });
       queryClient.invalidateQueries({ queryKey: ['holdings'] });
       queryClient.invalidateQueries({ queryKey: ['closed-positions'] });
       queryClient.invalidateQueries({ queryKey: ['realized-pnl'] });
+      queryClient.removeQueries({
+        queryKey: ['opening-statements', accountId],
+      });
     },
   });
 };
@@ -390,10 +454,16 @@ export const useCheckStopLoss = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
+    retry: false,
     mutationFn: ({ id, currentPrice }: { id: string; currentPrice?: number }) =>
       apiClient.checkStopLoss(id, currentPrice),
     onSuccess: data => {
       if (data.stopLossHitAt) invalidatePositionQueries(queryClient);
+    },
+    onError: error => {
+      console.warn('Stop loss check failed', error);
+      if (isAxiosError(error) && error.response?.status === 409)
+        invalidatePositionQueries(queryClient);
     },
   });
 };
@@ -402,8 +472,14 @@ export const useRecalculateDrawdown = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
+    retry: false,
     mutationFn: (id: string) => apiClient.recalculateDrawdown(id),
     onSuccess: () => invalidatePositionQueries(queryClient),
+    onError: error => {
+      console.warn('Historical position recalculation failed', error);
+      if (isAxiosError(error) && error.response?.status === 409)
+        invalidatePositionQueries(queryClient);
+    },
   });
 };
 
@@ -727,6 +803,13 @@ export const useRemoveWatchlistItem = () => {
 };
 
 // Exchange import hooks
+function invalidateImportQueries(queryClient: QueryClient, importId: string) {
+  return Promise.all([
+    queryClient.invalidateQueries({ queryKey: ['imports'] }),
+    queryClient.invalidateQueries({ queryKey: ['import', importId] }),
+  ]);
+}
+
 export const useImports = () =>
   useQuery({
     queryKey: ['imports'],
@@ -766,6 +849,7 @@ export const useResolveImportEvent = (importId: string) => {
       eventId: string;
       resolution: ImportEventResolution;
     }) => apiClient.resolveImportEvent(importId, eventId, resolution),
+    onError: () => invalidateImportQueries(queryClient, importId),
     onSuccess: detail => {
       queryClient.setQueryData(['import', importId], detail);
     },
@@ -777,11 +861,12 @@ export const useCommitImport = (importId: string) => {
   return useMutation({
     mutationFn: (eventIds?: string[]) =>
       apiClient.commitImport(importId, eventIds),
+    retry: false,
+    onError: () => invalidateImportQueries(queryClient, importId),
     onSuccess: async () => {
       await Promise.all([
         invalidatePositionQueries(queryClient),
-        queryClient.invalidateQueries({ queryKey: ['imports'] }),
-        queryClient.invalidateQueries({ queryKey: ['import', importId] }),
+        invalidateImportQueries(queryClient, importId),
         queryClient.invalidateQueries({
           predicate: query =>
             typeof query.queryKey[0] === 'string' &&

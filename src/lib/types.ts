@@ -593,3 +593,154 @@ export interface ImportCommitResult {
   createdPositionIds: string[];
   appliedEvents: number;
 }
+export interface OpeningPreviewInput {
+  openingDate: string;
+  cashBalances: { currency: string; amount: string }[];
+}
+
+export interface OpeningStatement {
+  id: string;
+  accountId: string;
+  version: number;
+  openingDate: string;
+  timezone: 'Australia/Sydney';
+  state: 'DRAFT';
+  sourceFingerprint: string;
+  createdAt: string;
+  cashBalances: { currency: string; amount: string }[];
+  parcelCount: number;
+}
+
+export interface OpeningStatementPage {
+  statements: OpeningStatement[];
+  nextBeforeVersion: number | null;
+}
+
+export interface SaveOpeningStatementInput extends OpeningPreviewInput {
+  sourceFingerprint: string;
+}
+
+export interface SaveOpeningStatementResult {
+  statement: OpeningStatement;
+  created: boolean;
+}
+
+/** Persistence mirror; these records are inactive and never represent spendable cash. */
+export interface AccountOpeningStatement {
+  id: string;
+  accountId: string;
+  version: number;
+  openingDate: string;
+  timezone: string;
+  state: string;
+  sourceFingerprint: string;
+  inputHash: string;
+  previewSnapshot: unknown;
+  createdAt: string;
+}
+
+export interface OpeningCashBalance {
+  id: string;
+  statementId: string;
+  currency: string;
+  amount: string;
+}
+
+export interface DraftCashOperation {
+  id: string;
+  statementId: string;
+  state: string;
+  methodology: string;
+  idempotencyKey: string;
+  payloadHash: string;
+  kind: string;
+  effectiveDate: string;
+  sequence: string;
+  sourceOrigin: string;
+  sourceReference: string;
+  command: unknown;
+  recordedAt: string;
+}
+
+export interface DraftCashPosting {
+  id: string;
+  operationId: string;
+  legIndex: number;
+  currency: string;
+  amount: string;
+  role: string;
+}
+
+export interface DraftCashRevision {
+  id: string;
+  statementId: string;
+  operationId: string;
+  revisionNumber: number;
+  previousRevisionId: string | null;
+  idempotencyKey: string;
+  payloadHash: string;
+  reason: string;
+  request: unknown;
+  recordedAt: string;
+}
+
+export interface DraftCashRevisionPosting {
+  id: string;
+  revisionId: string;
+  legIndex: number;
+  phase: string;
+  currency: string;
+  amount: string;
+  role: string;
+}
+
+export interface DraftOperationTradeLink {
+  id: string;
+  statementId: string;
+  operationId: string;
+  transactionId: string;
+}
+
+export interface OpeningParcelBalance {
+  id: string;
+  statementId: string;
+  positionId: string;
+  symbol: string;
+  currency: string;
+  quantity: string;
+}
+
+export interface OpeningPreview {
+  accountId: string;
+  openingDate: string;
+  timezone: 'Australia/Sydney';
+  boundary: 'END_OF_DAY';
+  asOfDate: string;
+  mode: 'PREVIEW_ONLY';
+  sourceFingerprint: string;
+  parcels: {
+    positionId: string;
+    symbol: string;
+    currency: string;
+    openingQuantity: string;
+    expectedCurrentQuantity: string;
+    recordedCurrentQuantity: string;
+  }[];
+  cashBalances: {
+    currency: string;
+    openingAmount: string;
+    tradeOnlyEndingAmount: string;
+    minimumTradeOnlyAmount: string;
+  }[];
+  issues: {
+    code: string;
+    severity: 'BLOCKING' | 'WARNING';
+    message: string;
+    sourceId: string | null;
+  }[];
+  counts: {
+    parcels: number;
+    postBoundaryTrades: number;
+    blockingIssues: number;
+  };
+}

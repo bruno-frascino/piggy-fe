@@ -83,6 +83,30 @@ describe('apiClient mock-mode parity', () => {
       call: () => apiClient.deleteCurrentUser('pw'),
     },
     // accounts
+    {
+      name: 'getOpeningStatements',
+      call: () => apiClient.getOpeningStatements('acc-1'),
+      expectRejection: /require the real API/i,
+    },
+    {
+      name: 'saveOpeningStatement',
+      call: () =>
+        apiClient.saveOpeningStatement('acc-1', {
+          openingDate: '2026-10-01',
+          cashBalances: [{ currency: 'AUD', amount: '0' }],
+          sourceFingerprint: 'a'.repeat(64),
+        }),
+      expectRejection: /require the real API/i,
+    },
+    {
+      name: 'previewAccountOpening',
+      call: () =>
+        apiClient.previewAccountOpening('acc-1', {
+          openingDate: '2026-10-01',
+          cashBalances: [{ currency: 'AUD', amount: '0' }],
+        }),
+      expectRejection: /require the real API/i,
+    },
     { name: 'getTradingAccounts', call: () => apiClient.getTradingAccounts() },
     { name: 'getAccounts', call: () => apiClient.getAccounts() },
     {

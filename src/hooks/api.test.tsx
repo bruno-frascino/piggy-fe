@@ -19,6 +19,7 @@ const {
   resolveImportEventMock,
   searchKrakenAssetsMock,
   getExchangesMock,
+  deleteAccountMock,
 } = vi.hoisted(() => ({
   updatePositionMock: vi.fn(),
   updateCloseEventMock: vi.fn(),
@@ -33,6 +34,7 @@ const {
   resolveImportEventMock: vi.fn(),
   searchKrakenAssetsMock: vi.fn(),
   getExchangesMock: vi.fn(),
+  deleteAccountMock: vi.fn(),
 }));
 
 vi.mock('@/lib/api-client', () => ({
@@ -50,6 +52,7 @@ vi.mock('@/lib/api-client', () => ({
     resolveImportEvent: resolveImportEventMock,
     searchKrakenAssets: searchKrakenAssetsMock,
     getExchanges: getExchangesMock,
+    deleteAccount: deleteAccountMock,
   },
 }));
 
@@ -67,6 +70,7 @@ import {
   useUpdatePosition,
   useExchanges,
   useKrakenAssetSearch,
+  useDeleteAccount,
 } from './api';
 import { useSymbolSearch } from './useSymbolSearch';
 
@@ -129,6 +133,32 @@ describe('Kraken discovery query hooks', () => {
 });
 
 describe('central API mutation hooks', () => {
+  it('deleting an account removes only its opening draft history from cache', async () => {
+    deleteAccountMock.mockResolvedValue({ success: true });
+    const client = new QueryClient();
+    client.setQueryData(['opening-statements', 'a1', 'latest'], {
+      statements: [],
+    });
+    client.setQueryData(['opening-statements', 'a1', 5], { statements: [] });
+    client.setQueryData(['opening-statements', 'a2', 'latest'], {
+      statements: [],
+    });
+    const { result } = renderHook(() => useDeleteAccount(), {
+      wrapper: createWrapper(client),
+    });
+    await act(() => result.current.mutateAsync('a1'));
+    expect(deleteAccountMock).toHaveBeenCalledWith('a1');
+    expect(
+      client.getQueryData(['opening-statements', 'a1', 'latest'])
+    ).toBeUndefined();
+    expect(
+      client.getQueryData(['opening-statements', 'a1', 5])
+    ).toBeUndefined();
+    expect(client.getQueryData(['opening-statements', 'a2', 'latest'])).toEqual(
+      { statements: [] }
+    );
+    client.clear();
+  });
   it('updates a position and invalidates every position-derived query family', async () => {
     updatePositionMock.mockResolvedValue({ success: true });
     const queryClient = new QueryClient({
@@ -226,6 +256,92 @@ describe('central API mutation hooks', () => {
     expect(invalidateQueries).toHaveBeenCalledWith({ queryKey: ['holdings'] });
   });
 
+  it('refreshes conflicted historical calculations without retrying or hiding the error', async () => {
+    const error = Object.assign(new Error('Position changed'), {
+      isAxiosError: true,
+      response: { status: 409 },
+    });
+    recalculateDrawdownMock.mockRejectedValueOnce(error);
+    const warning = vi
+      .spyOn(console, 'warn')
+      .mockImplementation(() => undefined);
+    const queryClient = new QueryClient({
+      defaultOptions: { mutations: { retry: 2 } },
+    });
+    const invalidate = vi.spyOn(queryClient, 'invalidateQueries');
+    const { result } = renderHook(() => useRecalculateDrawdown(), {
+      wrapper: createWrapper(queryClient),
+    });
+    try {
+      await act(async () => {
+        await expect(result.current.mutateAsync('position-1')).rejects.toBe(
+          error
+        );
+      });
+      expect(recalculateDrawdownMock).toHaveBeenCalledTimes(1);
+      expect(invalidate).toHaveBeenCalledWith({ queryKey: ['holdings'] });
+      expect(warning).toHaveBeenCalledWith(
+        'Historical position recalculation failed',
+        error
+      );
+    } finally {
+      warning.mockRestore();
+    }
+  });
+
+  it('refreshes conflicted stop checks without automatically retrying', async () => {
+    const error = Object.assign(new Error('Stop changed'), {
+      isAxiosError: true,
+      response: { status: 409 },
+    });
+    checkStopLossMock.mockRejectedValueOnce(error);
+    const warning = vi
+      .spyOn(console, 'warn')
+      .mockImplementation(() => undefined);
+    const queryClient = new QueryClient({
+      defaultOptions: { mutations: { retry: 2 } },
+    });
+    const invalidate = vi.spyOn(queryClient, 'invalidateQueries');
+    const { result } = renderHook(() => useCheckStopLoss(), {
+      wrapper: createWrapper(queryClient),
+    });
+    try {
+      await act(async () => {
+        await expect(
+          result.current.mutateAsync({ id: 'position-1' })
+        ).rejects.toBe(error);
+      });
+      expect(checkStopLossMock).toHaveBeenCalledTimes(1);
+      expect(invalidate).toHaveBeenCalledWith({ queryKey: ['holdings'] });
+      expect(warning).toHaveBeenCalledWith('Stop loss check failed', error);
+    } finally {
+      warning.mockRestore();
+    }
+  });
+
+  it('does not invalidate and loop background stop checks after non-conflict failures', async () => {
+    const error = new Error('Offline');
+    checkStopLossMock.mockRejectedValueOnce(error);
+    const warning = vi
+      .spyOn(console, 'warn')
+      .mockImplementation(() => undefined);
+    const queryClient = new QueryClient();
+    const invalidate = vi.spyOn(queryClient, 'invalidateQueries');
+    const { result } = renderHook(() => useCheckStopLoss(), {
+      wrapper: createWrapper(queryClient),
+    });
+    try {
+      await act(async () => {
+        await expect(
+          result.current.mutateAsync({ id: 'position-1' })
+        ).rejects.toBe(error);
+      });
+      expect(invalidate).not.toHaveBeenCalled();
+    } finally {
+      warning.mockRestore();
+    }
+  });
+
   it('delegates logout and PDF download without adding cache behavior', async () => {
     logoutMock.mockResolvedValue({ success: true });
     const pdf = new Blob(['pdf']);
@@ -319,6 +435,63 @@ describe('central API query hooks', () => {
 });
 
 describe('import hooks', () => {
+  it('refreshes a rejected commit for review without retrying or claiming success', async () => {
+    const error = Object.assign(
+      new Error('Holdings changed; review the refreshed plan'),
+      {
+        response: { status: 409 },
+      }
+    );
+    commitImportMock.mockRejectedValueOnce(error);
+    const queryClient = new QueryClient({
+      defaultOptions: { mutations: { retry: 2, retryDelay: 0 } },
+    });
+    const invalidateQueries = vi.spyOn(queryClient, 'invalidateQueries');
+    const onSuccess = vi.fn();
+    const { result } = renderHook(() => useCommitImport('imp-1'), {
+      wrapper: createWrapper(queryClient),
+    });
+    await act(async () => {
+      await expect(
+        result.current.mutateAsync(undefined, { onSuccess })
+      ).rejects.toBe(error);
+    });
+    expect(commitImportMock).toHaveBeenCalledTimes(1);
+    expect(onSuccess).not.toHaveBeenCalled();
+    expect(invalidateQueries).toHaveBeenCalledWith({ queryKey: ['imports'] });
+    expect(invalidateQueries).toHaveBeenCalledWith({
+      queryKey: ['import', 'imp-1'],
+    });
+    expect(invalidateQueries).toHaveBeenCalledTimes(2);
+    await waitFor(() => expect(result.current.isError).toBe(true));
+    expect(result.current.error).toBe(error);
+  });
+
+  it('refreshes a conflicted resolution without overwriting the cached plan', async () => {
+    const error = new Error('This event has already been processed');
+    resolveImportEventMock.mockRejectedValueOnce(error);
+    const queryClient = new QueryClient();
+    const cached = { batch: { id: 'imp-1' }, plan: { issues: [] } };
+    queryClient.setQueryData(['import', 'imp-1'], cached);
+    const invalidateQueries = vi.spyOn(queryClient, 'invalidateQueries');
+    const { result } = renderHook(() => useResolveImportEvent('imp-1'), {
+      wrapper: createWrapper(queryClient),
+    });
+    await act(async () => {
+      await expect(
+        result.current.mutateAsync({
+          eventId: 'e1',
+          resolution: { skip: true },
+        })
+      ).rejects.toBe(error);
+    });
+    expect(queryClient.getQueryData(['import', 'imp-1'])).toBe(cached);
+    expect(invalidateQueries).toHaveBeenCalledWith({ queryKey: ['imports'] });
+    expect(invalidateQueries).toHaveBeenCalledWith({
+      queryKey: ['import', 'imp-1'],
+    });
+  });
+
   it('commits an import and refreshes positions, statistics and imports', async () => {
     commitImportMock.mockResolvedValue({
       createdPositionIds: ['p1'],

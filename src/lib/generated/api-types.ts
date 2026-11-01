@@ -42,7 +42,10 @@ export interface paths {
             };
         };
         put?: never;
-        /** Create (or return existing) trading account for an exchange */
+        /**
+         * Create (or return existing) trading account for an exchange
+         * @description An existing closed account with the same name is explicitly reopened under its account lock. New account creation takes the shared user barrier and refuses users deleted during the request.
+         */
         post: {
             parameters: {
                 query?: never;
@@ -112,7 +115,7 @@ export interface paths {
         post?: never;
         /**
          * Delete a trading account
-         * @description Permanently deletes a trading account owned by the authenticated user, along with its derived performance history (portfolio snapshots). Demo accounts are deleted together with everything that belongs to them (positions, transactions, snapshots). For non-demo accounts, refuses to delete an account that still has positions, or one that is referenced by a generated tax report — close the account instead to preserve that history.
+         * @description Permanently deletes a trading account owned by the authenticated user, along with its derived performance history (portfolio snapshots). Demo accounts are deleted together with everything that belongs to them (positions, transactions, snapshots). For non-demo accounts, refuses to delete an account that still has positions, or one that is referenced by a generated tax report — close the account instead to preserve that history. Ownership and retention checks run under the same account lock as participating trade/import writes and new tax-report references. Deletion cascades inactive opening drafts, draft cash operations and import batches; it does not confirm or activate accounting.
          */
         delete: {
             parameters: {
@@ -159,7 +162,7 @@ export interface paths {
         head?: never;
         /**
          * Update a trading account
-         * @description Rename a trading account. The `isDemo` flag is immutable; sending it returns 400.
+         * @description Rename a trading account. The `isDemo` flag is immutable; sending it returns 400. Ownership, name conflict checks and update execute under the account lock.
          */
         patch: {
             parameters: {
@@ -227,7 +230,10 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Close a trading account while preserving history */
+        /**
+         * Close a trading account while preserving history
+         * @description Locks the owned account and checks current open/partial parcels in the same transaction. Reopen before adding new open holdings; historical corrections that leave parcels closed remain allowed. Inactive opening drafts are preserved and never activated.
+         */
         post: {
             parameters: {
                 query?: never;
@@ -268,6 +274,287 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/accounts/{id}/opening-preview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Preview opening inventory and trade-only cash without saving financial data
+         * @description Read-only end-of-day Australia/Sydney reconciliation. It cannot confirm or enable accounting. Missing funding is never invented. Limited to 5000 parcels, 500 import batches, 50000 transactions and 10000 relevant import events; exceeding any limit returns 422.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        cashBalances: {
+                            /** @description Explicit non-negative decimal balance. */
+                            amount: string;
+                            /** @description Supported ISO currency; unique within request. */
+                            currency: string;
+                        }[];
+                        /**
+                         * Format: date
+                         * @description Valid calendar date no later than today in Australia/Sydney.
+                         */
+                        openingDate: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description Preview only, including blockers and incomplete-cash-history warning. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            data: {
+                                accountId: string;
+                                /** Format: date */
+                                asOfDate: string;
+                                /** @enum {string} */
+                                boundary: "END_OF_DAY";
+                                cashBalances: {
+                                    currency: string;
+                                    minimumTradeOnlyAmount: string;
+                                    openingAmount: string;
+                                    tradeOnlyEndingAmount: string;
+                                }[];
+                                counts: {
+                                    blockingIssues: number;
+                                    parcels: number;
+                                    postBoundaryTrades: number;
+                                };
+                                issues: {
+                                    code: string;
+                                    message: string;
+                                    /** @enum {string} */
+                                    severity: "BLOCKING" | "WARNING";
+                                    sourceId: string | null;
+                                }[];
+                                /** @enum {string} */
+                                mode: "PREVIEW_ONLY";
+                                /** Format: date */
+                                openingDate: string;
+                                parcels: {
+                                    currency: string;
+                                    expectedCurrentQuantity: string;
+                                    openingQuantity: string;
+                                    positionId: string;
+                                    recordedCurrentQuantity: string;
+                                    symbol: string;
+                                }[];
+                                /** @description Snapshot fingerprint */
+                                sourceFingerprint: string;
+                                /** @enum {string} */
+                                timezone: "Australia/Sydney";
+                            };
+                            success: boolean;
+                        };
+                    };
+                };
+                /** @description Invalid date, currency or decimal balance. */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Authentication required. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Account not owned by the authenticated user or not found. */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Account exceeds the interactive preview limit. */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/accounts/{id}/opening-statements": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List inactive opening draft revisions newest first
+         * @description Returns up to 20 revisions with explicit cash balances and parcel counts. Saved snapshots are not current account valuations. Closed accounts retain access; drafts are removed with account/user deletion.
+         */
+        get: {
+            parameters: {
+                query?: {
+                    /** @description Exclusive cursor from nextBeforeVersion. */
+                    beforeVersion?: number;
+                };
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Inactive statement revision page. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            data: {
+                                nextBeforeVersion: number | null;
+                                statements: components["schemas"]["OpeningStatement"][];
+                            };
+                            success: boolean;
+                        };
+                    };
+                };
+                /** @description Invalid account ID or cursor. */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Authentication required. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Account not found or not owned. */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        /**
+         * Save a reviewed opening preview as an immutable inactive draft
+         * @description Saves a new revision only if the fingerprint matches the current snapshot and inputs. Same fingerprint and normalized inputs returns the existing revision. Drafts may retain reconciliation blockers; saving never creates cash postings, enables accounting or modifies trades. Negative or unrepresentable opening inventory is rejected.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        cashBalances: {
+                            amount: string;
+                            /** @description Supported unique ISO currency. */
+                            currency: string;
+                        }[];
+                        /**
+                         * Format: date
+                         * @description End-of-day Sydney calendar date no later than today.
+                         */
+                        openingDate: string;
+                        sourceFingerprint: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description New or existing inactive draft. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            data: {
+                                created: boolean;
+                                statement: components["schemas"]["OpeningStatement"];
+                            };
+                            success: boolean;
+                        };
+                    };
+                };
+                /** @description Invalid date */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Authentication required. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Account not found or not owned. */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Stale preview */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Preview exceeds limits or opening inventory cannot be saved precisely. */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/accounts/{id}/reopen": {
         parameters: {
             query?: never;
@@ -277,7 +564,10 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Reopen a closed trading account */
+        /**
+         * Reopen a closed trading account
+         * @description Serializes reopening with account lifecycle and participating trade/import writes.
+         */
         post: {
             parameters: {
                 query?: never;
@@ -322,7 +612,7 @@ export interface paths {
         put?: never;
         /**
          * Request a password reset link
-         * @description Emails a reset link to the address if it is registered. Always responds with 200 regardless of whether the email exists or whether delivery succeeded (prevents user enumeration). In non-production environments the `resetToken` field is also included in the response for testing.
+         * @description Emails a reset link to the address if it is registered. Always responds with 200 regardless of whether the email exists or whether delivery succeeded (prevents user enumeration). In non-production environments the `resetToken` field is also included in the response for testing. Reset-token replacement is atomic under an exclusive user lock. Users deleted or purged during the request receive the same generic response without a token.
          */
         post: {
             parameters: {
@@ -380,7 +670,10 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Sign in with email and password */
+        /**
+         * Sign in with email and password
+         * @description Session persistence rechecks the user and verified password under a shared user lock. A deletion or password change during authentication fails instead of creating a late session.
+         */
         post: {
             parameters: {
                 query?: never;
@@ -499,7 +792,10 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Exchange a refresh token for a new access + refresh token pair (rotation) */
+        /**
+         * Exchange a refresh token for a new access + refresh token pair (rotation)
+         * @description Rechecks active user state under a shared user lock and atomically replaces an owned, unexpired token. Concurrent rotations succeed at most once; deletion cannot leave a late replacement session.
+         */
         post: {
             parameters: {
                 query?: never;
@@ -617,7 +913,10 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Set a new password using a reset token */
+        /**
+         * Set a new password using a reset token
+         * @description Rechecks active user state and consumes an owned, unexpired token under an exclusive user lock. Password replacement and revocation of all reset/refresh tokens commit together. Concurrent completion succeeds at most once; deleted accounts cannot reset.
+         */
         post: {
             parameters: {
                 query?: never;
@@ -670,7 +969,7 @@ export interface paths {
         put?: never;
         /**
          * Cancel a pending account deletion and sign in
-         * @description Valid only while the account is inside its deletion grace period. Requires the account password, so a deletion cannot be undone by anyone who merely knows the email address.
+         * @description Restoration rechecks the verified password and deletion revision under an exclusive user lock, and restores the account and persists its new session in one transaction. Concurrent restoration/deletion changes return 409; a purged user returns 401. Valid only while the account is inside its deletion grace period. Requires the account password, so a deletion cannot be undone by anyone who merely knows the email address.
          */
         post: {
             parameters: {
@@ -891,7 +1190,7 @@ export interface paths {
         put?: never;
         /**
          * Upload exchange CSV exports and build an import plan
-         * @description Kraken only for now — both `trades` and `ledgers` CSVs are required. Events already uploaded (same exchange id, including pending review) are counted as duplicates and not stored again. `existingBatches` identifies the previous imports, their status, target account and matching event count so users can resume review. Nothing touches positions until the batch is committed. The target account must be an active, non-demo account owned by the user. Rate limited to 10 uploads per hour.
+         * @description Kraken only for now — both `trades` and `ledgers` CSVs are required. Events already uploaded (same exchange id, including pending review) are counted as duplicates and not stored again. `existingBatches` identifies the previous imports, their status, target account and matching event count so users can resume review. Nothing touches positions until the batch is committed. The target account must be an active, non-demo account owned by the user. Deferred reward reattachment is account-locked and fails with 409 if the event was processed meanwhile. Rate limited to 10 uploads per hour.
          */
         post: {
             parameters: {
@@ -958,6 +1257,13 @@ export interface paths {
                 };
                 /** @description Account not found */
                 404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Deferred events changed during upload; refresh the existing import */
+                409: {
                     headers: {
                         [name: string]: unknown;
                     };
@@ -1079,7 +1385,7 @@ export interface paths {
         put?: never;
         /**
          * Apply the plan — create positions and SELL transactions
-         * @description Without `eventIds`, applies the whole plan and returns 409 while blocking issues remain. With `eventIds`, applies only those events and returns 409 if an earlier event of the same asset is unresolved or not included. Runs in one database transaction, in chronological order.
+         * @description Without `eventIds`, applies the whole plan and returns 409 while blocking issues remain. With `eventIds`, applies only those events and returns 409 if an earlier event of the same asset is unresolved or not included. Runs in one database transaction, in chronological order. Locks the owned account, rechecks that it is active and non-demo, and verifies that events and eligible holdings still match the prepared plan before any trade writes. Concurrent changes return 409 and require reviewing a refreshed plan; the import is not silently reallocated. Parcel creation, allocated SELLs, recomputed results and event links commit or roll back together. No live cash postings or opening activation are performed.
          */
         post: {
             parameters: {
@@ -1105,6 +1411,13 @@ export interface paths {
                     };
                     content?: never;
                 };
+                /** @description Validation error or target account is no longer active and non-demo */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
                 /** @description Batch not found */
                 404: {
                     headers: {
@@ -1112,7 +1425,7 @@ export interface paths {
                     };
                     content?: never;
                 };
-                /** @description Blocking issues or chronology violation (see details) */
+                /** @description Blocking issues, chronology violation, discarded batch or concurrent event/holdings changes */
                 409: {
                     headers: {
                         [name: string]: unknown;
@@ -1191,7 +1504,7 @@ export interface paths {
                     };
                     content?: never;
                 };
-                /** @description Event already processed */
+                /** @description Event already processed or batch discarded while waiting for the account lock */
                 409: {
                     headers: {
                         [name: string]: unknown;
@@ -1315,7 +1628,7 @@ export interface paths {
         put?: never;
         /**
          * Create or update today's portfolio snapshot
-         * @description Upserts a single daily snapshot row. Call this at end-of-day to record the equity curve.
+         * @description Upserts a single daily legacy snapshot row under shared-user and owned-account locks. Rereads holdings after locking; a deleted user or account cannot receive a late snapshot. Legacy totals and daily date semantics are unchanged; inactive draft cash is excluded. Call this at end-of-day to record the equity curve.
          */
         post: {
             parameters: {
@@ -1335,6 +1648,13 @@ export interface paths {
                 };
                 /** @description Unauthorized */
                 401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Owned account or exchange not found, including an account deleted while waiting for its lock */
+                404: {
                     headers: {
                         [name: string]: unknown;
                     };
@@ -1393,7 +1713,7 @@ export interface paths {
         put?: never;
         /**
          * Open a new position
-         * @description Creates one acquisition parcel with one BUY. Crypto venues infer CRYPTO when assetType is omitted and require a BASE-QUOTE symbol matching the venue currency. Kraken markets are validated against the public catalogue; an unavailable catalogue returns 503. Alias XBT is stored as BTC. Quantities support up to twelve decimal places.
+         * @description Creates one acquisition parcel with one BUY. Crypto venues infer CRYPTO when assetType is omitted and require a BASE-QUOTE symbol matching the venue currency. Kraken markets are validated against the public catalogue; an unavailable catalogue returns 503. Alias XBT is stored as BTC. Quantities support up to twelve decimal places. Account resolution and the parcel/BUY write commit together under an owned-account lock. Closed accounts require explicit reopening first. A missing explicit accountId returns 404 rather than redirecting the acquisition to another account. This does not activate or spend inactive draft cash.
          */
         post: {
             parameters: {
@@ -1465,14 +1785,14 @@ export interface paths {
                     };
                     content?: never;
                 };
-                /** @description Exchange not found */
+                /** @description Exchange or explicitly selected trading account not found */
                 404: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content?: never;
                 };
-                /** @description Existing asset has an incompatible classification */
+                /** @description Existing asset has an incompatible classification, or trading account must be reopened before adding holdings */
                 409: {
                     headers: {
                         [name: string]: unknown;
@@ -1577,7 +1897,10 @@ export interface paths {
         delete?: never;
         options?: never;
         head?: never;
-        /** Update a close event (SELL transaction) */
+        /**
+         * Update a close event (SELL transaction)
+         * @description Updates the sale and parcel totals atomically under an owned-account and parcel lock. Does not activate or spend inactive draft cash. Concurrent parcel moves require reload.
+         */
         patch: {
             parameters: {
                 query?: never;
@@ -1632,6 +1955,13 @@ export interface paths {
                     };
                     content?: never;
                 };
+                /** @description Parcel or close event moved concurrently; reload and retry */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         trace?: never;
@@ -1646,7 +1976,10 @@ export interface paths {
         get?: never;
         put?: never;
         post?: never;
-        /** Permanently delete a position and all its transactions */
+        /**
+         * Permanently delete a position and all its transactions
+         * @description Deletes under owned-account and parcel locks. Inactive opening and cash draft snapshot references are retained; source changes prevent further draft appends.
+         */
         delete: {
             parameters: {
                 query?: never;
@@ -1679,13 +2012,20 @@ export interface paths {
                     };
                     content?: never;
                 };
+                /** @description Position moved accounts concurrently; reload and retry */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         options?: never;
         head?: never;
         /**
-         * Update metadata on an open position
-         * @description Crypto symbols must match the venue quote currency. Changing a Kraken instrument validates its market; unchanged historical instruments remain editable.
+         * Update a position's acquisition and metadata
+         * @description Crypto symbols must match the venue quote currency. Changing a Kraken instrument validates its market; unchanged historical instruments remain editable. Acquisition edits commit the BUY and recomputed parcel results together. Bought units cannot be reduced below already-sold units. Account moves lock both accounts in stable order and recheck the demo/real boundary. Inactive draft cash is not spent or activated. An edit or move that would leave open holdings in a closed account returns 409; reopen the account first. Corrections and moves of fully closed history remain allowed.
          */
         patch: {
             parameters: {
@@ -1759,7 +2099,7 @@ export interface paths {
                     };
                     content?: never;
                 };
-                /** @description Existing asset has an incompatible classification */
+                /** @description Incompatible asset, concurrent account move, parcel does not have exactly one BUY, or open holdings require account reopening */
                 409: {
                     headers: {
                         [name: string]: unknown;
@@ -1788,7 +2128,7 @@ export interface paths {
         put?: never;
         /**
          * Check whether a position's stop loss has been reached and remember it
-         * @description For an open long position with a stop loss that is not already flagged, decides whether the stop has been reached and, if so, persists stopLossHitAt so the flag survives the price recovering. If currentPrice is supplied and at or below the stop, the stop is flagged immediately. Otherwise daily lows are scanned from the time the stop was last set (or the open date, if never changed) to today; the first day whose low reached the stop becomes stopLossHitAt (day-granular). Editing the stop loss price clears the flag. Already-flagged, closed, short, or stop-less positions are returned unchanged.
+         * @description For an open long position with a stop loss that is not already flagged, decides whether the stop has been reached and, if so, persists stopLossHitAt so the flag survives the price recovering. If currentPrice is supplied and at or below the stop, the stop is flagged immediately. Otherwise daily lows are scanned from the time the stop was last set (or the open date, if never changed) to today; the first day whose low reached the stop becomes stopLossHitAt (day-granular). Editing the stop loss price clears the flag. Already-flagged, closed, short, or stop-less positions are returned unchanged. Saving rechecks the stop and holding inputs under user/account/parcel locks; concurrent changes return 409 rather than persisting a stale hit.
          */
         post: {
             parameters: {
@@ -1842,6 +2182,13 @@ export interface paths {
                     };
                     content?: never;
                 };
+                /** @description Stop or holding changed during calculation; reload and check again */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
             };
         };
         delete?: never;
@@ -1859,7 +2206,10 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Close (or partially close) an open position */
+        /**
+         * Close (or partially close) an open position
+         * @description Rechecks remaining units under owned-account and parcel locks and commits the SELL and parcel totals together. Concurrent closes cannot sell the same remaining units twice. Does not activate or spend inactive draft cash.
+         */
         post: {
             parameters: {
                 query?: never;
@@ -1896,7 +2246,7 @@ export interface paths {
                     };
                     content?: never;
                 };
-                /** @description Position is already closed */
+                /** @description Already closed, no remaining units, or requested quantity exceeds remaining units */
                 400: {
                     headers: {
                         [name: string]: unknown;
@@ -1912,6 +2262,13 @@ export interface paths {
                 };
                 /** @description Position not found */
                 404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Position moved accounts concurrently; reload and retry */
+                409: {
                     headers: {
                         [name: string]: unknown;
                     };
@@ -1936,7 +2293,7 @@ export interface paths {
         put?: never;
         /**
          * Recalculate max drawdown and max run-up from historical data
-         * @description Fetches daily OHLC history from the position's open date to today (or to the close date for closed positions, for the run-up), finds the lowest intraday low and persists it as maxDrawdownPercent, and finds the highest intraday high and persists it as maxRunUpPercent (peak unrealized gain vs entry price). Returns the new values (or null if history is unavailable / no drawdown / no run-up).
+         * @description Fetches daily OHLC history from the position's open date to today (or to the close date for closed positions, for the run-up), finds the lowest intraday low and persists it as maxDrawdownPercent, and finds the highest intraday high and persists it as maxRunUpPercent (peak unrealized gain vs entry price). Returns the new values (or null if history is unavailable / no drawdown / no run-up). Saving takes user/account/parcel locks and rejects changed calculation inputs with 409.
          */
         post: {
             parameters: {
@@ -1972,6 +2329,13 @@ export interface paths {
                 };
                 /** @description Position not found */
                 404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Position changed during calculation; reload and recalculate */
+                409: {
                     headers: {
                         [name: string]: unknown;
                     };
@@ -2775,7 +3139,7 @@ export interface paths {
         put?: never;
         /**
          * Generate (or regenerate) an ATO capital gains tax report
-         * @description Computes a capital gains summary for the given Australian financial year across an explicit set of Trading Accounts (a "declaration"), renders a PDF, and stores it as a new revision for that (financial year, account selection) combination. Previous revisions are retained and stay downloadable so an already-lodged report is never overwritten. Regenerating with unchanged content returns the existing current revision instead of creating a new one. Dates in newly generated PDFs use dd/MM/yyyy; regenerating a report with the older date format creates a new revision without modifying the original PDF.
+         * @description Computes a capital gains summary for the given Australian financial year across an explicit set of Trading Accounts (a "declaration"), renders a PDF, and stores it as a new revision for that (financial year, account selection) combination. Previous revisions are retained and stay downloadable so an already-lodged report is never overwritten. Regenerating with unchanged content returns the existing current revision instead of creating a new one. Dates in newly generated PDFs use dd/MM/yyyy; regenerating a report with the older date format creates a new revision without modifying the original PDF. New revisions lock selected accounts in stable ID order and recheck ownership and non-demo eligibility before storing account references. A concurrent deletion or report revision change fails explicitly instead of orphaning a new report.
          */
         post: {
             parameters: {
@@ -2810,6 +3174,20 @@ export interface paths {
                 };
                 /** @description Unauthorized */
                 401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Selected account was deleted during report preparation */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Account eligibility or current report revision changed during preparation */
+                409: {
                     headers: {
                         [name: string]: unknown;
                     };
@@ -3072,7 +3450,7 @@ export interface paths {
         post?: never;
         /**
          * Schedule the authenticated user's account for deletion
-         * @description Marks the account deleted and revokes every session immediately. The data is retained until the grace period expires, during which signing in returns 403 with `accountPendingDeletion` and the account can be restored via POST /api/auth/restore. After that a scheduled purge removes the user and all their positions, accounts, snapshots, tax reports and watchlists.
+         * @description Marks the account deleted and revokes every session immediately. The data is retained until the grace period expires, during which signing in returns 403 with `accountPendingDeletion` and the account can be restored via POST /api/auth/restore. After that a scheduled purge removes the user and all their positions, accounts, snapshots, tax reports and watchlists. An exclusive user lock waits for participating financial writes before marking deletion and revoking sessions together. In-flight writes waiting behind deletion are refused even if their initial authentication check already succeeded.
          */
         delete: {
             parameters: {
@@ -3119,7 +3497,10 @@ export interface paths {
         };
         options?: never;
         head?: never;
-        /** Update the authenticated user's profile or password */
+        /**
+         * Update the authenticated user's profile or password
+         * @description Rechecks active user state and any verified password under an exclusive user lock before updating. An in-flight deletion or password change requires authentication again.
+         */
         patch: {
             parameters: {
                 query?: never;
@@ -3530,6 +3911,29 @@ export interface components {
             error?: string;
             /** @description Human-readable error detail */
             message?: string;
+        };
+        OpeningStatement: {
+            accountId: string;
+            cashBalances: {
+                /** @description Explicit opening cash as a decimal string. */
+                amount: string;
+                currency: string;
+            }[];
+            /** Format: date-time */
+            createdAt: string;
+            id: string;
+            /** Format: date */
+            openingDate: string;
+            parcelCount: number;
+            sourceFingerprint: string;
+            /**
+             * @description Inactive statement; never spendable cash or confirmed accounting.
+             * @enum {string}
+             */
+            state: "DRAFT";
+            /** @enum {string} */
+            timezone: "Australia/Sydney";
+            version: number;
         };
         User: {
             /**

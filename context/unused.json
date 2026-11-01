@@ -127,9 +127,9 @@
       "types": [
         {
           "col": 18,
-          "line": 69,
+          "line": 70,
           "name": "ExchangeDefinition",
-          "pos": 2100
+          "pos": 2170
         }
       ],
       "unlisted": [],
@@ -145,15 +145,15 @@
       "exports": [
         {
           "col": 14,
-          "line": 469,
+          "line": 545,
           "name": "useDeleteTaxReport",
-          "pos": 13031
+          "pos": 15227
         },
         {
           "col": 14,
-          "line": 595,
+          "line": 671,
           "name": "useUpcomingDividends",
-          "pos": 16222
+          "pos": 18418
         }
       ],
       "file": "src/hooks/api.ts",
@@ -480,6 +480,54 @@
           "line": 532,
           "name": "ImportReconciliation",
           "pos": 12781
+        },
+        {
+          "col": 18,
+          "line": 629,
+          "name": "AccountOpeningStatement",
+          "pos": 15278
+        },
+        {
+          "col": 18,
+          "line": 642,
+          "name": "OpeningCashBalance",
+          "pos": 15537
+        },
+        {
+          "col": 18,
+          "line": 649,
+          "name": "DraftCashOperation",
+          "pos": 15653
+        },
+        {
+          "col": 18,
+          "line": 665,
+          "name": "DraftCashPosting",
+          "pos": 15974
+        },
+        {
+          "col": 18,
+          "line": 674,
+          "name": "DraftCashRevision",
+          "pos": 16124
+        },
+        {
+          "col": 18,
+          "line": 687,
+          "name": "DraftCashRevisionPosting",
+          "pos": 16396
+        },
+        {
+          "col": 18,
+          "line": 697,
+          "name": "DraftOperationTradeLink",
+          "pos": 16570
+        },
+        {
+          "col": 18,
+          "line": 704,
+          "name": "OpeningParcelBalance",
+          "pos": 16701
         }
       ],
       "unlisted": [],

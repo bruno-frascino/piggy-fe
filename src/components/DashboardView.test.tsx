@@ -26,6 +26,7 @@ const {
   emptyPortfolio,
   useTradingAccountsMock,
   createAccountMock,
+  openingPreviewMock,
   privacyState,
   historyState,
   portfolioState,
@@ -35,6 +36,7 @@ const {
   emptyPortfolio: [] as unknown[],
   useTradingAccountsMock: vi.fn(),
   createAccountMock: vi.fn(),
+  openingPreviewMock: vi.fn(),
   privacyState: { hidden: false },
   historyState: {
     data: [{ date: '2026-10-01', equity: 100 }] as
@@ -57,6 +59,12 @@ const {
 }));
 
 vi.mock('@/hooks/api', () => ({
+  useOpeningStatements: () => ({ isLoading: false, isError: false }),
+  useSaveOpeningStatement: () => ({ isPending: false }),
+  useOpeningPreview: () => ({
+    mutateAsync: openingPreviewMock,
+    isPending: false,
+  }),
   useTradingAccounts: useTradingAccountsMock,
   useCreateAccount: () => ({
     mutateAsync: createAccountMock,
@@ -119,6 +127,29 @@ useTradingAccountsMock.mockReturnValue({
 });
 
 describe('DashboardView accounts', () => {
+  it('opens the read-only preview for the selected real account', async () => {
+    render(<DashboardView />);
+    fireEvent.click(
+      await screen.findByRole('button', { name: 'Opening-balance preview' })
+    );
+    expect(
+      await screen.findByRole('dialog', {
+        name: 'Opening-balance preview - Account 1',
+      })
+    ).toBeInTheDocument();
+    expect(openingPreviewMock).not.toHaveBeenCalled();
+  });
+
+  it('does not offer accounting setup for a demo account', async () => {
+    useTradingAccountsMock.mockReturnValue({
+      data: [{ id: 'demo', name: 'Practice', status: 'ACTIVE', isDemo: true }],
+      isLoading: false,
+    });
+    render(<DashboardView />);
+    expect(
+      screen.queryByRole('button', { name: 'Opening-balance preview' })
+    ).not.toBeInTheDocument();
+  });
   it('shows an account retry rather than a misleading welcome state on initial failure', () => {
     const refetch = vi.fn();
     useTradingAccountsMock.mockReturnValue({

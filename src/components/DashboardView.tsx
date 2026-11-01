@@ -27,6 +27,7 @@ import HoldingsTable from '@/components/HoldingsTable';
 import AccountActionDialog from '@/components/AccountActionDialog';
 import AccountsBar from '@/components/AccountsBar';
 import EmptyAccountsState from '@/components/EmptyAccountsState';
+import OpeningPreviewDialog from '@/components/OpeningPreviewDialog';
 import { Line } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -108,6 +109,9 @@ export default function DashboardView() {
   const [accountCreateError, setAccountCreateError] = useState('');
   const [accountActionError, setAccountActionError] = useState('');
   const [showAccountDialog, setShowAccountDialog] = useState(false);
+  const [previewAccount, setPreviewAccount] = useState<TradingAccount | null>(
+    null
+  );
   const [accountActionDialog, setAccountActionDialog] = useState<{
     action: 'close' | 'delete';
     account: TradingAccount;
@@ -410,6 +414,7 @@ export default function DashboardView() {
           selectedAccountId={selectedAccountId}
           onSelectAccount={id => {
             setAccountActionError('');
+            setPreviewAccount(null);
             setSelectedAccountId(id);
           }}
           onAddAccount={() => {
@@ -429,6 +434,25 @@ export default function DashboardView() {
           onReopenAccount={handleReopenAccount}
           reopenPending={reopenAccount.isPending}
           deletePending={deleteAccount.isPending}
+        />
+      )}
+
+      {selectedAccount && !selectedAccount.isDemo && (
+        <div className='app-page py-2'>
+          <Button
+            label='Opening-balance preview'
+            icon='pi pi-calculator'
+            outlined
+            disabled={!online}
+            onClick={() => setPreviewAccount(selectedAccount)}
+          />
+        </div>
+      )}
+      {previewAccount && (
+        <OpeningPreviewDialog
+          key={previewAccount.id}
+          account={previewAccount}
+          onHide={() => setPreviewAccount(null)}
         />
       )}
 

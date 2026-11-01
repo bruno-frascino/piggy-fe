@@ -1,11 +1,65 @@
 import { AxiosInstance } from 'axios';
-import type { TradingAccount } from '../types';
+import type {
+  TradingAccount,
+  OpeningPreview,
+  OpeningPreviewInput,
+  OpeningStatementPage,
+  SaveOpeningStatementInput,
+  SaveOpeningStatementResult,
+} from '../types';
 import { isRecord, mapToTradingAccount, unwrapArray } from './mappers';
 
 const USE_MOCK_API = process.env.NEXT_PUBLIC_USE_MOCK_API === 'true';
 
 export function createAccountsApi(client: AxiosInstance) {
   const api = {
+    async getOpeningStatements(
+      accountId: string,
+      beforeVersion?: number
+    ): Promise<OpeningStatementPage> {
+      if (USE_MOCK_API)
+        throw new Error('Opening statements require the real API.');
+      const response = await client.get<{
+        success: boolean;
+        data: OpeningStatementPage;
+      }>(`/accounts/${encodeURIComponent(accountId)}/opening-statements`, {
+        params: { beforeVersion },
+      });
+      return response.data.data;
+    },
+
+    async saveOpeningStatement(
+      accountId: string,
+      input: SaveOpeningStatementInput
+    ): Promise<SaveOpeningStatementResult> {
+      if (USE_MOCK_API)
+        throw new Error('Opening statements require the real API.');
+      const response = await client.post<{
+        success: boolean;
+        data: SaveOpeningStatementResult;
+      }>(
+        `/accounts/${encodeURIComponent(accountId)}/opening-statements`,
+        input
+      );
+      return response.data.data;
+    },
+
+    async previewAccountOpening(
+      accountId: string,
+      input: OpeningPreviewInput
+    ): Promise<OpeningPreview> {
+      if (USE_MOCK_API) {
+        throw new Error(
+          'Opening-balance previews require the real API; mock accounting results are not available.'
+        );
+      }
+      const response = await client.post<{
+        success: boolean;
+        data: OpeningPreview;
+      }>(`/accounts/${encodeURIComponent(accountId)}/opening-preview`, input);
+      return response.data.data;
+    },
+
     async getTradingAccounts(includeClosed = false): Promise<TradingAccount[]> {
       if (USE_MOCK_API) {
         const mockAccount: TradingAccount = {

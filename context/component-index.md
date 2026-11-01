@@ -82,7 +82,7 @@
 
 ## `ExchangeDefinition`
 
-- File: [src/components/DashboardView.tsx](../src/components/DashboardView.tsx) (860 lines)
+- File: [src/components/DashboardView.tsx](../src/components/DashboardView.tsx) (884 lines)
 - API hooks used: useCloseAccount, useCreateAccount, useDeleteAccount, useReopenAccount, useTradingAccounts, useUpdateAccount
 - Other hooks used: useAccountSelection, useEffect, useExchangeDiscovery, useId, useMemo, useNetworkStatus, usePrivacy, useState, useTheme
 
@@ -181,6 +181,12 @@
 - File: [src/components/MobileTabBar.tsx](../src/components/MobileTabBar.tsx) (42 lines)
 - API hooks used: —
 - Other hooks used: usePathname
+
+## `OpeningPreviewDialog`
+
+- File: [src/components/OpeningPreviewDialog.tsx](../src/components/OpeningPreviewDialog.tsx) (439 lines)
+- API hooks used: useOpeningPreview, useOpeningStatements, useSaveOpeningStatement
+- Other hooks used: useNetworkStatus, usePrivacy, useState
 
 ## `PageHeader`
 

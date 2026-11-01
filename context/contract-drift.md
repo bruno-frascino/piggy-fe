@@ -4,12 +4,16 @@
 > WARNING-only artifact: a non-empty drift list never fails the build (see
 > `docs/adr/0007-manual-types-mirror.md`). `src/lib/types.ts` remains the source of truth.
 
-- OpenAPI component schemas: 2
+- OpenAPI component schemas: 3
 - Schemas with drift or no matching interface: 0
 
 ## `Error`
 
 Matched to `ApiErrorResponse` in `src/lib/types.ts`.
+
+In sync. ✅
+
+## `OpeningStatement`
 
 In sync. ✅
 
@@ -72,3 +76,16 @@ In sync. ✅
 - `ImportUploadResult`
 - `ImportEventResolution`
 - `ImportCommitResult`
+- `OpeningPreviewInput`
+- `OpeningStatementPage`
+- `SaveOpeningStatementInput`
+- `SaveOpeningStatementResult`
+- `AccountOpeningStatement`
+- `OpeningCashBalance`
+- `DraftCashOperation`
+- `DraftCashPosting`
+- `DraftCashRevision`
+- `DraftCashRevisionPosting`
+- `DraftOperationTradeLink`
+- `OpeningParcelBalance`
+- `OpeningPreview`
