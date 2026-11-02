@@ -105,6 +105,12 @@
 - API hooks used: —
 - Other hooks used: —
 
+## `DraftCashReconciliationPanel`
+
+- File: [src/components/DraftCashReconciliationPanel.tsx](../src/components/DraftCashReconciliationPanel.tsx) (838 lines)
+- API hooks used: useDraftOpeningReconciliation, usePreviewDraftCashEvidence, useRecordDraftCashEvidence, useSaveDraftReconciliationCashOperation
+- Other hooks used: useEffect, useMemo, useNetworkStatus, usePrivacy, useState
+
 ## `EditClosedTradeDialog`
 
 - File: [src/components/EditClosedTradeDialog.tsx](../src/components/EditClosedTradeDialog.tsx) (440 lines)
@@ -184,7 +190,7 @@
 
 ## `OpeningPreviewDialog`
 
-- File: [src/components/OpeningPreviewDialog.tsx](../src/components/OpeningPreviewDialog.tsx) (439 lines)
+- File: [src/components/OpeningPreviewDialog.tsx](../src/components/OpeningPreviewDialog.tsx) (466 lines)
 - API hooks used: useOpeningPreview, useOpeningStatements, useSaveOpeningStatement
 - Other hooks used: useNetworkStatus, usePrivacy, useState
 

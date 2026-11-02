@@ -99,6 +99,53 @@ describe('apiClient mock-mode parity', () => {
       expectRejection: /require the real API/i,
     },
     {
+      name: 'getDraftOpeningReconciliation',
+      call: () => apiClient.getDraftOpeningReconciliation('acc-1', 'stmt-1'),
+      expectRejection: /requires the real API/i,
+    },
+    {
+      name: 'previewDraftCashEvidence',
+      call: () =>
+        apiClient.previewDraftCashEvidence('acc-1', 'stmt-1', {
+          idempotencyKey: 'key-1',
+          asOfDate: '2026-10-31',
+          source: 'Broker',
+          reference: 'Statement 1',
+          attested: true,
+          cashBalances: [{ currency: 'AUD', amount: '100' }],
+          decisions: [],
+        }),
+      expectRejection: /requires the real API/i,
+    },
+    {
+      name: 'recordDraftCashEvidence',
+      call: () =>
+        apiClient.recordDraftCashEvidence('acc-1', 'stmt-1', {
+          idempotencyKey: 'key-1',
+          asOfDate: '2026-10-31',
+          source: 'Broker',
+          reference: 'Statement 1',
+          attested: true,
+          cashBalances: [{ currency: 'AUD', amount: '100' }],
+          decisions: [],
+        }),
+      expectRejection: /requires the real API/i,
+    },
+    {
+      name: 'saveDraftReconciliationCashOperation',
+      call: () =>
+        apiClient.saveDraftReconciliationCashOperation('acc-1', 'stmt-1', {
+          idempotencyKey: 'key-1',
+          effectiveDate: '2026-10-31',
+          sequence: 1,
+          kind: 'DEPOSIT',
+          currency: 'AUD',
+          amount: '100',
+          sourceReference: 'Bank transfer 1',
+        }),
+      expectRejection: /require the real API/i,
+    },
+    {
       name: 'previewAccountOpening',
       call: () =>
         apiClient.previewAccountOpening('acc-1', {

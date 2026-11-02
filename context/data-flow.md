@@ -14,6 +14,7 @@
 | `['import', importId]` | useDiscardImport | — |
 | `['imports']` | useImports, useCreateImport, useDiscardImport | useCreateImport, useDiscardImport |
 | `['kraken-assets', quote, q.trim()]` | useKrakenAssetSearch | — |
+| `['opening-reconciliation', accountId, statementId]` | useDraftOpeningReconciliation, useRecordDraftCashEvidence, useSaveDraftReconciliationCashOperation | useRecordDraftCashEvidence, useSaveDraftReconciliationCashOperation |
 | `['opening-statements', accountId, beforeVersion ?? 'latest']` | useOpeningStatements | — |
 | `['opening-statements', accountId]` | useSaveOpeningStatement, useDeleteAccount | useSaveOpeningStatement |
 | `['portfolio-history', accountId ?? 'none', exchangeCode ?? 'none',]` | usePortfolioHistory | — |

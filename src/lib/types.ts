@@ -625,6 +625,176 @@ export interface SaveOpeningStatementResult {
   created: boolean;
 }
 
+export type DraftCashEvidenceReason =
+  | 'UNRECORDED_OPERATION'
+  | 'TIMING_DIFFERENCE'
+  | 'SOURCE_CORRECTION_REQUIRED'
+  | 'OTHER';
+
+export interface DraftCashEvidenceInput {
+  idempotencyKey: string;
+  asOfDate: string;
+  source: string;
+  reference: string;
+  attested: true;
+  cashBalances: { currency: string; amount: string }[];
+  decisions: {
+    currency: string;
+    reason: DraftCashEvidenceReason;
+    note: string;
+  }[];
+}
+
+export interface DraftCashFlowInput {
+  idempotencyKey: string;
+  effectiveDate: string;
+  sequence: number;
+  kind: 'DEPOSIT' | 'WITHDRAWAL';
+  currency: string;
+  amount: string;
+  sourceReference: string;
+}
+
+export interface DraftCashFlowResult {
+  operationId: string;
+  state: 'DRAFT';
+  created: boolean;
+  replay: DraftCashReplay;
+}
+
+export interface DraftCashReplay {
+  accountId: string;
+  openingDate: string;
+  funded: boolean;
+  balances: {
+    currency: string;
+    openingAmount: string;
+    endingAmount: string;
+    minimumAmount: string;
+    netExternalContribution: string;
+  }[];
+  activity: {
+    idempotencyKey: string;
+    effectiveDate: string;
+    sequence: number;
+    kind: string;
+    changes: { currency: string; amount: string; balanceAfter: string }[];
+  }[];
+  fundingIssues: {
+    currency: string;
+    idempotencyKey: string;
+    effectiveDate: string;
+    sequence: number;
+    balance: string;
+  }[];
+}
+
+export interface DraftCashEvidenceComparison {
+  matchesReplay: boolean;
+  variances: {
+    currency: string;
+    expectedAmount: string;
+    statementAmount: string;
+    difference: string;
+  }[];
+  decisions: DraftCashEvidenceInput['decisions'];
+}
+
+export interface DraftCashEvidenceRecord {
+  id: string;
+  asOfDate: string;
+  source: string;
+  reference: string;
+  attested: boolean;
+  recordedAt: string;
+  statementBalances: DraftCashEvidenceInput['cashBalances'];
+  decisions: DraftCashEvidenceInput['decisions'];
+  currentComparison: DraftCashEvidenceComparison;
+  fundedAtEvidenceDate: boolean;
+}
+
+export interface DraftOpeningReconciliation {
+  mode: 'RECONCILIATION_ONLY';
+  state: 'DRAFT';
+  accountingActive: false;
+  activationReady: false;
+  statementId: string;
+  accountId: string;
+  openingDate: string;
+  asOfDate: string;
+  source: {
+    reviewedAsOfDate: string;
+    savedFingerprint: string;
+    currentFingerprint: string;
+    changed: boolean;
+  };
+  cash: DraftCashReplay & { verification: 'UNVERIFIED' };
+  cashOperations: {
+    operationId: string;
+    idempotencyKey: string;
+    kind: 'BUY' | 'SELL' | 'DEPOSIT' | 'WITHDRAWAL';
+    effectiveDate: string;
+    sequence: number;
+    sourceOrigin: 'MANUAL' | 'IMPORT';
+    sourceReference: string;
+    status: 'EFFECTIVE' | 'CORRECTED' | 'REVERSED';
+  }[];
+  cashEvidence: DraftCashEvidenceRecord[];
+  inventory: {
+    positionId: string;
+    openingParcelKey: string | null;
+    openingQuantity: string | null;
+    liveOpeningQuantity: string | null;
+    openingDifference: string | null;
+    proposedRemaining: string | null;
+    liveExpectedRemaining: string | null;
+    liveRecordedRemaining: string | null;
+    scenarioDifference: string | null;
+  }[];
+  proposedParcels: {
+    parcelKey: string;
+    assetId: string | null;
+    positionId?: string;
+    symbol?: string;
+    currency: string;
+    acquired: string;
+    remaining: string;
+  }[];
+  tradeSources: {
+    transactionId: string;
+    positionId: string;
+    kind: string;
+    effectiveDate: string;
+    quantity: string;
+    operationId: string | null;
+    linkage: 'LINKED' | 'UNLINKED' | 'REVERSED';
+    potentialOverlapOperationIds: string[];
+  }[];
+  excludedLinkedSources: {
+    transactionId: string;
+    operationId: string;
+    reason:
+      | 'MISSING_SOURCE'
+      | 'ON_OR_BEFORE_BOUNDARY'
+      | 'AFTER_OBSERVATION_DATE';
+  }[];
+  previewIssues: OpeningPreview['issues'];
+  reviewReasons: string[];
+}
+
+export interface DraftCashEvidencePreview {
+  asOfDate: string;
+  replay: DraftCashReplay;
+  comparison: DraftCashEvidenceComparison;
+}
+
+export interface DraftCashEvidenceResult {
+  evidenceId: string;
+  created: boolean;
+  replay: DraftCashReplay;
+  comparison: DraftCashEvidenceComparison;
+}
+
 /** Persistence mirror; these records are inactive and never represent spendable cash. */
 export interface AccountOpeningStatement {
   id: string;
@@ -637,6 +807,34 @@ export interface AccountOpeningStatement {
   inputHash: string;
   previewSnapshot: unknown;
   createdAt: string;
+}
+
+export interface DraftCashEvidence {
+  id: string;
+  statementId: string;
+  idempotencyKey: string;
+  payloadHash: string;
+  asOfDate: string;
+  source: string;
+  reference: string;
+  attested: boolean;
+  recordedAt: string;
+}
+
+export interface DraftCashEvidenceBalance {
+  id: string;
+  evidenceId: string;
+  currency: string;
+  amount: string;
+}
+
+export interface DraftCashEvidenceDecision {
+  id: string;
+  evidenceId: string;
+  currency: string;
+  reason: DraftCashEvidenceReason;
+  note: string;
+  recordedAt: string;
 }
 
 export interface OpeningCashBalance {
@@ -669,6 +867,20 @@ export interface DraftCashPosting {
   currency: string;
   amount: string;
   role: string;
+}
+
+export interface DraftManualTrade {
+  id: string;
+  operationId: string;
+  parcelKey: string;
+  assetId: string;
+  symbol: string;
+  currency: string;
+  quantity: string;
+  price: string;
+  fees: string;
+  requestHash: string;
+  request: unknown;
 }
 
 export interface DraftCashRevision {

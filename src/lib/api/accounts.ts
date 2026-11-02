@@ -6,6 +6,12 @@ import type {
   OpeningStatementPage,
   SaveOpeningStatementInput,
   SaveOpeningStatementResult,
+  DraftCashEvidenceInput,
+  DraftCashEvidencePreview,
+  DraftCashEvidenceResult,
+  DraftCashFlowInput,
+  DraftCashFlowResult,
+  DraftOpeningReconciliation,
 } from '../types';
 import { isRecord, mapToTradingAccount, unwrapArray } from './mappers';
 
@@ -13,6 +19,71 @@ const USE_MOCK_API = process.env.NEXT_PUBLIC_USE_MOCK_API === 'true';
 
 export function createAccountsApi(client: AxiosInstance) {
   const api = {
+    async getDraftOpeningReconciliation(
+      accountId: string,
+      statementId: string
+    ): Promise<DraftOpeningReconciliation> {
+      if (USE_MOCK_API)
+        throw new Error('Opening reconciliation requires the real API.');
+      const response = await client.get<{
+        success: boolean;
+        data: DraftOpeningReconciliation;
+      }>(
+        `/accounts/${encodeURIComponent(accountId)}/opening-statements/${encodeURIComponent(statementId)}/reconciliation`
+      );
+      return response.data.data;
+    },
+
+    async previewDraftCashEvidence(
+      accountId: string,
+      statementId: string,
+      input: DraftCashEvidenceInput
+    ): Promise<DraftCashEvidencePreview> {
+      if (USE_MOCK_API)
+        throw new Error('Cash evidence preview requires the real API.');
+      const response = await client.post<{
+        success: boolean;
+        data: DraftCashEvidencePreview;
+      }>(
+        `/accounts/${encodeURIComponent(accountId)}/opening-statements/${encodeURIComponent(statementId)}/cash-evidence/preview`,
+        input
+      );
+      return response.data.data;
+    },
+
+    async recordDraftCashEvidence(
+      accountId: string,
+      statementId: string,
+      input: DraftCashEvidenceInput
+    ): Promise<DraftCashEvidenceResult> {
+      if (USE_MOCK_API) throw new Error('Cash evidence requires the real API.');
+      const response = await client.post<{
+        success: boolean;
+        data: DraftCashEvidenceResult;
+      }>(
+        `/accounts/${encodeURIComponent(accountId)}/opening-statements/${encodeURIComponent(statementId)}/cash-evidence`,
+        input
+      );
+      return response.data.data;
+    },
+
+    async saveDraftReconciliationCashOperation(
+      accountId: string,
+      statementId: string,
+      input: DraftCashFlowInput
+    ): Promise<DraftCashFlowResult> {
+      if (USE_MOCK_API)
+        throw new Error('Draft cash operations require the real API.');
+      const response = await client.post<{
+        success: boolean;
+        data: DraftCashFlowResult;
+      }>(
+        `/accounts/${encodeURIComponent(accountId)}/opening-statements/${encodeURIComponent(statementId)}/cash-operations`,
+        input
+      );
+      return response.data.data;
+    },
+
     async getOpeningStatements(
       accountId: string,
       beforeVersion?: number

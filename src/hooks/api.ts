@@ -22,6 +22,8 @@ import type {
   CryptoQuote,
   OpeningPreviewInput,
   SaveOpeningStatementInput,
+  DraftCashEvidenceInput,
+  DraftCashFlowInput,
 } from '@/lib/types';
 
 export const useExchanges = (assetClass: 'crypto' | 'equity', enabled = true) =>
@@ -60,6 +62,104 @@ function invalidatePositionQueries(queryClient: QueryClient) {
 }
 
 // Account hooks
+export const useDraftOpeningReconciliation = (
+  accountId: string,
+  statementId: string,
+  enabled = true
+) =>
+  useQuery({
+    queryKey: ['opening-reconciliation', accountId, statementId],
+    queryFn: () =>
+      apiClient.getDraftOpeningReconciliation(accountId, statementId),
+    enabled: Boolean(accountId && statementId) && enabled,
+    retry: false,
+    staleTime: 0,
+    gcTime: 0,
+  });
+
+export const usePreviewDraftCashEvidence = () =>
+  useMutation({
+    mutationKey: ['draft-cash-evidence-preview'],
+    mutationFn: ({
+      accountId,
+      statementId,
+      input,
+    }: {
+      accountId: string;
+      statementId: string;
+      input: DraftCashEvidenceInput;
+    }) => {
+      if (typeof navigator !== 'undefined' && !navigator.onLine)
+        throw new Error(
+          'Reconnect to preview statement cash. Offline requests are not queued.'
+        );
+      return apiClient.previewDraftCashEvidence(accountId, statementId, input);
+    },
+    retry: false,
+    networkMode: 'always',
+    gcTime: 0,
+  });
+
+export const useRecordDraftCashEvidence = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      accountId,
+      statementId,
+      input,
+    }: {
+      accountId: string;
+      statementId: string;
+      input: DraftCashEvidenceInput;
+    }) => {
+      if (typeof navigator !== 'undefined' && !navigator.onLine)
+        throw new Error(
+          'Reconnect to record statement evidence. Offline changes are not queued.'
+        );
+      return apiClient.recordDraftCashEvidence(accountId, statementId, input);
+    },
+    retry: false,
+    networkMode: 'always',
+    gcTime: 0,
+    onSuccess: (_result, { accountId, statementId }) =>
+      queryClient.invalidateQueries({
+        queryKey: ['opening-reconciliation', accountId, statementId],
+      }),
+  });
+};
+
+export const useSaveDraftReconciliationCashOperation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      accountId,
+      statementId,
+      input,
+    }: {
+      accountId: string;
+      statementId: string;
+      input: DraftCashFlowInput;
+    }) => {
+      if (typeof navigator !== 'undefined' && !navigator.onLine)
+        throw new Error(
+          'Reconnect to stage a dated cash operation. Offline changes are not queued.'
+        );
+      return apiClient.saveDraftReconciliationCashOperation(
+        accountId,
+        statementId,
+        input
+      );
+    },
+    retry: false,
+    networkMode: 'always',
+    gcTime: 0,
+    onSuccess: (_result, { accountId, statementId }) =>
+      queryClient.invalidateQueries({
+        queryKey: ['opening-reconciliation', accountId, statementId],
+      }),
+  });
+};
+
 export const useOpeningStatements = (
   accountId: string,
   beforeVersion?: number

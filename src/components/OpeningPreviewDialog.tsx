@@ -19,6 +19,7 @@ import type {
   OpeningStatement,
   TradingAccount,
 } from '@/lib/types';
+import DraftCashReconciliationPanel from './DraftCashReconciliationPanel';
 
 function previewError(error: unknown): string {
   if (error && typeof error === 'object' && 'response' in error) {
@@ -65,6 +66,8 @@ export default function OpeningPreviewDialog({
   const [error, setError] = useState('');
   const [saved, setSaved] = useState<OpeningStatement | null>(null);
   const [loaded, setLoaded] = useState<OpeningStatement | null>(null);
+  const [reconciliationStatementId, setReconciliationStatementId] =
+    useState('');
   const busy = preview.isPending || saveDraft.isPending;
   const sydneyToday = new Date(
     `${new Intl.DateTimeFormat('en-CA', {
@@ -205,10 +208,18 @@ export default function OpeningPreviewDialog({
         )}
         {error && <Message severity='error' text={error} />}
         {saved && (
-          <Message
-            severity='success'
-            text={`Opening draft v${saved.version} saved. It is inactive; cash and trading behavior have not changed.`}
-          />
+          <div className='flex flex-wrap items-center gap-2'>
+            <Message
+              severity='success'
+              text={`Opening draft v${saved.version} saved. It is inactive; cash and trading behavior have not changed.`}
+            />
+            <Button
+              label='Review cash reconciliation'
+              outlined
+              disabled={!online}
+              onClick={() => setReconciliationStatementId(saved.id)}
+            />
+          </div>
         )}
         <section className='space-y-2' aria-label='Saved opening drafts'>
           <h3>Saved inactive drafts</h3>
@@ -245,7 +256,16 @@ export default function OpeningPreviewDialog({
                     label={`Load draft v${statement.version}`}
                     outlined
                     disabled={busy}
-                    onClick={() => load(statement)}
+                    onClick={() => {
+                      setReconciliationStatementId('');
+                      load(statement);
+                    }}
+                  />
+                  <Button
+                    label={`Review reconciliation v${statement.version}`}
+                    outlined
+                    disabled={busy || !online}
+                    onClick={() => setReconciliationStatementId(statement.id)}
                   />
                 </div>
               ))}
@@ -286,6 +306,13 @@ export default function OpeningPreviewDialog({
               text='This saved draft differs from the current preview. Records, inputs or the valuation day have changed; saving creates a new inactive revision.'
             />
           )}
+        {reconciliationStatementId && (
+          <DraftCashReconciliationPanel
+            accountId={account.id}
+            statementId={reconciliationStatementId}
+            onClose={() => setReconciliationStatementId('')}
+          />
+        )}
         <div className='space-y-2'>
           <label htmlFor='opening-preview-date'>Opening date</label>
           <Calendar
