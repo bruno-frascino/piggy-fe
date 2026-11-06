@@ -105,10 +105,16 @@
 - API hooks used: —
 - Other hooks used: —
 
+## `DraftCashCorrectionForm`
+
+- File: [src/components/DraftCashCorrectionForm.tsx](../src/components/DraftCashCorrectionForm.tsx) (293 lines)
+- API hooks used: useCorrectDraftImportedExecutionCash, useCorrectDraftReconciliationCashOperation
+- Other hooks used: useNetworkStatus, usePrivacy, useState
+
 ## `DraftCashReconciliationPanel`
 
-- File: [src/components/DraftCashReconciliationPanel.tsx](../src/components/DraftCashReconciliationPanel.tsx) (838 lines)
-- API hooks used: useDraftOpeningReconciliation, usePreviewDraftCashEvidence, useRecordDraftCashEvidence, useSaveDraftReconciliationCashOperation
+- File: [src/components/DraftCashReconciliationPanel.tsx](../src/components/DraftCashReconciliationPanel.tsx) (1202 lines)
+- API hooks used: useDraftOpeningReconciliation, usePreviewDraftCashEvidence, useRecordDraftCashEvidence, useSaveDraftReconciliationCashOperation, useStageDraftImportedExecutionCash, useStageDraftManualExecutionCash
 - Other hooks used: useEffect, useMemo, useNetworkStatus, usePrivacy, useState
 
 ## `EditClosedTradeDialog`

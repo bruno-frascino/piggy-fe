@@ -15,6 +15,54 @@ beforeEach(() => {
 });
 
 describe('opening reconciliation API', () => {
+  it('posts only the manual execution sequence to the encoded source identity route', async () => {
+    await api.stageDraftManualExecutionCash(
+      'account/1',
+      'statement 2',
+      'tx/1',
+      { sequence: 4 }
+    );
+    expect(post).toHaveBeenCalledWith(
+      '/accounts/account%2F1/opening-statements/statement%202/transactions/tx%2F1/cash-operation',
+      { sequence: 4 }
+    );
+  });
+  it('posts imported sequence corrections to their encoded source-aware route', async () => {
+    const input = {
+      idempotencyKey: 'fix',
+      expectedRevisionId: 'op1',
+      reason: 'Broker sequence',
+      sequence: 3,
+    };
+    await api.correctDraftImportedExecutionCash(
+      'account/1',
+      'statement 2',
+      'op/1',
+      input
+    );
+    expect(post).toHaveBeenCalledWith(
+      '/accounts/account%2F1/opening-statements/statement%202/imported-cash-operations/op%2F1/corrections',
+      input
+    );
+  });
+  it('posts an exact correction to its encoded account, statement and operation route', async () => {
+    const input = {
+      idempotencyKey: 'correction-1',
+      expectedRevisionId: 'op1',
+      reason: 'Duplicate entry',
+      replacement: null,
+    };
+    await api.correctDraftReconciliationCashOperation(
+      'account/1',
+      'statement 2',
+      'op/1',
+      input
+    );
+    expect(post).toHaveBeenCalledWith(
+      '/accounts/account%2F1/opening-statements/statement%202/cash-operations/op%2F1/corrections',
+      input
+    );
+  });
   it('loads the account-scoped reconciliation report', async () => {
     await api.getDraftOpeningReconciliation('account/1', 'statement 2');
 
@@ -61,12 +109,19 @@ describe('opening reconciliation API', () => {
       amount: '100',
       sourceReference: 'Bank transfer 1',
     };
+    const importedExecution = { sequence: 2 };
 
     await api.recordDraftCashEvidence('account-1', 'statement-1', evidence);
     await api.saveDraftReconciliationCashOperation(
       'account-1',
       'statement-1',
       operation
+    );
+    await api.stageDraftImportedExecutionCash(
+      'account-1',
+      'statement-1',
+      'event/1',
+      importedExecution
     );
 
     expect(post).toHaveBeenNthCalledWith(
@@ -78,6 +133,11 @@ describe('opening reconciliation API', () => {
       2,
       '/accounts/account-1/opening-statements/statement-1/cash-operations',
       operation
+    );
+    expect(post).toHaveBeenNthCalledWith(
+      3,
+      '/accounts/account-1/opening-statements/statement-1/import-events/event%2F1/cash-operation',
+      importedExecution
     );
   });
 });

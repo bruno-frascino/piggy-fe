@@ -83,6 +83,11 @@ In sync. ✅
 - `DraftCashEvidenceInput`
 - `DraftCashFlowInput`
 - `DraftCashFlowResult`
+- `DraftCashCorrectionInput`
+- `DraftCashCorrectionResult`
+- `DraftImportedCashCorrectionInput`
+- `DraftImportedExecutionInput`
+- `DraftImportedExecution`
 - `DraftCashReplay`
 - `DraftCashEvidenceComparison`
 - `DraftCashEvidenceRecord`

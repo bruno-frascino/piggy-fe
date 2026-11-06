@@ -20,6 +20,10 @@ const {
   searchKrakenAssetsMock,
   getExchangesMock,
   deleteAccountMock,
+  stageImportedExecutionCashMock,
+  stageManualExecutionCashMock,
+  correctDraftCashMock,
+  correctImportedCashMock,
 } = vi.hoisted(() => ({
   updatePositionMock: vi.fn(),
   updateCloseEventMock: vi.fn(),
@@ -35,6 +39,10 @@ const {
   searchKrakenAssetsMock: vi.fn(),
   getExchangesMock: vi.fn(),
   deleteAccountMock: vi.fn(),
+  stageImportedExecutionCashMock: vi.fn(),
+  stageManualExecutionCashMock: vi.fn(),
+  correctDraftCashMock: vi.fn(),
+  correctImportedCashMock: vi.fn(),
 }));
 
 vi.mock('@/lib/api-client', () => ({
@@ -53,6 +61,10 @@ vi.mock('@/lib/api-client', () => ({
     searchKrakenAssets: searchKrakenAssetsMock,
     getExchanges: getExchangesMock,
     deleteAccount: deleteAccountMock,
+    stageDraftImportedExecutionCash: stageImportedExecutionCashMock,
+    stageDraftManualExecutionCash: stageManualExecutionCashMock,
+    correctDraftReconciliationCashOperation: correctDraftCashMock,
+    correctDraftImportedExecutionCash: correctImportedCashMock,
   },
 }));
 
@@ -71,6 +83,10 @@ import {
   useExchanges,
   useKrakenAssetSearch,
   useDeleteAccount,
+  useStageDraftImportedExecutionCash,
+  useStageDraftManualExecutionCash,
+  useCorrectDraftReconciliationCashOperation,
+  useCorrectDraftImportedExecutionCash,
 } from './api';
 import { useSymbolSearch } from './useSymbolSearch';
 
@@ -129,6 +145,269 @@ describe('Kraken discovery query hooks', () => {
     rerender({ enabled: true });
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
     expect(getExchangesMock).toHaveBeenCalledWith('equity');
+  });
+});
+
+describe('inactive imported cash hook', () => {
+  it('refreshes only the imported correction statement on success and source conflict, without automatic retries', async () => {
+    const client = new QueryClient();
+    const key = ['opening-reconciliation', 'a1', 's1'];
+    const otherKey = ['opening-reconciliation', 'a2', 's2'];
+    client.setQueryData(key, {});
+    client.setQueryData(otherKey, {});
+    const input = {
+      idempotencyKey: 'fix',
+      expectedRevisionId: 'op1',
+      reason: 'Broker sequence',
+      sequence: 3,
+    };
+    const args = {
+      accountId: 'a1',
+      statementId: 's1',
+      operationId: 'op1',
+      input,
+    };
+    const { result } = renderHook(
+      () => useCorrectDraftImportedExecutionCash(),
+      { wrapper: createWrapper(client) }
+    );
+    correctImportedCashMock.mockResolvedValueOnce({ revisionId: 'rev1' });
+    await act(async () => {
+      await result.current.mutateAsync(args);
+    });
+    expect(correctImportedCashMock).toHaveBeenCalledWith(
+      'a1',
+      's1',
+      'op1',
+      input
+    );
+    expect(client.getQueryState(key)?.isInvalidated).toBe(true);
+    expect(client.getQueryState(otherKey)?.isInvalidated).toBe(false);
+    client.setQueryData(key, {});
+    correctImportedCashMock.mockRejectedValueOnce(
+      Object.assign(new Error('Source changed'), {
+        isAxiosError: true,
+        response: { status: 409 },
+      })
+    );
+    await act(async () => {
+      await expect(result.current.mutateAsync(args)).rejects.toThrow(
+        'Source changed'
+      );
+    });
+    expect(client.getQueryState(key)?.isInvalidated).toBe(true);
+    expect(correctImportedCashMock).toHaveBeenCalledTimes(2);
+    client.clear();
+  });
+
+  it('never sends or queues imported corrections while offline', async () => {
+    const online = vi.spyOn(navigator, 'onLine', 'get').mockReturnValue(false);
+    const client = new QueryClient();
+    try {
+      const { result } = renderHook(
+        () => useCorrectDraftImportedExecutionCash(),
+        { wrapper: createWrapper(client) }
+      );
+      await act(async () => {
+        await expect(
+          result.current.mutateAsync({
+            accountId: 'a1',
+            statementId: 's1',
+            operationId: 'op1',
+            input: {
+              idempotencyKey: 'fix',
+              expectedRevisionId: 'op1',
+              reason: 'Broker sequence',
+              sequence: 3,
+            },
+          })
+        ).rejects.toThrow('Offline changes are not queued');
+      });
+      expect(correctImportedCashMock).not.toHaveBeenCalled();
+    } finally {
+      online.mockRestore();
+      client.clear();
+    }
+  });
+  it('refreshes only the corrected statement after success and conflict without retrying the command', async () => {
+    const client = new QueryClient();
+    const queryKey = ['opening-reconciliation', 'a1', 's1'];
+    const otherKey = ['opening-reconciliation', 'a2', 's2'];
+    client.setQueryData(queryKey, { state: 'DRAFT' });
+    client.setQueryData(otherKey, { state: 'DRAFT' });
+    const args = {
+      accountId: 'a1',
+      statementId: 's1',
+      operationId: 'op1',
+      input: {
+        idempotencyKey: 'key',
+        expectedRevisionId: 'op1',
+        reason: 'Fix',
+        replacement: null,
+      },
+    };
+    const { result } = renderHook(
+      () => useCorrectDraftReconciliationCashOperation(),
+      {
+        wrapper: createWrapper(client),
+      }
+    );
+    correctDraftCashMock.mockResolvedValueOnce({ revisionId: 'rev1' });
+    await act(async () => {
+      await result.current.mutateAsync(args);
+    });
+    expect(correctDraftCashMock).toHaveBeenLastCalledWith(
+      'a1',
+      's1',
+      'op1',
+      args.input
+    );
+    expect(client.getQueryState(queryKey)?.isInvalidated).toBe(true);
+    expect(client.getQueryState(otherKey)?.isInvalidated).toBe(false);
+    client.setQueryData(queryKey, { state: 'DRAFT' });
+    const conflict = Object.assign(new Error('Revision changed'), {
+      isAxiosError: true,
+      response: { status: 409 },
+    });
+    correctDraftCashMock.mockRejectedValueOnce(conflict);
+    await act(async () => {
+      await expect(result.current.mutateAsync(args)).rejects.toThrow(
+        'Revision changed'
+      );
+    });
+    expect(client.getQueryState(queryKey)?.isInvalidated).toBe(true);
+    expect(correctDraftCashMock).toHaveBeenCalledTimes(2);
+    client.clear();
+  });
+
+  it('does not queue or send corrections while offline', async () => {
+    const online = vi.spyOn(navigator, 'onLine', 'get').mockReturnValue(false);
+    const client = new QueryClient();
+    try {
+      const { result } = renderHook(
+        () => useCorrectDraftReconciliationCashOperation(),
+        {
+          wrapper: createWrapper(client),
+        }
+      );
+      await act(async () => {
+        await expect(
+          result.current.mutateAsync({
+            accountId: 'a1',
+            statementId: 's1',
+            operationId: 'op1',
+            input: {
+              idempotencyKey: 'k',
+              expectedRevisionId: 'op1',
+              reason: 'Fix',
+              replacement: null,
+            },
+          })
+        ).rejects.toThrow('Offline changes are not queued');
+      });
+      expect(correctDraftCashMock).not.toHaveBeenCalled();
+    } finally {
+      online.mockRestore();
+      client.clear();
+    }
+  });
+  it('stages a manual transaction and refreshes only its draft report, including on conflict', async () => {
+    const client = new QueryClient();
+    const key = ['opening-reconciliation', 'a1', 's1'];
+    const otherKey = ['opening-reconciliation', 'a2', 's2'];
+    client.setQueryData(key, {});
+    client.setQueryData(otherKey, {});
+    stageManualExecutionCashMock.mockResolvedValue({ state: 'DRAFT' });
+    const { result } = renderHook(() => useStageDraftManualExecutionCash(), {
+      wrapper: createWrapper(client),
+    });
+    const input = {
+      accountId: 'a1',
+      statementId: 's1',
+      transactionId: 't1',
+      input: { sequence: 2 },
+    };
+    await act(async () => {
+      await result.current.mutateAsync(input);
+    });
+    expect(stageManualExecutionCashMock).toHaveBeenCalledWith(
+      'a1',
+      's1',
+      't1',
+      { sequence: 2 }
+    );
+    expect(client.getQueryState(key)?.isInvalidated).toBe(true);
+    expect(client.getQueryState(otherKey)?.isInvalidated).toBe(false);
+    client.setQueryData(key, {});
+    stageManualExecutionCashMock.mockRejectedValue({
+      isAxiosError: true,
+      response: { status: 409 },
+    });
+    await act(async () => {
+      await expect(result.current.mutateAsync(input)).rejects.toMatchObject({
+        response: { status: 409 },
+      });
+    });
+    expect(client.getQueryState(key)?.isInvalidated).toBe(true);
+    expect(stageManualExecutionCashMock).toHaveBeenCalledTimes(2);
+    client.clear();
+  });
+  it('rejects manual execution staging offline instead of queueing it', async () => {
+    const online = vi.spyOn(navigator, 'onLine', 'get').mockReturnValue(false);
+    const client = new QueryClient();
+    try {
+      const { result } = renderHook(() => useStageDraftManualExecutionCash(), {
+        wrapper: createWrapper(client),
+      });
+      await act(async () => {
+        await expect(
+          result.current.mutateAsync({
+            accountId: 'a1',
+            statementId: 's1',
+            transactionId: 't1',
+            input: { sequence: 1 },
+          })
+        ).rejects.toThrow('Offline changes are not queued');
+      });
+      expect(stageManualExecutionCashMock).not.toHaveBeenCalled();
+    } finally {
+      online.mockRestore();
+      client.clear();
+    }
+  });
+  it('stages the persisted event and invalidates its reconciliation report', async () => {
+    const client = new QueryClient({
+      defaultOptions: { queries: { retry: false } },
+    });
+    const queryKey = ['opening-reconciliation', 'a1', 's1'];
+    client.setQueryData(queryKey, { state: 'DRAFT' });
+    stageImportedExecutionCashMock.mockResolvedValue({
+      operationId: 'op1',
+      state: 'DRAFT',
+      created: true,
+    });
+    const { result } = renderHook(() => useStageDraftImportedExecutionCash(), {
+      wrapper: createWrapper(client),
+    });
+
+    await act(async () => {
+      await result.current.mutateAsync({
+        accountId: 'a1',
+        statementId: 's1',
+        eventId: 'event-1',
+        input: { sequence: 2 },
+      });
+    });
+
+    expect(stageImportedExecutionCashMock).toHaveBeenCalledWith(
+      'a1',
+      's1',
+      'event-1',
+      { sequence: 2 }
+    );
+    await waitFor(() =>
+      expect(client.getQueryState(queryKey)?.isInvalidated).toBe(true)
+    );
   });
 });
 

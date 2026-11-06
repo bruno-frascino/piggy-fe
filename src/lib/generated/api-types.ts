@@ -810,6 +810,266 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/accounts/{id}/opening-statements/{statementId}/cash-operations/{operationId}/corrections": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Correct or reverse an inactive manual deposit or withdrawal
+         * @description Appends immutable reversal/replacement history with a required audit reason. Currency, kind and source identity are retained from the original entry. Supply replacement null for a terminal reversal. The expected revision prevents lost updates; identical retries return the saved correction. Dated replay rejects downstream funding gaps. No live balances or holdings change.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                    statementId: string;
+                    operationId: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        /** @description Current revision ID from reconciliation */
+                        expectedRevisionId: string;
+                        idempotencyKey: string;
+                        reason: string;
+                        replacement: {
+                            /** @description Positive exact decimal amount in the original currency. */
+                            amount: string;
+                            /** Format: date */
+                            effectiveDate: string;
+                            sequence: number;
+                        } | null;
+                    };
+                };
+            };
+            responses: {
+                /** @description Inactive correction with operationId */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Invalid correction fields. */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Authentication required. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Account */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Stale revision/source */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Historical funding deficit or replay limit exceeded. */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/accounts/{id}/opening-statements/{statementId}/import-events/{eventId}/cash-operation": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Stage cash from an applied Kraken execution in an inactive draft
+         * @description Uses execution amounts and transaction links from the persisted applied import event; callers can supply only its stable sequence for the execution date. The event must belong to this account and match its recorded transaction links. Draft postings never affect live cash or holdings.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                    statementId: string;
+                    eventId: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        /** @description Explicit stable order among operations on the same date; no ordering is inferred. */
+                        sequence: number;
+                    };
+                };
+            };
+            responses: {
+                /** @description Imported execution cash staged in the inactive draft with replay. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Invalid sequence or unsupported execution currency. */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Authentication required. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Account */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Duplicate source */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Insufficient dated cash or replay limit exceeded. */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/accounts/{id}/opening-statements/{statementId}/imported-cash-operations/{operationId}/corrections": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Correct the stable intraday sequence of staged Kraken execution cash
+         * @description Appends an audited sequence-only revision after revalidating the persisted applied execution and all transaction links under the account lock. Date, amounts, fees, source and transaction identities cannot change. Cash-only reversals are not supported. Expected revision and idempotency protect concurrent edits and retries. Full dated replay must remain funded. No live holdings or balances change.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                    statementId: string;
+                    operationId: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        expectedRevisionId: string;
+                        idempotencyKey: string;
+                        reason: string;
+                        sequence: number;
+                    };
+                };
+            };
+            responses: {
+                /** @description Inactive correction with operationId */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Invalid sequence or unsupported correction fields. */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Authentication required. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Owned account */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Changed execution/source/revision */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Dated funding deficit or replay limit exceeded. */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/accounts/{id}/opening-statements/{statementId}/reconciliation": {
         parameters: {
             query?: never;
@@ -819,7 +1079,7 @@ export interface paths {
         };
         /**
          * Read-only reconciliation report for an inactive opening draft
-         * @description Compares reviewed opening inventory, current live source records, proposed draft cash/trades, recorded cash evidence and linked execution identities. Statement balances are user-attested, not independently verified. This endpoint never activates accounting or changes financial records.
+         * @description Compares reviewed opening inventory, current live source records, proposed draft cash/trades, recorded cash evidence, linked execution identities and manual/Kraken cash-staging candidates. Statement balances are user-attested, not independently verified. This endpoint never activates accounting or changes financial records. Reconciliation is bounded to 10000 imported executions and 50000 transactions.
          */
         get: {
             parameters: {
@@ -833,7 +1093,7 @@ export interface paths {
             };
             requestBody?: never;
             responses: {
-                /** @description Read-only draft reconciliation */
+                /** @description Read-only draft reconciliation including cash evidence/variances, cash-operation currentRevisionId/capital cash/revisions (revisionId, reason, replacement boolean), effective or reversed sources, imported execution eligibility with duplicate transaction-link detection and cashManualExecutions (transactionId, positionId, kind, effectiveDate, currency, grossValue, fee, stageable, reason, operationId). Manual eligibility excludes broker-linked allocations, imported/short parcels, unsupported money, boundary/future dates, stale snapshots, unavailable accounts and incompatible opening-sale proposals. */
                 200: {
                     headers: {
                         [name: string]: unknown;
@@ -861,7 +1121,7 @@ export interface paths {
                     };
                     content?: never;
                 };
-                /** @description Reconciliation exceeds bounded processing limits. */
+                /** @description Reconciliation exceeds bounded processing limits */
                 422: {
                     headers: {
                         [name: string]: unknown;
@@ -872,6 +1132,88 @@ export interface paths {
         };
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/accounts/{id}/opening-statements/{statementId}/transactions/{transactionId}/cash-operation": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Stage cash from a recorded manual BUY or SELL in an inactive draft
+         * @description Accepts only an explicit intraday sequence. Date, currency, gross amount and fees come from the owned manual long parcel transaction and are revalidated under the account lock. Broker-linked allocations and imported parcels require their source-aware workflow. No live trades, balances or tax records change.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                    statementId: string;
+                    transactionId: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        sequence: number;
+                    };
+                };
+            };
+            responses: {
+                /** @description Draft operationId */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Invalid sequence or unsupported execution values. */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Authentication required. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Owned manual transaction or opening statement not found. */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Changed source */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Dated funding deficit */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
         delete?: never;
         options?: never;
         head?: never;

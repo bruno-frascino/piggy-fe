@@ -24,6 +24,9 @@ import type {
   SaveOpeningStatementInput,
   DraftCashEvidenceInput,
   DraftCashFlowInput,
+  DraftCashCorrectionInput,
+  DraftImportedCashCorrectionInput,
+  DraftImportedExecutionInput,
 } from '@/lib/types';
 
 export const useExchanges = (assetClass: 'crypto' | 'equity', enabled = true) =>
@@ -157,6 +160,164 @@ export const useSaveDraftReconciliationCashOperation = () => {
       queryClient.invalidateQueries({
         queryKey: ['opening-reconciliation', accountId, statementId],
       }),
+  });
+};
+
+export const useCorrectDraftReconciliationCashOperation = () => {
+  const queryClient = useQueryClient();
+  const refresh = (accountId: string, statementId: string) =>
+    queryClient.invalidateQueries({
+      queryKey: ['opening-reconciliation', accountId, statementId],
+    });
+  return useMutation({
+    mutationFn: ({
+      accountId,
+      statementId,
+      operationId,
+      input,
+    }: {
+      accountId: string;
+      statementId: string;
+      operationId: string;
+      input: DraftCashCorrectionInput;
+    }) => {
+      if (typeof navigator !== 'undefined' && !navigator.onLine)
+        throw new Error(
+          'Reconnect to correct draft cash. Offline changes are not queued.'
+        );
+      return apiClient.correctDraftReconciliationCashOperation(
+        accountId,
+        statementId,
+        operationId,
+        input
+      );
+    },
+    retry: false,
+    networkMode: 'always',
+    gcTime: 0,
+    onSuccess: (_result, { accountId, statementId }) =>
+      refresh(accountId, statementId),
+    onError: (error, { accountId, statementId }) => {
+      if (isAxiosError(error) && error.response?.status === 409)
+        return refresh(accountId, statementId);
+    },
+  });
+};
+
+export const useCorrectDraftImportedExecutionCash = () => {
+  const queryClient = useQueryClient();
+  const refresh = (accountId: string, statementId: string) =>
+    queryClient.invalidateQueries({
+      queryKey: ['opening-reconciliation', accountId, statementId],
+    });
+  return useMutation({
+    mutationFn: ({
+      accountId,
+      statementId,
+      operationId,
+      input,
+    }: {
+      accountId: string;
+      statementId: string;
+      operationId: string;
+      input: DraftImportedCashCorrectionInput;
+    }) => {
+      if (typeof navigator !== 'undefined' && !navigator.onLine)
+        throw new Error(
+          'Reconnect to correct imported cash. Offline changes are not queued.'
+        );
+      return apiClient.correctDraftImportedExecutionCash(
+        accountId,
+        statementId,
+        operationId,
+        input
+      );
+    },
+    retry: false,
+    networkMode: 'always',
+    gcTime: 0,
+    onSuccess: (_result, { accountId, statementId }) =>
+      refresh(accountId, statementId),
+    onError: (error, { accountId, statementId }) => {
+      if (isAxiosError(error) && error.response?.status === 409)
+        return refresh(accountId, statementId);
+    },
+  });
+};
+
+export const useStageDraftImportedExecutionCash = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      accountId,
+      statementId,
+      eventId,
+      input,
+    }: {
+      accountId: string;
+      statementId: string;
+      eventId: string;
+      input: DraftImportedExecutionInput;
+    }) => {
+      if (typeof navigator !== 'undefined' && !navigator.onLine)
+        throw new Error(
+          'Reconnect to stage imported execution cash. Offline changes are not queued.'
+        );
+      return apiClient.stageDraftImportedExecutionCash(
+        accountId,
+        statementId,
+        eventId,
+        input
+      );
+    },
+    retry: false,
+    networkMode: 'always',
+    gcTime: 0,
+    onSuccess: (_result, { accountId, statementId }) =>
+      queryClient.invalidateQueries({
+        queryKey: ['opening-reconciliation', accountId, statementId],
+      }),
+  });
+};
+
+export const useStageDraftManualExecutionCash = () => {
+  const queryClient = useQueryClient();
+  const refresh = (accountId: string, statementId: string) =>
+    queryClient.invalidateQueries({
+      queryKey: ['opening-reconciliation', accountId, statementId],
+    });
+  return useMutation({
+    mutationFn: ({
+      accountId,
+      statementId,
+      transactionId,
+      input,
+    }: {
+      accountId: string;
+      statementId: string;
+      transactionId: string;
+      input: DraftImportedExecutionInput;
+    }) => {
+      if (typeof navigator !== 'undefined' && !navigator.onLine)
+        throw new Error(
+          'Reconnect to stage manual execution cash. Offline changes are not queued.'
+        );
+      return apiClient.stageDraftManualExecutionCash(
+        accountId,
+        statementId,
+        transactionId,
+        input
+      );
+    },
+    retry: false,
+    networkMode: 'always',
+    gcTime: 0,
+    onSuccess: (_result, { accountId, statementId }) =>
+      refresh(accountId, statementId),
+    onError: (error, { accountId, statementId }) => {
+      if (isAxiosError(error) && error.response?.status === 409)
+        return refresh(accountId, statementId);
+    },
   });
 };
 

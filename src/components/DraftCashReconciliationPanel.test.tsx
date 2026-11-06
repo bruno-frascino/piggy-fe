@@ -25,6 +25,10 @@ const mocks = vi.hoisted(() => ({
   preview: vi.fn(),
   record: vi.fn(),
   operation: vi.fn(),
+  importedOperation: vi.fn(),
+  manualOperation: vi.fn(),
+  correction: vi.fn(),
+  importedCorrection: vi.fn(),
   online: true,
 }));
 
@@ -40,6 +44,22 @@ vi.mock('@/hooks/api', () => ({
   }),
   useSaveDraftReconciliationCashOperation: () => ({
     mutateAsync: mocks.operation,
+    isPending: false,
+  }),
+  useStageDraftImportedExecutionCash: () => ({
+    mutateAsync: mocks.importedOperation,
+    isPending: false,
+  }),
+  useStageDraftManualExecutionCash: () => ({
+    mutateAsync: mocks.manualOperation,
+    isPending: false,
+  }),
+  useCorrectDraftReconciliationCashOperation: () => ({
+    mutateAsync: mocks.correction,
+    isPending: false,
+  }),
+  useCorrectDraftImportedExecutionCash: () => ({
+    mutateAsync: mocks.importedCorrection,
     isPending: false,
   }),
 }));
@@ -168,13 +188,36 @@ const report: DraftOpeningReconciliation = {
   cashOperations: [
     {
       operationId: 'op1',
+      currentRevisionId: 'op1',
       idempotencyKey: 'deposit-1',
       kind: 'DEPOSIT',
       effectiveDate: '2026-10-10',
       sequence: 1,
       sourceOrigin: 'MANUAL',
       sourceReference: 'Bank transfer 1',
+      cash: { currency: 'AUD', amount: '50' },
+      revisions: [],
       status: 'EFFECTIVE',
+    },
+  ],
+  cashManualExecutions: [],
+  cashImportExecutions: [
+    {
+      eventId: 'event-1',
+      batchId: 'batch-1',
+      externalId: 'KRAKEN:order:1',
+      kind: 'BUY',
+      occurredAt: '2026-10-12T00:00:00.000Z',
+      effectiveDate: '2026-10-12',
+      quoteCurrency: 'AUD',
+      grossValue: '50',
+      fee: '1',
+      feeCurrency: 'AUD',
+      transactionIds: ['t-import-1'],
+      positionIds: ['p-import-1'],
+      stageable: true,
+      reason: null,
+      operationId: null,
     },
   ],
   cashEvidence: [],
@@ -264,11 +307,405 @@ beforeEach(() => {
     created: true,
     replay: report.cash,
   });
+  mocks.importedOperation.mockResolvedValue({
+    operationId: 'op-import',
+    state: 'DRAFT',
+    created: true,
+    replay: report.cash,
+  });
+  mocks.correction.mockResolvedValue({
+    operationId: 'op1',
+    revisionId: 'rev1',
+    state: 'DRAFT',
+    created: true,
+    replay: report.cash,
+  });
+  mocks.importedCorrection.mockResolvedValue({
+    operationId: 'op-import',
+    revisionId: 'rev-import',
+    state: 'DRAFT',
+    created: true,
+    replay: report.cash,
+  });
 });
 
 afterEach(cleanup);
 
 describe('DraftCashReconciliationPanel', () => {
+  const manualExecution = {
+    transactionId: 'manual-1',
+    positionId: 'p1',
+    kind: 'BUY',
+    effectiveDate: '2026-10-02',
+    currency: 'AUD',
+    grossValue: '60',
+    fee: '1',
+    stageable: true,
+    reason: null,
+    operationId: null,
+  };
+  it('requires an explicit manual sequence and stages only the persisted transaction identity', async () => {
+    mocks.report.data = { ...report, cashManualExecutions: [manualExecution] };
+    mocks.manualOperation.mockResolvedValue({ state: 'DRAFT' });
+    setup();
+    const button = screen.getByRole('button', {
+      name: 'Stage manual cash manual-1',
+    });
+    expect(button).toBeDisabled();
+    fireEvent.change(
+      screen.getByLabelText('Stable sequence for manual transaction manual-1'),
+      { target: { value: '3' } }
+    );
+    fireEvent.click(button);
+    await waitFor(() =>
+      expect(mocks.manualOperation).toHaveBeenCalledWith({
+        accountId: 'a1',
+        statementId: 's1',
+        transactionId: 'manual-1',
+        input: { sequence: 3 },
+      })
+    );
+    expect(
+      await screen.findByText(
+        /Manual execution cash staged from its persisted transaction/
+      )
+    ).toBeInTheDocument();
+  });
+  it('shows manual staging conflicts without hiding the entry or changing its retry sequence', async () => {
+    mocks.report.data = { ...report, cashManualExecutions: [manualExecution] };
+    mocks.manualOperation.mockRejectedValueOnce(
+      new Error('Opening source changed')
+    );
+    setup();
+    fireEvent.change(
+      screen.getByLabelText('Stable sequence for manual transaction manual-1'),
+      { target: { value: '2' } }
+    );
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Stage manual cash manual-1' })
+    );
+    expect(
+      await screen.findByText('Opening source changed')
+    ).toBeInTheDocument();
+    expect(
+      screen.getByLabelText('Stable sequence for manual transaction manual-1')
+    ).toHaveValue('2');
+  });
+  it('disables manual staging offline and shows reserved transaction identities as unavailable', () => {
+    mocks.online = false;
+    mocks.report.data = {
+      ...report,
+      cashManualExecutions: [
+        manualExecution,
+        {
+          ...manualExecution,
+          transactionId: 'reserved-1',
+          stageable: false,
+          reason: 'ALREADY_LINKED',
+          operationId: 'cash-original',
+        },
+      ],
+    };
+    setup();
+    expect(
+      screen.getByRole('button', { name: 'Stage manual cash manual-1' })
+    ).toBeDisabled();
+    expect(
+      screen.getByLabelText('Stable sequence for manual transaction manual-1')
+    ).toBeDisabled();
+    expect(
+      screen.queryByRole('button', { name: 'Stage manual cash reserved-1' })
+    ).not.toBeInTheDocument();
+    expect(
+      screen.getByText('ALREADY LINKED · cash-original')
+    ).toBeInTheDocument();
+  });
+  it('only exposes sequence and audit inputs for imported execution corrections and retains retry identity', async () => {
+    mocks.report.data = {
+      ...report,
+      cashOperations: [
+        {
+          ...report.cashOperations[0],
+          operationId: 'op-import',
+          currentRevisionId: 'op-import',
+          kind: 'BUY',
+          sourceOrigin: 'IMPORT',
+          sourceReference: 'KRAKEN:order:1',
+          cash: null,
+        },
+      ],
+    };
+    mocks.importedCorrection.mockRejectedValueOnce(
+      new Error('Connection interrupted')
+    );
+    setup();
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Correct sequence KRAKEN:order:1' })
+    );
+    expect(
+      screen.getByText('Correct imported execution sequence')
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByLabelText('Correction action')
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByLabelText('Corrected effective date')
+    ).not.toBeInTheDocument();
+    expect(screen.queryByLabelText(/Corrected amount/)).not.toBeInTheDocument();
+    fireEvent.change(screen.getByLabelText('Corrected stable sequence'), {
+      target: { value: '0' },
+    });
+    fireEvent.change(screen.getByLabelText('Correction audit reason'), {
+      target: { value: 'Broker order confirmed' },
+    });
+    fireEvent.click(screen.getByLabelText(/I reviewed this correction/));
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Save audited correction' })
+    );
+    await screen.findByText(/positive safe integer sequence/);
+    expect(mocks.importedCorrection).not.toHaveBeenCalled();
+    fireEvent.change(screen.getByLabelText('Corrected stable sequence'), {
+      target: { value: '3' },
+    });
+    fireEvent.click(screen.getByLabelText(/I reviewed this correction/));
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Save audited correction' })
+    );
+    await screen.findByText('Connection interrupted');
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Save audited correction' })
+    );
+    await screen.findByText(/Audited correction saved/);
+    expect(mocks.importedCorrection.mock.calls[0][0]).toEqual(
+      mocks.importedCorrection.mock.calls[1][0]
+    );
+    expect(mocks.importedCorrection).toHaveBeenLastCalledWith({
+      accountId: 'a1',
+      statementId: 's1',
+      operationId: 'op-import',
+      input: {
+        idempotencyKey: expect.any(String),
+        expectedRevisionId: 'op-import',
+        reason: 'Broker order confirmed',
+        sequence: 3,
+      },
+    });
+    expect(mocks.correction).not.toHaveBeenCalled();
+  });
+
+  it('surfaces funding errors and requires a fresh review after changing a failed correction', async () => {
+    mocks.correction.mockRejectedValueOnce({
+      response: {
+        status: 422,
+        data: {
+          message: 'Correction would leave insufficient cash on 12/10/2026',
+        },
+      },
+    });
+    setup();
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Correct Bank transfer 1' })
+    );
+    fireEvent.change(screen.getByLabelText('Corrected amount (AUD)'), {
+      target: { value: '0' },
+    });
+    fireEvent.change(screen.getByLabelText('Correction audit reason'), {
+      target: { value: 'Fix amount' },
+    });
+    fireEvent.click(screen.getByLabelText(/I reviewed this correction/));
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Save audited correction' })
+    );
+    expect(
+      await screen.findByText(/positive decimal amount/)
+    ).toBeInTheDocument();
+    expect(mocks.correction).not.toHaveBeenCalled();
+    fireEvent.change(screen.getByLabelText('Corrected amount (AUD)'), {
+      target: { value: '1' },
+    });
+    expect(
+      screen.getByRole('button', { name: 'Save audited correction' })
+    ).toBeDisabled();
+    fireEvent.click(screen.getByLabelText(/I reviewed this correction/));
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Save audited correction' })
+    );
+    expect(
+      await screen.findByText(/Correction would leave insufficient cash/)
+    ).toBeInTheDocument();
+    expect(screen.getByLabelText('Corrected amount (AUD)')).toHaveValue('1');
+  });
+
+  it('blocks submission if refreshed report shows a newer revision while the editor is open', () => {
+    const renderPanel = () => (
+      <PrivacyProvider initialHidden={false}>
+        <DraftCashReconciliationPanel
+          accountId='a1'
+          statementId='s1'
+          onClose={vi.fn()}
+        />
+      </PrivacyProvider>
+    );
+    const { rerender } = render(renderPanel());
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Correct Bank transfer 1' })
+    );
+    mocks.report.data = {
+      ...report,
+      cashOperations: [
+        { ...report.cashOperations[0], currentRevisionId: 'newer-revision' },
+      ],
+    };
+    rerender(renderPanel());
+    expect(
+      screen.getByText(/Cancel and reopen the correction/)
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'Save audited correction' })
+    ).toBeDisabled();
+    expect(screen.getByLabelText('Corrected amount (AUD)')).toBeDisabled();
+    expect(mocks.correction).not.toHaveBeenCalled();
+  });
+
+  it('reviews a capital replacement with the expected revision, audit reason and retained currency', async () => {
+    setup();
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Correct Bank transfer 1' })
+    );
+    fireEvent.change(screen.getByLabelText('Corrected amount (AUD)'), {
+      target: { value: '40.25' },
+    });
+    fireEvent.change(screen.getByLabelText('Correction audit reason'), {
+      target: { value: 'Correct statement amount' },
+    });
+    const save = screen.getByRole('button', {
+      name: 'Save audited correction',
+    });
+    expect(save).toBeDisabled();
+    fireEvent.click(screen.getByLabelText(/I reviewed this correction/));
+    fireEvent.click(save);
+    await screen.findByText(/Audited correction saved in the inactive draft/);
+    expect(mocks.correction).toHaveBeenCalledWith({
+      accountId: 'a1',
+      statementId: 's1',
+      operationId: 'op1',
+      input: {
+        idempotencyKey: expect.any(String),
+        expectedRevisionId: 'op1',
+        reason: 'Correct statement amount',
+        replacement: {
+          effectiveDate: '2026-10-10',
+          sequence: 1,
+          amount: '40.25',
+        },
+      },
+    });
+    expect(
+      screen.queryByRole('region', { name: 'Correct inactive cash operation' })
+    ).not.toBeInTheDocument();
+  });
+
+  it('retains the retry identity after an uncertain failure and sends an explicit terminal reversal', async () => {
+    mocks.correction.mockRejectedValueOnce(new Error('Connection interrupted'));
+    setup();
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Correct Bank transfer 1' })
+    );
+    fireEvent.change(screen.getByLabelText('Correction action'), {
+      target: { value: 'REVERSE' },
+    });
+    expect(
+      screen.queryByLabelText('Corrected amount (AUD)')
+    ).not.toBeInTheDocument();
+    fireEvent.change(screen.getByLabelText('Correction audit reason'), {
+      target: { value: 'Duplicate entry' },
+    });
+    fireEvent.click(screen.getByLabelText(/I reviewed this correction/));
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Save audited correction' })
+    );
+    await screen.findByText('Connection interrupted');
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Save audited correction' })
+    );
+    await screen.findByText(/Audited correction saved/);
+    expect(mocks.correction.mock.calls[0][0]).toEqual(
+      mocks.correction.mock.calls[1][0]
+    );
+    expect(mocks.correction.mock.calls[0][0].input.replacement).toBeNull();
+  });
+
+  it('shows correction audit reasons and does not permit correction of reversed entries', () => {
+    mocks.report.data = {
+      ...report,
+      cashOperations: [
+        {
+          ...report.cashOperations[0],
+          status: 'REVERSED',
+          currentRevisionId: 'rev1',
+          revisions: [
+            {
+              revisionId: 'rev1',
+              reason: 'Duplicate bank entry',
+              replacement: false,
+            },
+          ],
+        },
+      ],
+    };
+    setup();
+    expect(
+      screen.getByText('Reversal: Duplicate bank entry')
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'Correct Bank transfer 1' })
+    ).not.toBeInTheDocument();
+  });
+
+  it('disables correction while offline and hides a selected correction after switching account', () => {
+    mocks.online = false;
+    const { rerender } = render(
+      <PrivacyProvider initialHidden={false}>
+        <DraftCashReconciliationPanel
+          accountId='a1'
+          statementId='s1'
+          onClose={vi.fn()}
+        />
+      </PrivacyProvider>
+    );
+    expect(
+      screen.getByRole('button', { name: 'Correct Bank transfer 1' })
+    ).toBeDisabled();
+    mocks.online = true;
+    rerender(
+      <PrivacyProvider initialHidden={false}>
+        <DraftCashReconciliationPanel
+          accountId='a1'
+          statementId='s1'
+          onClose={vi.fn()}
+        />
+      </PrivacyProvider>
+    );
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Correct Bank transfer 1' })
+    );
+    expect(
+      screen.getByRole('region', { name: 'Correct inactive cash operation' })
+    ).toBeInTheDocument();
+    rerender(
+      <PrivacyProvider initialHidden={false}>
+        <DraftCashReconciliationPanel
+          accountId='a2'
+          statementId='s2'
+          onClose={vi.fn()}
+        />
+      </PrivacyProvider>
+    );
+    expect(
+      screen.queryByRole('region', { name: 'Correct inactive cash operation' })
+    ).not.toBeInTheDocument();
+    expect(mocks.correction).not.toHaveBeenCalled();
+  });
   it('keeps the report explicitly unverified and surfaces source, inventory, and trade issues', () => {
     setup();
     expect(
@@ -379,5 +816,55 @@ describe('DraftCashReconciliationPanel', () => {
       })
     );
     await waitFor(() => expect(mocks.operation).toHaveBeenCalledTimes(1));
+  });
+
+  it('requires an explicit sequence and stages imported cash from its event identity', async () => {
+    setup();
+    const stage = screen.getByRole('button', {
+      name: 'Stage imported cash KRAKEN:order:1',
+    });
+    expect(stage).toBeDisabled();
+    fireEvent.change(
+      screen.getByLabelText(
+        'Stable sequence for imported execution KRAKEN:order:1'
+      ),
+      { target: { value: '3' } }
+    );
+    expect(stage).toBeEnabled();
+    fireEvent.click(stage);
+
+    await screen.findByText(/persisted Kraken record/);
+    expect(mocks.importedOperation).toHaveBeenCalledWith({
+      accountId: 'a1',
+      statementId: 's1',
+      eventId: 'event-1',
+      input: { sequence: 3 },
+    });
+  });
+
+  it('explains when an imported execution is already represented by another draft operation', () => {
+    mocks.report.data = {
+      ...report,
+      cashImportExecutions: [
+        {
+          ...report.cashImportExecutions[0],
+          stageable: false,
+          reason: 'TRANSACTION_ALREADY_LINKED',
+          operationId: 'op-existing',
+        },
+      ],
+    };
+    setup();
+
+    expect(
+      screen.getByText(
+        'Transaction is already represented by a draft cash operation · op-existing'
+      )
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', {
+        name: /Stage imported cash KRAKEN:order:1/,
+      })
+    ).not.toBeInTheDocument();
   });
 });

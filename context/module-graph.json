@@ -355,6 +355,7 @@
         "src/hooks/useHoldingRows.ts",
         "src/components/OpeningPreviewDialog.tsx",
         "src/components/DraftCashReconciliationPanel.tsx",
+        "src/components/DraftCashCorrectionForm.tsx",
         "src/hooks/useExchangeDiscovery.ts",
         "src/components/ReportsView.tsx",
         "src/components/GenerateReportDialog.tsx",
@@ -1047,6 +1048,7 @@
         "src/components/PositionDetailsDialog.tsx",
         "src/components/OpeningPreviewDialog.tsx",
         "src/components/DraftCashReconciliationPanel.tsx",
+        "src/components/DraftCashCorrectionForm.tsx",
         "src/components/ReportsView.tsx",
         "src/components/ReportDetailDialog.tsx",
         "src/components/StatisticsView.tsx",
@@ -1330,6 +1332,7 @@
         "src/components/PositionDetailsDialog.tsx",
         "src/components/OpeningPreviewDialog.tsx",
         "src/components/DraftCashReconciliationPanel.tsx",
+        "src/components/DraftCashCorrectionForm.tsx",
         "src/components/ReportsView.tsx",
         "src/components/ReportDetailDialog.tsx",
         "src/components/StatisticsView.tsx",
@@ -2874,7 +2877,8 @@
         "src/components/QueryFeedback.tsx",
         "src/components/HoldingsTable.tsx",
         "src/components/OpeningPreviewDialog.tsx",
-        "src/components/DraftCashReconciliationPanel.tsx"
+        "src/components/DraftCashReconciliationPanel.tsx",
+        "src/components/DraftCashCorrectionForm.tsx"
       ],
       "orphan": false,
       "source": "src/hooks/useNetworkStatus.ts",
@@ -3820,6 +3824,23 @@
           "coreModule": false,
           "couldNotResolve": false,
           "dependencyTypes": [
+            "local",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "./DraftCashCorrectionForm",
+          "moduleSystem": "es6",
+          "resolved": "src/components/DraftCashCorrectionForm.tsx",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
             "undetermined",
             "import"
           ],
@@ -3890,6 +3911,84 @@
       ],
       "orphan": false,
       "source": "src/components/DraftCashReconciliationPanel.tsx",
+      "valid": true
+    },
+    {
+      "dependencies": [
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/hooks/api",
+          "moduleSystem": "es6",
+          "resolved": "src/hooks/api.ts",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/hooks/useNetworkStatus",
+          "moduleSystem": "es6",
+          "resolved": "src/hooks/useNetworkStatus.ts",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/lib/date",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/date.ts",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/lib/privacy-context",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/privacy-context.tsx",
+          "valid": true
+        }
+      ],
+      "dependents": [
+        "src/components/DraftCashReconciliationPanel.tsx"
+      ],
+      "orphan": false,
+      "source": "src/components/DraftCashCorrectionForm.tsx",
       "valid": true
     },
     {
@@ -6559,8 +6658,8 @@
         }
       ]
     },
-    "totalCruised": 155,
-    "totalDependenciesCruised": 287,
+    "totalCruised": 156,
+    "totalDependenciesCruised": 292,
     "violations": [],
     "warn": 0
   }

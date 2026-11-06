@@ -84,6 +84,36 @@ describe('apiClient mock-mode parity', () => {
     },
     // accounts
     {
+      name: 'stageDraftManualExecutionCash',
+      call: () =>
+        apiClient.stageDraftManualExecutionCash('a1', 's1', 't1', {
+          sequence: 1,
+        }),
+      expectRejection: /requires the real API/i,
+    },
+    {
+      name: 'correctDraftImportedExecutionCash',
+      call: () =>
+        apiClient.correctDraftImportedExecutionCash('a1', 's1', 'op1', {
+          idempotencyKey: 'fix',
+          expectedRevisionId: 'op1',
+          reason: 'Broker sequence',
+          sequence: 3,
+        }),
+      expectRejection: /require the real API/i,
+    },
+    {
+      name: 'correctDraftReconciliationCashOperation',
+      call: () =>
+        apiClient.correctDraftReconciliationCashOperation('a1', 's1', 'op1', {
+          idempotencyKey: 'correction-1',
+          expectedRevisionId: 'op1',
+          reason: 'Duplicate entry',
+          replacement: null,
+        }),
+      expectRejection: /require the real API/i,
+    },
+    {
       name: 'getOpeningStatements',
       call: () => apiClient.getOpeningStatements('acc-1'),
       expectRejection: /require the real API/i,
@@ -144,6 +174,17 @@ describe('apiClient mock-mode parity', () => {
           sourceReference: 'Bank transfer 1',
         }),
       expectRejection: /require the real API/i,
+    },
+    {
+      name: 'stageDraftImportedExecutionCash',
+      call: () =>
+        apiClient.stageDraftImportedExecutionCash(
+          'acc-1',
+          'stmt-1',
+          'event-1',
+          { sequence: 1 }
+        ),
+      expectRejection: /requires the real API/i,
     },
     {
       name: 'previewAccountOpening',

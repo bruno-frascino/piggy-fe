@@ -662,6 +662,60 @@ export interface DraftCashFlowResult {
   replay: DraftCashReplay;
 }
 
+export interface DraftCashCorrectionInput {
+  idempotencyKey: string;
+  expectedRevisionId: string;
+  reason: string;
+  replacement: {
+    effectiveDate: string;
+    sequence: number;
+    amount: string;
+  } | null;
+}
+
+export interface DraftCashCorrectionResult extends DraftCashFlowResult {
+  revisionId: string;
+}
+
+export interface DraftImportedCashCorrectionInput {
+  idempotencyKey: string;
+  expectedRevisionId: string;
+  reason: string;
+  sequence: number;
+}
+
+export interface DraftImportedExecutionInput {
+  sequence: number;
+}
+
+export interface DraftImportedExecution {
+  eventId: string;
+  batchId: string;
+  externalId: string;
+  kind: 'BUY' | 'SELL';
+  occurredAt: string;
+  effectiveDate: string;
+  quoteCurrency: string | null;
+  grossValue: string | null;
+  fee: string;
+  feeCurrency: string | null;
+  transactionIds: string[];
+  positionIds: string[];
+  stageable: boolean;
+  reason:
+    | 'ALREADY_STAGED'
+    | 'ON_OR_BEFORE_BOUNDARY'
+    | 'AFTER_OBSERVATION_DATE'
+    | 'TRANSACTION_ALREADY_LINKED'
+    | 'UNSUPPORTED_EXECUTION'
+    | 'MISSING_TRANSACTION_LINK'
+    | 'INCOMPATIBLE_OPENING_SALE'
+    | 'STALE_OPENING_SOURCE'
+    | 'ACCOUNT_NOT_ELIGIBLE'
+    | null;
+  operationId: string | null;
+}
+
 export interface DraftCashReplay {
   accountId: string;
   openingDate: string;
@@ -729,14 +783,42 @@ export interface DraftOpeningReconciliation {
     changed: boolean;
   };
   cash: DraftCashReplay & { verification: 'UNVERIFIED' };
+  cashImportExecutions: DraftImportedExecution[];
+  cashManualExecutions: {
+    transactionId: string;
+    positionId: string;
+    kind: string;
+    effectiveDate: string;
+    currency: string;
+    grossValue: string;
+    fee: string;
+    stageable: boolean;
+    reason:
+      | 'ALREADY_LINKED'
+      | 'ON_OR_BEFORE_BOUNDARY'
+      | 'AFTER_OBSERVATION_DATE'
+      | 'STALE_OPENING_SOURCE'
+      | 'ACCOUNT_NOT_ELIGIBLE'
+      | 'INCOMPATIBLE_OPENING_SALE'
+      | 'UNSUPPORTED_EXECUTION'
+      | null;
+    operationId: string | null;
+  }[];
   cashOperations: {
     operationId: string;
+    currentRevisionId: string;
     idempotencyKey: string;
     kind: 'BUY' | 'SELL' | 'DEPOSIT' | 'WITHDRAWAL';
     effectiveDate: string;
     sequence: number;
     sourceOrigin: 'MANUAL' | 'IMPORT';
     sourceReference: string;
+    cash: { currency: string; amount: string } | null;
+    revisions: {
+      revisionId: string;
+      reason: string;
+      replacement: boolean;
+    }[];
     status: 'EFFECTIVE' | 'CORRECTED' | 'REVERSED';
   }[];
   cashEvidence: DraftCashEvidenceRecord[];

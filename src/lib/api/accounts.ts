@@ -11,6 +11,10 @@ import type {
   DraftCashEvidenceResult,
   DraftCashFlowInput,
   DraftCashFlowResult,
+  DraftCashCorrectionInput,
+  DraftCashCorrectionResult,
+  DraftImportedCashCorrectionInput,
+  DraftImportedExecutionInput,
   DraftOpeningReconciliation,
 } from '../types';
 import { isRecord, mapToTradingAccount, unwrapArray } from './mappers';
@@ -19,6 +23,59 @@ const USE_MOCK_API = process.env.NEXT_PUBLIC_USE_MOCK_API === 'true';
 
 export function createAccountsApi(client: AxiosInstance) {
   const api = {
+    async stageDraftManualExecutionCash(
+      accountId: string,
+      statementId: string,
+      transactionId: string,
+      input: DraftImportedExecutionInput
+    ): Promise<DraftCashFlowResult> {
+      if (USE_MOCK_API)
+        throw new Error('Manual execution cash staging requires the real API.');
+      const response = await client.post<{
+        success: boolean;
+        data: DraftCashFlowResult;
+      }>(
+        `/accounts/${encodeURIComponent(accountId)}/opening-statements/${encodeURIComponent(statementId)}/transactions/${encodeURIComponent(transactionId)}/cash-operation`,
+        input
+      );
+      return response.data.data;
+    },
+    async correctDraftImportedExecutionCash(
+      accountId: string,
+      statementId: string,
+      operationId: string,
+      input: DraftImportedCashCorrectionInput
+    ): Promise<DraftCashCorrectionResult> {
+      if (USE_MOCK_API)
+        throw new Error('Imported cash corrections require the real API.');
+      const response = await client.post<{
+        success: boolean;
+        data: DraftCashCorrectionResult;
+      }>(
+        `/accounts/${encodeURIComponent(accountId)}/opening-statements/${encodeURIComponent(statementId)}/imported-cash-operations/${encodeURIComponent(operationId)}/corrections`,
+        input
+      );
+      return response.data.data;
+    },
+
+    async correctDraftReconciliationCashOperation(
+      accountId: string,
+      statementId: string,
+      operationId: string,
+      input: DraftCashCorrectionInput
+    ): Promise<DraftCashCorrectionResult> {
+      if (USE_MOCK_API)
+        throw new Error('Draft cash corrections require the real API.');
+      const response = await client.post<{
+        success: boolean;
+        data: DraftCashCorrectionResult;
+      }>(
+        `/accounts/${encodeURIComponent(accountId)}/opening-statements/${encodeURIComponent(statementId)}/cash-operations/${encodeURIComponent(operationId)}/corrections`,
+        input
+      );
+      return response.data.data;
+    },
+
     async getDraftOpeningReconciliation(
       accountId: string,
       statementId: string
@@ -79,6 +136,24 @@ export function createAccountsApi(client: AxiosInstance) {
         data: DraftCashFlowResult;
       }>(
         `/accounts/${encodeURIComponent(accountId)}/opening-statements/${encodeURIComponent(statementId)}/cash-operations`,
+        input
+      );
+      return response.data.data;
+    },
+
+    async stageDraftImportedExecutionCash(
+      accountId: string,
+      statementId: string,
+      eventId: string,
+      input: DraftImportedExecutionInput
+    ): Promise<DraftCashFlowResult> {
+      if (USE_MOCK_API)
+        throw new Error('Imported execution staging requires the real API.');
+      const response = await client.post<{
+        success: boolean;
+        data: DraftCashFlowResult;
+      }>(
+        `/accounts/${encodeURIComponent(accountId)}/opening-statements/${encodeURIComponent(statementId)}/import-events/${encodeURIComponent(eventId)}/cash-operation`,
         input
       );
       return response.data.data;

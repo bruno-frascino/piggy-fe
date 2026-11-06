@@ -7,11 +7,14 @@ import { Checkbox } from 'primereact/checkbox';
 import { Dropdown } from 'primereact/dropdown';
 import { InputText } from 'primereact/inputtext';
 import { Message } from 'primereact/message';
+import DraftCashCorrectionForm from './DraftCashCorrectionForm';
 import {
   useDraftOpeningReconciliation,
   usePreviewDraftCashEvidence,
   useRecordDraftCashEvidence,
   useSaveDraftReconciliationCashOperation,
+  useStageDraftImportedExecutionCash,
+  useStageDraftManualExecutionCash,
 } from '@/hooks/api';
 import { useNetworkStatus } from '@/hooks/useNetworkStatus';
 import { formatDateDDMMYYYY, toLocalDateString } from '@/lib/date';
@@ -20,6 +23,7 @@ import type {
   DraftCashEvidenceInput,
   DraftCashEvidenceReason,
   DraftCashFlowInput,
+  DraftOpeningReconciliation,
 } from '@/lib/types';
 
 const reasons: { label: string; value: DraftCashEvidenceReason }[] = [
@@ -87,6 +91,8 @@ export default function DraftCashReconciliationPanel({
   const previewMutation = usePreviewDraftCashEvidence();
   const recordMutation = useRecordDraftCashEvidence();
   const operationMutation = useSaveDraftReconciliationCashOperation();
+  const importedOperationMutation = useStageDraftImportedExecutionCash();
+  const manualOperationMutation = useStageDraftManualExecutionCash();
   const report = reportQuery.data;
   const [evidenceDate, setEvidenceDate] = useState<Date | null>(null);
   const [evidenceSource, setEvidenceSource] = useState('');
@@ -108,8 +114,21 @@ export default function DraftCashReconciliationPanel({
   const [cashCurrency, setCashCurrency] = useState('');
   const [cashAmount, setCashAmount] = useState('');
   const [cashSourceReference, setCashSourceReference] = useState('');
+  const [importSequences, setImportSequences] = useState<
+    Record<string, string>
+  >({});
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [correction, setCorrection] = useState<{
+    accountId: string;
+    statementId: string;
+    operation: DraftOpeningReconciliation['cashOperations'][number];
+  } | null>(null);
+  const activeCorrection =
+    correction?.accountId === accountId &&
+    correction.statementId === statementId
+      ? correction
+      : null;
   const invalidateEvidencePreview = () => {
     setPreview(null);
     setDecisions({});
@@ -157,7 +176,12 @@ export default function DraftCashReconciliationPanel({
     return Boolean(decision?.reason && decision.note.trim());
   });
   const evidenceBusy = previewMutation.isPending || recordMutation.isPending;
-  const busy = evidenceBusy || operationMutation.isPending;
+  const busy =
+    evidenceBusy ||
+    operationMutation.isPending ||
+    importedOperationMutation.isPending ||
+    manualOperationMutation.isPending ||
+    Boolean(activeCorrection);
 
   const updateStatementBalance = (
     index: number,
@@ -288,6 +312,61 @@ export default function DraftCashReconciliationPanel({
       setCashSourceReference('');
       setSuccess(
         'Dated operation staged in the inactive draft. Cash replay has been refreshed.'
+      );
+    } catch (failure: unknown) {
+      setError(errorText(failure));
+    }
+  };
+
+  const sequenceForImportedEvent = (eventId: string) =>
+    importSequences[JSON.stringify([accountId, statementId, eventId])] ?? '';
+
+  const stageImportedExecution = async (eventId: string) => {
+    setError('');
+    setSuccess('');
+    const sequenceText = sequenceForImportedEvent(eventId);
+    const sequence = Number(sequenceText);
+    if (!/^[1-9]\d*$/.test(sequenceText) || !Number.isSafeInteger(sequence)) {
+      setError(
+        'Enter an explicit positive stable sequence for this imported execution date.'
+      );
+      return;
+    }
+    try {
+      await importedOperationMutation.mutateAsync({
+        accountId,
+        statementId,
+        eventId,
+        input: { sequence },
+      });
+      setSuccess(
+        'Imported execution cash staged from its persisted Kraken record. Cash replay has been refreshed.'
+      );
+    } catch (failure: unknown) {
+      setError(errorText(failure));
+    }
+  };
+
+  const stageManualExecution = async (transactionId: string) => {
+    setError('');
+    setSuccess('');
+    const text = sequenceForImportedEvent(`manual:${transactionId}`);
+    const sequence = Number(text);
+    if (!/^[1-9]\d*$/.test(text) || !Number.isSafeInteger(sequence)) {
+      setError(
+        'Enter an explicit positive stable sequence for this manual execution date.'
+      );
+      return;
+    }
+    try {
+      await manualOperationMutation.mutateAsync({
+        accountId,
+        statementId,
+        transactionId,
+        input: { sequence },
+      });
+      setSuccess(
+        'Manual execution cash staged from its persisted transaction. Cash replay has been refreshed.'
       );
     } catch (failure: unknown) {
       setError(errorText(failure));
@@ -798,6 +877,7 @@ export default function DraftCashReconciliationPanel({
                 <th>Operation</th>
                 <th>Source reference</th>
                 <th>Amounts and balances after</th>
+                <th>Corrections</th>
               </tr>
             </thead>
             <tbody>
@@ -825,12 +905,296 @@ export default function DraftCashReconciliationPanel({
                             .join('; ')
                         : 'No current cash effect (reversed).'}
                     </td>
+                    <td>
+                      {operation.revisions.map(revision => (
+                        <p key={revision.revisionId}>
+                          {revision.replacement ? 'Correction' : 'Reversal'}:{' '}
+                          {revision.reason}
+                        </p>
+                      ))}
+                      {operation.sourceOrigin === 'MANUAL' &&
+                        operation.cash &&
+                        (operation.kind === 'DEPOSIT' ||
+                          operation.kind === 'WITHDRAWAL') &&
+                        operation.status !== 'REVERSED' && (
+                          <Button
+                            label={`Correct ${operation.sourceReference}`}
+                            outlined
+                            disabled={!online || busy || report.source.changed}
+                            onClick={() => {
+                              setError('');
+                              setSuccess('');
+                              setCorrection({
+                                accountId,
+                                statementId,
+                                operation,
+                              });
+                            }}
+                          />
+                        )}
+                      {operation.sourceOrigin === 'IMPORT' &&
+                        (operation.kind === 'BUY' ||
+                          operation.kind === 'SELL') &&
+                        operation.status !== 'REVERSED' && (
+                          <Button
+                            label={`Correct sequence ${operation.sourceReference}`}
+                            outlined
+                            disabled={!online || busy || report.source.changed}
+                            onClick={() => {
+                              setError('');
+                              setSuccess('');
+                              setCorrection({
+                                accountId,
+                                statementId,
+                                operation,
+                              });
+                            }}
+                          />
+                        )}
+                    </td>
                   </tr>
                 );
               })}
             </tbody>
           </table>
         </div>
+        {activeCorrection && (
+          <DraftCashCorrectionForm
+            key={JSON.stringify([
+              accountId,
+              statementId,
+              activeCorrection.operation.operationId,
+            ])}
+            accountId={accountId}
+            statementId={statementId}
+            openingDate={report.openingDate}
+            operation={activeCorrection.operation}
+            stale={
+              report.source.changed ||
+              !report.cashOperations.some(
+                operation =>
+                  operation.operationId ===
+                    activeCorrection.operation.operationId &&
+                  operation.currentRevisionId ===
+                    activeCorrection.operation.currentRevisionId
+              )
+            }
+            onCancel={() => setCorrection(null)}
+            onSaved={() => {
+              setCorrection(null);
+              invalidateEvidencePreview();
+              setError('');
+              setSuccess(
+                'Audited correction saved in the inactive draft. Cash replay and evidence comparisons have been refreshed.'
+              );
+            }}
+            onError={failure => setError(errorText(failure))}
+          />
+        )}
+      </section>
+
+      <section
+        className='space-y-3'
+        aria-label='Manual execution cash operations'
+      >
+        <h4>Stage cash for recorded manual trades</h4>
+        <Message
+          severity='info'
+          text='Date, currency, gross amount and fees come from the recorded transaction. Choose an explicit stable sequence. Staging only affects this inactive cash replay, not live holdings or balances.'
+        />
+        {report.cashManualExecutions.length === 0 ? (
+          <p>No recorded manual trades are available for this account.</p>
+        ) : (
+          <div className='overflow-x-auto'>
+            <table className='w-full text-sm'>
+              <caption>
+                Manual executions available for inactive cash replay
+              </caption>
+              <thead>
+                <tr>
+                  <th>Transaction</th>
+                  <th>Date</th>
+                  <th>Gross</th>
+                  <th>Fee</th>
+                  <th>Stable sequence</th>
+                  <th>Action / status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {report.cashManualExecutions.map(execution => {
+                  const key = `manual:${execution.transactionId}`;
+                  const text = sequenceForImportedEvent(key);
+                  return (
+                    <tr key={execution.transactionId}>
+                      <td>
+                        {execution.kind} · {execution.transactionId}
+                      </td>
+                      <td>{formatDateDDMMYYYY(execution.effectiveDate)}</td>
+                      <td>
+                        {execution.currency} {mask(execution.grossValue)}
+                      </td>
+                      <td>
+                        {execution.currency} {mask(execution.fee)}
+                      </td>
+                      <td>
+                        <InputText
+                          aria-label={`Stable sequence for manual transaction ${execution.transactionId}`}
+                          value={text}
+                          inputMode='numeric'
+                          disabled={!online || busy || !execution.stageable}
+                          onChange={event =>
+                            setImportSequences(current => ({
+                              ...current,
+                              [JSON.stringify([accountId, statementId, key])]:
+                                event.target.value,
+                            }))
+                          }
+                        />
+                      </td>
+                      <td>
+                        {execution.stageable ? (
+                          <Button
+                            label={`Stage manual cash ${execution.transactionId}`}
+                            disabled={
+                              !online ||
+                              busy ||
+                              !/^[1-9]\d*$/.test(text) ||
+                              !Number.isSafeInteger(Number(text))
+                            }
+                            loading={manualOperationMutation.isPending}
+                            onClick={() =>
+                              void stageManualExecution(execution.transactionId)
+                            }
+                          />
+                        ) : (
+                          <span>
+                            {execution.reason?.replaceAll('_', ' ')}
+                            {execution.operationId
+                              ? ` · ${execution.operationId}`
+                              : ''}
+                          </span>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </section>
+
+      <section
+        className='space-y-3'
+        aria-label='Imported execution cash operations'
+      >
+        <h4>Stage cash for applied Kraken executions</h4>
+        <Message
+          severity='info'
+          text='Execution values and transaction links are read from the applied import. Choose an explicit stable sequence for each date; no cash value or intraday order is inferred.'
+        />
+        {report.cashImportExecutions.length === 0 ? (
+          <p>No applied Kraken executions are available for this account.</p>
+        ) : (
+          <div className='overflow-x-auto'>
+            <table className='w-full text-sm'>
+              <caption>
+                Imported executions available for inactive cash replay
+              </caption>
+              <thead>
+                <tr>
+                  <th>Execution</th>
+                  <th>Date</th>
+                  <th>Time (Sydney)</th>
+                  <th>Gross</th>
+                  <th>Fee</th>
+                  <th>Transaction links</th>
+                  <th>Stable sequence</th>
+                  <th>Action / status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {report.cashImportExecutions.map(execution => (
+                  <tr key={execution.eventId}>
+                    <td>
+                      {execution.kind} · {execution.externalId}
+                    </td>
+                    <td>{formatDateDDMMYYYY(execution.effectiveDate)}</td>
+                    <td>
+                      {new Intl.DateTimeFormat('en-AU', {
+                        timeZone: 'Australia/Sydney',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        second: '2-digit',
+                        hour12: false,
+                      }).format(new Date(execution.occurredAt))}
+                    </td>
+                    <td>
+                      {execution.grossValue === null
+                        ? 'Unavailable'
+                        : `${execution.quoteCurrency ?? '—'} ${mask(execution.grossValue)}`}
+                    </td>
+                    <td>
+                      {mask(execution.fee)} {execution.feeCurrency ?? ''}
+                    </td>
+                    <td>{execution.transactionIds.join(', ') || 'Missing'}</td>
+                    <td>
+                      <InputText
+                        aria-label={`Stable sequence for imported execution ${execution.externalId}`}
+                        value={sequenceForImportedEvent(execution.eventId)}
+                        inputMode='numeric'
+                        disabled={!online || busy || !execution.stageable}
+                        onChange={event => {
+                          const key = JSON.stringify([
+                            accountId,
+                            statementId,
+                            execution.eventId,
+                          ]);
+                          setImportSequences(current => ({
+                            ...current,
+                            [key]: event.target.value,
+                          }));
+                        }}
+                      />
+                    </td>
+                    <td>
+                      {execution.stageable ? (
+                        <Button
+                          label={`Stage imported cash ${execution.externalId}`}
+                          disabled={
+                            !online ||
+                            busy ||
+                            !/^[1-9]\d*$/.test(
+                              sequenceForImportedEvent(execution.eventId)
+                            ) ||
+                            !Number.isSafeInteger(
+                              Number(
+                                sequenceForImportedEvent(execution.eventId)
+                              )
+                            )
+                          }
+                          loading={importedOperationMutation.isPending}
+                          onClick={() =>
+                            void stageImportedExecution(execution.eventId)
+                          }
+                        />
+                      ) : (
+                        <span>
+                          {execution.reason === 'TRANSACTION_ALREADY_LINKED'
+                            ? 'Transaction is already represented by a draft cash operation'
+                            : execution.reason}
+                          {execution.operationId
+                            ? ` · ${execution.operationId}`
+                            : ''}
+                        </span>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </section>
     </section>
   );
