@@ -25,6 +25,7 @@ import {
   type QueuedWriteActionInput,
 } from '@/lib/offline-write-queue';
 import { useToast } from '@/lib/toast-context';
+import { mutationErrorMessage } from '@/lib/mutation-error';
 import {
   formatCurrency,
   formatNumber,
@@ -286,7 +287,7 @@ export default function HoldingsTable({
 
   const showWriteError = (action: string, error: unknown) => {
     const fallback = `Could not ${action}. Please try again.`;
-    const detail = error instanceof Error ? error.message : fallback;
+    const detail = mutationErrorMessage(error, fallback);
     setSubmitError(detail || fallback);
     showToast({
       severity: 'error',
@@ -978,10 +979,18 @@ export default function HoldingsTable({
                   selectedExchange?.trim().toUpperCase(),
                 accountId: current?.accountId,
                 accountName: newPos.accountName,
-                openDate: newPos.openDate,
-                entryPrice: newPos.buyPrice,
-                quantity: newPos.units,
-                buyFees: newPos.buyFee,
+                ...(newPos.openDate !== current?.openDate
+                  ? { openDate: newPos.openDate }
+                  : {}),
+                ...(newPos.buyPrice !== current?.buyPrice
+                  ? { entryPrice: newPos.buyPrice }
+                  : {}),
+                ...(newPos.units !== current?.units
+                  ? { quantity: newPos.units }
+                  : {}),
+                ...(newPos.buyFee !== current?.buyFee
+                  ? { buyFees: newPos.buyFee }
+                  : {}),
                 assetName: newPos.name,
                 industry: newPos.industry,
                 stopLossPrice: newPos.stopLoss ?? null,

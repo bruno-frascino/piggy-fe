@@ -179,8 +179,6 @@ describe('HistoryPage', () => {
         id: 'close-1',
         data: {
           closeDate: '2026-02-05',
-          exitPrice: 120,
-          sellFees: 1,
           notes: '',
         },
       });
@@ -196,6 +194,10 @@ describe('HistoryPage', () => {
     );
 
     await waitFor(() => expect(updateCloseEventMock).toHaveBeenCalled());
+    expect(updateCloseEventMock).toHaveBeenCalledWith({
+      id: 'close-1',
+      data: { notes: '' },
+    });
     expect(updatePositionMock).not.toHaveBeenCalled();
   });
 
@@ -229,6 +231,33 @@ describe('HistoryPage', () => {
         })
       );
     });
+    expect(
+      screen.getByRole('button', { name: 'Save edited dates' })
+    ).toBeInTheDocument();
+  });
+  it('explains a source-preservation conflict and keeps the editor open', async () => {
+    updateCloseEventMock.mockRejectedValue({
+      isAxiosError: true,
+      response: {
+        status: 409,
+        data: {
+          message:
+            'Imported execution records must be preserved. Notes remain editable.',
+        },
+      },
+    });
+    render(<HistoryPage />);
+    fireEvent.click(screen.getByRole('button', { name: 'AAPL' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Save edited dates' }));
+    await waitFor(() =>
+      expect(showToastMock).toHaveBeenCalledWith(
+        expect.objectContaining({
+          severity: 'error',
+          detail:
+            'Imported execution records must be preserved. Notes remain editable.',
+        })
+      )
+    );
     expect(
       screen.getByRole('button', { name: 'Save edited dates' })
     ).toBeInTheDocument();

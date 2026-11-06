@@ -30,6 +30,7 @@ import { closeReasonLabel } from '@/lib/close-reason';
 import { closedTradeAmounts } from '@/lib/closed-trade-math';
 import { usePrivacy } from '@/lib/privacy-context';
 import { useToast } from '@/lib/toast-context';
+import { mutationErrorMessage } from '@/lib/mutation-error';
 
 const PERIOD_PRESETS: { label: string; value: HistoryPeriodPreset }[] = [
   { label: 'Current FY', value: 'CURRENT_FY' },
@@ -409,7 +410,7 @@ export default function HistoryPage() {
     showToast({
       severity: 'error',
       summary: 'Action failed',
-      detail: (error instanceof Error && error.message) || fallback,
+      detail: mutationErrorMessage(error, fallback),
       life: 5000,
     });
   };
@@ -682,9 +683,15 @@ export default function HistoryPage() {
                   updateCloseEvent({
                     id: updated.id,
                     data: {
-                      closeDate: updated.closeDate,
-                      exitPrice: updated.sellPrice,
-                      sellFees: updated.sellFee,
+                      ...(updated.closeDate !== active.closeDate
+                        ? { closeDate: updated.closeDate }
+                        : {}),
+                      ...(updated.sellPrice !== active.sellPrice
+                        ? { exitPrice: updated.sellPrice }
+                        : {}),
+                      ...(updated.sellFee !== active.sellFee
+                        ? { sellFees: updated.sellFee }
+                        : {}),
                       notes: updated.sellComments ?? '',
                       ...(updated.closeReason !== active.closeReason
                         ? { closeReason: updated.closeReason ?? null }

@@ -27,6 +27,9 @@ import type {
   DraftCashCorrectionInput,
   DraftImportedCashCorrectionInput,
   DraftImportedExecutionInput,
+  DraftSaleCorrectionInput,
+  DraftAcquisitionCorrectionInput,
+  AccountTradeInput,
 } from '@/lib/types';
 
 export const useExchanges = (assetClass: 'crypto' | 'equity', enabled = true) =>
@@ -317,6 +320,106 @@ export const useStageDraftManualExecutionCash = () => {
     onError: (error, { accountId, statementId }) => {
       if (isAxiosError(error) && error.response?.status === 409)
         return refresh(accountId, statementId);
+    },
+  });
+};
+
+export const useCorrectDraftRecordedSale = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      accountId,
+      statementId,
+      operationId,
+      input,
+    }: {
+      accountId: string;
+      statementId: string;
+      operationId: string;
+      input: DraftSaleCorrectionInput;
+    }) => {
+      if (typeof navigator !== 'undefined' && !navigator.onLine)
+        throw new Error(
+          'Reconnect to correct this sale. Offline changes are not queued.'
+        );
+      return apiClient.correctDraftRecordedSale(
+        accountId,
+        statementId,
+        operationId,
+        input
+      );
+    },
+    retry: false,
+    networkMode: 'always',
+    gcTime: 0,
+    onSuccess: async () => {
+      await Promise.all([
+        invalidatePositionQueries(queryClient),
+        queryClient.invalidateQueries({ queryKey: ['opening-reconciliation'] }),
+        queryClient.invalidateQueries({ queryKey: ['opening-statements'] }),
+        queryClient.invalidateQueries({ queryKey: ['tax-reports'] }),
+        queryClient.invalidateQueries({
+          predicate: query =>
+            typeof query.queryKey[0] === 'string' &&
+            query.queryKey[0].startsWith('statistics-'),
+        }),
+      ]);
+    },
+    onError: (error, { accountId, statementId }) => {
+      if (isAxiosError(error) && error.response?.status === 409)
+        return queryClient.invalidateQueries({
+          queryKey: ['opening-reconciliation', accountId, statementId],
+        });
+    },
+  });
+};
+
+export const useCorrectDraftRecordedAcquisition = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      accountId,
+      statementId,
+      operationId,
+      input,
+    }: {
+      accountId: string;
+      statementId: string;
+      operationId: string;
+      input: DraftAcquisitionCorrectionInput;
+    }) => {
+      if (typeof navigator !== 'undefined' && !navigator.onLine)
+        throw new Error(
+          'Reconnect to correct this acquisition. Offline changes are not queued.'
+        );
+      return apiClient.correctDraftRecordedAcquisition(
+        accountId,
+        statementId,
+        operationId,
+        input
+      );
+    },
+    retry: false,
+    networkMode: 'always',
+    gcTime: 0,
+    onSuccess: async () => {
+      await Promise.all([
+        invalidatePositionQueries(queryClient),
+        queryClient.invalidateQueries({ queryKey: ['opening-reconciliation'] }),
+        queryClient.invalidateQueries({ queryKey: ['opening-statements'] }),
+        queryClient.invalidateQueries({ queryKey: ['tax-reports'] }),
+        queryClient.invalidateQueries({
+          predicate: query =>
+            typeof query.queryKey[0] === 'string' &&
+            query.queryKey[0].startsWith('statistics-'),
+        }),
+      ]);
+    },
+    onError: (error, { accountId, statementId }) => {
+      if (isAxiosError(error) && error.response?.status === 409)
+        return queryClient.invalidateQueries({
+          queryKey: ['opening-reconciliation', accountId, statementId],
+        });
     },
   });
 };
@@ -634,6 +737,29 @@ export const useCreatePosition = () => {
   return useMutation({
     mutationFn: (payload: Parameters<typeof apiClient.createPosition>[0]) =>
       apiClient.createPosition(payload),
+    onSuccess: () => invalidatePositionQueries(queryClient),
+  });
+};
+
+export const usePostAccountTrade = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      accountId,
+      input,
+    }: {
+      accountId: string;
+      input: AccountTradeInput;
+    }) => {
+      if (typeof navigator !== 'undefined' && !navigator.onLine)
+        throw new Error(
+          'Reconnect to post an account trade. Offline changes are not queued.'
+        );
+      return apiClient.postAccountTrade(accountId, input);
+    },
+    retry: false,
+    networkMode: 'always',
+    gcTime: 0,
     onSuccess: () => invalidatePositionQueries(queryClient),
   });
 };

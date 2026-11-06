@@ -24,6 +24,9 @@ const {
   stageManualExecutionCashMock,
   correctDraftCashMock,
   correctImportedCashMock,
+  correctRecordedSaleMock,
+  correctRecordedAcquisitionMock,
+  postAccountTradeMock,
 } = vi.hoisted(() => ({
   updatePositionMock: vi.fn(),
   updateCloseEventMock: vi.fn(),
@@ -43,6 +46,9 @@ const {
   stageManualExecutionCashMock: vi.fn(),
   correctDraftCashMock: vi.fn(),
   correctImportedCashMock: vi.fn(),
+  correctRecordedSaleMock: vi.fn(),
+  correctRecordedAcquisitionMock: vi.fn(),
+  postAccountTradeMock: vi.fn(),
 }));
 
 vi.mock('@/lib/api-client', () => ({
@@ -65,6 +71,9 @@ vi.mock('@/lib/api-client', () => ({
     stageDraftManualExecutionCash: stageManualExecutionCashMock,
     correctDraftReconciliationCashOperation: correctDraftCashMock,
     correctDraftImportedExecutionCash: correctImportedCashMock,
+    correctDraftRecordedSale: correctRecordedSaleMock,
+    correctDraftRecordedAcquisition: correctRecordedAcquisitionMock,
+    postAccountTrade: postAccountTradeMock,
   },
 }));
 
@@ -87,6 +96,9 @@ import {
   useStageDraftManualExecutionCash,
   useCorrectDraftReconciliationCashOperation,
   useCorrectDraftImportedExecutionCash,
+  useCorrectDraftRecordedSale,
+  useCorrectDraftRecordedAcquisition,
+  usePostAccountTrade,
 } from './api';
 import { useSymbolSearch } from './useSymbolSearch';
 
@@ -145,6 +157,47 @@ describe('Kraken discovery query hooks', () => {
     rerender({ enabled: true });
     await waitFor(() => expect(result.current.isSuccess).toBe(true));
     expect(getExchangesMock).toHaveBeenCalledWith('equity');
+  });
+});
+
+describe('live account trade hook', () => {
+  it('posts online only, does not retry and invalidates portfolio queries', async () => {
+    const client = new QueryClient({
+      defaultOptions: { queries: { retry: false } },
+    });
+    client.setQueryData(['holdings'], []);
+    const input = {
+      kind: 'BUY' as const,
+      assetId: 'asset-1',
+      idempotencyKey: 'buy-1',
+      effectiveDate: '2026-10-02',
+      sequence: 1,
+      quantity: '1',
+      price: '10',
+      fees: '0',
+    };
+    postAccountTradeMock.mockResolvedValue({ transactionId: 'tx1' });
+    const { result } = renderHook(() => usePostAccountTrade(), {
+      wrapper: createWrapper(client),
+    });
+    await act(async () => {
+      await result.current.mutateAsync({ accountId: 'a1', input });
+    });
+    expect(postAccountTradeMock).toHaveBeenCalledWith('a1', input);
+    expect(client.getQueryState(['holdings'])?.isInvalidated).toBe(true);
+
+    const offline = vi.spyOn(navigator, 'onLine', 'get').mockReturnValue(false);
+    try {
+      await act(async () => {
+        await expect(
+          result.current.mutateAsync({ accountId: 'a1', input })
+        ).rejects.toThrow('Offline changes are not queued');
+      });
+    } finally {
+      offline.mockRestore();
+      client.clear();
+    }
+    expect(postAccountTradeMock).toHaveBeenCalledTimes(1);
   });
 });
 
@@ -412,6 +465,124 @@ describe('inactive imported cash hook', () => {
 });
 
 describe('central API mutation hooks', () => {
+  const saleInput = {
+    accountId: 'a1',
+    statementId: 's1',
+    operationId: 'op1',
+    input: {
+      idempotencyKey: 'fix',
+      expectedRevisionId: 'op1',
+      expectedSourceFingerprint: 'a'.repeat(64),
+      reason: 'Correct fees',
+      effectiveDate: '2026-10-03',
+      sequence: 1,
+      price: '12',
+      fees: '1',
+    },
+  };
+  it.each(['sale', 'acquisition'] as const)(
+    'refreshes all financial projections after a coordinated %s correction',
+    async kind => {
+      const client = new QueryClient();
+      const keys = [
+        ['holdings'],
+        ['closed-positions'],
+        ['realized-pnl'],
+        ['user-portfolio'],
+        ['portfolio-history'],
+        ['opening-reconciliation', 'a1', 's1'],
+        ['opening-reconciliation', 'a1', 'other'],
+        ['opening-statements'],
+        ['tax-reports'],
+        ['statistics-summary', {}],
+        ['quotes'],
+      ];
+      keys.forEach(key => client.setQueryData(key, {}));
+      const mock =
+        kind === 'sale'
+          ? correctRecordedSaleMock
+          : correctRecordedAcquisitionMock;
+      mock.mockResolvedValue({ state: 'DRAFT' });
+      const { result } = renderHook(
+        () => ({
+          sale: useCorrectDraftRecordedSale(),
+          acquisition: useCorrectDraftRecordedAcquisition(),
+        }),
+        {
+          wrapper: createWrapper(client),
+        }
+      );
+      await act(async () => {
+        if (kind === 'sale') await result.current.sale.mutateAsync(saleInput);
+        else
+          await result.current.acquisition.mutateAsync({
+            ...saleInput,
+            input: { ...saleInput.input, quantity: '1.25' },
+          });
+      });
+      expect(mock).toHaveBeenCalledWith('a1', 's1', 'op1', {
+        ...saleInput.input,
+        ...(kind === 'acquisition' ? { quantity: '1.25' } : {}),
+      });
+      for (const key of keys.slice(0, -1))
+        expect(client.getQueryState(key)?.isInvalidated).toBe(true);
+      expect(client.getQueryState(['quotes'])?.isInvalidated).toBe(false);
+      client.clear();
+    }
+  );
+  it.each(['sale', 'acquisition'] as const)(
+    'refreshes conflicting %s reviews without retries and rejects offline corrections',
+    async kind => {
+      const client = new QueryClient();
+      const key = ['opening-reconciliation', 'a1', 's1'];
+      client.setQueryData(key, {});
+      const mock =
+        kind === 'sale'
+          ? correctRecordedSaleMock
+          : correctRecordedAcquisitionMock;
+      mock.mockRejectedValue({
+        isAxiosError: true,
+        response: { status: 409 },
+      });
+      const { result } = renderHook(
+        () => ({
+          sale: useCorrectDraftRecordedSale(),
+          acquisition: useCorrectDraftRecordedAcquisition(),
+        }),
+        {
+          wrapper: createWrapper(client),
+        }
+      );
+      const submit = () =>
+        kind === 'sale'
+          ? result.current.sale.mutateAsync(saleInput)
+          : result.current.acquisition.mutateAsync({
+              ...saleInput,
+              input: { ...saleInput.input, quantity: '1.25' },
+            });
+      await act(async () => {
+        await expect(submit()).rejects.toMatchObject({
+          response: { status: 409 },
+        });
+      });
+      expect(mock).toHaveBeenCalledTimes(1);
+      expect(client.getQueryState(key)?.isInvalidated).toBe(true);
+      const online = vi
+        .spyOn(navigator, 'onLine', 'get')
+        .mockReturnValue(false);
+      try {
+        await act(async () => {
+          await expect(submit()).rejects.toThrow(
+            'Offline changes are not queued'
+          );
+        });
+        expect(mock).toHaveBeenCalledTimes(1);
+      } finally {
+        online.mockRestore();
+        client.clear();
+      }
+    }
+  );
   it('deleting an account removes only its opening draft history from cache', async () => {
     deleteAccountMock.mockResolvedValue({ success: true });
     const client = new QueryClient();

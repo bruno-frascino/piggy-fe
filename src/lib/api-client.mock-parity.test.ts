@@ -84,6 +84,37 @@ describe('apiClient mock-mode parity', () => {
     },
     // accounts
     {
+      name: 'correctDraftRecordedAcquisition',
+      call: () =>
+        apiClient.correctDraftRecordedAcquisition('a1', 's1', 'op1', {
+          idempotencyKey: 'buy-fix',
+          expectedRevisionId: 'op1',
+          expectedSourceFingerprint: 'a'.repeat(64),
+          reason: 'Correct purchase',
+          effectiveDate: '2026-10-02',
+          sequence: 1,
+          price: '12',
+          fees: '1',
+          quantity: '1.25',
+        }),
+      expectRejection: /require the real API/i,
+    },
+    {
+      name: 'correctDraftRecordedSale',
+      call: () =>
+        apiClient.correctDraftRecordedSale('a1', 's1', 'op1', {
+          idempotencyKey: 'sale-fix',
+          expectedRevisionId: 'op1',
+          expectedSourceFingerprint: 'a'.repeat(64),
+          reason: 'Correct fees',
+          effectiveDate: '2026-10-03',
+          sequence: 2,
+          price: '12',
+          fees: '1',
+        }),
+      expectRejection: /require the real API/i,
+    },
+    {
       name: 'stageDraftManualExecutionCash',
       call: () =>
         apiClient.stageDraftManualExecutionCash('a1', 's1', 't1', {
@@ -225,6 +256,21 @@ describe('apiClient mock-mode parity', () => {
       call: () => apiClient.createPortfolioSnapshot('acc-1', 'NASDAQ'),
     },
     // positions / holdings
+    {
+      name: 'postAccountTrade',
+      call: () =>
+        apiClient.postAccountTrade('acc-1', {
+          kind: 'BUY',
+          assetId: 'asset-1',
+          idempotencyKey: 'buy-1',
+          effectiveDate: '2026-01-02',
+          sequence: 1,
+          quantity: '1',
+          price: '10',
+          fees: '0',
+        }),
+      expectRejection: /requires the real API/,
+    },
     {
       name: 'createPosition',
       call: () =>

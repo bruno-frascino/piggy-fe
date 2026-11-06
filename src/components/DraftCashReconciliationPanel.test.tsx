@@ -29,6 +29,8 @@ const mocks = vi.hoisted(() => ({
   manualOperation: vi.fn(),
   correction: vi.fn(),
   importedCorrection: vi.fn(),
+  saleCorrection: vi.fn(),
+  acquisitionCorrection: vi.fn(),
   online: true,
 }));
 
@@ -60,6 +62,14 @@ vi.mock('@/hooks/api', () => ({
   }),
   useCorrectDraftImportedExecutionCash: () => ({
     mutateAsync: mocks.importedCorrection,
+    isPending: false,
+  }),
+  useCorrectDraftRecordedSale: () => ({
+    mutateAsync: mocks.saleCorrection,
+    isPending: false,
+  }),
+  useCorrectDraftRecordedAcquisition: () => ({
+    mutateAsync: mocks.acquisitionCorrection,
     isPending: false,
   }),
 }));
@@ -158,6 +168,8 @@ const report: DraftOpeningReconciliation = {
     reviewedAsOfDate: '2026-10-31',
     savedFingerprint: 'saved',
     currentFingerprint: 'current',
+    acceptedFingerprint: 'current',
+    correctionCount: 0,
     changed: false,
   },
   cash: {
@@ -340,10 +352,341 @@ describe('DraftCashReconciliationPanel', () => {
     currency: 'AUD',
     grossValue: '60',
     fee: '1',
+    price: '60',
+    quantity: '1',
+    occurredAt: '2026-10-02T00:00:00.000Z',
     stageable: true,
     reason: null,
     operationId: null,
   };
+  const saleOperation: DraftOpeningReconciliation['cashOperations'][number] = {
+    ...report.cashOperations[0],
+    kind: 'SELL',
+    effectiveDate: '2026-10-03',
+    sourceReference: 'manual-transaction:sale-1',
+    cash: null,
+  };
+  const saleReport: DraftOpeningReconciliation = {
+    ...report,
+    source: {
+      ...report.source,
+      currentFingerprint: 'a'.repeat(64),
+      acceptedFingerprint: 'a'.repeat(64),
+    },
+    cashOperations: [saleOperation],
+    cashManualExecutions: [
+      {
+        ...manualExecution,
+        kind: 'SELL',
+        transactionId: 'sale-1',
+        operationId: 'op1',
+        stageable: false,
+        reason: 'ALREADY_LINKED',
+        effectiveDate: '2026-10-03',
+        price: '80',
+        grossValue: '40',
+      },
+    ],
+  };
+  const openSaleCorrection = () =>
+    fireEvent.click(
+      screen.getByRole('button', {
+        name: 'Correct recorded sale manual-transaction:sale-1',
+      })
+    );
+  const purchaseReport: DraftOpeningReconciliation = {
+    ...saleReport,
+    cashOperations: [
+      {
+        ...saleOperation,
+        kind: 'BUY',
+        sourceReference: 'manual-transaction:manual-1',
+        effectiveDate: '2026-10-02',
+      },
+    ],
+    cashManualExecutions: [
+      {
+        ...manualExecution,
+        operationId: 'op1',
+        stageable: false,
+        reason: 'ALREADY_LINKED',
+      },
+    ],
+  };
+  it('corrects purchase quantity and cost basis with explicit acknowledgement and retained retry identity', async () => {
+    mocks.report.data = purchaseReport;
+    mocks.acquisitionCorrection
+      .mockRejectedValueOnce(new Error('Funding deficit'))
+      .mockResolvedValueOnce({ state: 'DRAFT' });
+    setup(true);
+    fireEvent.click(
+      screen.getByRole('button', {
+        name: 'Correct recorded acquisition manual-transaction:manual-1',
+      })
+    );
+    expect(
+      screen.getByText(/cost basis and realized gains/)
+    ).toBeInTheDocument();
+    expect(screen.getByLabelText('Corrected acquisition quantity')).toHaveValue(
+      '1'
+    );
+    expect(
+      screen.getByLabelText('Corrected acquisition quantity')
+    ).toHaveAttribute('type', 'password');
+    fireEvent.change(screen.getByLabelText('Corrected acquisition quantity'), {
+      target: { value: '1.25' },
+    });
+    fireEvent.change(
+      screen.getByLabelText('Acquisition correction audit reason'),
+      {
+        target: { value: 'Correct purchase from statement' },
+      }
+    );
+    fireEvent.click(
+      screen.getByLabelText(
+        'I reviewed the live acquisition change and retained audit history.'
+      )
+    );
+    fireEvent.click(
+      screen.getByRole('button', {
+        name: 'Save acquisition and cash correction',
+      })
+    );
+    await screen.findByText('Funding deficit');
+    fireEvent.click(
+      screen.getByRole('button', {
+        name: 'Save acquisition and cash correction',
+      })
+    );
+    await screen.findByText(
+      /Live acquisition and draft cash corrected atomically/
+    );
+    expect(mocks.acquisitionCorrection.mock.calls[0][0]).toEqual(
+      mocks.acquisitionCorrection.mock.calls[1][0]
+    );
+    expect(mocks.acquisitionCorrection.mock.calls[0][0]).toMatchObject({
+      accountId: 'a1',
+      statementId: 's1',
+      operationId: 'op1',
+      input: {
+        quantity: '1.25',
+        price: '60',
+        fees: '1',
+        effectiveDate: '2026-10-02',
+        expectedSourceFingerprint: 'a'.repeat(64),
+        expectedRevisionId: 'op1',
+      },
+    });
+    expect(mocks.saleCorrection).not.toHaveBeenCalled();
+  });
+  it('rejects empty or zero acquisition quantity and clears review when quantity changes', async () => {
+    mocks.report.data = purchaseReport;
+    setup();
+    fireEvent.click(
+      screen.getByRole('button', {
+        name: 'Correct recorded acquisition manual-transaction:manual-1',
+      })
+    );
+    fireEvent.change(screen.getByLabelText('Corrected acquisition quantity'), {
+      target: { value: '0' },
+    });
+    fireEvent.change(
+      screen.getByLabelText('Acquisition correction audit reason'),
+      { target: { value: 'Review quantity' } }
+    );
+    const checkbox = screen.getByLabelText(
+      'I reviewed the live acquisition change and retained audit history.'
+    );
+    fireEvent.click(checkbox);
+    fireEvent.click(
+      screen.getByRole('button', {
+        name: 'Save acquisition and cash correction',
+      })
+    );
+    await screen.findByText(/Review the correction/);
+    expect(mocks.acquisitionCorrection).not.toHaveBeenCalled();
+    fireEvent.change(screen.getByLabelText('Corrected acquisition quantity'), {
+      target: { value: '1.5' },
+    });
+    expect(checkbox).not.toBeChecked();
+    expect(
+      screen.getByRole('button', {
+        name: 'Save acquisition and cash correction',
+      })
+    ).toBeDisabled();
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Cancel acquisition correction' })
+    );
+    expect(
+      screen.queryByLabelText('Corrected acquisition quantity')
+    ).not.toBeInTheDocument();
+  });
+  const reviewSale = () => {
+    fireEvent.change(screen.getByLabelText('Sale correction audit reason'), {
+      target: { value: 'Correct transcription from statement' },
+    });
+    fireEvent.click(
+      screen.getByLabelText(
+        'I reviewed the live sale change and retained audit history.'
+      )
+    );
+  };
+  it('corrects a live manual sale with exact strings and a retained retry identity, not a cash-only adjustment', async () => {
+    mocks.report.data = saleReport;
+    mocks.saleCorrection
+      .mockRejectedValueOnce(new Error('Connection interrupted'))
+      .mockResolvedValueOnce({ state: 'DRAFT' });
+    setup(true);
+    openSaleCorrection();
+    expect(screen.getByText(/This changes the LIVE sale/)).toBeInTheDocument();
+    expect(
+      screen.queryByLabelText('Correction action')
+    ).not.toBeInTheDocument();
+    expect(screen.getByLabelText('Corrected sale price (AUD)')).toHaveAttribute(
+      'type',
+      'password'
+    );
+    expect(screen.getByLabelText('Corrected sale fees (AUD)')).toHaveAttribute(
+      'type',
+      'password'
+    );
+    fireEvent.change(screen.getByLabelText('Corrected sale price (AUD)'), {
+      target: { value: '100.123456789012' },
+    });
+    fireEvent.change(screen.getByLabelText('Corrected sale fees (AUD)'), {
+      target: { value: '1.12345678' },
+    });
+    reviewSale();
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Save sale and cash correction' })
+    );
+    await screen.findByText('Connection interrupted');
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Save sale and cash correction' })
+    );
+    await screen.findByText(/Live sale and draft cash corrected atomically/);
+    expect(mocks.saleCorrection.mock.calls[0][0]).toEqual(
+      mocks.saleCorrection.mock.calls[1][0]
+    );
+    expect(mocks.saleCorrection.mock.calls[0][0]).toMatchObject({
+      accountId: 'a1',
+      statementId: 's1',
+      operationId: 'op1',
+      input: {
+        expectedRevisionId: 'op1',
+        expectedSourceFingerprint: 'a'.repeat(64),
+        effectiveDate: '2026-10-03',
+        sequence: 1,
+        price: '100.123456789012',
+        fees: '1.12345678',
+        reason: 'Correct transcription from statement',
+      },
+    });
+  });
+  it('resets the acknowledgement and retry key on edits, rejects invalid input, and disables a stale sale editor', async () => {
+    mocks.report.data = saleReport;
+    mocks.saleCorrection.mockRejectedValue(new Error('Connection interrupted'));
+    const view = render(
+      <PrivacyProvider initialHidden={false}>
+        <DraftCashReconciliationPanel
+          accountId='a1'
+          statementId='s1'
+          onClose={vi.fn()}
+        />
+      </PrivacyProvider>
+    );
+    openSaleCorrection();
+    fireEvent.change(screen.getByLabelText('Corrected sale price (AUD)'), {
+      target: { value: '0' },
+    });
+    reviewSale();
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Save sale and cash correction' })
+    );
+    await screen.findByText(/Review the correction and enter/);
+    expect(mocks.saleCorrection).not.toHaveBeenCalled();
+    fireEvent.change(screen.getByLabelText('Corrected sale price (AUD)'), {
+      target: { value: '90' },
+    });
+    expect(
+      screen.getByLabelText(
+        'I reviewed the live sale change and retained audit history.'
+      )
+    ).not.toBeChecked();
+    fireEvent.click(
+      screen.getByLabelText(
+        'I reviewed the live sale change and retained audit history.'
+      )
+    );
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Save sale and cash correction' })
+    );
+    await screen.findByText('Connection interrupted');
+    const first = mocks.saleCorrection.mock.calls[0][0].input.idempotencyKey;
+    fireEvent.change(screen.getByLabelText('Corrected sale sequence'), {
+      target: { value: '2' },
+    });
+    fireEvent.click(
+      screen.getByLabelText(
+        'I reviewed the live sale change and retained audit history.'
+      )
+    );
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Save sale and cash correction' })
+    );
+    await waitFor(() => expect(mocks.saleCorrection).toHaveBeenCalledTimes(2));
+    expect(mocks.saleCorrection.mock.calls[1][0].input.idempotencyKey).not.toBe(
+      first
+    );
+    mocks.report.data = {
+      ...saleReport,
+      source: { ...saleReport.source, currentFingerprint: 'b'.repeat(64) },
+    };
+    view.rerender(
+      <PrivacyProvider initialHidden={false}>
+        <DraftCashReconciliationPanel
+          accountId='a1'
+          statementId='s1'
+          onClose={vi.fn()}
+        />
+      </PrivacyProvider>
+    );
+    expect(
+      screen.getByRole('button', { name: 'Save sale and cash correction' })
+    ).toBeDisabled();
+    expect(screen.getByLabelText('Corrected sale price (AUD)')).toBeDisabled();
+    expect(
+      screen.getByText(/Cancel and reopen from the refreshed report/)
+    ).toBeInTheDocument();
+  });
+  it('disables live sale correction offline', () => {
+    mocks.online = false;
+    mocks.report.data = saleReport;
+    setup();
+    expect(
+      screen.getByRole('button', {
+        name: 'Correct recorded sale manual-transaction:sale-1',
+      })
+    ).toBeDisabled();
+  });
+  it.each([
+    { sourceOrigin: 'IMPORT', status: 'EFFECTIVE' },
+    { sourceOrigin: 'MANUAL', status: 'REVERSED' },
+  ] as const)(
+    'does not offer live sale correction for $sourceOrigin/$status operations',
+    fields => {
+      mocks.report.data = {
+        ...saleReport,
+        cashOperations: [{ ...saleOperation, ...fields }],
+      };
+      setup();
+      expect(
+        screen.queryByRole('button', {
+          name: 'Correct recorded sale manual-transaction:sale-1',
+        })
+      ).not.toBeInTheDocument();
+    }
+  );
   it('requires an explicit manual sequence and stages only the persisted transaction identity', async () => {
     mocks.report.data = { ...report, cashManualExecutions: [manualExecution] };
     mocks.manualOperation.mockResolvedValue({ state: 'DRAFT' });
@@ -648,6 +991,7 @@ describe('DraftCashReconciliationPanel', () => {
               revisionId: 'rev1',
               reason: 'Duplicate bank entry',
               replacement: false,
+              executionAudit: null,
             },
           ],
         },

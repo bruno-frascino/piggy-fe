@@ -303,6 +303,43 @@ describe('HoldingsTable row/total computation', () => {
     }
   );
 
+  it('saves notes without resubmitting rounded fees, remaining units or execution dates', async () => {
+    setHoldings([
+      {
+        ...baseHolding,
+        origin: 'IMPORT_TRADE',
+        units: 4,
+        buyFee: 0.123457,
+        buyComments: 'Original rationale',
+      },
+    ]);
+    setQuotes([]);
+    renderTable();
+    fireEvent.click(screen.getAllByTitle('View position details')[0]);
+    fireEvent.click(
+      within(screen.getByRole('dialog')).getByRole('button', {
+        name: 'Edit position',
+      })
+    );
+    fireEvent.change(screen.getByDisplayValue('Original rationale'), {
+      target: { value: 'Reviewed rationale' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Save', exact: true }));
+    await waitFor(() =>
+      expect(updatePositionMock).toHaveBeenCalledWith({
+        id: 'p1',
+        payload: expect.objectContaining({ openReason: 'Reviewed rationale' }),
+      })
+    );
+    const payload = updatePositionMock.mock.calls.find(
+      ([input]) => input.payload.openReason === 'Reviewed rationale'
+    )?.[0].payload;
+    expect(payload).not.toHaveProperty('openDate');
+    expect(payload).not.toHaveProperty('entryPrice');
+    expect(payload).not.toHaveProperty('quantity');
+    expect(payload).not.toHaveProperty('buyFees');
+  });
+
   it('closes the selected crypto parcel from details without losing precision or metadata', () => {
     setHoldings([
       {

@@ -8,6 +8,7 @@ import { Dropdown } from 'primereact/dropdown';
 import { InputText } from 'primereact/inputtext';
 import { Message } from 'primereact/message';
 import DraftCashCorrectionForm from './DraftCashCorrectionForm';
+import DraftExecutionCorrectionForm from './DraftExecutionCorrectionForm';
 import {
   useDraftOpeningReconciliation,
   usePreviewDraftCashEvidence,
@@ -124,6 +125,18 @@ export default function DraftCashReconciliationPanel({
     statementId: string;
     operation: DraftOpeningReconciliation['cashOperations'][number];
   } | null>(null);
+  const [saleCorrection, setSaleCorrection] = useState<{
+    accountId: string;
+    statementId: string;
+    fingerprint: string;
+    operation: DraftOpeningReconciliation['cashOperations'][number];
+    execution: DraftOpeningReconciliation['cashManualExecutions'][number];
+  } | null>(null);
+  const activeSaleCorrection =
+    saleCorrection?.accountId === accountId &&
+    saleCorrection.statementId === statementId
+      ? saleCorrection
+      : null;
   const activeCorrection =
     correction?.accountId === accountId &&
     correction.statementId === statementId
@@ -431,6 +444,12 @@ export default function DraftCashReconciliationPanel({
         <Message
           severity='warn'
           text='The source records have changed since this opening draft was reviewed.'
+        />
+      )}
+      {report.source.correctionCount > 0 && (
+        <Message
+          severity='info'
+          text={`This draft continues from ${report.source.correctionCount} audited live sale correction(s). The original opening snapshot remains unchanged; source checks use the retained correction chain.`}
         />
       )}
       {!report.cash.funded && (
@@ -910,8 +929,76 @@ export default function DraftCashReconciliationPanel({
                         <p key={revision.revisionId}>
                           {revision.replacement ? 'Correction' : 'Reversal'}:{' '}
                           {revision.reason}
+                          {revision.executionAudit && (
+                            <>
+                              {` · Live ${revision.executionAudit.kind === 'BUY' ? 'acquisition' : 'sale'} audit #`}
+                              {revision.executionAudit.number}
+                              {' · '}
+                              {formatDateDDMMYYYY(
+                                revision.executionAudit.before.date
+                              )}
+                              {' → '}
+                              {formatDateDDMMYYYY(
+                                revision.executionAudit.after.date
+                              )}
+                              {' · Price '}
+                              {mask(revision.executionAudit.before.price)}
+                              {' → '}
+                              {mask(revision.executionAudit.after.price)}
+                              {' · Fees '}
+                              {mask(revision.executionAudit.before.fees)}
+                              {' → '}
+                              {mask(revision.executionAudit.after.fees)}
+                              {' · Gross '}
+                              {mask(revision.executionAudit.before.totalValue)}
+                              {' → '}
+                              {mask(revision.executionAudit.after.totalValue)}
+                              {revision.executionAudit.kind === 'BUY' && (
+                                <>
+                                  {' · Quantity '}
+                                  {mask(
+                                    revision.executionAudit.before.quantity
+                                  )}
+                                  {' → '}
+                                  {mask(revision.executionAudit.after.quantity)}
+                                </>
+                              )}
+                            </>
+                          )}
                         </p>
                       ))}
+                      {operation.sourceOrigin === 'MANUAL' &&
+                        (operation.kind === 'SELL' ||
+                          operation.kind === 'BUY') &&
+                        operation.status !== 'REVERSED' &&
+                        report.cashManualExecutions.some(
+                          execution =>
+                            execution.operationId === operation.operationId
+                        ) && (
+                          <Button
+                            label={`Correct recorded ${operation.kind === 'BUY' ? 'acquisition' : 'sale'} ${operation.sourceReference}`}
+                            outlined
+                            disabled={!online || busy || report.source.changed}
+                            onClick={() => {
+                              const execution =
+                                report.cashManualExecutions.find(
+                                  row =>
+                                    row.operationId === operation.operationId
+                                );
+                              if (!execution) return;
+                              setError('');
+                              setSuccess('');
+                              setCorrection(null);
+                              setSaleCorrection({
+                                accountId,
+                                statementId,
+                                fingerprint: report.source.currentFingerprint,
+                                operation,
+                                execution,
+                              });
+                            }}
+                          />
+                        )}
                       {operation.sourceOrigin === 'MANUAL' &&
                         operation.cash &&
                         (operation.kind === 'DEPOSIT' ||
@@ -924,6 +1011,7 @@ export default function DraftCashReconciliationPanel({
                             onClick={() => {
                               setError('');
                               setSuccess('');
+                              setSaleCorrection(null);
                               setCorrection({
                                 accountId,
                                 statementId,
@@ -943,6 +1031,7 @@ export default function DraftCashReconciliationPanel({
                             onClick={() => {
                               setError('');
                               setSuccess('');
+                              setSaleCorrection(null);
                               setCorrection({
                                 accountId,
                                 statementId,
@@ -992,6 +1081,42 @@ export default function DraftCashReconciliationPanel({
           />
         )}
       </section>
+
+      {activeSaleCorrection && (
+        <DraftExecutionCorrectionForm
+          key={JSON.stringify([
+            accountId,
+            statementId,
+            activeSaleCorrection.operation.currentRevisionId,
+          ])}
+          accountId={accountId}
+          statementId={statementId}
+          openingDate={report.openingDate}
+          asOfDate={report.source.reviewedAsOfDate}
+          fingerprint={activeSaleCorrection.fingerprint}
+          operation={activeSaleCorrection.operation}
+          execution={activeSaleCorrection.execution}
+          stale={
+            report.source.changed ||
+            report.source.currentFingerprint !==
+              activeSaleCorrection.fingerprint ||
+            report.cashOperations.find(
+              row =>
+                row.operationId === activeSaleCorrection.operation.operationId
+            )?.currentRevisionId !==
+              activeSaleCorrection.operation.currentRevisionId
+          }
+          onCancel={() => setSaleCorrection(null)}
+          onSaved={() => {
+            setSaleCorrection(null);
+            invalidateEvidencePreview();
+            setSuccess(
+              `Live ${activeSaleCorrection.operation.kind === 'BUY' ? 'acquisition' : 'sale'} and draft cash corrected atomically. Review refreshed portfolio results and any stale tax reports.`
+            );
+          }}
+          onError={failure => setError(errorText(failure))}
+        />
+      )}
 
       <section
         className='space-y-3'

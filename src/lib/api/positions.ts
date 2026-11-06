@@ -5,6 +5,9 @@ import type {
   ClosedTradesPage,
   ClosedTradesQuery,
   AssetType,
+  AccountTradeInput,
+  AccountTradeResult,
+  AccountTradeResponse,
 } from '../types';
 import { exchanges } from '../mock-portfolio';
 import { getHoldingsForExchange } from '../mock-holdings';
@@ -43,6 +46,19 @@ export async function fetchOpenPositionRecords(
 
 export function createPositionsApi(client: AxiosInstance) {
   return {
+    async postAccountTrade(
+      accountId: string,
+      input: AccountTradeInput
+    ): Promise<AccountTradeResult> {
+      if (USE_MOCK_API)
+        throw new Error('Account trade posting requires the real API.');
+      const response = await client.post<AccountTradeResponse>(
+        `/accounts/${encodeURIComponent(accountId)}/trades`,
+        input
+      );
+      return response.data.data;
+    },
+
     async createPosition(payload: {
       symbol: string;
       assetType?: AssetType;

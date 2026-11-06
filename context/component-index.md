@@ -113,9 +113,15 @@
 
 ## `DraftCashReconciliationPanel`
 
-- File: [src/components/DraftCashReconciliationPanel.tsx](../src/components/DraftCashReconciliationPanel.tsx) (1202 lines)
+- File: [src/components/DraftCashReconciliationPanel.tsx](../src/components/DraftCashReconciliationPanel.tsx) (1327 lines)
 - API hooks used: useDraftOpeningReconciliation, usePreviewDraftCashEvidence, useRecordDraftCashEvidence, useSaveDraftReconciliationCashOperation, useStageDraftImportedExecutionCash, useStageDraftManualExecutionCash
 - Other hooks used: useEffect, useMemo, useNetworkStatus, usePrivacy, useState
+
+## `DraftExecutionCorrectionForm`
+
+- File: [src/components/DraftExecutionCorrectionForm.tsx](../src/components/DraftExecutionCorrectionForm.tsx) (259 lines)
+- API hooks used: useCorrectDraftRecordedAcquisition, useCorrectDraftRecordedSale
+- Other hooks used: useNetworkStatus, usePrivacy, useState
 
 ## `EditClosedTradeDialog`
 
@@ -149,7 +155,7 @@
 
 ## `HoldingsTable`
 
-- File: [src/components/HoldingsTable.tsx](../src/components/HoldingsTable.tsx) (1157 lines)
+- File: [src/components/HoldingsTable.tsx](../src/components/HoldingsTable.tsx) (1166 lines)
 - API hooks used: useClosePosition, useCreatePosition, useDeletePosition, useUpdatePosition
 - Other hooks used: useCallback, useEffect, useHoldingRows, useId, useNetworkStatus, usePrivacy, useQueryClient, useRef, useState, useToast
 

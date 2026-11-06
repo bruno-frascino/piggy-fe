@@ -15,6 +15,53 @@ beforeEach(() => {
 });
 
 describe('opening reconciliation API', () => {
+  it('posts exact acquisition quantity and money to the encoded atomic correction route', async () => {
+    const input = {
+      idempotencyKey: 'buy-fix',
+      expectedRevisionId: 'op1',
+      expectedSourceFingerprint: 'a'.repeat(64),
+      reason: 'Correct purchase transcription',
+      effectiveDate: '2026-10-02',
+      sequence: 1,
+      price: '12.123456789012',
+      fees: '1.12345678',
+      quantity: '1.25',
+    };
+    expect(
+      await api.correctDraftRecordedAcquisition(
+        'account/1',
+        'statement 2',
+        'op/1',
+        input
+      )
+    ).toEqual(response.data);
+    expect(post).toHaveBeenCalledWith(
+      '/accounts/account%2F1/opening-statements/statement%202/cash-operations/op%2F1/acquisition-corrections',
+      input
+    );
+  });
+  it('posts exact sale decimals and optimistic source identity to the encoded atomic correction route', async () => {
+    const input = {
+      idempotencyKey: 'sale-fix',
+      expectedRevisionId: 'op1',
+      expectedSourceFingerprint: 'a'.repeat(64),
+      reason: 'Correct fees',
+      effectiveDate: '2026-10-03',
+      sequence: 2,
+      price: '12.123456789012',
+      fees: '1.12345678',
+    };
+    await api.correctDraftRecordedSale(
+      'account/1',
+      'statement 2',
+      'op/1',
+      input
+    );
+    expect(post).toHaveBeenCalledWith(
+      '/accounts/account%2F1/opening-statements/statement%202/cash-operations/op%2F1/sale-corrections',
+      input
+    );
+  });
   it('posts only the manual execution sequence to the encoded source identity route', async () => {
     await api.stageDraftManualExecutionCash(
       'account/1',

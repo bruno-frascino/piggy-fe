@@ -14,9 +14,11 @@
 | `['import', importId]` | useDiscardImport | — |
 | `['imports']` | useImports, useCreateImport, useDiscardImport | useCreateImport, useDiscardImport |
 | `['kraken-assets', quote, q.trim()]` | useKrakenAssetSearch | — |
-| `['opening-reconciliation', accountId, statementId]` | useDraftOpeningReconciliation, useRecordDraftCashEvidence, useSaveDraftReconciliationCashOperation, useCorrectDraftReconciliationCashOperation, useCorrectDraftImportedExecutionCash, useStageDraftImportedExecutionCash, useStageDraftManualExecutionCash | useRecordDraftCashEvidence, useSaveDraftReconciliationCashOperation, useCorrectDraftReconciliationCashOperation, useCorrectDraftImportedExecutionCash, useStageDraftImportedExecutionCash, useStageDraftManualExecutionCash |
+| `['opening-reconciliation', accountId, statementId]` | useDraftOpeningReconciliation, useRecordDraftCashEvidence, useSaveDraftReconciliationCashOperation, useCorrectDraftReconciliationCashOperation, useCorrectDraftImportedExecutionCash, useStageDraftImportedExecutionCash, useStageDraftManualExecutionCash, useCorrectDraftRecordedSale, useCorrectDraftRecordedAcquisition | useRecordDraftCashEvidence, useSaveDraftReconciliationCashOperation, useCorrectDraftReconciliationCashOperation, useCorrectDraftImportedExecutionCash, useStageDraftImportedExecutionCash, useStageDraftManualExecutionCash, useCorrectDraftRecordedSale, useCorrectDraftRecordedAcquisition |
+| `['opening-reconciliation']` | useCorrectDraftRecordedSale, useCorrectDraftRecordedAcquisition | useCorrectDraftRecordedSale, useCorrectDraftRecordedAcquisition |
 | `['opening-statements', accountId, beforeVersion ?? 'latest']` | useOpeningStatements | — |
 | `['opening-statements', accountId]` | useSaveOpeningStatement, useDeleteAccount | useSaveOpeningStatement |
+| `['opening-statements']` | useCorrectDraftRecordedSale, useCorrectDraftRecordedAcquisition | useCorrectDraftRecordedSale, useCorrectDraftRecordedAcquisition |
 | `['portfolio-history', accountId ?? 'none', exchangeCode ?? 'none',]` | usePortfolioHistory | — |
 | `['portfolio-history']` | useDeleteAccount, useCloseAccount, useCreatePortfolioSnapshot | useDeleteAccount, useCloseAccount, useCreatePortfolioSnapshot |
 | `['quotes', key]` | useQuotes | — |
@@ -35,7 +37,7 @@
 | `['tax-reports', 'position-usage']` | useTaxReportPositionUsage | — |
 | `['tax-reports', { includeSuperseded }]` | useTaxReports | — |
 | `['tax-reports', id ?? 'none']` | useTaxReportDetail | — |
-| `['tax-reports']` | useGenerateTaxReport, useDeleteTaxReport | useGenerateTaxReport, useDeleteTaxReport |
+| `['tax-reports']` | useCorrectDraftRecordedSale, useCorrectDraftRecordedAcquisition, useGenerateTaxReport, useDeleteTaxReport | useCorrectDraftRecordedSale, useCorrectDraftRecordedAcquisition, useGenerateTaxReport, useDeleteTaxReport |
 | `['trading-accounts', includeClosed ? 'all' : 'active']` | useTradingAccounts | — |
 | `['trading-accounts']` | useCreateAccount, useDeleteAccount, useCloseAccount, useReopenAccount, useUpdateAccount | useCreateAccount, useDeleteAccount, useCloseAccount, useReopenAccount, useUpdateAccount |
 | `['upcoming-dividends', key]` | useUpcomingDividends | — |

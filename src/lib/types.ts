@@ -65,7 +65,7 @@ export interface HoldingPosition {
   maxRunUpPercent?: number; // Peak percentage gain above entry price
   stopLossHitAt?: string; // ISO timestamp; set once the stop loss was reached, even if price recovered
   origin?: PositionOrigin;
-  externalRef?: string; // source order/month key for imported parcels; '' for manual
+  externalRef?: string; // Import source key, coordinated live-trade ID, or empty for legacy manual parcels.
 }
 
 export interface StockSearchResult {
@@ -743,6 +743,27 @@ export interface DraftCashReplay {
   }[];
 }
 
+export type AccountTradeInput = {
+  idempotencyKey: string;
+  effectiveDate: string;
+  sequence: number;
+  quantity: string;
+  price: string;
+  fees: string;
+} & ({ kind: 'BUY'; assetId: string } | { kind: 'SELL'; positionId: string });
+
+export interface AccountTradeResult {
+  operationId: string;
+  transactionId: string;
+  created: boolean;
+  replay: DraftCashReplay;
+}
+
+export interface AccountTradeResponse {
+  success: boolean;
+  data: AccountTradeResult;
+}
+
 export interface DraftCashEvidenceComparison {
   matchesReplay: boolean;
   variances: {
@@ -767,6 +788,42 @@ export interface DraftCashEvidenceRecord {
   fundedAtEvidenceDate: boolean;
 }
 
+export interface DraftSaleCorrectionInput {
+  idempotencyKey: string;
+  expectedRevisionId: string;
+  expectedSourceFingerprint: string;
+  reason: string;
+  effectiveDate: string;
+  sequence: number;
+  price: string;
+  fees: string;
+}
+
+export interface DraftAcquisitionCorrectionInput extends DraftSaleCorrectionInput {
+  quantity: string;
+}
+
+export interface DraftExecutionSnapshot {
+  transactionId: string;
+  positionId: string;
+  date: string;
+  quantity: string;
+  price: string;
+  totalValue: string;
+  fees: string;
+  currency: string;
+}
+
+export interface DraftExecutionAudit {
+  kind?: 'BUY';
+  number: number;
+  previousFingerprint: string;
+  nextFingerprint: string;
+  input: DraftSaleCorrectionInput | DraftAcquisitionCorrectionInput;
+  before: DraftExecutionSnapshot;
+  after: DraftExecutionSnapshot;
+}
+
 export interface DraftOpeningReconciliation {
   mode: 'RECONCILIATION_ONLY';
   state: 'DRAFT';
@@ -779,6 +836,8 @@ export interface DraftOpeningReconciliation {
   source: {
     reviewedAsOfDate: string;
     savedFingerprint: string;
+    acceptedFingerprint: string;
+    correctionCount: number;
     currentFingerprint: string;
     changed: boolean;
   };
@@ -788,10 +847,13 @@ export interface DraftOpeningReconciliation {
     transactionId: string;
     positionId: string;
     kind: string;
+    quantity: string;
     effectiveDate: string;
     currency: string;
     grossValue: string;
     fee: string;
+    price: string;
+    occurredAt: string;
     stageable: boolean;
     reason:
       | 'ALREADY_LINKED'
@@ -818,6 +880,7 @@ export interface DraftOpeningReconciliation {
       revisionId: string;
       reason: string;
       replacement: boolean;
+      executionAudit: DraftExecutionAudit | null;
     }[];
     status: 'EFFECTIVE' | 'CORRECTED' | 'REVERSED';
   }[];

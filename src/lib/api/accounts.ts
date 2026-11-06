@@ -15,6 +15,8 @@ import type {
   DraftCashCorrectionResult,
   DraftImportedCashCorrectionInput,
   DraftImportedExecutionInput,
+  DraftSaleCorrectionInput,
+  DraftAcquisitionCorrectionInput,
   DraftOpeningReconciliation,
 } from '../types';
 import { isRecord, mapToTradingAccount, unwrapArray } from './mappers';
@@ -23,6 +25,42 @@ const USE_MOCK_API = process.env.NEXT_PUBLIC_USE_MOCK_API === 'true';
 
 export function createAccountsApi(client: AxiosInstance) {
   const api = {
+    async correctDraftRecordedAcquisition(
+      accountId: string,
+      statementId: string,
+      operationId: string,
+      input: DraftAcquisitionCorrectionInput
+    ): Promise<DraftCashFlowResult & { revisionId: string }> {
+      if (USE_MOCK_API)
+        throw new Error(
+          'Recorded acquisition corrections require the real API.'
+        );
+      const response = await client.post<{
+        success: boolean;
+        data: DraftCashFlowResult & { revisionId: string };
+      }>(
+        `/accounts/${encodeURIComponent(accountId)}/opening-statements/${encodeURIComponent(statementId)}/cash-operations/${encodeURIComponent(operationId)}/acquisition-corrections`,
+        input
+      );
+      return response.data.data;
+    },
+    async correctDraftRecordedSale(
+      accountId: string,
+      statementId: string,
+      operationId: string,
+      input: DraftSaleCorrectionInput
+    ): Promise<DraftCashFlowResult & { revisionId: string }> {
+      if (USE_MOCK_API)
+        throw new Error('Recorded sale corrections require the real API.');
+      const response = await client.post<{
+        success: boolean;
+        data: DraftCashFlowResult & { revisionId: string };
+      }>(
+        `/accounts/${encodeURIComponent(accountId)}/opening-statements/${encodeURIComponent(statementId)}/cash-operations/${encodeURIComponent(operationId)}/sale-corrections`,
+        input
+      );
+      return response.data.data;
+    },
     async stageDraftManualExecutionCash(
       accountId: string,
       statementId: string,
