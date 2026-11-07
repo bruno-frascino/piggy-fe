@@ -30,6 +30,7 @@ import type {
   DraftSaleCorrectionInput,
   DraftAcquisitionCorrectionInput,
   AccountTradeInput,
+  LiveSaleCorrectionResult,
 } from '@/lib/types';
 
 export const useExchanges = (assetClass: 'crypto' | 'equity', enabled = true) =>
@@ -373,6 +374,72 @@ export const useCorrectDraftRecordedSale = () => {
     },
   });
 };
+
+export const useCorrectLiveManualSale = () => {
+  return useCorrectLiveManualExecution(apiClient.correctLiveManualSale);
+};
+
+export const useCorrectLiveManualAcquisition = () => {
+  return useCorrectLiveManualExecution(apiClient.correctLiveManualAcquisition);
+};
+
+function useCorrectLiveManualExecution<T extends DraftSaleCorrectionInput>(
+  correct: (
+    accountId: string,
+    transactionId: string,
+    input: T
+  ) => Promise<LiveSaleCorrectionResult>
+) {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      accountId,
+      transactionId,
+      input,
+    }: {
+      accountId: string;
+      transactionId: string;
+      input: T;
+    }) => {
+      if (typeof navigator !== 'undefined' && !navigator.onLine)
+        throw new Error(
+          'Reconnect to correct this execution. Offline changes are not queued.'
+        );
+      return correct(accountId, transactionId, input);
+    },
+    retry: false,
+    networkMode: 'always',
+    gcTime: 0,
+    onSuccess: async (_result, { accountId }) => {
+      await Promise.all([
+        invalidatePositionQueries(queryClient),
+        queryClient.invalidateQueries({ queryKey: ['opening-reconciliation'] }),
+        queryClient.invalidateQueries({
+          queryKey: ['opening-statements', accountId],
+        }),
+        queryClient.invalidateQueries({ queryKey: ['tax-reports'] }),
+        queryClient.invalidateQueries({
+          predicate: query =>
+            typeof query.queryKey[0] === 'string' &&
+            query.queryKey[0].startsWith('statistics-'),
+        }),
+      ]);
+    },
+    onError: (error, { accountId }) => {
+      if (isAxiosError(error) && error.response?.status === 409) {
+        return Promise.all([
+          invalidatePositionQueries(queryClient),
+          queryClient.invalidateQueries({
+            queryKey: ['opening-reconciliation'],
+          }),
+          queryClient.invalidateQueries({
+            queryKey: ['opening-statements', accountId],
+          }),
+        ]);
+      }
+    },
+  });
+}
 
 export const useCorrectDraftRecordedAcquisition = () => {
   const queryClient = useQueryClient();

@@ -27,6 +27,7 @@ const {
   correctRecordedSaleMock,
   correctRecordedAcquisitionMock,
   postAccountTradeMock,
+  correctLiveAcquisitionMock,
 } = vi.hoisted(() => ({
   updatePositionMock: vi.fn(),
   updateCloseEventMock: vi.fn(),
@@ -49,6 +50,7 @@ const {
   correctRecordedSaleMock: vi.fn(),
   correctRecordedAcquisitionMock: vi.fn(),
   postAccountTradeMock: vi.fn(),
+  correctLiveAcquisitionMock: vi.fn(),
 }));
 
 vi.mock('@/lib/api-client', () => ({
@@ -74,6 +76,7 @@ vi.mock('@/lib/api-client', () => ({
     correctDraftRecordedSale: correctRecordedSaleMock,
     correctDraftRecordedAcquisition: correctRecordedAcquisitionMock,
     postAccountTrade: postAccountTradeMock,
+    correctLiveManualAcquisition: correctLiveAcquisitionMock,
   },
 }));
 
@@ -99,6 +102,7 @@ import {
   useCorrectDraftRecordedSale,
   useCorrectDraftRecordedAcquisition,
   usePostAccountTrade,
+  useCorrectLiveManualAcquisition,
 } from './api';
 import { useSymbolSearch } from './useSymbolSearch';
 
@@ -112,6 +116,96 @@ function createWrapper(queryClient: QueryClient) {
 
 beforeEach(() => {
   vi.clearAllMocks();
+});
+
+describe('live acquisition correction hook', () => {
+  const input = {
+    idempotencyKey: 'fix1',
+    expectedRevisionId: 'op1',
+    expectedSourceFingerprint: 'a'.repeat(64),
+    reason: 'Correct purchase',
+    effectiveDate: '2026-10-02',
+    sequence: 1,
+    quantity: '2.000000000001',
+    price: '12.345678901234',
+    fees: '0.00000001',
+  };
+  it('forwards exact corrections and invalidates holdings, history, accounting, tax and performance', async () => {
+    const client = new QueryClient();
+    const invalidate = vi.spyOn(client, 'invalidateQueries');
+    correctLiveAcquisitionMock.mockResolvedValue({ revisionId: 'r1' });
+    const { result } = renderHook(() => useCorrectLiveManualAcquisition(), {
+      wrapper: createWrapper(client),
+    });
+    await act(async () => {
+      await result.current.mutateAsync({
+        accountId: 'a1',
+        transactionId: 'buy1',
+        input,
+      });
+    });
+    expect(correctLiveAcquisitionMock).toHaveBeenCalledWith(
+      'a1',
+      'buy1',
+      input
+    );
+    for (const key of [
+      ['holdings'],
+      ['closed-positions'],
+      ['realized-pnl'],
+      ['opening-reconciliation'],
+      ['opening-statements', 'a1'],
+      ['tax-reports'],
+    ]) {
+      expect(invalidate).toHaveBeenCalledWith(
+        expect.objectContaining({ queryKey: key })
+      );
+    }
+    expect(invalidate).toHaveBeenCalledWith(
+      expect.objectContaining({ predicate: expect.any(Function) })
+    );
+    client.clear();
+  });
+  it('rejects offline writes without queuing and refreshes stale review data on conflicts without retry', async () => {
+    const client = new QueryClient({
+      defaultOptions: { mutations: { retry: 3 } },
+    });
+    const invalidate = vi.spyOn(client, 'invalidateQueries');
+    const { result } = renderHook(() => useCorrectLiveManualAcquisition(), {
+      wrapper: createWrapper(client),
+    });
+    const offline = vi.spyOn(navigator, 'onLine', 'get').mockReturnValue(false);
+    try {
+      await act(async () => {
+        await expect(
+          result.current.mutateAsync({
+            accountId: 'a1',
+            transactionId: 'buy1',
+            input,
+          })
+        ).rejects.toThrow(/offline changes are not queued/i);
+      });
+      expect(correctLiveAcquisitionMock).not.toHaveBeenCalled();
+    } finally {
+      offline.mockRestore();
+    }
+    correctLiveAcquisitionMock.mockRejectedValueOnce({
+      isAxiosError: true,
+      response: { status: 409 },
+    });
+    await act(async () => {
+      await expect(
+        result.current.mutateAsync({
+          accountId: 'a1',
+          transactionId: 'buy1',
+          input,
+        })
+      ).rejects.toMatchObject({ response: { status: 409 } });
+    });
+    expect(correctLiveAcquisitionMock).toHaveBeenCalledTimes(1);
+    expect(invalidate).toHaveBeenCalledWith({ queryKey: ['closed-positions'] });
+    client.clear();
+  });
 });
 
 describe('Kraken discovery query hooks', () => {

@@ -10,11 +10,16 @@ import {
 } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { MASKED_VALUE } from '@/lib/format';
+import type {
+  ClosedTrade,
+  LiveAcquisitionCorrectionMetadata,
+} from '@/lib/types';
 
 const {
   rows,
   updateCloseEventMock,
   updatePositionMock,
+  correctLiveManualSaleMock,
   deletePositionMock,
   showToastMock,
   privacyState,
@@ -39,9 +44,10 @@ const {
       baseCurrency: 'USD',
       buyComments: '',
     },
-  ],
+  ] as ClosedTrade[],
   updateCloseEventMock: vi.fn(),
   updatePositionMock: vi.fn(),
+  correctLiveManualSaleMock: vi.fn(),
   deletePositionMock: vi.fn(),
   showToastMock: vi.fn(),
   privacyState: { hidden: false },
@@ -64,6 +70,9 @@ vi.mock('@/hooks/api', () => ({
   useTradingAccounts: () => ({ data: accounts }),
   useUpdateCloseEvent: () => ({ mutateAsync: updateCloseEventMock }),
   useUpdatePosition: () => ({ mutateAsync: updatePositionMock }),
+  useCorrectLiveManualSale: () => ({
+    mutateAsync: correctLiveManualSaleMock,
+  }),
   useDeletePosition: () => ({ mutateAsync: deletePositionMock }),
   useTaxReportPositionUsage: () => ({
     data: {
@@ -88,13 +97,18 @@ vi.mock('@/components/EditClosedTradeDialog', () => ({
     trade,
     reportUsage,
     onSave,
+    onCorrectAcquisition,
   }: {
     trade: (typeof rows)[number];
     reportUsage?: { financialYearLabel: string }[];
     onSave: (updated: (typeof rows)[number]) => Promise<void>;
+    onCorrectAcquisition?: () => void;
   }) => (
     <>
       <p>usage: {(reportUsage ?? []).map(u => u.financialYearLabel).join()}</p>
+      {onCorrectAcquisition && (
+        <button onClick={onCorrectAcquisition}>Correct acquisition</button>
+      )}
       <button
         onClick={() =>
           void onSave({
@@ -110,6 +124,21 @@ vi.mock('@/components/EditClosedTradeDialog', () => ({
         Save open side untouched
       </button>
     </>
+  ),
+}));
+
+vi.mock('@/components/LiveAcquisitionCorrectionDialog', () => ({
+  default: ({
+    correction,
+    accountId,
+  }: {
+    correction: LiveAcquisitionCorrectionMetadata;
+    accountId: string;
+  }) => (
+    <p>
+      Correcting {correction.transactionId}: {correction.quantity} bought units
+      in {accountId}
+    </p>
   ),
 }));
 
@@ -134,9 +163,35 @@ afterEach(() => {
   cleanup();
   window.history.replaceState({}, '', '/');
   privacyState.hidden = false;
+  delete rows[0].acquisitionCorrection;
+  delete rows[0].accountId;
 });
 
 describe('HistoryPage', () => {
+  it('opens acquisition corrections for fully closed parcels using full exact purchase metadata', () => {
+    rows[0].accountId = 'acc-1';
+    rows[0].acquisitionCorrection = {
+      operationId: 'op1',
+      transactionId: 'buy1',
+      expectedRevisionId: 'r1',
+      expectedSourceFingerprint: 'a'.repeat(64),
+      effectiveDate: '2026-01-01',
+      sequence: 1,
+      quantity: '10.000000000001',
+      price: '12',
+      fees: '1',
+    };
+    render(<HistoryPage />);
+    fireEvent.click(screen.getByRole('button', { name: 'AAPL' }));
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Correct acquisition' })
+    );
+    expect(
+      screen.getByText('Correcting buy1: 10.000000000001 bought units in acc-1')
+    ).toBeInTheDocument();
+    expect(updatePositionMock).not.toHaveBeenCalled();
+    expect(updateCloseEventMock).not.toHaveBeenCalled();
+  });
   it('defaults to a mobile summary and lets the user inspect every column', () => {
     render(<HistoryPage />);
     const toggle = screen.getByRole('button', { name: 'All columns' });
@@ -177,15 +232,12 @@ describe('HistoryPage', () => {
       });
       expect(updateCloseEventMock).toHaveBeenCalledWith({
         id: 'close-1',
-        data: {
-          closeDate: '2026-02-05',
-          notes: '',
-        },
+        data: { closeDate: '2026-02-05' },
       });
     });
   });
 
-  it('skips the position request when no open-side field changed', async () => {
+  it('skips unchanged close-side and position updates', async () => {
     render(<HistoryPage />);
 
     fireEvent.click(screen.getByRole('button', { name: 'AAPL' }));
@@ -193,11 +245,7 @@ describe('HistoryPage', () => {
       screen.getByRole('button', { name: 'Save open side untouched' })
     );
 
-    await waitFor(() => expect(updateCloseEventMock).toHaveBeenCalled());
-    expect(updateCloseEventMock).toHaveBeenCalledWith({
-      id: 'close-1',
-      data: { notes: '' },
-    });
+    expect(updateCloseEventMock).not.toHaveBeenCalled();
     expect(updatePositionMock).not.toHaveBeenCalled();
   });
 

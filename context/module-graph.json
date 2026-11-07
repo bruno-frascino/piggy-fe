@@ -204,6 +204,7 @@
       "dependents": [
         "src/components/DeleteAccountDialog.tsx",
         "src/components/EditClosedTradeDialog.tsx",
+        "src/components/LiveAcquisitionCorrectionDialog.tsx",
         "src/components/DashboardView.tsx",
         "src/components/AccountActionDialog.tsx",
         "src/components/AccountsBar.tsx",
@@ -342,6 +343,7 @@
         "src/app/auth/reset-password/page.tsx",
         "src/app/auth/signup/page.tsx",
         "src/app/history/page.tsx",
+        "src/components/LiveAcquisitionCorrectionDialog.tsx",
         "src/components/ImportReview.tsx",
         "src/components/ImportsList.tsx",
         "src/components/TopNav.tsx",
@@ -634,6 +636,7 @@
         "src/lib/api/tax-reports.ts",
         "src/lib/api/user.ts",
         "src/lib/api/watchlists.ts",
+        "src/lib/api/mappers.acquisition-correction.test.ts",
         "src/lib/api/mappers.close-reason.test.ts"
       ],
       "orphan": false,
@@ -1042,6 +1045,7 @@
         "src/app/account/page.tsx",
         "src/app/history/page.tsx",
         "src/components/EditClosedTradeDialog.tsx",
+        "src/components/LiveAcquisitionCorrectionDialog.tsx",
         "src/app/providers.tsx",
         "src/components/TopNav.tsx",
         "src/components/DashboardView.tsx",
@@ -1503,6 +1507,23 @@
           "exoticallyRequired": false,
           "followable": true,
           "matchesDoNotFollow": false,
+          "module": "@/components/LiveAcquisitionCorrectionDialog",
+          "moduleSystem": "es6",
+          "resolved": "src/components/LiveAcquisitionCorrectionDialog.tsx",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
           "module": "@/components/PageHeader",
           "moduleSystem": "es6",
           "resolved": "src/components/PageHeader.tsx",
@@ -1822,6 +1843,102 @@
       ],
       "orphan": false,
       "source": "src/lib/crypto.ts",
+      "valid": true
+    },
+    {
+      "dependencies": [
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "local",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "./AppDialog",
+          "moduleSystem": "es6",
+          "resolved": "src/components/AppDialog.tsx",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/hooks/api",
+          "moduleSystem": "es6",
+          "resolved": "src/hooks/api.ts",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/hooks/useNetworkStatus",
+          "moduleSystem": "es6",
+          "resolved": "src/hooks/useNetworkStatus.ts",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/lib/privacy-context",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/privacy-context.tsx",
+          "valid": true
+        }
+      ],
+      "dependents": [
+        "src/app/history/page.tsx",
+        "src/components/HoldingsTable.tsx",
+        "src/components/LiveAcquisitionCorrectionDialog.test.tsx"
+      ],
+      "orphan": false,
+      "source": "src/components/LiveAcquisitionCorrectionDialog.tsx",
+      "valid": true
+    },
+    {
+      "dependencies": [],
+      "dependents": [
+        "src/components/LiveAcquisitionCorrectionDialog.tsx",
+        "src/components/DashboardView.tsx",
+        "src/components/QueryFeedback.tsx",
+        "src/components/HoldingsTable.tsx",
+        "src/components/OpeningPreviewDialog.tsx",
+        "src/components/DraftCashReconciliationPanel.tsx",
+        "src/components/DraftCashCorrectionForm.tsx",
+        "src/components/DraftExecutionCorrectionForm.tsx"
+      ],
+      "orphan": false,
+      "source": "src/hooks/useNetworkStatus.ts",
       "valid": true
     },
     {
@@ -2903,21 +3020,6 @@
       "valid": true
     },
     {
-      "dependencies": [],
-      "dependents": [
-        "src/components/DashboardView.tsx",
-        "src/components/QueryFeedback.tsx",
-        "src/components/HoldingsTable.tsx",
-        "src/components/OpeningPreviewDialog.tsx",
-        "src/components/DraftCashReconciliationPanel.tsx",
-        "src/components/DraftCashCorrectionForm.tsx",
-        "src/components/DraftExecutionCorrectionForm.tsx"
-      ],
-      "orphan": false,
-      "source": "src/hooks/useNetworkStatus.ts",
-      "valid": true
-    },
-    {
       "dependencies": [
         {
           "circular": false,
@@ -3077,6 +3179,23 @@
           "module": "@/components/ImportUploadDialog",
           "moduleSystem": "es6",
           "resolved": "src/components/ImportUploadDialog.tsx",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/components/LiveAcquisitionCorrectionDialog",
+          "moduleSystem": "es6",
+          "resolved": "src/components/LiveAcquisitionCorrectionDialog.tsx",
           "valid": true
         },
         {
@@ -5638,6 +5757,31 @@
           "exoticallyRequired": false,
           "followable": true,
           "matchesDoNotFollow": false,
+          "module": "./LiveAcquisitionCorrectionDialog",
+          "moduleSystem": "es6",
+          "resolved": "src/components/LiveAcquisitionCorrectionDialog.tsx",
+          "valid": true
+        }
+      ],
+      "dependents": [],
+      "orphan": false,
+      "source": "src/components/LiveAcquisitionCorrectionDialog.test.tsx",
+      "valid": true
+    },
+    {
+      "dependencies": [
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "local",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
           "module": "./MobileTabBar",
           "moduleSystem": "es6",
           "resolved": "src/components/MobileTabBar.tsx",
@@ -6356,6 +6500,31 @@
       ],
       "dependents": [],
       "orphan": false,
+      "source": "src/lib/api/mappers.acquisition-correction.test.ts",
+      "valid": true
+    },
+    {
+      "dependencies": [
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "local",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "./mappers",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/api/mappers.ts",
+          "valid": true
+        }
+      ],
+      "dependents": [],
+      "orphan": false,
       "source": "src/lib/api/mappers.close-reason.test.ts",
       "valid": true
     },
@@ -6853,8 +7022,8 @@
         }
       ]
     },
-    "totalCruised": 160,
-    "totalDependenciesCruised": 301,
+    "totalCruised": 163,
+    "totalDependenciesCruised": 309,
     "violations": [],
     "warn": 0
   }

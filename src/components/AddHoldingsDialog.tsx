@@ -50,6 +50,7 @@ export default function AddHoldingsDialog({
   onSubmit,
   onDelete,
   onImport,
+  onCorrectAcquisition,
   busy = false,
   error,
 }: {
@@ -63,6 +64,7 @@ export default function AddHoldingsDialog({
   onSubmit: (value: LocalHolding) => void;
   onDelete?: () => void;
   onImport?: () => void;
+  onCorrectAcquisition?: () => void;
   busy?: boolean;
   error?: string;
 }) {
@@ -80,6 +82,8 @@ export default function AddHoldingsDialog({
     buyComments: '',
   });
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const auditedAcquisition =
+    mode === 'edit' && Boolean(initial?.acquisitionCorrection);
   const { symbolSuggestions, setSymbolSuggestions, searchSymbol } =
     useSymbolSearch();
   const { accountSuggestions, searchAccount, resetAccountSuggestions } =
@@ -233,7 +237,7 @@ export default function AddHoldingsDialog({
       validationErrors={errors}
       footer={
         <div className='task-actions'>
-          {mode === 'edit' && onDelete && (
+          {mode === 'edit' && onDelete && !auditedAcquisition && (
             <Button
               className='task-delete'
               label='Delete'
@@ -264,6 +268,22 @@ export default function AddHoldingsDialog({
       onHide={onHide}
     >
       <div className='space-y-4'>
+        {auditedAcquisition && (
+          <div className='space-y-2'>
+            <Message
+              severity='info'
+              text='This purchase is cash-linked. Financial changes require an audited acquisition correction; notes and trading metadata remain editable here.'
+            />
+            {onCorrectAcquisition && (
+              <Button
+                label='Correct acquisition'
+                outlined
+                onClick={onCorrectAcquisition}
+                disabled={busy}
+              />
+            )}
+          </div>
+        )}
         {error && <Message severity='error' text={error} />}
         {mode === 'add' && (
           <div>
@@ -314,7 +334,7 @@ export default function AddHoldingsDialog({
         {/* Row 1: Trading Account */}
         <div className='grid grid-cols-12 gap-3'>
           <div className='col-span-12'>
-            {lockAccount ? (
+            {lockAccount || auditedAcquisition ? (
               <p className='task-summary'>
                 Account <strong>{form.accountName ?? 'Main'}</strong>
               </p>
@@ -532,6 +552,7 @@ export default function AddHoldingsDialog({
               ) : (
                 <InputText
                   id='position-symbol'
+                  readOnly={auditedAcquisition}
                   aria-invalid={Boolean(errors.symbol)}
                   value={(form.symbol ?? '').toUpperCase()}
                   onChange={e =>
@@ -564,6 +585,7 @@ export default function AddHoldingsDialog({
             </label>
             <Calendar
               inputId='position-date'
+              disabled={auditedAcquisition}
               invalid={Boolean(errors.openDate)}
               value={(() => {
                 const parts = (form.openDate ?? '').split('-').map(Number);
@@ -605,6 +627,7 @@ export default function AddHoldingsDialog({
               {crypto ? `Quantity${coin ? ` (${coin})` : ''} *` : 'Units *'}
             </label>
             <InputNumber
+              disabled={auditedAcquisition}
               value={form.units ?? 0}
               onValueChange={e =>
                 setForm(f => ({ ...f, units: (e.value ?? 0) as number }))
@@ -635,6 +658,7 @@ export default function AddHoldingsDialog({
             </label>
             <InputNumber
               inputId='position-price'
+              disabled={auditedAcquisition}
               invalid={Boolean(errors.buyPrice)}
               value={form.buyPrice ?? 0}
               onValueChange={e =>
@@ -660,6 +684,7 @@ export default function AddHoldingsDialog({
             </label>
             <InputNumber
               inputId='position-fee'
+              disabled={auditedAcquisition}
               value={form.buyFee ?? 0}
               onValueChange={e =>
                 setForm(f => ({ ...f, buyFee: (e.value ?? 0) as number }))

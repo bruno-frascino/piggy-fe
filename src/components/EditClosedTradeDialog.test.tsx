@@ -150,6 +150,75 @@ describe('EditClosedTradeDialog', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Save Changes' }));
     expect(onSave).toHaveBeenCalledWith(validTrade);
   });
+
+  it('submits audited live-sale corrections with exact price and fee strings', () => {
+    const onSave = vi.fn();
+    const liveTrade: ClosedTrade = {
+      ...trade,
+      closeDate: '2026-07-15',
+      cashCorrection: {
+        operationId: 'operation-1',
+        expectedRevisionId: 'revision-1',
+        expectedSourceFingerprint: 'a'.repeat(64),
+        effectiveDate: '2026-07-15',
+        sequence: 2,
+      },
+    };
+    render(
+      <EditClosedTradeDialog
+        trade={liveTrade}
+        onHide={vi.fn()}
+        onSave={onSave}
+        onDeletePosition={vi.fn()}
+      />
+    );
+
+    fireEvent.change(screen.getByLabelText('Sell Price *'), {
+      target: { value: '12.345678901234' },
+    });
+    fireEvent.change(screen.getByLabelText('Sell Fee *'), {
+      target: { value: '0.00000001' },
+    });
+    fireEvent.change(screen.getByLabelText('Correction Reason *'), {
+      target: { value: 'Corrected from broker statement' },
+    });
+    fireEvent.click(screen.getByRole('button', { name: 'Save Changes' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Save Changes' }));
+
+    expect(onSave).toHaveBeenCalledTimes(2);
+    expect(onSave).toHaveBeenNthCalledWith(
+      1,
+      expect.objectContaining({ sellPrice: 12.345678901234 }),
+      expect.objectContaining({
+        expectedRevisionId: 'revision-1',
+        expectedSourceFingerprint: 'a'.repeat(64),
+        reason: 'Corrected from broker statement',
+        effectiveDate: '2026-07-15',
+        sequence: 2,
+        price: '12.345678901234',
+        fees: '0.00000001',
+        idempotencyKey: expect.any(String),
+      })
+    );
+    expect(onSave).toHaveBeenNthCalledWith(
+      2,
+      expect.objectContaining({ sellPrice: 12.345678901234 }),
+      expect.objectContaining({
+        expectedRevisionId: 'revision-1',
+        expectedSourceFingerprint: 'a'.repeat(64),
+        reason: 'Corrected from broker statement',
+        effectiveDate: '2026-07-15',
+        sequence: 2,
+        price: '12.345678901234',
+        fees: '0.00000001',
+        idempotencyKey: expect.any(String),
+      })
+    );
+    expect(onSave.mock.calls[0][1].idempotencyKey).toBe(
+      onSave.mock.calls[1][1].idempotencyKey
+    );
+  });
+
   it('rejects a close date before the open date', () => {
     const onSave = vi.fn();
 

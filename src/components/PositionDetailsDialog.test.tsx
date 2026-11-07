@@ -83,6 +83,7 @@ describe('PositionDetailsDialog', () => {
       row: { ...row, buyComments: comments },
       hasQuote: true,
     });
+    const actions = screen.getByRole('button', { name: 'Done' }).parentElement;
     expect(
       screen.getByRole('region', { name: 'Buy comment text' })
     ).toHaveTextContent('First line');
@@ -93,6 +94,8 @@ describe('PositionDetailsDialog', () => {
       screen.getByRole('region', { name: 'Buy comment text' })
     ).toHaveAttribute('tabindex', '0');
     expect(screen.getByText(/latest available quote/)).toBeInTheDocument();
+    expect(actions).toHaveClass('position-details-actions', 'flex-nowrap');
+    expect(actions?.querySelectorAll('button')).toHaveLength(3);
     fireEvent.click(screen.getByRole('button', { name: 'Edit position' }));
     fireEvent.click(screen.getByRole('button', { name: 'Close position' }));
     fireEvent.click(screen.getByRole('button', { name: 'Done' }));

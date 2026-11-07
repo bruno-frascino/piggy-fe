@@ -452,6 +452,10 @@ textarea {
   overflow-wrap: anywhere;
 }
 
+.position-details-actions > .p-button:not(:first-child) {
+  min-width: 0;
+}
+
 .position-details-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
@@ -1024,6 +1028,12 @@ body :is(.hover\:bg-gray-50:hover, .hover\:bg-black\/5:hover) {
   }
   .task-dialog .p-dialog-footer {
     padding: 0.75rem 1rem max(0.75rem, env(safe-area-inset-bottom));
+  }
+  .position-details-actions > .p-button:not(:first-child) {
+    flex: 1 1 0;
+  }
+  .position-details-actions .p-button-label {
+    white-space: normal;
   }
   .task-actions > .p-button {
     flex: 1;

@@ -81,6 +81,52 @@ beforeEach(() => {
 afterEach(cleanup);
 
 describe('responsive purchase form', () => {
+  it('locks cash-linked acquisition fields and exposes the dedicated correction editor while preserving notes editing', () => {
+    const correct = vi.fn();
+    render(
+      <AddHoldingsDialog
+        visible
+        mode='edit'
+        lockAccount
+        accountName='Main'
+        initial={{
+          symbol: 'AAPL',
+          name: 'Apple',
+          exchangeCode: 'NASDAQ',
+          openDate: '2026-10-02',
+          units: 6,
+          buyPrice: 12,
+          buyFee: 1,
+          acquisitionCorrection: {
+            operationId: 'op1',
+            transactionId: 'buy1',
+            expectedRevisionId: 'r1',
+            expectedSourceFingerprint: 'a'.repeat(64),
+            effectiveDate: '2026-10-02',
+            sequence: 1,
+            quantity: '10',
+            price: '12',
+            fees: '1',
+          },
+        }}
+        onHide={vi.fn()}
+        onSubmit={vi.fn()}
+        onDelete={vi.fn()}
+        onCorrectAcquisition={correct}
+      />
+    );
+    expect(screen.getByLabelText('Symbol *')).toHaveAttribute('readonly');
+    for (const label of ['Open Date *', 'Units *', 'Buy Price *', 'Buy Fee'])
+      expect(screen.getByLabelText(label)).toBeDisabled();
+    expect(
+      screen.queryByRole('button', { name: 'Delete' })
+    ).not.toBeInTheDocument();
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Correct acquisition' })
+    );
+    expect(correct).toHaveBeenCalledOnce();
+  });
+
   it('keeps actions outside scrolling content and retains collapsed optional fields on save', () => {
     const onSubmit = vi.fn();
     render(

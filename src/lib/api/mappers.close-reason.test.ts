@@ -33,4 +33,26 @@ describe('mapCloseEventToClosedTrade closeReason', () => {
       mapCloseEventToClosedTrade(event('WHIM'))?.closeReason
     ).toBeUndefined();
   });
+
+  it('maps correction metadata only when the complete revision context is present', () => {
+    const metadata = {
+      operationId: 'operation1',
+      expectedRevisionId: 'revision1',
+      expectedSourceFingerprint: 'a'.repeat(64),
+      effectiveDate: '2026-02-01',
+      sequence: 2,
+    };
+    expect(
+      mapCloseEventToClosedTrade({
+        ...event(),
+        cashCorrection: metadata,
+      })?.cashCorrection
+    ).toEqual(metadata);
+    expect(
+      mapCloseEventToClosedTrade({
+        ...event(),
+        cashCorrection: { ...metadata, sequence: 1.5 },
+      })?.cashCorrection
+    ).toBeUndefined();
+  });
 });

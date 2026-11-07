@@ -9,11 +9,17 @@ import { Button } from 'primereact/button';
 import { Calendar } from 'primereact/calendar';
 import { Dropdown } from 'primereact/dropdown';
 import { Message } from 'primereact/message';
-import type { ClosedTrade, TaxReportUsage } from '@/lib/types';
+import type {
+  ClosedTrade,
+  DraftSaleCorrectionInput,
+  TaxReportUsage,
+} from '@/lib/types';
 import EditClosedTradeDialog from '@/components/EditClosedTradeDialog';
+import LiveAcquisitionCorrectionDialog from '@/components/LiveAcquisitionCorrectionDialog';
 import PageHeader from '@/components/PageHeader';
 import {
   useClosedPositions,
+  useCorrectLiveManualSale,
   useDeletePosition,
   useTaxReportPositionUsage,
   useTradingAccounts,
@@ -364,6 +370,10 @@ export default function HistoryPage() {
   const { show: showToast } = useToast();
   const { mutateAsync: updateCloseEvent } = useUpdateCloseEvent();
   const { mutateAsync: updatePosition } = useUpdatePosition();
+  const { mutateAsync: correctLiveManualSale } = useCorrectLiveManualSale();
+  const [acquisitionTrade, setAcquisitionTrade] = useState<ClosedTrade | null>(
+    null
+  );
   const { mutateAsync: deletePosition } = useDeletePosition();
   const currentYear = new Date().getFullYear();
   const defaultStart = `${currentYear}-01-01`;
@@ -658,12 +668,24 @@ export default function HistoryPage() {
         {showDialog && active && (
           <EditClosedTradeDialog
             trade={active}
+            onCorrectAcquisition={
+              active.acquisitionCorrection && active.accountId
+                ? () => {
+                    setAcquisitionTrade(active);
+                    setShowDialog(false);
+                    setActive(null);
+                  }
+                : undefined
+            }
             reportUsage={usageFor(active)}
             onHide={() => {
               setShowDialog(false);
               setActive(null);
             }}
-            onSave={async (updated: ClosedTrade) => {
+            onSave={async (
+              updated: ClosedTrade,
+              correction?: DraftSaleCorrectionInput
+            ) => {
               const updates: Promise<unknown>[] = [];
 
               if (
@@ -678,31 +700,46 @@ export default function HistoryPage() {
                 );
               }
 
-              if (updated.id) {
+              const closeEventUpdate = {
+                ...(!correction && updated.closeDate !== active.closeDate
+                  ? { closeDate: updated.closeDate }
+                  : {}),
+                ...(!correction && updated.sellPrice !== active.sellPrice
+                  ? { exitPrice: updated.sellPrice }
+                  : {}),
+                ...(!correction && updated.sellFee !== active.sellFee
+                  ? { sellFees: updated.sellFee }
+                  : {}),
+                ...(updated.sellComments !== active.sellComments
+                  ? { notes: updated.sellComments ?? '' }
+                  : {}),
+                ...(updated.closeReason !== active.closeReason
+                  ? { closeReason: updated.closeReason ?? null }
+                  : {}),
+              };
+
+              if (updated.id && Object.keys(closeEventUpdate).length > 0) {
                 updates.push(
                   updateCloseEvent({
                     id: updated.id,
-                    data: {
-                      ...(updated.closeDate !== active.closeDate
-                        ? { closeDate: updated.closeDate }
-                        : {}),
-                      ...(updated.sellPrice !== active.sellPrice
-                        ? { exitPrice: updated.sellPrice }
-                        : {}),
-                      ...(updated.sellFee !== active.sellFee
-                        ? { sellFees: updated.sellFee }
-                        : {}),
-                      notes: updated.sellComments ?? '',
-                      ...(updated.closeReason !== active.closeReason
-                        ? { closeReason: updated.closeReason ?? null }
-                        : {}),
-                    },
+                    data: closeEventUpdate,
                   })
                 );
               }
 
               try {
                 await Promise.all(updates);
+                if (correction) {
+                  if (!updated.id || !active.accountId)
+                    throw new Error(
+                      'This sale is missing its account or transaction identity.'
+                    );
+                  await correctLiveManualSale({
+                    accountId: active.accountId,
+                    transactionId: updated.id,
+                    input: correction,
+                  });
+                }
                 setShowDialog(false);
                 setActive(null);
               } catch (error) {
@@ -721,6 +758,24 @@ export default function HistoryPage() {
             }}
           />
         )}
+        {acquisitionTrade?.accountId &&
+          acquisitionTrade.acquisitionCorrection && (
+            <LiveAcquisitionCorrectionDialog
+              accountId={acquisitionTrade.accountId}
+              symbol={acquisitionTrade.symbol}
+              correction={acquisitionTrade.acquisitionCorrection}
+              onHide={() => setAcquisitionTrade(null)}
+              onSaved={() => {
+                setAcquisitionTrade(null);
+                showToast({
+                  severity: 'success',
+                  summary: 'Acquisition corrected',
+                  detail:
+                    'Cash and parcel results were updated with an audit revision.',
+                });
+              }}
+            />
+          )}
       </div>
     </div>
   );

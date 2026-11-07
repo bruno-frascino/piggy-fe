@@ -59,6 +59,10 @@ vi.mock('@/hooks/api', () => ({
   useCheckStopLoss: () => ({ mutateAsync: checkStopLossMock }),
   useClosePosition: () => ({ mutateAsync: mutationMock }),
   useDeletePosition: () => ({ mutateAsync: mutationMock }),
+  useCorrectLiveManualAcquisition: () => ({
+    mutateAsync: mutationMock,
+    isPending: false,
+  }),
 }));
 
 vi.mock('@/lib/offline-write-queue', () => ({
@@ -302,6 +306,45 @@ describe('HoldingsTable row/total computation', () => {
       ).toBeInTheDocument();
     }
   );
+
+  it('opens the audited purchase editor using full purchase metadata, not remaining units or prorated fees', () => {
+    setHoldings([
+      {
+        ...baseHolding,
+        accountId: 'acc-1',
+        units: 4,
+        buyFee: 0.123457,
+        acquisitionCorrection: {
+          operationId: 'op1',
+          transactionId: 'buy1',
+          expectedRevisionId: 'r1',
+          expectedSourceFingerprint: 'a'.repeat(64),
+          effectiveDate: '2026-01-01',
+          sequence: 1,
+          quantity: '10.000000000001',
+          price: '100.123456789012',
+          fees: '0.98765432',
+        },
+      },
+    ]);
+    setQuotes([]);
+    renderTable();
+    fireEvent.click(screen.getAllByTitle('View position details')[0]);
+    fireEvent.click(
+      within(screen.getByRole('dialog')).getByRole('button', {
+        name: 'Edit position',
+      })
+    );
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Correct acquisition' })
+    );
+    expect(
+      screen.getByLabelText('Total bought units (not remaining units)')
+    ).toHaveValue('10.000000000001');
+    expect(screen.getByLabelText('Exact total purchase fees')).toHaveValue(
+      '0.98765432'
+    );
+  });
 
   it('saves notes without resubmitting rounded fees, remaining units or execution dates', async () => {
     setHoldings([

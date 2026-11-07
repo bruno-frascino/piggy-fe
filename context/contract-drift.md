@@ -4,7 +4,7 @@
 > WARNING-only artifact: a non-empty drift list never fails the build (see
 > `docs/adr/0007-manual-types-mirror.md`). `src/lib/types.ts` remains the source of truth.
 
-- OpenAPI component schemas: 4
+- OpenAPI component schemas: 5
 - Schemas with drift or no matching interface: 0
 
 ## `AccountTradeResponse`
@@ -14,6 +14,10 @@ In sync. ✅
 ## `Error`
 
 Matched to `ApiErrorResponse` in `src/lib/types.ts`.
+
+In sync. ✅
+
+## `LiveExecutionCorrectionResponse`
 
 In sync. ✅
 
@@ -44,6 +48,8 @@ In sync. ✅
 - `TaxReportLineItem`
 - `TaxReport`
 - `ClosedTrade`
+- `LiveSaleCorrectionMetadata`
+- `LiveAcquisitionCorrectionMetadata`
 - `ClosedTradesQuery`
 - `ClosedTradesPage`
 - `TaxReportUsage`
@@ -94,6 +100,7 @@ In sync. ✅
 - `DraftImportedExecution`
 - `DraftCashReplay`
 - `AccountTradeResult`
+- `LiveSaleCorrectionResult`
 - `DraftCashEvidenceComparison`
 - `DraftCashEvidenceRecord`
 - `DraftSaleCorrectionInput`

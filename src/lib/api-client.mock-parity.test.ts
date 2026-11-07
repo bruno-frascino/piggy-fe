@@ -115,6 +115,37 @@ describe('apiClient mock-mode parity', () => {
       expectRejection: /require the real API/i,
     },
     {
+      name: 'correctLiveManualSale',
+      call: () =>
+        apiClient.correctLiveManualSale('a1', 'tx1', {
+          idempotencyKey: 'sale-fix',
+          expectedRevisionId: 'op1',
+          expectedSourceFingerprint: 'a'.repeat(64),
+          reason: 'Correct fees',
+          effectiveDate: '2026-10-03',
+          sequence: 2,
+          price: '12',
+          fees: '1',
+        }),
+      expectRejection: /require the real API/i,
+    },
+    {
+      name: 'correctLiveManualAcquisition',
+      call: () =>
+        apiClient.correctLiveManualAcquisition('a1', 'buy1', {
+          idempotencyKey: 'buy-fix',
+          expectedRevisionId: 'op1',
+          expectedSourceFingerprint: 'a'.repeat(64),
+          reason: 'Correct purchase',
+          effectiveDate: '2026-10-03',
+          sequence: 1,
+          quantity: '2',
+          price: '10',
+          fees: '1',
+        }),
+      expectRejection: /require the real API/i,
+    },
+    {
       name: 'stageDraftManualExecutionCash',
       call: () =>
         apiClient.stageDraftManualExecutionCash('a1', 's1', 't1', {

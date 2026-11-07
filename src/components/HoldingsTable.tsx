@@ -9,6 +9,7 @@ import { Column } from 'primereact/column';
 import { Button } from 'primereact/button';
 import ImportUploadDialog from '@/components/ImportUploadDialog';
 import PositionDetailsDialog from '@/components/PositionDetailsDialog';
+import LiveAcquisitionCorrectionDialog from '@/components/LiveAcquisitionCorrectionDialog';
 import QueryFeedback from './QueryFeedback';
 import { useNetworkStatus } from '@/hooks/useNetworkStatus';
 import { Skeleton } from 'primereact/skeleton';
@@ -139,6 +140,8 @@ export default function HoldingsTable({
   const [showDialog, setShowDialog] = useState(false);
   const [mode, setMode] = useState<'add' | 'edit'>('add');
   const [editIdx, setEditIdx] = useState<number | null>(null);
+  const [correctionHolding, setCorrectionHolding] =
+    useState<LocalHolding | null>(null);
   const [dialogInitial, setDialogInitial] = useState<
     Partial<LocalHolding> | undefined
   >(undefined);
@@ -967,6 +970,16 @@ export default function HoldingsTable({
           setShowImportDialog(true);
         }}
         onDelete={mode === 'edit' ? handleDeletePosition : undefined}
+        onCorrectAcquisition={
+          mode === 'edit' &&
+          editIdx !== null &&
+          holdings[editIdx]?.acquisitionCorrection
+            ? () => {
+                setCorrectionHolding(holdings[editIdx]);
+                setShowDialog(false);
+              }
+            : undefined
+        }
         onSubmit={(newPos: LocalHolding) => {
           const submit = async () => {
             if (mode === 'edit' && editIdx !== null) {
@@ -1089,6 +1102,25 @@ export default function HoldingsTable({
           });
         }}
       />
+
+      {correctionHolding?.accountId &&
+        correctionHolding.acquisitionCorrection && (
+          <LiveAcquisitionCorrectionDialog
+            accountId={correctionHolding.accountId}
+            symbol={correctionHolding.symbol}
+            correction={correctionHolding.acquisitionCorrection}
+            onHide={() => setCorrectionHolding(null)}
+            onSaved={() => {
+              setCorrectionHolding(null);
+              showToast({
+                severity: 'success',
+                summary: 'Acquisition corrected',
+                detail:
+                  'Cash and parcel results were updated with an audit revision.',
+              });
+            }}
+          />
+        )}
 
       <ClosePositionDialog
         visible={showCloseDialog}

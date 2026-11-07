@@ -1,4 +1,8 @@
-import type { CloseReason, ClosedTrade } from '../types';
+import type {
+  CloseReason,
+  ClosedTrade,
+  LiveAcquisitionCorrectionMetadata,
+} from '../types';
 import type {
   EquityPoint,
   HoldingPosition,
@@ -161,6 +165,7 @@ export function mapPositionToHolding(pos: unknown): HoldingPosition | null {
       : normalizedLegacyNotes;
 
   return {
+    acquisitionCorrection: mapAcquisitionCorrection(pos.acquisitionCorrection),
     id: typeof pos.id === 'string' ? pos.id : undefined,
     assetType:
       asset.assetType === 'CRYPTO' ||
@@ -212,6 +217,45 @@ export function toDateStr(v: unknown): string {
   if (typeof v === 'string') return v.slice(0, 10);
   if (v instanceof Date) return v.toISOString().slice(0, 10);
   return '';
+}
+
+export function mapAcquisitionCorrection(
+  raw: unknown
+): LiveAcquisitionCorrectionMetadata | undefined {
+  if (
+    !isRecord(raw) ||
+    typeof raw.transactionId !== 'string' ||
+    !raw.transactionId ||
+    typeof raw.operationId !== 'string' ||
+    !raw.operationId ||
+    typeof raw.expectedRevisionId !== 'string' ||
+    !raw.expectedRevisionId ||
+    typeof raw.expectedSourceFingerprint !== 'string' ||
+    !/^[a-f0-9]{64}$/.test(raw.expectedSourceFingerprint) ||
+    typeof raw.effectiveDate !== 'string' ||
+    !/^\d{4}-\d{2}-\d{2}$/.test(raw.effectiveDate) ||
+    typeof raw.sequence !== 'number' ||
+    !Number.isSafeInteger(raw.sequence) ||
+    raw.sequence < 1 ||
+    typeof raw.quantity !== 'string' ||
+    !/^\d+(\.\d+)?$/.test(raw.quantity) ||
+    typeof raw.price !== 'string' ||
+    !/^\d+(\.\d+)?$/.test(raw.price) ||
+    typeof raw.fees !== 'string' ||
+    !/^\d+(\.\d+)?$/.test(raw.fees)
+  )
+    return undefined;
+  return {
+    transactionId: raw.transactionId,
+    operationId: raw.operationId,
+    expectedRevisionId: raw.expectedRevisionId,
+    expectedSourceFingerprint: raw.expectedSourceFingerprint,
+    effectiveDate: raw.effectiveDate,
+    sequence: raw.sequence,
+    quantity: raw.quantity,
+    price: raw.price,
+    fees: raw.fees,
+  };
 }
 
 const CLOSE_REASONS: readonly string[] = [
@@ -267,6 +311,26 @@ export function mapCloseEventToClosedTrade(event: unknown): ClosedTrade | null {
     isNaN(start) || isNaN(end)
       ? 0
       : Math.max(0, Math.round((end - start) / 86400000));
+  const rawCashCorrection = isRecord(event.cashCorrection)
+    ? event.cashCorrection
+    : null;
+  const cashCorrection =
+    rawCashCorrection &&
+    typeof rawCashCorrection.operationId === 'string' &&
+    typeof rawCashCorrection.expectedRevisionId === 'string' &&
+    typeof rawCashCorrection.expectedSourceFingerprint === 'string' &&
+    typeof rawCashCorrection.effectiveDate === 'string' &&
+    typeof rawCashCorrection.sequence === 'number' &&
+    Number.isSafeInteger(rawCashCorrection.sequence)
+      ? {
+          operationId: rawCashCorrection.operationId,
+          expectedRevisionId: rawCashCorrection.expectedRevisionId,
+          expectedSourceFingerprint:
+            rawCashCorrection.expectedSourceFingerprint,
+          effectiveDate: rawCashCorrection.effectiveDate,
+          sequence: rawCashCorrection.sequence,
+        }
+      : undefined;
 
   return {
     id: eventId,
@@ -309,5 +373,9 @@ export function mapCloseEventToClosedTrade(event: unknown): ClosedTrade | null {
       position.maxRunUpPercent != null
         ? Number(position.maxRunUpPercent)
         : undefined,
+    ...(cashCorrection ? { cashCorrection } : {}),
+    acquisitionCorrection: mapAcquisitionCorrection(
+      event.acquisitionCorrection
+    ),
   };
 }

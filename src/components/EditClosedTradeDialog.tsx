@@ -1,10 +1,11 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import Dialog from './AppDialog';
 import { Calendar } from 'primereact/calendar';
 import { InputNumber } from 'primereact/inputnumber';
 import { InputTextarea } from 'primereact/inputtextarea';
+import { InputText } from 'primereact/inputtext';
 import { Button } from 'primereact/button';
 import { Dropdown } from 'primereact/dropdown';
 import { Message } from 'primereact/message';
@@ -14,14 +15,20 @@ import { CLOSE_REASON_OPTIONS } from '@/lib/close-reason';
 import { closedTradeAmounts } from '@/lib/closed-trade-math';
 import { formatDateDDMMYYYY } from '@/lib/date';
 import { isCryptoExchange, exchangeLabel } from '@/lib/crypto';
-import type { CloseReason, ClosedTrade, TaxReportUsage } from '@/lib/types';
+import type {
+  CloseReason,
+  ClosedTrade,
+  DraftSaleCorrectionInput,
+  TaxReportUsage,
+} from '@/lib/types';
 
 interface Props {
   trade: ClosedTrade;
   reportUsage?: TaxReportUsage[];
   onHide: () => void;
-  onSave: (updated: ClosedTrade) => void;
+  onSave: (updated: ClosedTrade, correction?: DraftSaleCorrectionInput) => void;
   onDeletePosition: (positionId: string) => void;
+  onCorrectAcquisition?: () => void;
 }
 
 // Open-side facts (symbol, exchange, bought units, entry price/fee) define the
@@ -50,9 +57,20 @@ export default function EditClosedTradeDialog({
   onHide,
   onSave,
   onDeletePosition,
+  onCorrectAcquisition,
 }: Props) {
   const [form, setForm] = useState<ClosedTrade>(trade);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [correctionSequence, setCorrectionSequence] = useState(
+    trade.cashCorrection?.sequence ?? 1
+  );
+  const [correctionReason, setCorrectionReason] = useState('');
+  const [sellPriceText, setSellPriceText] = useState(String(trade.sellPrice));
+  const [sellFeeText, setSellFeeText] = useState(String(trade.sellFee));
+  const correctionRetry = useRef<{
+    signature: string;
+    idempotencyKey: string;
+  } | null>(null);
   const { mask } = usePrivacy();
   const crypto = isCryptoExchange(trade.exchange);
   // Calendar forwards this to InputText, despite declaring HTML-attribute typing.
@@ -64,7 +82,17 @@ export default function EditClosedTradeDialog({
   useEffect(() => {
     setForm(trade);
     setErrors({});
+    setCorrectionSequence(trade.cashCorrection?.sequence ?? 1);
+    setCorrectionReason('');
+    setSellPriceText(String(trade.sellPrice));
+    setSellFeeText(String(trade.sellFee));
+    correctionRetry.current = null;
   }, [trade]);
+
+  const hasFinancialChanges =
+    form.closeDate !== trade.closeDate ||
+    sellPriceText !== String(trade.sellPrice) ||
+    sellFeeText !== String(trade.sellFee);
 
   const validate = () => {
     const e: Record<string, string> = {};
@@ -82,13 +110,59 @@ export default function EditClosedTradeDialog({
         e[k as string] = 'Enter number';
       else if ((v as number) < 0) e[k as string] = 'Must be ≥ 0';
     });
+    if (form.cashCorrection && hasFinancialChanges) {
+      if (!/^(?:\d+)(?:\.\d+)?$/.test(sellPriceText))
+        e.sellPrice = 'Enter an exact decimal price';
+      if (!/^(?:\d+)(?:\.\d+)?$/.test(sellFeeText))
+        e.sellFee = 'Enter an exact decimal fee';
+      if (!Number.isSafeInteger(correctionSequence) || correctionSequence < 1)
+        e.correctionSequence = 'Enter a positive whole number';
+      if (Number(sellPriceText) <= 0)
+        e.sellPrice = 'A live sale price must be greater than zero';
+      if (!correctionReason.trim())
+        e.correctionReason = 'An audit reason is required';
+    }
     setErrors(e);
     return Object.keys(e).length === 0;
   };
 
   const handleSave = () => {
     if (!validate()) return;
-    onSave({ ...form });
+    const correctionSignature =
+      form.cashCorrection && hasFinancialChanges
+        ? JSON.stringify({
+            metadata: form.cashCorrection,
+            reason: correctionReason.trim(),
+            effectiveDate: form.closeDate,
+            sequence: correctionSequence,
+            price: sellPriceText,
+            fees: sellFeeText,
+          })
+        : null;
+    if (
+      correctionSignature &&
+      correctionRetry.current?.signature !== correctionSignature
+    )
+      correctionRetry.current = {
+        signature: correctionSignature,
+        idempotencyKey: globalThis.crypto.randomUUID(),
+      };
+    const correction =
+      form.cashCorrection && hasFinancialChanges
+        ? {
+            idempotencyKey: correctionRetry.current!.idempotencyKey,
+            expectedRevisionId: form.cashCorrection.expectedRevisionId,
+            expectedSourceFingerprint:
+              form.cashCorrection.expectedSourceFingerprint,
+            reason: correctionReason.trim(),
+            effectiveDate: form.closeDate,
+            sequence: correctionSequence,
+            price: sellPriceText,
+            fees: sellFeeText,
+          }
+        : undefined;
+    if (correction) onSave({ ...form }, correction);
+    else onSave({ ...form });
   };
 
   const handleDelete = () => {
@@ -203,11 +277,19 @@ export default function EditClosedTradeDialog({
           </div>
         </div>
 
-        <p className='text-xs' style={{ color: 'var(--tr-text-2)' }}>
-          Symbol, exchange, open date, bought units and entry price/fee define
-          this position&apos;s tax parcel — correct them on the position itself
-          from the dashboard.
-        </p>
+        {trade.acquisitionCorrection && onCorrectAcquisition ? (
+          <Button
+            label='Correct acquisition'
+            outlined
+            onClick={onCorrectAcquisition}
+          />
+        ) : (
+          <p className='text-xs' style={{ color: 'var(--tr-text-2)' }}>
+            Symbol, exchange, open date, bought units and entry price/fee define
+            this position&apos;s tax parcel — correct them on the position
+            itself from the dashboard.
+          </p>
+        )}
 
         <div className='task-summary closed-trade-summary'>
           <div>
@@ -319,19 +401,43 @@ export default function EditClosedTradeDialog({
             >
               Sell Price *
             </label>
-            <InputNumber
-              inputId='closed-sell-price'
-              invalid={!!errors.sellPrice}
-              pt={{ input: { root: { 'aria-invalid': !!errors.sellPrice } } }}
-              value={form.sellPrice}
-              onValueChange={e =>
-                setForm(f => ({ ...f, sellPrice: (e.value ?? 0) as number }))
-              }
-              mode='decimal'
-              maxFractionDigits={crypto ? 12 : 3}
-              className='w-full'
-              inputClassName='w-full'
-            />
+            {form.cashCorrection ? (
+              <InputText
+                id='closed-sell-price'
+                value={sellPriceText}
+                onChange={e => {
+                  const value = e.target.value;
+                  setSellPriceText(value);
+                  setForm(f => ({
+                    ...f,
+                    sellPrice: value.trim() ? Number(value) : Number.NaN,
+                  }));
+                }}
+                inputMode='decimal'
+                className='w-full'
+                invalid={!!errors.sellPrice}
+                aria-invalid={!!errors.sellPrice}
+              />
+            ) : (
+              <InputNumber
+                inputId='closed-sell-price'
+                invalid={!!errors.sellPrice}
+                pt={{
+                  input: { root: { 'aria-invalid': !!errors.sellPrice } },
+                }}
+                value={form.sellPrice}
+                onValueChange={e =>
+                  setForm(f => ({
+                    ...f,
+                    sellPrice: (e.value ?? 0) as number,
+                  }))
+                }
+                mode='decimal'
+                maxFractionDigits={crypto ? 12 : 3}
+                className='w-full'
+                inputClassName='w-full'
+              />
+            )}
             {errors.sellPrice && (
               <p className='text-xs text-red-600 mt-1'>{errors.sellPrice}</p>
             )}
@@ -343,24 +449,103 @@ export default function EditClosedTradeDialog({
             >
               Sell Fee *
             </label>
-            <InputNumber
-              inputId='closed-sell-fee'
-              invalid={!!errors.sellFee}
-              pt={{ input: { root: { 'aria-invalid': !!errors.sellFee } } }}
-              value={form.sellFee}
-              onValueChange={e =>
-                setForm(f => ({ ...f, sellFee: (e.value ?? 0) as number }))
-              }
-              mode='decimal'
-              maxFractionDigits={crypto ? 8 : 3}
-              className='w-full'
-              inputClassName='w-full'
-            />
+            {form.cashCorrection ? (
+              <InputText
+                id='closed-sell-fee'
+                value={sellFeeText}
+                onChange={e => {
+                  const value = e.target.value;
+                  setSellFeeText(value);
+                  setForm(f => ({
+                    ...f,
+                    sellFee: value.trim() ? Number(value) : Number.NaN,
+                  }));
+                }}
+                inputMode='decimal'
+                className='w-full'
+                invalid={!!errors.sellFee}
+                aria-invalid={!!errors.sellFee}
+              />
+            ) : (
+              <InputNumber
+                inputId='closed-sell-fee'
+                invalid={!!errors.sellFee}
+                pt={{ input: { root: { 'aria-invalid': !!errors.sellFee } } }}
+                value={form.sellFee}
+                onValueChange={e =>
+                  setForm(f => ({
+                    ...f,
+                    sellFee: (e.value ?? 0) as number,
+                  }))
+                }
+                mode='decimal'
+                maxFractionDigits={crypto ? 8 : 3}
+                className='w-full'
+                inputClassName='w-full'
+              />
+            )}
             {errors.sellFee && (
               <p className='text-xs text-red-600 mt-1'>{errors.sellFee}</p>
             )}
           </div>
         </div>
+
+        {form.cashCorrection && (
+          <div className='grid grid-cols-12 gap-3'>
+            <div className='col-span-12'>
+              <Message
+                severity='info'
+                text='This cash-linked manual sale uses an append-only audited correction. Quantity and source identity cannot be changed, and corrections do not support reversal.'
+              />
+            </div>
+            <div className='col-span-12 md:col-span-4'>
+              <label
+                htmlFor='cash-correction-sequence'
+                className='block text-sm font-medium mb-1'
+              >
+                Cash Sequence *
+              </label>
+              <InputNumber
+                inputId='cash-correction-sequence'
+                value={correctionSequence}
+                min={1}
+                useGrouping={false}
+                onValueChange={e => setCorrectionSequence(e.value ?? 0)}
+                className='w-full'
+                inputClassName='w-full'
+                invalid={!!errors.correctionSequence}
+              />
+              {errors.correctionSequence && (
+                <p className='text-xs text-red-600 mt-1'>
+                  {errors.correctionSequence}
+                </p>
+              )}
+            </div>
+            <div className='col-span-12 md:col-span-8'>
+              <label
+                htmlFor='cash-correction-reason'
+                className='block text-sm font-medium mb-1'
+              >
+                Correction Reason
+                {hasFinancialChanges ? ' *' : ''}
+              </label>
+              <InputTextarea
+                id='cash-correction-reason'
+                autoResize
+                value={correctionReason}
+                onChange={e => setCorrectionReason(e.target.value)}
+                rows={2}
+                className='w-full'
+                invalid={!!errors.correctionReason}
+              />
+              {errors.correctionReason && (
+                <p className='text-xs text-red-600 mt-1'>
+                  {errors.correctionReason}
+                </p>
+              )}
+            </div>
+          </div>
+        )}
 
         <div className='grid grid-cols-12 gap-3'>
           <div className='col-span-12'>

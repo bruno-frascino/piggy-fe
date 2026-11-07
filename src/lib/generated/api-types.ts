@@ -1544,6 +1544,208 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/accounts/{id}/trades/{transactionId}/acquisition-corrections": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Correct an audited live manual acquisition
+         * @description Appends an immutable BUY revision and reversal/replacement cash postings. Date, stable cash sequence, exact bought quantity, price and fees may change. All existing sales are preserved; the corrected acquisition must cover them and precede their dates and cash ordering. Imported executions, moves and reversal remain unsupported. No account is activated.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                    transactionId: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        /** Format: date */
+                        effectiveDate: string;
+                        expectedRevisionId: string;
+                        expectedSourceFingerprint: string;
+                        /** @description Exact non-negative decimal purchase fee. */
+                        fees: string;
+                        idempotencyKey: string;
+                        /** @description Exact positive decimal purchase price. */
+                        price: string;
+                        /** @description Exact positive bought quantity */
+                        quantity: string;
+                        reason: string;
+                        sequence: number;
+                    };
+                };
+            };
+            responses: {
+                /** @description Idempotent retry of an already committed correction. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["LiveExecutionCorrectionResponse"];
+                    };
+                };
+                /** @description Acquisition, parcel results, audit revision and cash postings committed atomically. */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["LiveExecutionCorrectionResponse"];
+                    };
+                };
+                /** @description Invalid correction or unrepresentable amount or quantity. */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unauthorized. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Owned live manual acquisition not found. */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Stale revision, source drift, reserved sequence, imported allocation or invalid acquisition/sale ordering. */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Correction would leave an unsupported or insufficiently funded ledger. */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/accounts/{id}/trades/{transactionId}/corrections": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Correct an audited live manual sale
+         * @description Appends an immutable correction revision for a cash-linked manual SELL. Only date, stable cash sequence, price and fees may change; quantity, source identity and imported executions are immutable. Reversal is not supported.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                    transactionId: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        /** Format: date */
+                        effectiveDate: string;
+                        expectedRevisionId: string;
+                        expectedSourceFingerprint: string;
+                        /** @description Exact non-negative decimal fee. */
+                        fees: string;
+                        idempotencyKey: string;
+                        /** @description Exact positive decimal sale price. */
+                        price: string;
+                        reason: string;
+                        sequence: number;
+                    };
+                };
+            };
+            responses: {
+                /** @description Idempotent retry of an already committed correction. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Correction, audit revision and cash postings were committed atomically. */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Invalid correction. */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unauthorized. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Live manual sale not found. */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Stale revision, source drift, reserved sequence or inconsistent cash history. */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Correction would leave an unsupported or insufficiently funded cash ledger. */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/auth/forgot-password": {
         parameters: {
             query?: never;
@@ -2637,7 +2839,7 @@ export interface paths {
             };
             requestBody?: never;
             responses: {
-                /** @description Paginated list of positions */
+                /** @description Paginated list of positions. Eligible live manual acquisitions include acquisitionCorrection metadata with transactionId, operationId, expectedRevisionId, expectedSourceFingerprint, effectiveDate, sequence and exact decimal-string quantity (total bought units), price and fees. Imported, demo and legacy acquisitions do not receive these controls. */
                 200: {
                     headers: {
                         [name: string]: unknown;
@@ -2786,7 +2988,7 @@ export interface paths {
             };
             requestBody?: never;
             responses: {
-                /** @description Paginated SELL transactions with position and asset context. Each event carries `closeReason` (STOP_LOSS | TARGET | MANUAL | OTHER, or null when unknown). */
+                /** @description Paginated SELL transactions with position and asset context. Each event carries `closeReason` (STOP_LOSS | TARGET | MANUAL | OTHER, or null when unknown). Eligible live manual sales also include `cashCorrection` metadata for the audited correction endpoint; imported and legacy sales do not. Eligible live manual BUYs include `acquisitionCorrection`, also for fully closed parcels: transactionId, operationId, expectedRevisionId, expectedSourceFingerprint, effectiveDate, sequence and exact decimal-string quantity (total bought units), price and fees. */
                 200: {
                     headers: {
                         [name: string]: unknown;
@@ -2842,7 +3044,7 @@ export interface paths {
         head?: never;
         /**
          * Update a close event (SELL transaction)
-         * @description Updates the sale and parcel totals atomically under an owned-account and parcel lock. Does not activate or spend inactive draft cash. Concurrent parcel moves require reload. Imported broker-linked execution values are immutable here. Financial changes to cash-linked manual trades require the coordinated acquisition/sale-correction endpoints in opening reconciliation; this ordinary editor returns 409 instead. Notes and close reason remain editable; unchanged financial values are not rewritten.
+         * @description Updates the sale and parcel totals atomically under an owned-account and parcel lock. Does not activate or spend inactive draft cash. Concurrent parcel moves require reload. Imported broker-linked execution values are immutable here. Financial changes to cash-linked manual trades require the audited account trade correction endpoint; this ordinary editor returns 409 instead. Notes and close reason remain editable; unchanged financial values are not rewritten.
          */
         patch: {
             parameters: {
@@ -4871,6 +5073,23 @@ export interface components {
             error?: string;
             /** @description Human-readable error detail */
             message?: string;
+        };
+        LiveExecutionCorrectionResponse: {
+            data: {
+                created: boolean;
+                operationId: string;
+                replay: {
+                    accountId: string;
+                    activity: Record<string, never>[];
+                    balances: Record<string, never>[];
+                    funded: boolean;
+                    fundingIssues: Record<string, never>[];
+                    /** Format: date */
+                    openingDate: string;
+                };
+                revisionId: string;
+            };
+            success: boolean;
         };
         OpeningStatement: {
             accountId: string;

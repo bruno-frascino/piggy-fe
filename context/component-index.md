@@ -37,7 +37,7 @@
 
 ## `LocalHolding`
 
-- File: [src/components/AddHoldingsDialog.tsx](../src/components/AddHoldingsDialog.tsx) (789 lines)
+- File: [src/components/AddHoldingsDialog.tsx](../src/components/AddHoldingsDialog.tsx) (814 lines)
 - API hooks used: useExchanges
 - Other hooks used: useAccountNameSuggestions, useEffect, useState, useSymbolSearch
 
@@ -125,15 +125,16 @@
 
 ## `EditClosedTradeDialog`
 
-- File: [src/components/EditClosedTradeDialog.tsx](../src/components/EditClosedTradeDialog.tsx) (440 lines)
+- File: [src/components/EditClosedTradeDialog.tsx](../src/components/EditClosedTradeDialog.tsx) (625 lines)
 - API hooks used: —
-- Other hooks used: useEffect, useMemo, usePrivacy, useState
+- Other hooks used: useEffect, useMemo, usePrivacy, useRef, useState
 - Props:
   - `trade: ClosedTrade`
   - `reportUsage?: TaxReportUsage[]`
   - `onHide: () => void`
-  - `onSave: (updated: ClosedTrade) => void`
+  - `onSave: (updated: ClosedTrade, correction?: DraftSaleCorrectionInput) => void`
   - `onDeletePosition: (positionId: string) => void`
+  - `onCorrectAcquisition?: () => void`
 
 ## `EmptyAccountsState`
 
@@ -155,7 +156,7 @@
 
 ## `HoldingsTable`
 
-- File: [src/components/HoldingsTable.tsx](../src/components/HoldingsTable.tsx) (1166 lines)
+- File: [src/components/HoldingsTable.tsx](../src/components/HoldingsTable.tsx) (1198 lines)
 - API hooks used: useClosePosition, useCreatePosition, useDeletePosition, useUpdatePosition
 - Other hooks used: useCallback, useEffect, useHoldingRows, useId, useNetworkStatus, usePrivacy, useQueryClient, useRef, useState, useToast
 
@@ -193,6 +194,12 @@
   - `accountId: string`
   - `accountName?: string`
   - `onHide: () => void`
+
+## `LiveAcquisitionCorrectionDialog`
+
+- File: [src/components/LiveAcquisitionCorrectionDialog.tsx](../src/components/LiveAcquisitionCorrectionDialog.tsx) (229 lines)
+- API hooks used: useCorrectLiveManualAcquisition
+- Other hooks used: useNetworkStatus, usePrivacy, useRef, useState
 
 ## `MobileTabBar`
 

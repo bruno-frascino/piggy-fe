@@ -55,7 +55,7 @@ export default function PositionDetailsDialog({
       style={{ width: '640px' }}
       onHide={onHide}
       footer={
-        <div className='flex flex-wrap justify-end gap-2'>
+        <div className='position-details-actions flex flex-nowrap items-center justify-end gap-2'>
           <Button label='Done' text onClick={onHide} />
           <Button
             label='Edit position'

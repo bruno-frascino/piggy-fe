@@ -46,6 +46,7 @@ export interface ExchangeSummary {
 }
 
 export interface HoldingPosition {
+  acquisitionCorrection?: LiveAcquisitionCorrectionMetadata;
   assetType?: AssetType;
   id?: string; // backend position ID (present when loaded from API)
   accountId?: string;
@@ -191,6 +192,23 @@ export interface ClosedTrade {
   baseCurrency?: string; // placeholder for future multi-currency support
   maxDrawdownPercent?: number; // worst intra-trade drawdown from entry price, in percent (positive number)
   maxRunUpPercent?: number; // best intra-trade peak gain above entry price, in percent (positive number)
+  cashCorrection?: LiveSaleCorrectionMetadata;
+  acquisitionCorrection?: LiveAcquisitionCorrectionMetadata;
+}
+
+export interface LiveSaleCorrectionMetadata {
+  operationId: string;
+  expectedRevisionId: string;
+  expectedSourceFingerprint: string;
+  effectiveDate: string;
+  sequence: number;
+}
+
+export interface LiveAcquisitionCorrectionMetadata extends LiveSaleCorrectionMetadata {
+  transactionId: string;
+  quantity: string;
+  price: string;
+  fees: string;
 }
 
 // Server-side scope for GET /positions/close-events. The close-date range bounds
@@ -757,6 +775,18 @@ export interface AccountTradeResult {
   transactionId: string;
   created: boolean;
   replay: DraftCashReplay;
+}
+
+export interface LiveSaleCorrectionResult {
+  operationId: string;
+  revisionId: string;
+  created: boolean;
+  replay: DraftCashReplay;
+}
+
+export interface LiveExecutionCorrectionResponse {
+  success: boolean;
+  data: LiveSaleCorrectionResult;
 }
 
 export interface AccountTradeResponse {

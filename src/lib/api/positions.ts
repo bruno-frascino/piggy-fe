@@ -8,6 +8,10 @@ import type {
   AccountTradeInput,
   AccountTradeResult,
   AccountTradeResponse,
+  DraftSaleCorrectionInput,
+  DraftAcquisitionCorrectionInput,
+  LiveSaleCorrectionResult,
+  LiveExecutionCorrectionResponse,
 } from '../types';
 import { exchanges } from '../mock-portfolio';
 import { getHoldingsForExchange } from '../mock-holdings';
@@ -54,6 +58,37 @@ export function createPositionsApi(client: AxiosInstance) {
         throw new Error('Account trade posting requires the real API.');
       const response = await client.post<AccountTradeResponse>(
         `/accounts/${encodeURIComponent(accountId)}/trades`,
+        input
+      );
+      return response.data.data;
+    },
+
+    async correctLiveManualSale(
+      accountId: string,
+      transactionId: string,
+      input: DraftSaleCorrectionInput
+    ): Promise<LiveSaleCorrectionResult> {
+      if (USE_MOCK_API)
+        throw new Error('Live sale corrections require the real API.');
+      const response = await client.post<{
+        success: boolean;
+        data: LiveSaleCorrectionResult;
+      }>(
+        `/accounts/${encodeURIComponent(accountId)}/trades/${encodeURIComponent(transactionId)}/corrections`,
+        input
+      );
+      return response.data.data;
+    },
+
+    async correctLiveManualAcquisition(
+      accountId: string,
+      transactionId: string,
+      input: DraftAcquisitionCorrectionInput
+    ): Promise<LiveSaleCorrectionResult> {
+      if (USE_MOCK_API)
+        throw new Error('Live acquisition corrections require the real API.');
+      const response = await client.post<LiveExecutionCorrectionResponse>(
+        `/accounts/${encodeURIComponent(accountId)}/trades/${encodeURIComponent(transactionId)}/acquisition-corrections`,
         input
       );
       return response.data.data;
