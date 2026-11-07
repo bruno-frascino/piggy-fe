@@ -51,6 +51,9 @@ In sync. ✅
 - `LiveSaleCorrectionMetadata`
 - `LiveImportedExecutionCorrectionMetadata`
 - `LiveAcquisitionCorrectionMetadata`
+- `ManualTradeVoidInput`
+- `ManualTradeVoidRecord`
+- `ManualTradeVoidsPage`
 - `ClosedTradesQuery`
 - `ClosedTradesPage`
 - `TaxReportUsage`

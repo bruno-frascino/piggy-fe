@@ -31,6 +31,8 @@ interface Props {
   onCorrectAcquisition?: () => void;
   onCorrectImportedExecution?: () => void;
   onCorrectImportedAcquisition?: () => void;
+  onVoidSale?: () => void;
+  onVoidAcquisition?: () => void;
 }
 
 // Open-side facts (symbol, exchange, bought units, entry price/fee) define the
@@ -62,6 +64,8 @@ export default function EditClosedTradeDialog({
   onCorrectAcquisition,
   onCorrectImportedExecution,
   onCorrectImportedAcquisition,
+  onVoidSale,
+  onVoidAcquisition,
 }: Props) {
   const [form, setForm] = useState<ClosedTrade>(trade);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -316,6 +320,22 @@ export default function EditClosedTradeDialog({
             label='Correct imported sale'
             outlined
             onClick={onCorrectImportedExecution}
+          />
+        )}
+        {trade.cashCorrection && onVoidSale && (
+          <Button
+            label='Void sale'
+            severity='danger'
+            outlined
+            onClick={onVoidSale}
+          />
+        )}
+        {trade.acquisitionCorrection && onVoidAcquisition && (
+          <Button
+            label='Void acquisition'
+            severity='danger'
+            outlined
+            onClick={onVoidAcquisition}
           />
         )}
 

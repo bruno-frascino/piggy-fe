@@ -143,7 +143,7 @@ export function mapSnapshotToEquityPoint(row: unknown): EquityPoint | null {
 }
 
 export function mapPositionToHolding(pos: unknown): HoldingPosition | null {
-  if (!isRecord(pos)) return null;
+  if (!isRecord(pos) || pos.voidedAt) return null;
   const asset = isRecord(pos.asset) ? pos.asset : null;
   const account = isRecord(pos.account) ? pos.account : null;
   const exchange = asset && isRecord(asset.exchange) ? asset.exchange : null;
@@ -166,11 +166,11 @@ export function mapPositionToHolding(pos: unknown): HoldingPosition | null {
   const buyFees = Number(pos.buyFees) || 0;
   const transactions = Array.isArray(pos.transactions) ? pos.transactions : [];
   const buyQty = transactions.reduce((sum, tx) => {
-    if (!isRecord(tx) || tx.type !== 'BUY') return sum;
+    if (!isRecord(tx) || tx.type !== 'BUY' || tx.voidedAt) return sum;
     return sum + (Number(tx.quantity) || 0);
   }, 0);
   const sellQty = transactions.reduce((sum, tx) => {
-    if (!isRecord(tx) || tx.type !== 'SELL') return sum;
+    if (!isRecord(tx) || tx.type !== 'SELL' || tx.voidedAt) return sum;
     return sum + (Number(tx.quantity) || 0);
   }, 0);
   const baseQty = buyQty > 0 ? buyQty : quantity;
@@ -316,13 +316,13 @@ function isCloseReason(value: unknown): value is CloseReason {
 }
 
 export function mapCloseEventToClosedTrade(event: unknown): ClosedTrade | null {
-  if (!isRecord(event)) return null;
+  if (!isRecord(event) || event.voidedAt) return null;
 
   const eventId = typeof event.id === 'string' ? event.id : null;
   if (!eventId) return null;
 
   const position = isRecord(event.position) ? event.position : null;
-  if (!position) return null;
+  if (!position || position.voidedAt) return null;
 
   const asset = isRecord(position.asset) ? position.asset : null;
   if (!asset) return null;
@@ -343,7 +343,7 @@ export function mapCloseEventToClosedTrade(event: unknown): ClosedTrade | null {
     ? position.transactions
     : [];
   const buyQty = transactions.reduce((sum, tx) => {
-    if (!isRecord(tx) || tx.type !== 'BUY') return sum;
+    if (!isRecord(tx) || tx.type !== 'BUY' || tx.voidedAt) return sum;
     return sum + (Number(tx.quantity) || 0);
   }, 0);
 

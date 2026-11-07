@@ -303,6 +303,22 @@ describe('apiClient mock-mode parity', () => {
     },
     // positions / holdings
     {
+      name: 'voidLiveManualTrade',
+      call: () =>
+        apiClient.voidLiveManualTrade('acc-1', 'tx-1', {
+          idempotencyKey: 'void-1',
+          expectedRevisionId: 'op-1',
+          expectedSourceFingerprint: 'a'.repeat(64),
+          reason: 'Duplicate',
+        }),
+      expectRejection: /require the real API/i,
+    },
+    {
+      name: 'getLiveManualTradeVoids',
+      call: () => apiClient.getLiveManualTradeVoids('acc-1'),
+      expectRejection: /require the real API/i,
+    },
+    {
       name: 'postAccountTrade',
       call: () =>
         apiClient.postAccountTrade('acc-1', {

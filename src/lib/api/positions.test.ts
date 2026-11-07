@@ -21,6 +21,34 @@ beforeEach(() => {
 });
 
 describe('account trade API', () => {
+  it('posts terminal manual void requests and reads encoded retained audits', async () => {
+    const input = {
+      idempotencyKey: 'v1',
+      expectedRevisionId: 'r1',
+      expectedSourceFingerprint: 'a'.repeat(64),
+      reason: 'Duplicate',
+    };
+    expect(
+      await api.voidLiveManualTrade('account/1', 'trade/1', input)
+    ).toEqual(response.data);
+    expect(post).toHaveBeenCalledWith(
+      '/accounts/account%2F1/trades/trade%2F1/voids',
+      input
+    );
+    const page = { items: [], total: 0, limit: 100, offset: 100 };
+    const get = vi
+      .spyOn(client, 'get')
+      .mockResolvedValueOnce({ data: { success: true, data: page } });
+    expect(await api.getLiveManualTradeVoids('account/1', 100)).toEqual(page);
+    expect(get).toHaveBeenCalledWith('/accounts/account%2F1/trades/voids', {
+      params: { limit: 100, offset: 100 },
+    });
+    post.mockRejectedValueOnce(new Error('Funding deficit'));
+    await expect(api.voidLiveManualTrade('a1', 'tx1', input)).rejects.toThrow(
+      'Funding deficit'
+    );
+  });
+
   it('posts exact decimal strings to the encoded account trade route', async () => {
     const input = {
       kind: 'BUY' as const,

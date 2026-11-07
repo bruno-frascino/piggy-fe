@@ -10,7 +10,7 @@
 | `/auth/login` | page | 'use client' | CoreHeader | [src/app/auth/login/page.tsx](../src/app/auth/login/page.tsx) |
 | `/auth/reset-password` | page | 'use client' | CoreHeader | [src/app/auth/reset-password/page.tsx](../src/app/auth/reset-password/page.tsx) |
 | `/auth/signup` | page | 'use client' | CoreHeader | [src/app/auth/signup/page.tsx](../src/app/auth/signup/page.tsx) |
-| `/history` | page | 'use client' | EditClosedTradeDialog, LiveAcquisitionCorrectionDialog, LiveImportedExecutionCorrectionDialog, PageHeader | [src/app/history/page.tsx](../src/app/history/page.tsx) |
+| `/history` | page | 'use client' | EditClosedTradeDialog, LiveAcquisitionCorrectionDialog, LiveImportedExecutionCorrectionDialog, ManualTradeVoidDialog, ManualTradeVoidHistory, PageHeader | [src/app/history/page.tsx](../src/app/history/page.tsx) |
 | `/imports/[id]` | page | 'use client' | ImportReview | [src/app/imports/[id]/page.tsx](../src/app/imports/[id]/page.tsx) |
 | `/imports` | page | — | ImportsList | [src/app/imports/page.tsx](../src/app/imports/page.tsx) |
 | `/` | layout | — | TopNavGate | [src/app/layout.tsx](../src/app/layout.tsx) |

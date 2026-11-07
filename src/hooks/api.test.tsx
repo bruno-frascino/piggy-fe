@@ -29,6 +29,8 @@ const {
   postAccountTradeMock,
   correctLiveAcquisitionMock,
   correctLiveImportedMock,
+  voidTradeMock,
+  readVoidsMock,
 } = vi.hoisted(() => ({
   updatePositionMock: vi.fn(),
   updateCloseEventMock: vi.fn(),
@@ -53,6 +55,8 @@ const {
   postAccountTradeMock: vi.fn(),
   correctLiveAcquisitionMock: vi.fn(),
   correctLiveImportedMock: vi.fn(),
+  voidTradeMock: vi.fn(),
+  readVoidsMock: vi.fn(),
 }));
 
 vi.mock('@/lib/api-client', () => ({
@@ -80,6 +84,8 @@ vi.mock('@/lib/api-client', () => ({
     postAccountTrade: postAccountTradeMock,
     correctLiveManualAcquisition: correctLiveAcquisitionMock,
     correctLiveImportedExecution: correctLiveImportedMock,
+    voidLiveManualTrade: voidTradeMock,
+    getLiveManualTradeVoids: readVoidsMock,
   },
 }));
 
@@ -107,6 +113,8 @@ import {
   usePostAccountTrade,
   useCorrectLiveManualAcquisition,
   useCorrectLiveImportedExecution,
+  useVoidLiveManualTrade,
+  useLiveManualTradeVoids,
 } from './api';
 import { useSymbolSearch } from './useSymbolSearch';
 
@@ -120,6 +128,90 @@ function createWrapper(queryClient: QueryClient) {
 
 beforeEach(() => {
   vi.clearAllMocks();
+});
+
+describe('audited manual void hooks', () => {
+  const input = {
+    idempotencyKey: 'void1',
+    expectedRevisionId: 'op1',
+    expectedSourceFingerprint: 'a'.repeat(64),
+    reason: 'Duplicate',
+  };
+  it('forwards exact identity and invalidates all economic and audit views', async () => {
+    const client = new QueryClient();
+    const invalidate = vi.spyOn(client, 'invalidateQueries');
+    voidTradeMock.mockResolvedValue({ revisionId: 'v1' });
+    const { result } = renderHook(() => useVoidLiveManualTrade(), {
+      wrapper: createWrapper(client),
+    });
+    await act(() =>
+      result.current.mutateAsync({
+        accountId: 'a1',
+        transactionId: 'tx1',
+        input,
+      })
+    );
+    expect(voidTradeMock).toHaveBeenCalledWith('a1', 'tx1', input);
+    for (const key of [
+      ['holdings'],
+      ['closed-positions'],
+      ['realized-pnl'],
+      ['user-portfolio'],
+      ['tax-reports'],
+      ['opening-reconciliation'],
+      ['manual-trade-voids', 'a1'],
+    ])
+      expect(invalidate).toHaveBeenCalledWith({ queryKey: key });
+    client.clear();
+  });
+  it('never queues offline voids or retries failures and refreshes source on conflict', async () => {
+    const client = new QueryClient({
+      defaultOptions: { mutations: { retry: 2 } },
+    });
+    const invalidate = vi.spyOn(client, 'invalidateQueries');
+    const { result } = renderHook(() => useVoidLiveManualTrade(), {
+      wrapper: createWrapper(client),
+    });
+    vi.spyOn(navigator, 'onLine', 'get').mockReturnValueOnce(false);
+    await act(async () => {
+      await expect(
+        result.current.mutateAsync({
+          accountId: 'a1',
+          transactionId: 'tx1',
+          input,
+        })
+      ).rejects.toThrow('Offline changes are not queued');
+    });
+    expect(voidTradeMock).not.toHaveBeenCalled();
+    const conflict = { isAxiosError: true, response: { status: 409 } };
+    voidTradeMock.mockRejectedValueOnce(conflict);
+    await act(async () => {
+      await expect(
+        result.current.mutateAsync({
+          accountId: 'a1',
+          transactionId: 'tx1',
+          input,
+        })
+      ).rejects.toBe(conflict);
+    });
+    expect(voidTradeMock).toHaveBeenCalledOnce();
+    expect(invalidate).toHaveBeenCalledWith({
+      queryKey: ['opening-reconciliation'],
+    });
+    client.clear();
+    vi.restoreAllMocks();
+  });
+  it('scopes retained audits by account and pagination', async () => {
+    const client = new QueryClient();
+    const data = { items: [], total: 0, limit: 100, offset: 100 };
+    readVoidsMock.mockResolvedValue(data);
+    const { result } = renderHook(() => useLiveManualTradeVoids('a1', 100), {
+      wrapper: createWrapper(client),
+    });
+    await waitFor(() => expect(result.current.data).toEqual(data));
+    expect(readVoidsMock).toHaveBeenCalledWith('a1', 100);
+    client.clear();
+  });
 });
 
 describe('live acquisition correction hook', () => {

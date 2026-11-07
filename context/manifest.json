@@ -2,45 +2,45 @@
   "artifacts": {
     "api-binding.md": {
       "path": "context/api-binding.md",
-      "sha256": "0fc6c8757dd290a43687faacb271386a197372c603ac8d317149dab08b8bd6b0"
+      "sha256": "b93ecddcd997b1c084a5cc2dac84ee65c49a00983ae6b194527934451c25c3eb"
     },
     "api-types.ts": {
       "path": "src/lib/generated/api-types.ts",
-      "sha256": "552dfac56f85d51b18981d76a5de898ec7b98f0ad02938c89cad81ab0974847f"
+      "sha256": "0eb373358d4f44d405de379d891f48170ec443d53b08f34d1e8adc59658326a0"
     },
     "component-index.md": {
       "path": "context/component-index.md",
-      "sha256": "da9f1fc93899d66c2c16899049a22eb632a9539e6807be265f27ed83bd43b6a6"
+      "sha256": "509de845dd249df86381632454bb2fe07dc667e420b8b7f308276b08e16e10d8"
     },
     "contract-drift.md": {
       "path": "context/contract-drift.md",
-      "sha256": "79b457842bf7b708fc6c5d29323f11e88fd2c4cf4442665d56d952984d468fc9"
+      "sha256": "ff6915dc58dce78ebb1d1af3a2f6309b324ae911eae8ee14c81d10b4ee7dd4a3"
     },
     "data-flow.md": {
       "path": "context/data-flow.md",
-      "sha256": "456b57638aba4ed8475e8c30fd9c863f18004086f6985a451cc1dfd411a4b488"
+      "sha256": "8a7841a0f5fea0ba8700f5672b6a6ec02b5a53f3d4a51d4bdf46d30d6f7ce444"
     },
     "module-graph.json": {
       "path": "context/module-graph.json",
-      "sha256": "4ec91c56d5f3e82de8d1ec255de6711b2cdfbca045ab0717ef0ee8fdc2449b56"
+      "sha256": "c08412bcedcd4a32f309eb999542b3da3018015d90852b26b952cfa1807a49ea"
     },
     "module-graph.md": {
       "path": "context/module-graph.md",
-      "sha256": "cfbdd62aa9164c2c7a29b701ea477a633d18a565debf760c249abf5fca5af8f7"
+      "sha256": "8f888a52dee1b8c01a1388ab22bffcef8ecd300899e7d88414dbd5e51a477077"
     },
     "route-map.md": {
       "path": "context/route-map.md",
-      "sha256": "0533c2b01b253c1decfecb894633f2937643f20a8a8346562cf5bfff6fc6279c"
+      "sha256": "15e0faef3eeb04c822d4c9be374e4585d6743b0ed35ee26e376ed2cb0c972a6a"
     },
     "symbol-index.json": {
       "path": "context/symbol-index.json",
-      "sha256": "58d51d1a5776121f83f961ca589a6b2b8b86c84de5a43b2b2609696f6ecf3b4d"
+      "sha256": "6538afc8c81b3e492719e91e9a0e0c16c0241c8d90dda1a694f1caecf8896708"
     },
     "unused.json": {
       "path": "context/unused.json",
-      "sha256": "21c064a951321920eab2ac7c2d89b0654fdb71861bd78ef5af38e8d7e5e0f9da"
+      "sha256": "862813700fc50b7096291e3e1eebd64f026397307d6a151a6f2a882af30c3d1e"
     }
   },
-  "generatedAt": "2026-11-07T10:45:26.714Z",
+  "generatedAt": "2026-11-07T11:28:20.849Z",
   "generatorVersion": 1
 }

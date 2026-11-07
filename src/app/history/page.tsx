@@ -13,11 +13,14 @@ import type {
   ClosedTrade,
   DraftSaleCorrectionInput,
   LiveImportedExecutionCorrectionMetadata,
+  LiveSaleCorrectionMetadata,
   TaxReportUsage,
 } from '@/lib/types';
 import EditClosedTradeDialog from '@/components/EditClosedTradeDialog';
 import LiveAcquisitionCorrectionDialog from '@/components/LiveAcquisitionCorrectionDialog';
 import LiveImportedExecutionCorrectionDialog from '@/components/LiveImportedExecutionCorrectionDialog';
+import ManualTradeVoidDialog from '@/components/ManualTradeVoidDialog';
+import ManualTradeVoidHistory from '@/components/ManualTradeVoidHistory';
 import PageHeader from '@/components/PageHeader';
 import {
   useClosedPositions,
@@ -373,6 +376,13 @@ export default function HistoryPage() {
   const { mutateAsync: updateCloseEvent } = useUpdateCloseEvent();
   const { mutateAsync: updatePosition } = useUpdatePosition();
   const { mutateAsync: correctLiveManualSale } = useCorrectLiveManualSale();
+  const [voidTrade, setVoidTrade] = useState<{
+    accountId: string;
+    transactionId: string;
+    symbol: string;
+    kind: 'BUY' | 'SELL';
+    metadata: LiveSaleCorrectionMetadata;
+  } | null>(null);
   const [acquisitionTrade, setAcquisitionTrade] = useState<ClosedTrade | null>(
     null
   );
@@ -675,6 +685,37 @@ export default function HistoryPage() {
         {showDialog && active && (
           <EditClosedTradeDialog
             trade={active}
+            onVoidSale={
+              active.cashCorrection && active.accountId && active.id
+                ? () => {
+                    setVoidTrade({
+                      accountId: active.accountId!,
+                      transactionId: active.id!,
+                      symbol: active.symbol,
+                      kind: 'SELL',
+                      metadata: active.cashCorrection!,
+                    });
+                    setShowDialog(false);
+                    setActive(null);
+                  }
+                : undefined
+            }
+            onVoidAcquisition={
+              active.acquisitionCorrection && active.accountId
+                ? () => {
+                    setVoidTrade({
+                      accountId: active.accountId!,
+                      transactionId:
+                        active.acquisitionCorrection!.transactionId,
+                      symbol: active.symbol,
+                      kind: 'BUY',
+                      metadata: active.acquisitionCorrection!,
+                    });
+                    setShowDialog(false);
+                    setActive(null);
+                  }
+                : undefined
+            }
             onCorrectAcquisition={
               active.acquisitionCorrection && active.accountId
                 ? () => {
@@ -791,6 +832,28 @@ export default function HistoryPage() {
             }}
           />
         )}
+        {voidTrade && (
+          <ManualTradeVoidDialog
+            {...voidTrade}
+            onHide={() => setVoidTrade(null)}
+            onSaved={() => {
+              setVoidTrade(null);
+              showToast({
+                severity: 'success',
+                summary: 'Trade voided',
+                detail:
+                  'Inventory and cash updated. Original records retained for audit.',
+              });
+            }}
+          />
+        )}
+        {accountFilter &&
+          !accounts.find(account => account.id === accountFilter)?.isDemo && (
+            <ManualTradeVoidHistory
+              key={accountFilter}
+              accountId={accountFilter}
+            />
+          )}
         {acquisitionTrade?.accountId &&
           acquisitionTrade.acquisitionCorrection && (
             <LiveAcquisitionCorrectionDialog

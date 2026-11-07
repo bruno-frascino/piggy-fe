@@ -14,6 +14,7 @@
 | `['import', importId]` | useDiscardImport | — |
 | `['imports']` | useImports, useCreateImport, useDiscardImport | useCreateImport, useDiscardImport |
 | `['kraken-assets', quote, q.trim()]` | useKrakenAssetSearch | — |
+| `['manual-trade-voids', accountId, offset]` | useLiveManualTradeVoids | — |
 | `['opening-reconciliation', accountId, statementId]` | useDraftOpeningReconciliation, useRecordDraftCashEvidence, useSaveDraftReconciliationCashOperation, useCorrectDraftReconciliationCashOperation, useCorrectDraftImportedExecutionCash, useStageDraftImportedExecutionCash, useStageDraftManualExecutionCash, useCorrectDraftRecordedSale, useCorrectDraftRecordedAcquisition | useRecordDraftCashEvidence, useSaveDraftReconciliationCashOperation, useCorrectDraftReconciliationCashOperation, useCorrectDraftImportedExecutionCash, useStageDraftImportedExecutionCash, useStageDraftManualExecutionCash, useCorrectDraftRecordedSale, useCorrectDraftRecordedAcquisition |
 | `['opening-reconciliation']` | useCorrectDraftRecordedSale, useCorrectDraftRecordedAcquisition | useCorrectDraftRecordedSale, useCorrectDraftRecordedAcquisition |
 | `['opening-statements', accountId, beforeVersion ?? 'latest']` | useOpeningStatements | — |

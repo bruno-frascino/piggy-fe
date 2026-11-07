@@ -46,6 +46,7 @@ export interface ExchangeSummary {
 }
 
 export interface HoldingPosition {
+  voidedAt?: string | null;
   acquisitionCorrection?: LiveAcquisitionCorrectionMetadata;
   importedExecutionCorrection?: LiveImportedExecutionCorrectionMetadata;
   assetType?: AssetType;
@@ -172,6 +173,7 @@ export type CloseReason = 'STOP_LOSS' | 'TARGET' | 'MANUAL' | 'OTHER';
 // The server is the single source of truth for closed trades — there is no
 // local cache or offline store for this data.
 export interface ClosedTrade {
+  voidedAt?: string | null;
   id: string; // close event id (SELL transaction id)
   positionId?: string;
   accountId?: string;
@@ -222,6 +224,31 @@ export interface LiveAcquisitionCorrectionMetadata extends LiveSaleCorrectionMet
   quantity: string;
   price: string;
   fees: string;
+}
+
+export interface ManualTradeVoidInput {
+  idempotencyKey: string;
+  expectedRevisionId: string;
+  expectedSourceFingerprint: string;
+  reason: string;
+}
+
+export interface ManualTradeVoidRecord {
+  operationId: string;
+  revisionId: string;
+  transactionId: string;
+  positionId: string;
+  kind: 'BUY' | 'SELL';
+  voidedAt: string;
+  reason: string;
+  before: DraftExecutionSnapshot;
+}
+
+export interface ManualTradeVoidsPage {
+  items: ManualTradeVoidRecord[];
+  total: number;
+  limit: number;
+  offset: number;
 }
 
 // Server-side scope for GET /positions/close-events. The close-date range bounds

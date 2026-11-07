@@ -13,6 +13,8 @@ import type {
   LiveImportedExecutionCorrectionInput,
   LiveSaleCorrectionResult,
   LiveExecutionCorrectionResponse,
+  ManualTradeVoidInput,
+  ManualTradeVoidsPage,
 } from '../types';
 import { exchanges } from '../mock-portfolio';
 import { getHoldingsForExchange } from '../mock-holdings';
@@ -51,6 +53,35 @@ export async function fetchOpenPositionRecords(
 
 export function createPositionsApi(client: AxiosInstance) {
   return {
+    async voidLiveManualTrade(
+      accountId: string,
+      transactionId: string,
+      input: ManualTradeVoidInput
+    ): Promise<LiveSaleCorrectionResult> {
+      if (USE_MOCK_API)
+        throw new Error('Audited trade voids require the real API.');
+      const response = await client.post<LiveExecutionCorrectionResponse>(
+        `/accounts/${encodeURIComponent(accountId)}/trades/${encodeURIComponent(transactionId)}/voids`,
+        input
+      );
+      return response.data.data;
+    },
+
+    async getLiveManualTradeVoids(
+      accountId: string,
+      offset = 0
+    ): Promise<ManualTradeVoidsPage> {
+      if (USE_MOCK_API)
+        throw new Error('Retained trade audits require the real API.');
+      const response = await client.get<{
+        success: boolean;
+        data: ManualTradeVoidsPage;
+      }>(`/accounts/${encodeURIComponent(accountId)}/trades/voids`, {
+        params: { limit: 100, offset },
+      });
+      return response.data.data;
+    },
+
     async postAccountTrade(
       accountId: string,
       input: AccountTradeInput

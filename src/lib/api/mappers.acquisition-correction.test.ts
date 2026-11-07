@@ -45,6 +45,35 @@ const position = {
   ],
 };
 describe('acquisition correction transport metadata', () => {
+  it('excludes retained voids from effective holdings and close events', () => {
+    const voidedAt = '2026-10-04T01:00:00.000Z';
+    expect(mapPositionToHolding({ ...position, voidedAt })).toBeNull();
+    expect(
+      mapPositionToHolding({
+        ...position,
+        quantity: 10,
+        transactions: [
+          { type: 'BUY', quantity: 10 },
+          { type: 'SELL', quantity: 4, voidedAt },
+        ],
+      })?.units
+    ).toBe(10);
+    const event = {
+      id: 'sale1',
+      date: '2026-10-03',
+      quantity: 4,
+      price: '20',
+      fees: '1',
+      position,
+    };
+    expect(mapCloseEventToClosedTrade({ ...event, voidedAt })).toBeNull();
+    expect(
+      mapCloseEventToClosedTrade({
+        ...event,
+        position: { ...position, voidedAt },
+      })
+    ).toBeNull();
+  });
   it('keeps full exact acquisition values separate from prorated holding and history values', () => {
     const holding = mapPositionToHolding({
       ...position,

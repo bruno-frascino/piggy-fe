@@ -1642,6 +1642,107 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/accounts/{id}/trades/voids": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read retained manual trade void audits for a confirmed real ledger
+         * @description Read-only audit access remains available on archived accounts. The stored operation, revision, posting and void-marker chain is validated; this is not a current cash reconciliation or source-freshness assertion.
+         */
+        get: {
+            parameters: {
+                query?: {
+                    limit?: number;
+                    offset?: number;
+                };
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Retained voids sorted by void timestamp descending. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            data: {
+                                items: {
+                                    before: {
+                                        currency: string;
+                                        /** Format: date-time */
+                                        date: string;
+                                        fees: string;
+                                        positionId: string;
+                                        price: string;
+                                        quantity: string;
+                                        totalValue: string;
+                                        transactionId: string;
+                                    };
+                                    /** @enum {string} */
+                                    kind: "BUY" | "SELL";
+                                    operationId: string;
+                                    positionId: string;
+                                    reason: string;
+                                    revisionId: string;
+                                    transactionId: string;
+                                    /** Format: date-time */
+                                    voidedAt: string;
+                                }[];
+                                limit: number;
+                                offset: number;
+                                total: number;
+                            };
+                            success: boolean;
+                        };
+                    };
+                };
+                /** @description Invalid pagination. */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unauthorized. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Owned account not found. */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Account is not ledger-enabled or retained audit history is inconsistent. */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/accounts/{id}/trades/{transactionId}/acquisition-corrections": {
         parameters: {
             query?: never;
@@ -1830,6 +1931,101 @@ export interface paths {
                     content?: never;
                 };
                 /** @description Correction would leave an unsupported or insufficiently funded cash ledger. */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/accounts/{id}/trades/{transactionId}/voids": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Void an audited live manual trade without deleting its records
+         * @description SELL voids restore parcel inventory and remove proceeds from cash replay. BUY voids require no effective sales. Only active real ledgers and manual parcels are supported. The terminal revision retains original trades, postings and date/sequence reservations. No account is activated.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                    transactionId: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        expectedRevisionId: string;
+                        expectedSourceFingerprint: string;
+                        idempotencyKey: string;
+                        reason: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description Idempotent retry of an already committed void. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["LiveExecutionCorrectionResponse"];
+                    };
+                };
+                /** @description Trade void, parcel update and cash reversal committed atomically. */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["LiveExecutionCorrectionResponse"];
+                    };
+                };
+                /** @description Invalid void request. */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unauthorized. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Owned live manual trade not found. */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Stale source/revision */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Removing the trade would leave insufficient cash or unsupported history. */
                 422: {
                     headers: {
                         [name: string]: unknown;
@@ -2918,7 +3114,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** List all positions for the authenticated user */
+        /**
+         * List effective positions for the authenticated user
+         * @description Voided acquisitions and voided transactions are excluded. Original records remain available in retained manual trade void audits.
+         */
         get: {
             parameters: {
                 query?: {
@@ -3066,7 +3265,7 @@ export interface paths {
         };
         /**
          * List close events (SELL transactions) for the authenticated user
-         * @description Without `accountId`, close events from demo accounts are excluded. Pass a demo account's ID to list its history explicitly.
+         * @description Without `accountId`, close events from demo accounts are excluded. Pass a demo account's ID to list its history explicitly. Voided sales and acquisitions are excluded; retained void audits are available separately on the account.
          */
         get: {
             parameters: {

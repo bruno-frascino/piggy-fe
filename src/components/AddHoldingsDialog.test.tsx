@@ -83,6 +83,7 @@ afterEach(cleanup);
 describe('responsive purchase form', () => {
   it('locks cash-linked acquisition fields and exposes the dedicated correction editor while preserving notes editing', () => {
     const correct = vi.fn();
+    const voidAcquisition = vi.fn();
     render(
       <AddHoldingsDialog
         visible
@@ -113,6 +114,7 @@ describe('responsive purchase form', () => {
         onSubmit={vi.fn()}
         onDelete={vi.fn()}
         onCorrectAcquisition={correct}
+        onVoidAcquisition={voidAcquisition}
       />
     );
     expect(screen.getByLabelText('Symbol *')).toHaveAttribute('readonly');
@@ -125,6 +127,8 @@ describe('responsive purchase form', () => {
       screen.getByRole('button', { name: 'Correct acquisition' })
     );
     expect(correct).toHaveBeenCalledOnce();
+    fireEvent.click(screen.getByRole('button', { name: 'Void acquisition' }));
+    expect(voidAcquisition).toHaveBeenCalledOnce();
   });
 
   it('locks imported execution fields and exposes only its audited correction action', () => {

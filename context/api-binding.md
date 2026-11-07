@@ -4,85 +4,87 @@
 
 | Hook | Kind | apiClient method(s) | Query key(s) | Invalidates | Location |
 | ---- | ---- | -------------------- | ------------- | ----------- | -------- |
-| `useExchanges` | query | getExchanges | ['exchanges', assetClass] | — | [src/hooks/api.ts:37](../src/hooks/api.ts#L37) |
-| `useKrakenAssetSearch` | query | searchKrakenAssets | ['kraken-assets', quote, q.trim()] | — | [src/hooks/api.ts:45](../src/hooks/api.ts#L45) |
-| `useDraftOpeningReconciliation` | query | getDraftOpeningReconciliation | ['opening-reconciliation', accountId, statementId] | — | [src/hooks/api.ts:73](../src/hooks/api.ts#L73) |
-| `usePreviewDraftCashEvidence` | mutation | previewDraftCashEvidence | — | — | [src/hooks/api.ts:88](../src/hooks/api.ts#L88) |
-| `useRecordDraftCashEvidence` | mutation | recordDraftCashEvidence | ['opening-reconciliation', accountId, statementId] | ['opening-reconciliation', accountId, statementId] | [src/hooks/api.ts:111](../src/hooks/api.ts#L111) |
-| `useSaveDraftReconciliationCashOperation` | mutation | saveDraftReconciliationCashOperation | ['opening-reconciliation', accountId, statementId] | ['opening-reconciliation', accountId, statementId] | [src/hooks/api.ts:139](../src/hooks/api.ts#L139) |
-| `useCorrectDraftReconciliationCashOperation` | mutation | correctDraftReconciliationCashOperation | ['opening-reconciliation', accountId, statementId] | ['opening-reconciliation', accountId, statementId] | [src/hooks/api.ts:171](../src/hooks/api.ts#L171) |
-| `useCorrectDraftImportedExecutionCash` | mutation | correctDraftImportedExecutionCash | ['opening-reconciliation', accountId, statementId] | ['opening-reconciliation', accountId, statementId] | [src/hooks/api.ts:212](../src/hooks/api.ts#L212) |
-| `useStageDraftImportedExecutionCash` | mutation | stageDraftImportedExecutionCash | ['opening-reconciliation', accountId, statementId] | ['opening-reconciliation', accountId, statementId] | [src/hooks/api.ts:253](../src/hooks/api.ts#L253) |
-| `useStageDraftManualExecutionCash` | mutation | stageDraftManualExecutionCash | ['opening-reconciliation', accountId, statementId] | ['opening-reconciliation', accountId, statementId] | [src/hooks/api.ts:288](../src/hooks/api.ts#L288) |
-| `useCorrectDraftRecordedSale` | mutation | correctDraftRecordedSale | ['opening-reconciliation'], ['opening-statements'], ['tax-reports'], ['opening-reconciliation', accountId, statementId] | ['opening-reconciliation'], ['opening-statements'], ['tax-reports'], ['opening-reconciliation', accountId, statementId] | [src/hooks/api.ts:329](../src/hooks/api.ts#L329) |
-| `useCorrectLiveManualSale` | query | correctLiveManualSale | — | — | [src/hooks/api.ts:379](../src/hooks/api.ts#L379) |
-| `useCorrectLiveManualAcquisition` | query | correctLiveManualAcquisition | — | — | [src/hooks/api.ts:390](../src/hooks/api.ts#L390) |
-| `useCorrectLiveImportedExecution` | query | correctLiveImportedExecution | — | — | [src/hooks/api.ts:404](../src/hooks/api.ts#L404) |
-| `useCorrectDraftRecordedAcquisition` | mutation | correctDraftRecordedAcquisition | ['opening-reconciliation'], ['opening-statements'], ['tax-reports'], ['opening-reconciliation', accountId, statementId] | ['opening-reconciliation'], ['opening-statements'], ['tax-reports'], ['opening-reconciliation', accountId, statementId] | [src/hooks/api.ts:473](../src/hooks/api.ts#L473) |
-| `useOpeningStatements` | query | getOpeningStatements | ['opening-statements', accountId, beforeVersion ?? 'latest'] | — | [src/hooks/api.ts:523](../src/hooks/api.ts#L523) |
-| `useSaveOpeningStatement` | mutation | saveOpeningStatement | ['opening-statements', accountId] | ['opening-statements', accountId] | [src/hooks/api.ts:535](../src/hooks/api.ts#L535) |
-| `useOpeningPreview` | mutation | previewAccountOpening | — | — | [src/hooks/api.ts:561](../src/hooks/api.ts#L561) |
-| `useTradingAccounts` | query | getTradingAccounts | ['trading-accounts', includeClosed ? 'all' : 'active'] | — | [src/hooks/api.ts:581](../src/hooks/api.ts#L581) |
-| `useCreateAccount` | mutation | createAccount | ['trading-accounts'] | ['trading-accounts'] | [src/hooks/api.ts:590](../src/hooks/api.ts#L590) |
-| `useDeleteAccount` | mutation | deleteAccount | ['trading-accounts'], ['user-portfolio'], ['portfolio-history'], ['holdings'], ['closed-positions'], ['realized-pnl'], ['opening-statements', accountId] | ['trading-accounts'], ['user-portfolio'], ['portfolio-history'], ['holdings'], ['closed-positions'], ['realized-pnl'] | [src/hooks/api.ts:602](../src/hooks/api.ts#L602) |
-| `useCloseAccount` | mutation | closeAccount | ['trading-accounts'], ['user-portfolio'], ['portfolio-history'], ['holdings'] | ['trading-accounts'], ['user-portfolio'], ['portfolio-history'], ['holdings'] | [src/hooks/api.ts:621](../src/hooks/api.ts#L621) |
-| `useReopenAccount` | mutation | reopenAccount | ['trading-accounts'] | ['trading-accounts'] | [src/hooks/api.ts:635](../src/hooks/api.ts#L635) |
-| `useUpdateAccount` | mutation | updateAccount | ['trading-accounts'] | ['trading-accounts'] | [src/hooks/api.ts:646](../src/hooks/api.ts#L646) |
-| `useLogin` | mutation | login | — | — | [src/hooks/api.ts:659](../src/hooks/api.ts#L659) |
-| `useSignup` | mutation | signup | — | — | [src/hooks/api.ts:677](../src/hooks/api.ts#L677) |
-| `useForgotPassword` | mutation | forgotPassword | — | — | [src/hooks/api.ts:703](../src/hooks/api.ts#L703) |
-| `useResetPassword` | mutation | resetPassword | — | — | [src/hooks/api.ts:711](../src/hooks/api.ts#L711) |
-| `useLogout` | mutation | logout | — | — | [src/hooks/api.ts:722](../src/hooks/api.ts#L722) |
-| `useDeleteCurrentUser` | mutation | deleteCurrentUser | — | — | [src/hooks/api.ts:728](../src/hooks/api.ts#L728) |
-| `useRestoreAccount` | mutation | restoreAccount | — | — | [src/hooks/api.ts:735](../src/hooks/api.ts#L735) |
-| `useCurrentUser` | query | getCurrentUser | ['current-user'] | — | [src/hooks/api.ts:742](../src/hooks/api.ts#L742) |
-| `useUpdateCurrentUser` | mutation | updateCurrentUser | ['current-user'] | ['current-user'] | [src/hooks/api.ts:749](../src/hooks/api.ts#L749) |
-| `useUserPortfolio` | query | getUserPortfolio | ['user-portfolio', accountId ?? 'all'] | — | [src/hooks/api.ts:760](../src/hooks/api.ts#L760) |
-| `usePortfolioHistory` | query | getPortfolioHistory | ['portfolio-history', accountId ?? 'none', exchangeCode ?? 'none',] | — | [src/hooks/api.ts:768](../src/hooks/api.ts#L768) |
-| `useRealizedPnL` | query | getRealizedPnL | ['realized-pnl', accountId ?? 'none', exchangeCode ?? 'none'] | — | [src/hooks/api.ts:783](../src/hooks/api.ts#L783) |
-| `useCreatePortfolioSnapshot` | mutation | createPortfolioSnapshot | ['portfolio-history'] | ['portfolio-history'] | [src/hooks/api.ts:791](../src/hooks/api.ts#L791) |
-| `useHoldings` | query | getHoldings | ['holdings', exchangeName ?? 'all', accountId ?? 'all'] | — | [src/hooks/api.ts:808](../src/hooks/api.ts#L808) |
-| `useClosedPositions` | query | getClosedPositions | ['closed-positions', params.accountId ?? 'all-accounts', params.dateFrom ?? 'all', params.dateTo ?? 'all', params.limit ?? 'default', params.offset ?? 0,] | — | [src/hooks/api.ts:816](../src/hooks/api.ts#L816) |
-| `useCreatePosition` | mutation | createPosition | — | — | [src/hooks/api.ts:830](../src/hooks/api.ts#L830) |
-| `usePostAccountTrade` | mutation | postAccountTrade | — | — | [src/hooks/api.ts:840](../src/hooks/api.ts#L840) |
-| `useUpdatePosition` | mutation | updatePosition | — | — | [src/hooks/api.ts:863](../src/hooks/api.ts#L863) |
-| `useClosePosition` | mutation | closePosition | — | — | [src/hooks/api.ts:878](../src/hooks/api.ts#L878) |
-| `useDeletePosition` | mutation | deletePosition | — | — | [src/hooks/api.ts:912](../src/hooks/api.ts#L912) |
-| `useUpdateCloseEvent` | mutation | updateCloseEvent | — | — | [src/hooks/api.ts:921](../src/hooks/api.ts#L921) |
-| `useCheckStopLoss` | mutation | checkStopLoss | — | — | [src/hooks/api.ts:936](../src/hooks/api.ts#L936) |
-| `useRecalculateDrawdown` | mutation | recalculateDrawdown | — | — | [src/hooks/api.ts:954](../src/hooks/api.ts#L954) |
-| `useQuotes` | query | getQuotes | ['quotes', key] | — | [src/hooks/api.ts:969](../src/hooks/api.ts#L969) |
-| `useStockSearch` | query | searchStocks | ['stock-search', query, limit] | — | [src/hooks/api.ts:981](../src/hooks/api.ts#L981) |
-| `useTaxReports` | query | getTaxReports | ['tax-reports', { includeSuperseded }] | — | [src/hooks/api.ts:992](../src/hooks/api.ts#L992) |
-| `useTaxReportDetail` | query | getTaxReportDetail | ['tax-reports', id ?? 'none'] | — | [src/hooks/api.ts:999](../src/hooks/api.ts#L999) |
-| `useTaxReportPositionUsage` | query | getTaxReportPositionUsage | ['tax-reports', 'position-usage'] | — | [src/hooks/api.ts:1007](../src/hooks/api.ts#L1007) |
-| `useGenerateTaxReport` | mutation | generateTaxReport | ['tax-reports'] | ['tax-reports'] | [src/hooks/api.ts:1014](../src/hooks/api.ts#L1014) |
-| `useDeleteTaxReport` | mutation | deleteTaxReport | ['tax-reports'] | ['tax-reports'] | [src/hooks/api.ts:1028](../src/hooks/api.ts#L1028) |
-| `useDownloadTaxReportPdf` | mutation | downloadTaxReportPdf | — | — | [src/hooks/api.ts:1039](../src/hooks/api.ts#L1039) |
-| `useStatisticsSummary` | query | getStatisticsSummary | ['statistics-summary', filters] | — | [src/hooks/api.ts:1046](../src/hooks/api.ts#L1046) |
-| `useStatisticsTimeSeries` | query | getStatisticsTimeSeries | ['statistics-timeseries', params.metric, params.granularity ?? 'month', params.filters ?? {},] | — | [src/hooks/api.ts:1058](../src/hooks/api.ts#L1058) |
-| `useStatisticsDistributions` | query | getStatisticsDistributions | ['statistics-distributions', filters] | — | [src/hooks/api.ts:1077](../src/hooks/api.ts#L1077) |
-| `useStatisticsRisk` | query | getStatisticsRisk | ['statistics-risk', filters] | — | [src/hooks/api.ts:1089](../src/hooks/api.ts#L1089) |
-| `useStatisticsBreakdowns` | query | getStatisticsBreakdowns | ['statistics-breakdowns', params.by, params.metric, params.filters ?? {},] | — | [src/hooks/api.ts:1101](../src/hooks/api.ts#L1101) |
-| `useStatisticsClosedTrades` | query | getStatisticsClosedTrades | ['statistics-closed-trades', params.filters ?? {}, params.limit ?? 50, params.offset ?? 0, params.sortBy ?? 'closeDate', params.sortDir ?? 'desc',] | — | [src/hooks/api.ts:1120](../src/hooks/api.ts#L1120) |
-| `useScreener` | query | runScreener | ['screener', filters] | — | [src/hooks/api.ts:1144](../src/hooks/api.ts#L1144) |
-| `useUpcomingDividends` | query | getUpcomingDividends | ['upcoming-dividends', key] | — | [src/hooks/api.ts:1154](../src/hooks/api.ts#L1154) |
-| `useSavedScreens` | query | getSavedScreens | ['saved-screens'] | — | [src/hooks/api.ts:1164](../src/hooks/api.ts#L1164) |
-| `useCreateSavedScreen` | mutation | createSavedScreen | ['saved-screens'] | ['saved-screens'] | [src/hooks/api.ts:1172](../src/hooks/api.ts#L1172) |
-| `useDeleteSavedScreen` | mutation | deleteSavedScreen | ['saved-screens'] | ['saved-screens'] | [src/hooks/api.ts:1188](../src/hooks/api.ts#L1188) |
-| `useWatchlists` | query | getWatchlists | ['watchlists'] | — | [src/hooks/api.ts:1199](../src/hooks/api.ts#L1199) |
-| `useWatchlistDetail` | query | getWatchlist | ['watchlist', id] | — | [src/hooks/api.ts:1207](../src/hooks/api.ts#L1207) |
-| `useCreateWatchlist` | mutation | createWatchlist | ['watchlists'] | ['watchlists'] | [src/hooks/api.ts:1216](../src/hooks/api.ts#L1216) |
-| `useRenameWatchlist` | mutation | renameWatchlist | ['watchlists'], ['watchlist', variables.id] | ['watchlists'], ['watchlist', variables.id] | [src/hooks/api.ts:1226](../src/hooks/api.ts#L1226) |
-| `useDeleteWatchlist` | mutation | deleteWatchlist | ['watchlists'] | ['watchlists'] | [src/hooks/api.ts:1238](../src/hooks/api.ts#L1238) |
-| `useAddWatchlistItem` | mutation | addWatchlistItem | ['watchlists'], ['watchlist', variables.watchlistId], ['screener'] | ['watchlists'], ['watchlist', variables.watchlistId], ['screener'] | [src/hooks/api.ts:1248](../src/hooks/api.ts#L1248) |
-| `useRemoveWatchlistItem` | mutation | removeWatchlistItem | ['watchlists'], ['watchlist', variables.watchlistId], ['screener'] | ['watchlists'], ['watchlist', variables.watchlistId], ['screener'] | [src/hooks/api.ts:1268](../src/hooks/api.ts#L1268) |
-| `useImports` | query | getImports | ['imports'] | — | [src/hooks/api.ts:1296](../src/hooks/api.ts#L1296) |
-| `useImport` | query | getImport | ['import', id] | — | [src/hooks/api.ts:1303](../src/hooks/api.ts#L1303) |
-| `useCreateImport` | mutation | createImport | ['imports'] | ['imports'] | [src/hooks/api.ts:1311](../src/hooks/api.ts#L1311) |
-| `useResolveImportEvent` | mutation | resolveImportEvent | — | — | [src/hooks/api.ts:1325](../src/hooks/api.ts#L1325) |
-| `useCommitImport` | mutation | commitImport | — | — | [src/hooks/api.ts:1342](../src/hooks/api.ts#L1342) |
-| `useDiscardImport` | mutation | discardImport | ['imports'], ['import', importId] | ['imports'] | [src/hooks/api.ts:1363](../src/hooks/api.ts#L1363) |
+| `useExchanges` | query | getExchanges | ['exchanges', assetClass] | — | [src/hooks/api.ts:38](../src/hooks/api.ts#L38) |
+| `useKrakenAssetSearch` | query | searchKrakenAssets | ['kraken-assets', quote, q.trim()] | — | [src/hooks/api.ts:46](../src/hooks/api.ts#L46) |
+| `useDraftOpeningReconciliation` | query | getDraftOpeningReconciliation | ['opening-reconciliation', accountId, statementId] | — | [src/hooks/api.ts:74](../src/hooks/api.ts#L74) |
+| `usePreviewDraftCashEvidence` | mutation | previewDraftCashEvidence | — | — | [src/hooks/api.ts:89](../src/hooks/api.ts#L89) |
+| `useRecordDraftCashEvidence` | mutation | recordDraftCashEvidence | ['opening-reconciliation', accountId, statementId] | ['opening-reconciliation', accountId, statementId] | [src/hooks/api.ts:112](../src/hooks/api.ts#L112) |
+| `useSaveDraftReconciliationCashOperation` | mutation | saveDraftReconciliationCashOperation | ['opening-reconciliation', accountId, statementId] | ['opening-reconciliation', accountId, statementId] | [src/hooks/api.ts:140](../src/hooks/api.ts#L140) |
+| `useCorrectDraftReconciliationCashOperation` | mutation | correctDraftReconciliationCashOperation | ['opening-reconciliation', accountId, statementId] | ['opening-reconciliation', accountId, statementId] | [src/hooks/api.ts:172](../src/hooks/api.ts#L172) |
+| `useCorrectDraftImportedExecutionCash` | mutation | correctDraftImportedExecutionCash | ['opening-reconciliation', accountId, statementId] | ['opening-reconciliation', accountId, statementId] | [src/hooks/api.ts:213](../src/hooks/api.ts#L213) |
+| `useStageDraftImportedExecutionCash` | mutation | stageDraftImportedExecutionCash | ['opening-reconciliation', accountId, statementId] | ['opening-reconciliation', accountId, statementId] | [src/hooks/api.ts:254](../src/hooks/api.ts#L254) |
+| `useStageDraftManualExecutionCash` | mutation | stageDraftManualExecutionCash | ['opening-reconciliation', accountId, statementId] | ['opening-reconciliation', accountId, statementId] | [src/hooks/api.ts:289](../src/hooks/api.ts#L289) |
+| `useCorrectDraftRecordedSale` | mutation | correctDraftRecordedSale | ['opening-reconciliation'], ['opening-statements'], ['tax-reports'], ['opening-reconciliation', accountId, statementId] | ['opening-reconciliation'], ['opening-statements'], ['tax-reports'], ['opening-reconciliation', accountId, statementId] | [src/hooks/api.ts:330](../src/hooks/api.ts#L330) |
+| `useCorrectLiveManualSale` | query | correctLiveManualSale | — | — | [src/hooks/api.ts:380](../src/hooks/api.ts#L380) |
+| `useVoidLiveManualTrade` | query | voidLiveManualTrade | — | — | [src/hooks/api.ts:391](../src/hooks/api.ts#L391) |
+| `useLiveManualTradeVoids` | query | getLiveManualTradeVoids | ['manual-trade-voids', accountId, offset] | — | [src/hooks/api.ts:401](../src/hooks/api.ts#L401) |
+| `useCorrectLiveManualAcquisition` | query | correctLiveManualAcquisition | — | — | [src/hooks/api.ts:409](../src/hooks/api.ts#L409) |
+| `useCorrectLiveImportedExecution` | query | correctLiveImportedExecution | — | — | [src/hooks/api.ts:423](../src/hooks/api.ts#L423) |
+| `useCorrectDraftRecordedAcquisition` | mutation | correctDraftRecordedAcquisition | ['opening-reconciliation'], ['opening-statements'], ['tax-reports'], ['opening-reconciliation', accountId, statementId] | ['opening-reconciliation'], ['opening-statements'], ['tax-reports'], ['opening-reconciliation', accountId, statementId] | [src/hooks/api.ts:496](../src/hooks/api.ts#L496) |
+| `useOpeningStatements` | query | getOpeningStatements | ['opening-statements', accountId, beforeVersion ?? 'latest'] | — | [src/hooks/api.ts:546](../src/hooks/api.ts#L546) |
+| `useSaveOpeningStatement` | mutation | saveOpeningStatement | ['opening-statements', accountId] | ['opening-statements', accountId] | [src/hooks/api.ts:558](../src/hooks/api.ts#L558) |
+| `useOpeningPreview` | mutation | previewAccountOpening | — | — | [src/hooks/api.ts:584](../src/hooks/api.ts#L584) |
+| `useTradingAccounts` | query | getTradingAccounts | ['trading-accounts', includeClosed ? 'all' : 'active'] | — | [src/hooks/api.ts:604](../src/hooks/api.ts#L604) |
+| `useCreateAccount` | mutation | createAccount | ['trading-accounts'] | ['trading-accounts'] | [src/hooks/api.ts:613](../src/hooks/api.ts#L613) |
+| `useDeleteAccount` | mutation | deleteAccount | ['trading-accounts'], ['user-portfolio'], ['portfolio-history'], ['holdings'], ['closed-positions'], ['realized-pnl'], ['opening-statements', accountId] | ['trading-accounts'], ['user-portfolio'], ['portfolio-history'], ['holdings'], ['closed-positions'], ['realized-pnl'] | [src/hooks/api.ts:625](../src/hooks/api.ts#L625) |
+| `useCloseAccount` | mutation | closeAccount | ['trading-accounts'], ['user-portfolio'], ['portfolio-history'], ['holdings'] | ['trading-accounts'], ['user-portfolio'], ['portfolio-history'], ['holdings'] | [src/hooks/api.ts:644](../src/hooks/api.ts#L644) |
+| `useReopenAccount` | mutation | reopenAccount | ['trading-accounts'] | ['trading-accounts'] | [src/hooks/api.ts:658](../src/hooks/api.ts#L658) |
+| `useUpdateAccount` | mutation | updateAccount | ['trading-accounts'] | ['trading-accounts'] | [src/hooks/api.ts:669](../src/hooks/api.ts#L669) |
+| `useLogin` | mutation | login | — | — | [src/hooks/api.ts:682](../src/hooks/api.ts#L682) |
+| `useSignup` | mutation | signup | — | — | [src/hooks/api.ts:700](../src/hooks/api.ts#L700) |
+| `useForgotPassword` | mutation | forgotPassword | — | — | [src/hooks/api.ts:726](../src/hooks/api.ts#L726) |
+| `useResetPassword` | mutation | resetPassword | — | — | [src/hooks/api.ts:734](../src/hooks/api.ts#L734) |
+| `useLogout` | mutation | logout | — | — | [src/hooks/api.ts:745](../src/hooks/api.ts#L745) |
+| `useDeleteCurrentUser` | mutation | deleteCurrentUser | — | — | [src/hooks/api.ts:751](../src/hooks/api.ts#L751) |
+| `useRestoreAccount` | mutation | restoreAccount | — | — | [src/hooks/api.ts:758](../src/hooks/api.ts#L758) |
+| `useCurrentUser` | query | getCurrentUser | ['current-user'] | — | [src/hooks/api.ts:765](../src/hooks/api.ts#L765) |
+| `useUpdateCurrentUser` | mutation | updateCurrentUser | ['current-user'] | ['current-user'] | [src/hooks/api.ts:772](../src/hooks/api.ts#L772) |
+| `useUserPortfolio` | query | getUserPortfolio | ['user-portfolio', accountId ?? 'all'] | — | [src/hooks/api.ts:783](../src/hooks/api.ts#L783) |
+| `usePortfolioHistory` | query | getPortfolioHistory | ['portfolio-history', accountId ?? 'none', exchangeCode ?? 'none',] | — | [src/hooks/api.ts:791](../src/hooks/api.ts#L791) |
+| `useRealizedPnL` | query | getRealizedPnL | ['realized-pnl', accountId ?? 'none', exchangeCode ?? 'none'] | — | [src/hooks/api.ts:806](../src/hooks/api.ts#L806) |
+| `useCreatePortfolioSnapshot` | mutation | createPortfolioSnapshot | ['portfolio-history'] | ['portfolio-history'] | [src/hooks/api.ts:814](../src/hooks/api.ts#L814) |
+| `useHoldings` | query | getHoldings | ['holdings', exchangeName ?? 'all', accountId ?? 'all'] | — | [src/hooks/api.ts:831](../src/hooks/api.ts#L831) |
+| `useClosedPositions` | query | getClosedPositions | ['closed-positions', params.accountId ?? 'all-accounts', params.dateFrom ?? 'all', params.dateTo ?? 'all', params.limit ?? 'default', params.offset ?? 0,] | — | [src/hooks/api.ts:839](../src/hooks/api.ts#L839) |
+| `useCreatePosition` | mutation | createPosition | — | — | [src/hooks/api.ts:853](../src/hooks/api.ts#L853) |
+| `usePostAccountTrade` | mutation | postAccountTrade | — | — | [src/hooks/api.ts:863](../src/hooks/api.ts#L863) |
+| `useUpdatePosition` | mutation | updatePosition | — | — | [src/hooks/api.ts:886](../src/hooks/api.ts#L886) |
+| `useClosePosition` | mutation | closePosition | — | — | [src/hooks/api.ts:901](../src/hooks/api.ts#L901) |
+| `useDeletePosition` | mutation | deletePosition | — | — | [src/hooks/api.ts:935](../src/hooks/api.ts#L935) |
+| `useUpdateCloseEvent` | mutation | updateCloseEvent | — | — | [src/hooks/api.ts:944](../src/hooks/api.ts#L944) |
+| `useCheckStopLoss` | mutation | checkStopLoss | — | — | [src/hooks/api.ts:959](../src/hooks/api.ts#L959) |
+| `useRecalculateDrawdown` | mutation | recalculateDrawdown | — | — | [src/hooks/api.ts:977](../src/hooks/api.ts#L977) |
+| `useQuotes` | query | getQuotes | ['quotes', key] | — | [src/hooks/api.ts:992](../src/hooks/api.ts#L992) |
+| `useStockSearch` | query | searchStocks | ['stock-search', query, limit] | — | [src/hooks/api.ts:1004](../src/hooks/api.ts#L1004) |
+| `useTaxReports` | query | getTaxReports | ['tax-reports', { includeSuperseded }] | — | [src/hooks/api.ts:1015](../src/hooks/api.ts#L1015) |
+| `useTaxReportDetail` | query | getTaxReportDetail | ['tax-reports', id ?? 'none'] | — | [src/hooks/api.ts:1022](../src/hooks/api.ts#L1022) |
+| `useTaxReportPositionUsage` | query | getTaxReportPositionUsage | ['tax-reports', 'position-usage'] | — | [src/hooks/api.ts:1030](../src/hooks/api.ts#L1030) |
+| `useGenerateTaxReport` | mutation | generateTaxReport | ['tax-reports'] | ['tax-reports'] | [src/hooks/api.ts:1037](../src/hooks/api.ts#L1037) |
+| `useDeleteTaxReport` | mutation | deleteTaxReport | ['tax-reports'] | ['tax-reports'] | [src/hooks/api.ts:1051](../src/hooks/api.ts#L1051) |
+| `useDownloadTaxReportPdf` | mutation | downloadTaxReportPdf | — | — | [src/hooks/api.ts:1062](../src/hooks/api.ts#L1062) |
+| `useStatisticsSummary` | query | getStatisticsSummary | ['statistics-summary', filters] | — | [src/hooks/api.ts:1069](../src/hooks/api.ts#L1069) |
+| `useStatisticsTimeSeries` | query | getStatisticsTimeSeries | ['statistics-timeseries', params.metric, params.granularity ?? 'month', params.filters ?? {},] | — | [src/hooks/api.ts:1081](../src/hooks/api.ts#L1081) |
+| `useStatisticsDistributions` | query | getStatisticsDistributions | ['statistics-distributions', filters] | — | [src/hooks/api.ts:1100](../src/hooks/api.ts#L1100) |
+| `useStatisticsRisk` | query | getStatisticsRisk | ['statistics-risk', filters] | — | [src/hooks/api.ts:1112](../src/hooks/api.ts#L1112) |
+| `useStatisticsBreakdowns` | query | getStatisticsBreakdowns | ['statistics-breakdowns', params.by, params.metric, params.filters ?? {},] | — | [src/hooks/api.ts:1124](../src/hooks/api.ts#L1124) |
+| `useStatisticsClosedTrades` | query | getStatisticsClosedTrades | ['statistics-closed-trades', params.filters ?? {}, params.limit ?? 50, params.offset ?? 0, params.sortBy ?? 'closeDate', params.sortDir ?? 'desc',] | — | [src/hooks/api.ts:1143](../src/hooks/api.ts#L1143) |
+| `useScreener` | query | runScreener | ['screener', filters] | — | [src/hooks/api.ts:1167](../src/hooks/api.ts#L1167) |
+| `useUpcomingDividends` | query | getUpcomingDividends | ['upcoming-dividends', key] | — | [src/hooks/api.ts:1177](../src/hooks/api.ts#L1177) |
+| `useSavedScreens` | query | getSavedScreens | ['saved-screens'] | — | [src/hooks/api.ts:1187](../src/hooks/api.ts#L1187) |
+| `useCreateSavedScreen` | mutation | createSavedScreen | ['saved-screens'] | ['saved-screens'] | [src/hooks/api.ts:1195](../src/hooks/api.ts#L1195) |
+| `useDeleteSavedScreen` | mutation | deleteSavedScreen | ['saved-screens'] | ['saved-screens'] | [src/hooks/api.ts:1211](../src/hooks/api.ts#L1211) |
+| `useWatchlists` | query | getWatchlists | ['watchlists'] | — | [src/hooks/api.ts:1222](../src/hooks/api.ts#L1222) |
+| `useWatchlistDetail` | query | getWatchlist | ['watchlist', id] | — | [src/hooks/api.ts:1230](../src/hooks/api.ts#L1230) |
+| `useCreateWatchlist` | mutation | createWatchlist | ['watchlists'] | ['watchlists'] | [src/hooks/api.ts:1239](../src/hooks/api.ts#L1239) |
+| `useRenameWatchlist` | mutation | renameWatchlist | ['watchlists'], ['watchlist', variables.id] | ['watchlists'], ['watchlist', variables.id] | [src/hooks/api.ts:1249](../src/hooks/api.ts#L1249) |
+| `useDeleteWatchlist` | mutation | deleteWatchlist | ['watchlists'] | ['watchlists'] | [src/hooks/api.ts:1261](../src/hooks/api.ts#L1261) |
+| `useAddWatchlistItem` | mutation | addWatchlistItem | ['watchlists'], ['watchlist', variables.watchlistId], ['screener'] | ['watchlists'], ['watchlist', variables.watchlistId], ['screener'] | [src/hooks/api.ts:1271](../src/hooks/api.ts#L1271) |
+| `useRemoveWatchlistItem` | mutation | removeWatchlistItem | ['watchlists'], ['watchlist', variables.watchlistId], ['screener'] | ['watchlists'], ['watchlist', variables.watchlistId], ['screener'] | [src/hooks/api.ts:1291](../src/hooks/api.ts#L1291) |
+| `useImports` | query | getImports | ['imports'] | — | [src/hooks/api.ts:1319](../src/hooks/api.ts#L1319) |
+| `useImport` | query | getImport | ['import', id] | — | [src/hooks/api.ts:1326](../src/hooks/api.ts#L1326) |
+| `useCreateImport` | mutation | createImport | ['imports'] | ['imports'] | [src/hooks/api.ts:1334](../src/hooks/api.ts#L1334) |
+| `useResolveImportEvent` | mutation | resolveImportEvent | — | — | [src/hooks/api.ts:1348](../src/hooks/api.ts#L1348) |
+| `useCommitImport` | mutation | commitImport | — | — | [src/hooks/api.ts:1365](../src/hooks/api.ts#L1365) |
+| `useDiscardImport` | mutation | discardImport | ['imports'], ['import', importId] | ['imports'] | [src/hooks/api.ts:1386](../src/hooks/api.ts#L1386) |
 
 ## apiClient methods with no hook
 

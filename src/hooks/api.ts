@@ -32,6 +32,7 @@ import type {
   AccountTradeInput,
   LiveSaleCorrectionResult,
   LiveImportedExecutionCorrectionInput,
+  ManualTradeVoidInput,
 } from '@/lib/types';
 
 export const useExchanges = (assetClass: 'crypto' | 'equity', enabled = true) =>
@@ -387,6 +388,24 @@ export const useCorrectLiveManualSale = () => {
   >(apiClient.correctLiveManualSale, variables => variables.transactionId);
 };
 
+export const useVoidLiveManualTrade = () =>
+  useCorrectLiveManualExecution<
+    ManualTradeVoidInput,
+    { accountId: string; transactionId: string; input: ManualTradeVoidInput }
+  >(
+    apiClient.voidLiveManualTrade,
+    variables => variables.transactionId,
+    'Reconnect to void this trade. Offline changes are not queued.'
+  );
+
+export const useLiveManualTradeVoids = (accountId: string, offset = 0) =>
+  useQuery({
+    queryKey: ['manual-trade-voids', accountId, offset],
+    queryFn: () => apiClient.getLiveManualTradeVoids(accountId, offset),
+    enabled: Boolean(accountId),
+    retry: false,
+  });
+
 export const useCorrectLiveManualAcquisition = () => {
   return useCorrectLiveManualExecution<
     DraftAcquisitionCorrectionInput,
@@ -413,7 +432,7 @@ export const useCorrectLiveImportedExecution = () => {
 };
 
 function useCorrectLiveManualExecution<
-  T extends DraftSaleCorrectionInput,
+  T extends ManualTradeVoidInput,
   V extends { accountId: string; input: T },
 >(
   correct: (
@@ -421,15 +440,14 @@ function useCorrectLiveManualExecution<
     transactionId: string,
     input: T
   ) => Promise<LiveSaleCorrectionResult>,
-  executionId: (variables: V) => string
+  executionId: (variables: V) => string,
+  offlineMessage = 'Reconnect to correct this execution. Offline changes are not queued.'
 ) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (variables: V) => {
       if (typeof navigator !== 'undefined' && !navigator.onLine)
-        throw new Error(
-          'Reconnect to correct this execution. Offline changes are not queued.'
-        );
+        throw new Error(offlineMessage);
       return correct(
         variables.accountId,
         executionId(variables),
@@ -442,6 +460,11 @@ function useCorrectLiveManualExecution<
     onSuccess: async (_result, { accountId }) => {
       await Promise.all([
         invalidatePositionQueries(queryClient),
+        queryClient.invalidateQueries({
+          queryKey: ['manual-trade-voids', accountId],
+        }),
+        queryClient.invalidateQueries({ queryKey: ['imports'] }),
+        queryClient.invalidateQueries({ queryKey: ['import'] }),
         queryClient.invalidateQueries({ queryKey: ['opening-reconciliation'] }),
         queryClient.invalidateQueries({
           queryKey: ['opening-statements', accountId],

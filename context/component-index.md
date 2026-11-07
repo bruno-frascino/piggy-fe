@@ -37,7 +37,7 @@
 
 ## `LocalHolding`
 
-- File: [src/components/AddHoldingsDialog.tsx](../src/components/AddHoldingsDialog.tsx) (831 lines)
+- File: [src/components/AddHoldingsDialog.tsx](../src/components/AddHoldingsDialog.tsx) (842 lines)
 - API hooks used: useExchanges
 - Other hooks used: useAccountNameSuggestions, useEffect, useState, useSymbolSearch
 
@@ -125,7 +125,7 @@
 
 ## `EditClosedTradeDialog`
 
-- File: [src/components/EditClosedTradeDialog.tsx](../src/components/EditClosedTradeDialog.tsx) (656 lines)
+- File: [src/components/EditClosedTradeDialog.tsx](../src/components/EditClosedTradeDialog.tsx) (676 lines)
 - API hooks used: —
 - Other hooks used: useEffect, useMemo, usePrivacy, useRef, useState
 - Props:
@@ -137,6 +137,8 @@
   - `onCorrectAcquisition?: () => void`
   - `onCorrectImportedExecution?: () => void`
   - `onCorrectImportedAcquisition?: () => void`
+  - `onVoidSale?: () => void`
+  - `onVoidAcquisition?: () => void`
 
 ## `EmptyAccountsState`
 
@@ -158,7 +160,7 @@
 
 ## `HoldingsTable`
 
-- File: [src/components/HoldingsTable.tsx](../src/components/HoldingsTable.tsx) (1230 lines)
+- File: [src/components/HoldingsTable.tsx](../src/components/HoldingsTable.tsx) (1262 lines)
 - API hooks used: useClosePosition, useCreatePosition, useDeletePosition, useUpdatePosition
 - Other hooks used: useCallback, useEffect, useHoldingRows, useId, useNetworkStatus, usePrivacy, useQueryClient, useRef, useState, useToast
 
@@ -208,6 +210,18 @@
 - File: [src/components/LiveImportedExecutionCorrectionDialog.tsx](../src/components/LiveImportedExecutionCorrectionDialog.tsx) (223 lines)
 - API hooks used: useCorrectLiveImportedExecution
 - Other hooks used: useNetworkStatus, usePrivacy, useRef, useState
+
+## `ManualTradeVoidDialog`
+
+- File: [src/components/ManualTradeVoidDialog.tsx](../src/components/ManualTradeVoidDialog.tsx) (176 lines)
+- API hooks used: useVoidLiveManualTrade
+- Other hooks used: useNetworkStatus, usePrivacy, useRef, useState
+
+## `ManualTradeVoidHistory`
+
+- File: [src/components/ManualTradeVoidHistory.tsx](../src/components/ManualTradeVoidHistory.tsx) (116 lines)
+- API hooks used: useLiveManualTradeVoids
+- Other hooks used: useNetworkStatus, usePrivacy, useState
 
 ## `MobileTabBar`
 

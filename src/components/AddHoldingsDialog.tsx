@@ -52,6 +52,7 @@ export default function AddHoldingsDialog({
   onImport,
   onCorrectAcquisition,
   onCorrectImportedExecution,
+  onVoidAcquisition,
   busy = false,
   error,
 }: {
@@ -67,6 +68,7 @@ export default function AddHoldingsDialog({
   onImport?: () => void;
   onCorrectAcquisition?: () => void;
   onCorrectImportedExecution?: () => void;
+  onVoidAcquisition?: () => void;
   busy?: boolean;
   error?: string;
 }) {
@@ -288,6 +290,15 @@ export default function AddHoldingsDialog({
                 label='Correct acquisition'
                 outlined
                 onClick={onCorrectAcquisition}
+                disabled={busy}
+              />
+            )}
+            {auditedAcquisition && onVoidAcquisition && (
+              <Button
+                label='Void acquisition'
+                outlined
+                severity='danger'
+                onClick={onVoidAcquisition}
                 disabled={busy}
               />
             )}

@@ -10,6 +10,7 @@ import { Button } from 'primereact/button';
 import ImportUploadDialog from '@/components/ImportUploadDialog';
 import PositionDetailsDialog from '@/components/PositionDetailsDialog';
 import LiveAcquisitionCorrectionDialog from '@/components/LiveAcquisitionCorrectionDialog';
+import ManualTradeVoidDialog from '@/components/ManualTradeVoidDialog';
 import LiveImportedExecutionCorrectionDialog from '@/components/LiveImportedExecutionCorrectionDialog';
 import QueryFeedback from './QueryFeedback';
 import { useNetworkStatus } from '@/hooks/useNetworkStatus';
@@ -98,6 +99,7 @@ export default function HoldingsTable({
   const online = useNetworkStatus();
   const tableId = useId();
   const [showAdvancedColumns, setShowAdvancedColumns] = useState(false);
+  const [voidHolding, setVoidHolding] = useState<LocalHolding | null>(null);
   const [detailsSelection, setDetailsSelection] = useState<{
     id?: string;
     index: number;
@@ -983,6 +985,16 @@ export default function HoldingsTable({
               }
             : undefined
         }
+        onVoidAcquisition={
+          mode === 'edit' &&
+          editIdx !== null &&
+          holdings[editIdx]?.acquisitionCorrection
+            ? () => {
+                setVoidHolding(holdings[editIdx]);
+                setShowDialog(false);
+              }
+            : undefined
+        }
         onCorrectImportedExecution={
           mode === 'edit' &&
           editIdx !== null &&
@@ -1134,6 +1146,26 @@ export default function HoldingsTable({
             }}
           />
         )}
+
+      {voidHolding?.accountId && voidHolding.acquisitionCorrection && (
+        <ManualTradeVoidDialog
+          accountId={voidHolding.accountId}
+          transactionId={voidHolding.acquisitionCorrection.transactionId}
+          symbol={voidHolding.symbol}
+          kind='BUY'
+          metadata={voidHolding.acquisitionCorrection}
+          onHide={() => setVoidHolding(null)}
+          onSaved={() => {
+            setVoidHolding(null);
+            showToast({
+              severity: 'success',
+              summary: 'Acquisition voided',
+              detail:
+                'Cash and holdings updated. Original trade and postings retained for audit.',
+            });
+          }}
+        />
+      )}
 
       {importedCorrectionHolding?.accountId &&
         importedCorrectionHolding.importedExecutionCorrection && (

@@ -38,6 +38,45 @@ const trade: ClosedTrade = {
 };
 
 describe('EditClosedTradeDialog', () => {
+  it('routes eligible manual void actions separately from legacy deletion', () => {
+    const onVoidSale = vi.fn();
+    const onVoidAcquisition = vi.fn();
+    const metadata = {
+      operationId: 'op1',
+      expectedRevisionId: 'r1',
+      expectedSourceFingerprint: 'a'.repeat(64),
+      effectiveDate: '2026-07-01',
+      sequence: 1,
+    };
+    render(
+      <EditClosedTradeDialog
+        trade={{
+          ...trade,
+          accountId: 'a1',
+          cashCorrection: metadata,
+          acquisitionCorrection: {
+            ...metadata,
+            transactionId: 'buy1',
+            quantity: '5',
+            price: '100',
+            fees: '1',
+          },
+        }}
+        onHide={vi.fn()}
+        onSave={vi.fn()}
+        onDeletePosition={vi.fn()}
+        onVoidSale={onVoidSale}
+        onVoidAcquisition={onVoidAcquisition}
+      />
+    );
+    fireEvent.click(screen.getByRole('button', { name: 'Void sale' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Void acquisition' }));
+    expect(onVoidSale).toHaveBeenCalledOnce();
+    expect(onVoidAcquisition).toHaveBeenCalledOnce();
+    expect(
+      screen.queryByRole('button', { name: 'Delete' })
+    ).not.toBeInTheDocument();
+  });
   it('caps both comments at 200px with scrolling and preserves long text on save', () => {
     const onSave = vi.fn();
     const longText = 'Trading rationale\n'.repeat(60);
