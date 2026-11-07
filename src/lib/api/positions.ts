@@ -10,6 +10,7 @@ import type {
   AccountTradeResponse,
   DraftSaleCorrectionInput,
   DraftAcquisitionCorrectionInput,
+  LiveImportedExecutionCorrectionInput,
   LiveSaleCorrectionResult,
   LiveExecutionCorrectionResponse,
 } from '../types';
@@ -89,6 +90,20 @@ export function createPositionsApi(client: AxiosInstance) {
         throw new Error('Live acquisition corrections require the real API.');
       const response = await client.post<LiveExecutionCorrectionResponse>(
         `/accounts/${encodeURIComponent(accountId)}/trades/${encodeURIComponent(transactionId)}/acquisition-corrections`,
+        input
+      );
+      return response.data.data;
+    },
+
+    async correctLiveImportedExecution(
+      accountId: string,
+      eventId: string,
+      input: LiveImportedExecutionCorrectionInput
+    ): Promise<LiveSaleCorrectionResult> {
+      if (USE_MOCK_API)
+        throw new Error('Imported execution corrections require the real API.');
+      const response = await client.post<LiveExecutionCorrectionResponse>(
+        `/accounts/${encodeURIComponent(accountId)}/imported-executions/${encodeURIComponent(eventId)}/corrections`,
         input
       );
       return response.data.data;

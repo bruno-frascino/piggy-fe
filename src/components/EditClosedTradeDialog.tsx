@@ -29,6 +29,8 @@ interface Props {
   onSave: (updated: ClosedTrade, correction?: DraftSaleCorrectionInput) => void;
   onDeletePosition: (positionId: string) => void;
   onCorrectAcquisition?: () => void;
+  onCorrectImportedExecution?: () => void;
+  onCorrectImportedAcquisition?: () => void;
 }
 
 // Open-side facts (symbol, exchange, bought units, entry price/fee) define the
@@ -58,6 +60,8 @@ export default function EditClosedTradeDialog({
   onSave,
   onDeletePosition,
   onCorrectAcquisition,
+  onCorrectImportedExecution,
+  onCorrectImportedAcquisition,
 }: Props) {
   const [form, setForm] = useState<ClosedTrade>(trade);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -93,6 +97,9 @@ export default function EditClosedTradeDialog({
     form.closeDate !== trade.closeDate ||
     sellPriceText !== String(trade.sellPrice) ||
     sellFeeText !== String(trade.sellFee);
+  const importedFinancialCorrection = Boolean(
+    trade.importedExecutionCorrection
+  );
 
   const validate = () => {
     const e: Record<string, string> = {};
@@ -285,10 +292,31 @@ export default function EditClosedTradeDialog({
           />
         ) : (
           <p className='text-xs' style={{ color: 'var(--tr-text-2)' }}>
-            Symbol, exchange, open date, bought units and entry price/fee define
-            this position&apos;s tax parcel — correct them on the position
-            itself from the dashboard.
+            {trade.importedAcquisitionCorrection
+              ? 'The imported acquisition is source-linked. Use the audited correction below; quantity and parcel allocation stay fixed.'
+              : 'Symbol, exchange, open date, bought units and entry price/fee define this position\u2019s tax parcel \u2014 correct them on the position itself from the dashboard.'}
           </p>
+        )}
+        {importedFinancialCorrection && (
+          <Message
+            severity='info'
+            text='Imported execution date, price and fees are read-only here. Use the audited correction below; quantity and parcel allocations stay fixed.'
+          />
+        )}
+        {trade.importedAcquisitionCorrection &&
+          onCorrectImportedAcquisition && (
+            <Button
+              label='Correct imported acquisition'
+              outlined
+              onClick={onCorrectImportedAcquisition}
+            />
+          )}
+        {trade.importedExecutionCorrection && onCorrectImportedExecution && (
+          <Button
+            label='Correct imported sale'
+            outlined
+            onClick={onCorrectImportedExecution}
+          />
         )}
 
         <div className='task-summary closed-trade-summary'>
@@ -338,6 +366,7 @@ export default function EditClosedTradeDialog({
             </label>
             <Calendar
               inputId='closed-date'
+              disabled={importedFinancialCorrection}
               invalid={!!errors.closeDate}
               pt={{ input: closeDateInputPt }}
               value={(() => {
@@ -421,6 +450,7 @@ export default function EditClosedTradeDialog({
             ) : (
               <InputNumber
                 inputId='closed-sell-price'
+                disabled={importedFinancialCorrection}
                 invalid={!!errors.sellPrice}
                 pt={{
                   input: { root: { 'aria-invalid': !!errors.sellPrice } },
@@ -469,6 +499,7 @@ export default function EditClosedTradeDialog({
             ) : (
               <InputNumber
                 inputId='closed-sell-fee'
+                disabled={importedFinancialCorrection}
                 invalid={!!errors.sellFee}
                 pt={{ input: { root: { 'aria-invalid': !!errors.sellFee } } }}
                 value={form.sellFee}

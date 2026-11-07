@@ -219,6 +219,41 @@ describe('EditClosedTradeDialog', () => {
     );
   });
 
+  it('keeps imported sale values read-only and directs users to the audited correction', () => {
+    const importedTrade: ClosedTrade = {
+      ...trade,
+      closeDate: '2026-07-15',
+      importedExecutionCorrection: {
+        eventId: 'event-1',
+        transactionId: 'close-1',
+        operationId: 'operation-1',
+        expectedRevisionId: 'revision-1',
+        expectedSourceFingerprint: 'a'.repeat(64),
+        effectiveDate: '2026-07-15',
+        sequence: 1,
+        price: '120',
+        fees: '1',
+        currency: 'USD',
+      },
+    };
+    render(
+      <EditClosedTradeDialog
+        trade={importedTrade}
+        onHide={vi.fn()}
+        onSave={vi.fn()}
+        onDeletePosition={vi.fn()}
+        onCorrectImportedExecution={vi.fn()}
+      />
+    );
+
+    expect(screen.getByLabelText('Close Date *')).toBeDisabled();
+    expect(screen.getByLabelText('Sell Price *')).toBeDisabled();
+    expect(screen.getByLabelText('Sell Fee *')).toBeDisabled();
+    expect(
+      screen.getByRole('button', { name: 'Correct imported sale' })
+    ).toBeInTheDocument();
+  });
+
   it('rejects a close date before the open date', () => {
     const onSave = vi.fn();
 

@@ -12,10 +12,12 @@ import { Message } from 'primereact/message';
 import type {
   ClosedTrade,
   DraftSaleCorrectionInput,
+  LiveImportedExecutionCorrectionMetadata,
   TaxReportUsage,
 } from '@/lib/types';
 import EditClosedTradeDialog from '@/components/EditClosedTradeDialog';
 import LiveAcquisitionCorrectionDialog from '@/components/LiveAcquisitionCorrectionDialog';
+import LiveImportedExecutionCorrectionDialog from '@/components/LiveImportedExecutionCorrectionDialog';
 import PageHeader from '@/components/PageHeader';
 import {
   useClosedPositions,
@@ -374,6 +376,11 @@ export default function HistoryPage() {
   const [acquisitionTrade, setAcquisitionTrade] = useState<ClosedTrade | null>(
     null
   );
+  const [importedCorrection, setImportedCorrection] = useState<{
+    accountId: string;
+    symbol: string;
+    correction: LiveImportedExecutionCorrectionMetadata;
+  } | null>(null);
   const { mutateAsync: deletePosition } = useDeletePosition();
   const currentYear = new Date().getFullYear();
   const defaultStart = `${currentYear}-01-01`;
@@ -677,6 +684,32 @@ export default function HistoryPage() {
                   }
                 : undefined
             }
+            onCorrectImportedExecution={
+              active.importedExecutionCorrection && active.accountId
+                ? () => {
+                    setImportedCorrection({
+                      accountId: active.accountId!,
+                      symbol: active.symbol,
+                      correction: active.importedExecutionCorrection!,
+                    });
+                    setShowDialog(false);
+                    setActive(null);
+                  }
+                : undefined
+            }
+            onCorrectImportedAcquisition={
+              active.importedAcquisitionCorrection && active.accountId
+                ? () => {
+                    setImportedCorrection({
+                      accountId: active.accountId!,
+                      symbol: active.symbol,
+                      correction: active.importedAcquisitionCorrection!,
+                    });
+                    setShowDialog(false);
+                    setActive(null);
+                  }
+                : undefined
+            }
             reportUsage={usageFor(active)}
             onHide={() => {
               setShowDialog(false);
@@ -776,6 +809,23 @@ export default function HistoryPage() {
               }}
             />
           )}
+        {importedCorrection && (
+          <LiveImportedExecutionCorrectionDialog
+            accountId={importedCorrection.accountId}
+            symbol={importedCorrection.symbol}
+            correction={importedCorrection.correction}
+            onHide={() => setImportedCorrection(null)}
+            onSaved={() => {
+              setImportedCorrection(null);
+              showToast({
+                severity: 'success',
+                summary: 'Imported execution corrected',
+                detail:
+                  'Cash and parcel results were updated with an audit revision.',
+              });
+            }}
+          />
+        )}
       </div>
     </div>
   );

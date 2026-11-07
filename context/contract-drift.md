@@ -49,6 +49,7 @@ In sync. ✅
 - `TaxReport`
 - `ClosedTrade`
 - `LiveSaleCorrectionMetadata`
+- `LiveImportedExecutionCorrectionMetadata`
 - `LiveAcquisitionCorrectionMetadata`
 - `ClosedTradesQuery`
 - `ClosedTradesPage`

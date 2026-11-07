@@ -2,6 +2,7 @@ import type {
   CloseReason,
   ClosedTrade,
   LiveAcquisitionCorrectionMetadata,
+  LiveImportedExecutionCorrectionMetadata,
 } from '../types';
 import type {
   EquityPoint,
@@ -41,6 +42,48 @@ export function normalizeEquitySeries(payload: unknown): EquityPoint[] {
       return { date: rawDate, equity: rawEquity };
     })
     .filter((point): point is EquityPoint => point !== null);
+}
+
+export function mapImportedExecutionCorrection(
+  raw: unknown
+): LiveImportedExecutionCorrectionMetadata | undefined {
+  if (
+    !isRecord(raw) ||
+    typeof raw.eventId !== 'string' ||
+    !raw.eventId ||
+    typeof raw.transactionId !== 'string' ||
+    !raw.transactionId ||
+    typeof raw.operationId !== 'string' ||
+    !raw.operationId ||
+    typeof raw.expectedRevisionId !== 'string' ||
+    !raw.expectedRevisionId ||
+    typeof raw.expectedSourceFingerprint !== 'string' ||
+    !/^[a-f0-9]{64}$/.test(raw.expectedSourceFingerprint) ||
+    typeof raw.effectiveDate !== 'string' ||
+    !/^\d{4}-\d{2}-\d{2}$/.test(raw.effectiveDate) ||
+    typeof raw.sequence !== 'number' ||
+    !Number.isSafeInteger(raw.sequence) ||
+    raw.sequence < 1 ||
+    typeof raw.price !== 'string' ||
+    !/^\d+(\.\d+)?$/.test(raw.price) ||
+    typeof raw.fees !== 'string' ||
+    !/^\d+(\.\d+)?$/.test(raw.fees) ||
+    typeof raw.currency !== 'string' ||
+    !/^[A-Z]{3}$/.test(raw.currency)
+  )
+    return undefined;
+  return {
+    eventId: raw.eventId,
+    transactionId: raw.transactionId,
+    operationId: raw.operationId,
+    expectedRevisionId: raw.expectedRevisionId,
+    expectedSourceFingerprint: raw.expectedSourceFingerprint,
+    effectiveDate: raw.effectiveDate,
+    sequence: raw.sequence,
+    price: raw.price,
+    fees: raw.fees,
+    currency: raw.currency,
+  };
 }
 
 export function mapToTradingAccount(row: unknown): TradingAccount | null {
@@ -166,6 +209,9 @@ export function mapPositionToHolding(pos: unknown): HoldingPosition | null {
 
   return {
     acquisitionCorrection: mapAcquisitionCorrection(pos.acquisitionCorrection),
+    importedExecutionCorrection: mapImportedExecutionCorrection(
+      pos.importedExecutionCorrection
+    ),
     id: typeof pos.id === 'string' ? pos.id : undefined,
     assetType:
       asset.assetType === 'CRYPTO' ||
@@ -376,6 +422,12 @@ export function mapCloseEventToClosedTrade(event: unknown): ClosedTrade | null {
     ...(cashCorrection ? { cashCorrection } : {}),
     acquisitionCorrection: mapAcquisitionCorrection(
       event.acquisitionCorrection
+    ),
+    importedExecutionCorrection: mapImportedExecutionCorrection(
+      event.importedExecutionCorrection
+    ),
+    importedAcquisitionCorrection: mapImportedExecutionCorrection(
+      event.importedAcquisitionCorrection
     ),
   };
 }

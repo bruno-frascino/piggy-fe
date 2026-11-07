@@ -205,6 +205,7 @@
         "src/components/DeleteAccountDialog.tsx",
         "src/components/EditClosedTradeDialog.tsx",
         "src/components/LiveAcquisitionCorrectionDialog.tsx",
+        "src/components/LiveImportedExecutionCorrectionDialog.tsx",
         "src/components/DashboardView.tsx",
         "src/components/AccountActionDialog.tsx",
         "src/components/AccountsBar.tsx",
@@ -344,6 +345,7 @@
         "src/app/auth/signup/page.tsx",
         "src/app/history/page.tsx",
         "src/components/LiveAcquisitionCorrectionDialog.tsx",
+        "src/components/LiveImportedExecutionCorrectionDialog.tsx",
         "src/components/ImportReview.tsx",
         "src/components/ImportsList.tsx",
         "src/components/TopNav.tsx",
@@ -1046,6 +1048,7 @@
         "src/app/history/page.tsx",
         "src/components/EditClosedTradeDialog.tsx",
         "src/components/LiveAcquisitionCorrectionDialog.tsx",
+        "src/components/LiveImportedExecutionCorrectionDialog.tsx",
         "src/app/providers.tsx",
         "src/components/TopNav.tsx",
         "src/components/DashboardView.tsx",
@@ -1524,6 +1527,23 @@
           "exoticallyRequired": false,
           "followable": true,
           "matchesDoNotFollow": false,
+          "module": "@/components/LiveImportedExecutionCorrectionDialog",
+          "moduleSystem": "es6",
+          "resolved": "src/components/LiveImportedExecutionCorrectionDialog.tsx",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
           "module": "@/components/PageHeader",
           "moduleSystem": "es6",
           "resolved": "src/components/PageHeader.tsx",
@@ -1929,6 +1949,7 @@
       "dependencies": [],
       "dependents": [
         "src/components/LiveAcquisitionCorrectionDialog.tsx",
+        "src/components/LiveImportedExecutionCorrectionDialog.tsx",
         "src/components/DashboardView.tsx",
         "src/components/QueryFeedback.tsx",
         "src/components/HoldingsTable.tsx",
@@ -1939,6 +1960,86 @@
       ],
       "orphan": false,
       "source": "src/hooks/useNetworkStatus.ts",
+      "valid": true
+    },
+    {
+      "dependencies": [
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "local",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "./AppDialog",
+          "moduleSystem": "es6",
+          "resolved": "src/components/AppDialog.tsx",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/hooks/api",
+          "moduleSystem": "es6",
+          "resolved": "src/hooks/api.ts",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/hooks/useNetworkStatus",
+          "moduleSystem": "es6",
+          "resolved": "src/hooks/useNetworkStatus.ts",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/lib/privacy-context",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/privacy-context.tsx",
+          "valid": true
+        }
+      ],
+      "dependents": [
+        "src/app/history/page.tsx",
+        "src/components/HoldingsTable.tsx",
+        "src/components/LiveImportedExecutionCorrectionDialog.test.tsx"
+      ],
+      "orphan": false,
+      "source": "src/components/LiveImportedExecutionCorrectionDialog.tsx",
       "valid": true
     },
     {
@@ -3196,6 +3297,23 @@
           "module": "@/components/LiveAcquisitionCorrectionDialog",
           "moduleSystem": "es6",
           "resolved": "src/components/LiveAcquisitionCorrectionDialog.tsx",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/components/LiveImportedExecutionCorrectionDialog",
+          "moduleSystem": "es6",
+          "resolved": "src/components/LiveImportedExecutionCorrectionDialog.tsx",
           "valid": true
         },
         {
@@ -5782,6 +5900,31 @@
           "exoticallyRequired": false,
           "followable": true,
           "matchesDoNotFollow": false,
+          "module": "./LiveImportedExecutionCorrectionDialog",
+          "moduleSystem": "es6",
+          "resolved": "src/components/LiveImportedExecutionCorrectionDialog.tsx",
+          "valid": true
+        }
+      ],
+      "dependents": [],
+      "orphan": false,
+      "source": "src/components/LiveImportedExecutionCorrectionDialog.test.tsx",
+      "valid": true
+    },
+    {
+      "dependencies": [
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "local",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
           "module": "./MobileTabBar",
           "moduleSystem": "es6",
           "resolved": "src/components/MobileTabBar.tsx",
@@ -7022,8 +7165,8 @@
         }
       ]
     },
-    "totalCruised": 163,
-    "totalDependenciesCruised": 309,
+    "totalCruised": 165,
+    "totalDependenciesCruised": 316,
     "violations": [],
     "warn": 0
   }

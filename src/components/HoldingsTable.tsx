@@ -10,6 +10,7 @@ import { Button } from 'primereact/button';
 import ImportUploadDialog from '@/components/ImportUploadDialog';
 import PositionDetailsDialog from '@/components/PositionDetailsDialog';
 import LiveAcquisitionCorrectionDialog from '@/components/LiveAcquisitionCorrectionDialog';
+import LiveImportedExecutionCorrectionDialog from '@/components/LiveImportedExecutionCorrectionDialog';
 import QueryFeedback from './QueryFeedback';
 import { useNetworkStatus } from '@/hooks/useNetworkStatus';
 import { Skeleton } from 'primereact/skeleton';
@@ -141,6 +142,8 @@ export default function HoldingsTable({
   const [mode, setMode] = useState<'add' | 'edit'>('add');
   const [editIdx, setEditIdx] = useState<number | null>(null);
   const [correctionHolding, setCorrectionHolding] =
+    useState<LocalHolding | null>(null);
+  const [importedCorrectionHolding, setImportedCorrectionHolding] =
     useState<LocalHolding | null>(null);
   const [dialogInitial, setDialogInitial] = useState<
     Partial<LocalHolding> | undefined
@@ -980,6 +983,16 @@ export default function HoldingsTable({
               }
             : undefined
         }
+        onCorrectImportedExecution={
+          mode === 'edit' &&
+          editIdx !== null &&
+          holdings[editIdx]?.importedExecutionCorrection
+            ? () => {
+                setImportedCorrectionHolding(holdings[editIdx]);
+                setShowDialog(false);
+              }
+            : undefined
+        }
         onSubmit={(newPos: LocalHolding) => {
           const submit = async () => {
             if (mode === 'edit' && editIdx !== null) {
@@ -1115,6 +1128,25 @@ export default function HoldingsTable({
               showToast({
                 severity: 'success',
                 summary: 'Acquisition corrected',
+                detail:
+                  'Cash and parcel results were updated with an audit revision.',
+              });
+            }}
+          />
+        )}
+
+      {importedCorrectionHolding?.accountId &&
+        importedCorrectionHolding.importedExecutionCorrection && (
+          <LiveImportedExecutionCorrectionDialog
+            accountId={importedCorrectionHolding.accountId}
+            symbol={importedCorrectionHolding.symbol}
+            correction={importedCorrectionHolding.importedExecutionCorrection}
+            onHide={() => setImportedCorrectionHolding(null)}
+            onSaved={() => {
+              setImportedCorrectionHolding(null);
+              showToast({
+                severity: 'success',
+                summary: 'Imported execution corrected',
                 detail:
                   'Cash and parcel results were updated with an audit revision.',
               });

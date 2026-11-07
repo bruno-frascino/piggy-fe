@@ -86,4 +86,24 @@ describe('account trade API', () => {
       api.correctLiveManualAcquisition('a1', 'tx1', input)
     ).rejects.toThrow('Funding deficit');
   });
+
+  it('posts an audited imported-execution overlay with unchanged quantity and allocations', async () => {
+    const input = {
+      idempotencyKey: 'import-fix-1',
+      expectedRevisionId: 'revision/1',
+      expectedSourceFingerprint: 'a'.repeat(64),
+      reason: 'Corrected from broker statement',
+      effectiveDate: '2026-10-03',
+      sequence: 4,
+      price: '12.345678901234',
+      fees: '0.00000001',
+    };
+    expect(
+      await api.correctLiveImportedExecution('account/1', 'event/1', input)
+    ).toEqual(response.data);
+    expect(post).toHaveBeenCalledWith(
+      '/accounts/account%2F1/imported-executions/event%2F1/corrections',
+      input
+    );
+  });
 });

@@ -15,6 +15,18 @@ const metadata = {
   price: '12.345678901234',
   fees: '0.12345678',
 };
+const importedMetadata = {
+  eventId: 'event1',
+  transactionId: 'buy1',
+  operationId: 'import-op1',
+  expectedRevisionId: 'revision1',
+  expectedSourceFingerprint: 'b'.repeat(64),
+  effectiveDate: '2026-10-02',
+  sequence: 3,
+  price: '12.345678901234',
+  fees: '0.12345678',
+  currency: 'USD',
+};
 const position = {
   id: 'p1',
   openDate: '2026-10-02',
@@ -50,10 +62,22 @@ describe('acquisition correction transport metadata', () => {
       fees: '1',
       position,
       acquisitionCorrection: metadata,
+      importedAcquisitionCorrection: importedMetadata,
+      importedExecutionCorrection: {
+        ...importedMetadata,
+        eventId: 'sell-event',
+        transactionId: 'sale1',
+      },
     });
     expect(closed).toMatchObject({
       unitsClosed: 4,
       acquisitionCorrection: metadata,
+      importedAcquisitionCorrection: importedMetadata,
+      importedExecutionCorrection: {
+        ...importedMetadata,
+        eventId: 'sell-event',
+        transactionId: 'sale1',
+      },
     });
   });
   it('does not invent correction controls for legacy or malformed metadata', () => {

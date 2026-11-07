@@ -31,6 +31,7 @@ import type {
   DraftAcquisitionCorrectionInput,
   AccountTradeInput,
   LiveSaleCorrectionResult,
+  LiveImportedExecutionCorrectionInput,
 } from '@/lib/types';
 
 export const useExchanges = (assetClass: 'crypto' | 'equity', enabled = true) =>
@@ -376,36 +377,64 @@ export const useCorrectDraftRecordedSale = () => {
 };
 
 export const useCorrectLiveManualSale = () => {
-  return useCorrectLiveManualExecution(apiClient.correctLiveManualSale);
+  return useCorrectLiveManualExecution<
+    DraftSaleCorrectionInput,
+    {
+      accountId: string;
+      transactionId: string;
+      input: DraftSaleCorrectionInput;
+    }
+  >(apiClient.correctLiveManualSale, variables => variables.transactionId);
 };
 
 export const useCorrectLiveManualAcquisition = () => {
-  return useCorrectLiveManualExecution(apiClient.correctLiveManualAcquisition);
+  return useCorrectLiveManualExecution<
+    DraftAcquisitionCorrectionInput,
+    {
+      accountId: string;
+      transactionId: string;
+      input: DraftAcquisitionCorrectionInput;
+    }
+  >(
+    apiClient.correctLiveManualAcquisition,
+    variables => variables.transactionId
+  );
 };
 
-function useCorrectLiveManualExecution<T extends DraftSaleCorrectionInput>(
+export const useCorrectLiveImportedExecution = () => {
+  return useCorrectLiveManualExecution<
+    LiveImportedExecutionCorrectionInput,
+    {
+      accountId: string;
+      eventId: string;
+      input: LiveImportedExecutionCorrectionInput;
+    }
+  >(apiClient.correctLiveImportedExecution, variables => variables.eventId);
+};
+
+function useCorrectLiveManualExecution<
+  T extends DraftSaleCorrectionInput,
+  V extends { accountId: string; input: T },
+>(
   correct: (
     accountId: string,
     transactionId: string,
     input: T
-  ) => Promise<LiveSaleCorrectionResult>
+  ) => Promise<LiveSaleCorrectionResult>,
+  executionId: (variables: V) => string
 ) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({
-      accountId,
-      transactionId,
-      input,
-    }: {
-      accountId: string;
-      transactionId: string;
-      input: T;
-    }) => {
+    mutationFn: (variables: V) => {
       if (typeof navigator !== 'undefined' && !navigator.onLine)
         throw new Error(
           'Reconnect to correct this execution. Offline changes are not queued.'
         );
-      return correct(accountId, transactionId, input);
+      return correct(
+        variables.accountId,
+        executionId(variables),
+        variables.input
+      );
     },
     retry: false,
     networkMode: 'always',

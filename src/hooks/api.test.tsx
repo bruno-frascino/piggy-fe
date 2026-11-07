@@ -28,6 +28,7 @@ const {
   correctRecordedAcquisitionMock,
   postAccountTradeMock,
   correctLiveAcquisitionMock,
+  correctLiveImportedMock,
 } = vi.hoisted(() => ({
   updatePositionMock: vi.fn(),
   updateCloseEventMock: vi.fn(),
@@ -51,6 +52,7 @@ const {
   correctRecordedAcquisitionMock: vi.fn(),
   postAccountTradeMock: vi.fn(),
   correctLiveAcquisitionMock: vi.fn(),
+  correctLiveImportedMock: vi.fn(),
 }));
 
 vi.mock('@/lib/api-client', () => ({
@@ -77,6 +79,7 @@ vi.mock('@/lib/api-client', () => ({
     correctDraftRecordedAcquisition: correctRecordedAcquisitionMock,
     postAccountTrade: postAccountTradeMock,
     correctLiveManualAcquisition: correctLiveAcquisitionMock,
+    correctLiveImportedExecution: correctLiveImportedMock,
   },
 }));
 
@@ -103,6 +106,7 @@ import {
   useCorrectDraftRecordedAcquisition,
   usePostAccountTrade,
   useCorrectLiveManualAcquisition,
+  useCorrectLiveImportedExecution,
 } from './api';
 import { useSymbolSearch } from './useSymbolSearch';
 
@@ -137,6 +141,7 @@ describe('live acquisition correction hook', () => {
     const { result } = renderHook(() => useCorrectLiveManualAcquisition(), {
       wrapper: createWrapper(client),
     });
+
     await act(async () => {
       await result.current.mutateAsync({
         accountId: 'a1',
@@ -204,6 +209,41 @@ describe('live acquisition correction hook', () => {
     });
     expect(correctLiveAcquisitionMock).toHaveBeenCalledTimes(1);
     expect(invalidate).toHaveBeenCalledWith({ queryKey: ['closed-positions'] });
+    client.clear();
+  });
+});
+
+describe('live imported execution correction hook', () => {
+  it('uses the event identity and invalidates financial views', async () => {
+    const client = new QueryClient();
+    const invalidate = vi.spyOn(client, 'invalidateQueries');
+    const input = {
+      idempotencyKey: 'import-fix',
+      expectedRevisionId: 'op1',
+      expectedSourceFingerprint: 'a'.repeat(64),
+      reason: 'Broker statement correction',
+      effectiveDate: '2026-10-02',
+      sequence: 2,
+      price: '12.345678901234',
+      fees: '0.00000001',
+    };
+    correctLiveImportedMock.mockResolvedValue({ revisionId: 'r1' });
+    const { result } = renderHook(() => useCorrectLiveImportedExecution(), {
+      wrapper: createWrapper(client),
+    });
+    await act(async () => {
+      await result.current.mutateAsync({
+        accountId: 'a1',
+        eventId: 'event1',
+        input,
+      });
+    });
+    expect(correctLiveImportedMock).toHaveBeenCalledWith('a1', 'event1', input);
+    expect(invalidate).toHaveBeenCalledWith({ queryKey: ['holdings'] });
+    expect(invalidate).toHaveBeenCalledWith({
+      queryKey: ['closed-positions'],
+    });
+    expect(invalidate).toHaveBeenCalledWith({ queryKey: ['tax-reports'] });
     client.clear();
   });
 });

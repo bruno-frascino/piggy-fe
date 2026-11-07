@@ -47,6 +47,7 @@ export interface ExchangeSummary {
 
 export interface HoldingPosition {
   acquisitionCorrection?: LiveAcquisitionCorrectionMetadata;
+  importedExecutionCorrection?: LiveImportedExecutionCorrectionMetadata;
   assetType?: AssetType;
   id?: string; // backend position ID (present when loaded from API)
   accountId?: string;
@@ -194,6 +195,8 @@ export interface ClosedTrade {
   maxRunUpPercent?: number; // best intra-trade peak gain above entry price, in percent (positive number)
   cashCorrection?: LiveSaleCorrectionMetadata;
   acquisitionCorrection?: LiveAcquisitionCorrectionMetadata;
+  importedExecutionCorrection?: LiveImportedExecutionCorrectionMetadata;
+  importedAcquisitionCorrection?: LiveImportedExecutionCorrectionMetadata;
 }
 
 export interface LiveSaleCorrectionMetadata {
@@ -203,6 +206,16 @@ export interface LiveSaleCorrectionMetadata {
   effectiveDate: string;
   sequence: number;
 }
+
+export interface LiveImportedExecutionCorrectionMetadata extends LiveSaleCorrectionMetadata {
+  eventId: string;
+  transactionId: string;
+  price: string;
+  fees: string;
+  currency: string;
+}
+
+export type LiveImportedExecutionCorrectionInput = DraftSaleCorrectionInput;
 
 export interface LiveAcquisitionCorrectionMetadata extends LiveSaleCorrectionMetadata {
   transactionId: string;

@@ -51,6 +51,7 @@ export default function AddHoldingsDialog({
   onDelete,
   onImport,
   onCorrectAcquisition,
+  onCorrectImportedExecution,
   busy = false,
   error,
 }: {
@@ -65,6 +66,7 @@ export default function AddHoldingsDialog({
   onDelete?: () => void;
   onImport?: () => void;
   onCorrectAcquisition?: () => void;
+  onCorrectImportedExecution?: () => void;
   busy?: boolean;
   error?: string;
 }) {
@@ -84,6 +86,9 @@ export default function AddHoldingsDialog({
   const [errors, setErrors] = useState<Record<string, string>>({});
   const auditedAcquisition =
     mode === 'edit' && Boolean(initial?.acquisitionCorrection);
+  const auditedImportedExecution =
+    mode === 'edit' && Boolean(initial?.importedExecutionCorrection);
+  const accountingProtected = auditedAcquisition || auditedImportedExecution;
   const { symbolSuggestions, setSymbolSuggestions, searchSymbol } =
     useSymbolSearch();
   const { accountSuggestions, searchAccount, resetAccountSuggestions } =
@@ -237,7 +242,7 @@ export default function AddHoldingsDialog({
       validationErrors={errors}
       footer={
         <div className='task-actions'>
-          {mode === 'edit' && onDelete && !auditedAcquisition && (
+          {mode === 'edit' && onDelete && !accountingProtected && (
             <Button
               className='task-delete'
               label='Delete'
@@ -268,17 +273,29 @@ export default function AddHoldingsDialog({
       onHide={onHide}
     >
       <div className='space-y-4'>
-        {auditedAcquisition && (
+        {accountingProtected && (
           <div className='space-y-2'>
             <Message
               severity='info'
-              text='This purchase is cash-linked. Financial changes require an audited acquisition correction; notes and trading metadata remain editable here.'
+              text={
+                auditedImportedExecution
+                  ? 'This imported execution is cash-linked. Use an audited correction to change its date, price, or fees; quantity and parcel allocation remain fixed.'
+                  : 'This purchase is cash-linked. Financial changes require an audited acquisition correction; notes and trading metadata remain editable here.'
+              }
             />
-            {onCorrectAcquisition && (
+            {auditedAcquisition && onCorrectAcquisition && (
               <Button
                 label='Correct acquisition'
                 outlined
                 onClick={onCorrectAcquisition}
+                disabled={busy}
+              />
+            )}
+            {auditedImportedExecution && onCorrectImportedExecution && (
+              <Button
+                label='Correct imported execution'
+                outlined
+                onClick={onCorrectImportedExecution}
                 disabled={busy}
               />
             )}
@@ -334,7 +351,7 @@ export default function AddHoldingsDialog({
         {/* Row 1: Trading Account */}
         <div className='grid grid-cols-12 gap-3'>
           <div className='col-span-12'>
-            {lockAccount || auditedAcquisition ? (
+            {lockAccount || accountingProtected ? (
               <p className='task-summary'>
                 Account <strong>{form.accountName ?? 'Main'}</strong>
               </p>
@@ -552,7 +569,7 @@ export default function AddHoldingsDialog({
               ) : (
                 <InputText
                   id='position-symbol'
-                  readOnly={auditedAcquisition}
+                  readOnly={accountingProtected}
                   aria-invalid={Boolean(errors.symbol)}
                   value={(form.symbol ?? '').toUpperCase()}
                   onChange={e =>
@@ -585,7 +602,7 @@ export default function AddHoldingsDialog({
             </label>
             <Calendar
               inputId='position-date'
-              disabled={auditedAcquisition}
+              disabled={accountingProtected}
               invalid={Boolean(errors.openDate)}
               value={(() => {
                 const parts = (form.openDate ?? '').split('-').map(Number);
@@ -627,7 +644,7 @@ export default function AddHoldingsDialog({
               {crypto ? `Quantity${coin ? ` (${coin})` : ''} *` : 'Units *'}
             </label>
             <InputNumber
-              disabled={auditedAcquisition}
+              disabled={accountingProtected}
               value={form.units ?? 0}
               onValueChange={e =>
                 setForm(f => ({ ...f, units: (e.value ?? 0) as number }))
@@ -658,7 +675,7 @@ export default function AddHoldingsDialog({
             </label>
             <InputNumber
               inputId='position-price'
-              disabled={auditedAcquisition}
+              disabled={accountingProtected}
               invalid={Boolean(errors.buyPrice)}
               value={form.buyPrice ?? 0}
               onValueChange={e =>
@@ -684,7 +701,7 @@ export default function AddHoldingsDialog({
             </label>
             <InputNumber
               inputId='position-fee'
-              disabled={auditedAcquisition}
+              disabled={accountingProtected}
               value={form.buyFee ?? 0}
               onValueChange={e =>
                 setForm(f => ({ ...f, buyFee: (e.value ?? 0) as number }))

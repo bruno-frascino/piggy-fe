@@ -2,19 +2,19 @@
   "artifacts": {
     "api-binding.md": {
       "path": "context/api-binding.md",
-      "sha256": "acd8ba6e68a8f4db701f1e414eaa62a12ea5f55ea616b006bf71595882cfa531"
+      "sha256": "0fc6c8757dd290a43687faacb271386a197372c603ac8d317149dab08b8bd6b0"
     },
     "api-types.ts": {
       "path": "src/lib/generated/api-types.ts",
-      "sha256": "a114b68fa2baf71237449fd4f3a344a2912d8c1800544b6399f728de89479b3e"
+      "sha256": "552dfac56f85d51b18981d76a5de898ec7b98f0ad02938c89cad81ab0974847f"
     },
     "component-index.md": {
       "path": "context/component-index.md",
-      "sha256": "b153f38162f440bee2409393e8fced3073fe943904dcc314ec174e20d0f3c4e5"
+      "sha256": "da9f1fc93899d66c2c16899049a22eb632a9539e6807be265f27ed83bd43b6a6"
     },
     "contract-drift.md": {
       "path": "context/contract-drift.md",
-      "sha256": "ba898a30614c649d6615ba14bc73e778521a6e80128ea872e06abb21ccda3482"
+      "sha256": "79b457842bf7b708fc6c5d29323f11e88fd2c4cf4442665d56d952984d468fc9"
     },
     "data-flow.md": {
       "path": "context/data-flow.md",
@@ -22,25 +22,25 @@
     },
     "module-graph.json": {
       "path": "context/module-graph.json",
-      "sha256": "91a3aa46297095edbff9a944dde53e455db1fc5651b8b5655005d38e971f5aa1"
+      "sha256": "4ec91c56d5f3e82de8d1ec255de6711b2cdfbca045ab0717ef0ee8fdc2449b56"
     },
     "module-graph.md": {
       "path": "context/module-graph.md",
-      "sha256": "e2b9e71f8498eba9f3d825889ca821b96ee351167a608c926ac03b8d7ece82a4"
+      "sha256": "cfbdd62aa9164c2c7a29b701ea477a633d18a565debf760c249abf5fca5af8f7"
     },
     "route-map.md": {
       "path": "context/route-map.md",
-      "sha256": "f3fb04e20bb8f0b4641d69617c9f979764077f2cbcb7c0b89ad472767b17a63c"
+      "sha256": "0533c2b01b253c1decfecb894633f2937643f20a8a8346562cf5bfff6fc6279c"
     },
     "symbol-index.json": {
       "path": "context/symbol-index.json",
-      "sha256": "eedb023e1b73d8f7d90a4ca779ce718a2dbdc15f69ee2a9473fb27f1d7318b99"
+      "sha256": "58d51d1a5776121f83f961ca589a6b2b8b86c84de5a43b2b2609696f6ecf3b4d"
     },
     "unused.json": {
       "path": "context/unused.json",
-      "sha256": "c68d246c5c000806168e6f17ad11bc09ac0c96bfbd3e05cc406cd5533296cc50"
+      "sha256": "21c064a951321920eab2ac7c2d89b0654fdb71861bd78ef5af38e8d7e5e0f9da"
     }
   },
-  "generatedAt": "2026-11-07T04:31:33.636Z",
+  "generatedAt": "2026-11-07T10:45:26.714Z",
   "generatorVersion": 1
 }

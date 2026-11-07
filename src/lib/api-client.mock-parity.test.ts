@@ -146,6 +146,21 @@ describe('apiClient mock-mode parity', () => {
       expectRejection: /require the real API/i,
     },
     {
+      name: 'correctLiveImportedExecution',
+      call: () =>
+        apiClient.correctLiveImportedExecution('a1', 'event1', {
+          idempotencyKey: 'import-fix',
+          expectedRevisionId: 'op1',
+          expectedSourceFingerprint: 'a'.repeat(64),
+          reason: 'Correct imported execution',
+          effectiveDate: '2026-10-03',
+          sequence: 2,
+          price: '12',
+          fees: '1',
+        }),
+      expectRejection: /require the real API/i,
+    },
+    {
       name: 'stageDraftManualExecutionCash',
       call: () =>
         apiClient.stageDraftManualExecutionCash('a1', 's1', 't1', {

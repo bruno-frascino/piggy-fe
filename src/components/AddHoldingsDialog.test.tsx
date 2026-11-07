@@ -127,6 +127,58 @@ describe('responsive purchase form', () => {
     expect(correct).toHaveBeenCalledOnce();
   });
 
+  it('locks imported execution fields and exposes only its audited correction action', () => {
+    const correct = vi.fn();
+    render(
+      <AddHoldingsDialog
+        visible
+        mode='edit'
+        lockAccount
+        accountName='Main'
+        initial={{
+          symbol: 'BTC-AUD',
+          name: 'Bitcoin',
+          exchangeCode: 'KRAKEN',
+          openDate: '2026-10-02',
+          units: 1,
+          buyPrice: 60,
+          buyFee: 1,
+          importedExecutionCorrection: {
+            eventId: 'event1',
+            transactionId: 'buy1',
+            operationId: 'op1',
+            expectedRevisionId: 'r1',
+            expectedSourceFingerprint: 'a'.repeat(64),
+            effectiveDate: '2026-10-02',
+            sequence: 1,
+            price: '60',
+            fees: '1',
+            currency: 'AUD',
+          },
+        }}
+        onHide={vi.fn()}
+        onSubmit={vi.fn()}
+        onDelete={vi.fn()}
+        onCorrectImportedExecution={correct}
+      />
+    );
+
+    for (const label of [
+      'Purchase date *',
+      'Quantity (BTC) *',
+      'Price per coin (AUD) *',
+      'Purchase fees (AUD)',
+    ])
+      expect(screen.getByLabelText(label)).toBeDisabled();
+    expect(
+      screen.queryByRole('button', { name: 'Delete' })
+    ).not.toBeInTheDocument();
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Correct imported execution' })
+    );
+    expect(correct).toHaveBeenCalledOnce();
+  });
+
   it('keeps actions outside scrolling content and retains collapsed optional fields on save', () => {
     const onSubmit = vi.fn();
     render(
