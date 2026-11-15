@@ -221,6 +221,605 @@ export interface paths {
         };
         trace?: never;
     };
+    "/api/accounts/{id}/cash-operations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read live cash balances, activity and retained audits
+         * @description Returns exact ledger-replayed balances and effective-dated activity, the opening boundary, source freshness, unsupported events and attested statement evidence. Transfer audit command summaries include transfer.fromAccountId, transfer.toAccountId and fee (charged to this account only); the shared idempotency key and source reference identify the pair. Transfer principal contributes to account-level external capital and cancels across both endpoints; fees remain costs. Paired operation integrity is checked before returning balances. Active and archived real accounts are read-only here. Evidence is user-attested, not broker-verified; stale or unsupported source history is explicitly flagged.
+         */
+        get: {
+            parameters: {
+                query?: {
+                    limit?: number;
+                    offset?: number;
+                };
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Read-only cash replay, effective activity, retained revisions and evidence comparisons. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            data: {
+                                /** @enum {string} */
+                                accountStatus: "ACTIVE" | "CLOSED";
+                                activity: {
+                                    auditNumber: number | null;
+                                    changes: Record<string, never>[];
+                                    /** Format: date */
+                                    effectiveDate: string;
+                                    idempotencyKey: string;
+                                    kind: string;
+                                    operationId: string;
+                                    /** Format: date-time */
+                                    recordedAt: string;
+                                    sequence: number;
+                                    /** @enum {string} */
+                                    sourceOrigin: "MANUAL" | "IMPORT";
+                                    sourceReference: string;
+                                }[];
+                                activityTotal: number;
+                                auditNumber: number;
+                                auditOperations: {
+                                    auditNumber: number;
+                                    current: Record<string, never> | null;
+                                    incomeReceipt: {
+                                        assetId?: string;
+                                        assetSymbol?: string;
+                                        currency?: string;
+                                        /** Format: date */
+                                        entitlementDate?: string;
+                                        frankedAmount?: string;
+                                        frankingCreditAud?: string;
+                                        grossAmount?: string;
+                                        netAmount?: string;
+                                        /** Format: date */
+                                        paymentDate?: string;
+                                        unfrankedAmount?: string;
+                                        withholdingAmount?: string;
+                                    } | null;
+                                    operationId: string;
+                                    original: Record<string, never>;
+                                    /** Format: date-time */
+                                    recordedAt: string;
+                                    revisions: Record<string, never>[];
+                                }[];
+                                auditTotal: number;
+                                /** @enum {string} */
+                                cashCompleteness: "COMPLETE" | "INCOMPLETE";
+                                /** Format: date-time */
+                                checkedAt: string;
+                                evidence: Record<string, never>[];
+                                /** @enum {string} */
+                                evidenceStatus: "MATCHES_REPLAY" | "VARIANCE" | "NO_ATTESTATION";
+                                items: {
+                                    currency: string;
+                                    current: Record<string, never> | null;
+                                    expectedRevisionId: string;
+                                    /** @enum {string} */
+                                    kind: "DEPOSIT" | "WITHDRAWAL";
+                                    operationId: string;
+                                    original: Record<string, never>;
+                                    reinvestment?: {
+                                        acquisitionOperationId: string;
+                                        incomeOperationId: string;
+                                        positionId: string;
+                                        request: components["schemas"]["AccountReinvestmentInput"];
+                                    } | null;
+                                    revisions: Record<string, never>[];
+                                    sourceReference: string;
+                                }[];
+                                ledgerState: string;
+                                limit: number;
+                                offset: number;
+                                openingBoundary: {
+                                    /** Format: date */
+                                    date: string;
+                                    /** @enum {string} */
+                                    timezone: "Australia/Sydney";
+                                    /** @enum {string} */
+                                    type: "END_OF_DAY";
+                                };
+                                replay: components["schemas"]["AccountTradeResponse"]["data"]["replay"];
+                                /** Format: date */
+                                reviewedAsOfDate: string;
+                                sourceFingerprint: string;
+                                sourceFreshness: {
+                                    acceptedFingerprint: string;
+                                    currentFingerprint: string | null;
+                                    /** @enum {string} */
+                                    status: "CURRENT" | "STALE" | "NOT_REVALIDATED";
+                                };
+                                sourceReviewIssues: Record<string, never>[];
+                                total: number;
+                                unsupportedEvents: Record<string, never>[];
+                            };
+                            success: boolean;
+                        };
+                    };
+                };
+                /** @description Unauthorized. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Owned account not found. */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description No confirmed cash ledger exists */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        /**
+         * Record an explicit live deposit or withdrawal
+         * @description Posts a cash-only capital flow for an explicitly confirmed active ledger. The operation does not create a trade or auto-balance cash. Dated replay rejects a withdrawal or backdated flow that leaves any point unfunded. No account is activated by this endpoint.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        /** @description Exact positive decimal amount. */
+                        amount: string;
+                        /** @description Explicit supported ISO currency. */
+                        currency: string;
+                        /** Format: date */
+                        effectiveDate: string;
+                        idempotencyKey: string;
+                        /** @enum {string} */
+                        kind: "DEPOSIT" | "WITHDRAWAL";
+                        sequence: number;
+                        /** @description User-supplied bank */
+                        sourceReference: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description Idempotent retry of an already committed operation. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Cash-only operation and immutable postings were committed atomically. */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Invalid capital flow command. */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unauthorized. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Owned account not found. */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Account has no active confirmed ledger */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Flow would leave a dated cash balance unfunded or history is unsupported. */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/accounts/{id}/cash-operations/{operationId}/corrections": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Correct or reverse a live deposit or withdrawal
+         * @description Appends an immutable cash-only revision. Replacements retain operation kind, source reference and currency; reversal is terminal. Dated replay must remain funded.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                    operationId: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        expectedAuditNumber: number;
+                        expectedRevisionId: string;
+                        expectedSourceFingerprint: string;
+                        idempotencyKey: string;
+                        reason: string;
+                        replacement: null | {
+                            /** @description Exact positive decimal amount. */
+                            amount: string;
+                            /** Format: date */
+                            effectiveDate: string;
+                            sequence: number;
+                        };
+                    };
+                };
+            };
+            responses: {
+                /** @description Idempotent retry of a prior correction/reversal. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            data: Record<string, never>;
+                            success: boolean;
+                        };
+                    };
+                };
+                /** @description Immutable correction/reversal and its cash postings were committed. */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            data: {
+                                created: boolean;
+                                operationId: string;
+                                replay: components["schemas"]["AccountTradeResponse"]["data"]["replay"];
+                                revisionId: string;
+                            };
+                            success: boolean;
+                        };
+                    };
+                };
+                /** @description Invalid correction request. */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unauthorized. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Owned account or live funding operation not found. */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Stale audit head */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Corrected or reversed funding would leave a dated balance negative. */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/accounts/{id}/cash-transfers": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Atomically transfer same-currency cash between two owned live ledgers
+         * @description Both accounts must be active real accounts with confirmed ledgers, current source history and explicit opening cash in this currency. A shared dated transfer debits principal plus sender-paid fee and credits principal only. Principal is external to each account and cancels when both accounts are selected; fees remain costs. No holdings, FX, activation, direct edits or one-sided reversals; corrections use the dedicated paired audit workflow. Same-key retries reuse both operations.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        /** @description Exact positive principal in the same currency at both endpoints. */
+                        amount: string;
+                        currency: string;
+                        destinationSequence: number;
+                        /** Format: date */
+                        effectiveDate: string;
+                        /** @description Exact non-negative sender-paid fee in the principal currency. */
+                        fee: string;
+                        idempotencyKey: string;
+                        sourceReference: string;
+                        sourceSequence: number;
+                        toAccountId: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description Identical retry; no new postings. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AccountCashTransferResponse"];
+                    };
+                };
+                /** @description Both cash operations committed atomically. */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AccountCashTransferResponse"];
+                    };
+                };
+                /** @description Invalid transfer command. */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unauthorized. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description An owned account was not found. */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Ledger unavailable */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Missing currency opening or insufficient dated cash. */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/accounts/{id}/cash-transfers/{operationId}/corrections": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Review both current ledger heads before a paired transfer revision
+         * @description Requires an owned outgoing transfer and two active real ledgers with fresh, valid sources. Returns fixed identity, current effective amounts and both review heads. A terminal reversal has current null. Retained archived audits remain accessible via cash-operations instead.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                    operationId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Validated paired review; does not write or activate accounts. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            data: components["schemas"]["LiveCashTransferReview"];
+                            success: boolean;
+                        };
+                    };
+                };
+                /** @description Unauthorized. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Owned outgoing transfer not found. */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Ledger unavailable */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        /**
+         * Atomically correct or terminally reverse both cash-transfer legs
+         * @description Preserves both accounts, currency and statement source. Replacement may change principal, sender-paid fee, shared date and independent sequences; null is a terminal reversal. Both review heads must be current, both dated timelines remain funded, and both immutable revision chains commit or roll back together. Old date/sequence slots remain reserved. Same-key retries reuse the pair, even after later activity. No one-sided funding revision, holdings move or FX.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                    operationId: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["AccountCashTransferCorrectionInput"];
+                };
+            };
+            responses: {
+                /** @description Identical paired revision retry; no new postings. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AccountCashTransferCorrectionResponse"];
+                    };
+                };
+                /** @description Both immutable reversal/replacement revisions committed. */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AccountCashTransferCorrectionResponse"];
+                    };
+                };
+                /** @description Invalid revision or no economic/date/order change. */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unauthorized. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Owned outgoing transfer not found. */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Stale heads */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Either dated account timeline would become unfunded or exceed the supported replay limit. */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/accounts/{id}/close": {
         parameters: {
             query?: never;
@@ -261,6 +860,235 @@ export interface paths {
                 };
                 /** @description Account still has open positions */
                 409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/accounts/{id}/fx-conversions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Record an explicit same-account currency conversion
+         * @description Records an already executed broker conversion, never executes FX or implicitly funds a purchase. Requires an owned active confirmed real ledger, fresh sources and explicit openings in both currencies. Positive exchanged amounts are before separately recorded fees, which may be in either exchanged currency; no third currency. One date/sequence links both currency legs atomically. Full dated funding, immutable history and exact retries are enforced. Principal and fees are not external capital. Revisions use the dedicated audited correction endpoint; no direct edits, holdings changes or account activation.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["AccountFxConversionInput"];
+                };
+            };
+            responses: {
+                /** @description Identical retry; no new postings. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AccountFxConversionResponse"];
+                    };
+                };
+                /** @description Linked currency postings committed. */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AccountFxConversionResponse"];
+                    };
+                };
+                /** @description Invalid amounts */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unauthorized. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Owned account not found. */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unconfirmed/demo/archived/stale ledger */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Missing currency opening */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/accounts/{id}/fx-conversions/{operationId}/corrections": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Review the current FX revision and live cash audit head
+         * @description Requires an owned FX operation and fresh active confirmed real ledger. Returns fixed currency direction/source, current amounts/fees and revision/audit/fingerprint. Terminal reversal has current null. Archived retained audits use cash-operations.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                    operationId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Validated current FX review; no writes or activation. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            data: components["schemas"]["LiveFxConversionReview"];
+                            success: boolean;
+                        };
+                    };
+                };
+                /** @description Unauthorized. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Owned FX operation not found. */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Archived */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        /**
+         * Audited fixed-identity FX correction or terminal reversal
+         * @description Changes exchanged amounts, fees, date or sequence, never account, currency pair/direction or source reference. Requires current revision/audit/fingerprint and reason. Atomic inverse/replacement legs restate effective history while preserving all original/replacement slots and funded replay in both currencies. Reversal removes original effects including fees, not a new reverse exchange. Identical retained retries remain valid after later activity; no generic funding revision or activation.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                    operationId: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["AccountFxCorrectionInput"];
+                };
+            };
+            responses: {
+                /** @description Identical retry; no new postings. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AccountFxCorrectionResponse"];
+                    };
+                };
+                /** @description Immutable revision committed. */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AccountFxCorrectionResponse"];
+                    };
+                };
+                /** @description Invalid fields */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unauthorized. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Owned FX operation not found. */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Stale heads/history */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unfunded dated currency timeline or precision/replay limits. */
+                422: {
                     headers: {
                         [name: string]: unknown;
                     };
@@ -358,6 +1186,223 @@ export interface paths {
                     content?: never;
                 };
                 /** @description Correction would leave an unsupported or insufficiently funded ledger. */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/accounts/{id}/income-receipts": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Record a manual dividend or distribution receipt
+         * @description Posts net cash to an active confirmed ledger while retaining gross income, withholding, franked/unfranked amounts, franking credits and the user-supplied statement reference. Only equity and ETF assets already held in the account are supported. Complex AMIT components and automated income are not supported.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        assetId: string;
+                        /** @description Explicit supported ISO currency; franking amounts and credits require AUD. */
+                        currency: string;
+                        /** Format: date */
+                        entitlementDate: string;
+                        /** @description Gross component classified as franked. */
+                        frankedAmount: string;
+                        /** @description Non-cash franking credit in AUD. */
+                        frankingCreditAud: string;
+                        /** @description Exact positive gross distribution amount. */
+                        grossAmount: string;
+                        idempotencyKey: string;
+                        /**
+                         * Format: date
+                         * @description Effective date for the positive net-cash posting.
+                         */
+                        paymentDate: string;
+                        sequence: number;
+                        sourceReference: string;
+                        /** @description Gross component classified as unfranked; both components must sum to gross. */
+                        unfrankedAmount: string;
+                        /** @description Exact non-negative withholding */
+                        withholdingAmount: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description Idempotent retry of an identical income receipt. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AccountIncomeReceiptResponse"];
+                    };
+                };
+                /** @description Income audit record and net cash posting committed atomically. */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AccountIncomeReceiptResponse"];
+                    };
+                };
+                /** @description Invalid income receipt. */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unauthorized. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Owned account not found. */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Account has no active confirmed ledger */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Asset is not eligible or the dated cash history is unsupported. */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/accounts/{id}/income-receipts/{operationId}/corrections": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Correct or terminally reverse a live income receipt
+         * @description Appends an immutable income revision and cash postings. Replacement preserves asset, currency and source reference; reverse and record a new receipt to correct those identity fields. Dated replay must remain funded.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                    operationId: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        expectedAuditNumber: number;
+                        expectedRevisionId: string;
+                        expectedSourceFingerprint: string;
+                        idempotencyKey: string;
+                        reason: string;
+                        replacement: null | {
+                            /** Format: date */
+                            entitlementDate: string;
+                            frankedAmount: string;
+                            frankingCreditAud: string;
+                            grossAmount: string;
+                            /** Format: date */
+                            paymentDate: string;
+                            sequence: number;
+                            unfrankedAmount: string;
+                            withholdingAmount: string;
+                        };
+                    };
+                };
+            };
+            responses: {
+                /** @description Idempotent retry of a prior correction/reversal. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Immutable correction/reversal and cash postings committed. */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Invalid correction request. */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unauthorized. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Owned account or live income receipt not found. */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Stale audit head */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Corrected or reversed income would leave a dated balance negative. */
                 422: {
                     headers: {
                         [name: string]: unknown;
@@ -508,8 +1553,8 @@ export interface paths {
             cookie?: never;
         };
         /**
-         * List inactive opening draft revisions newest first
-         * @description Returns up to 20 revisions with explicit cash balances and parcel counts. Saved snapshots are not current account valuations. Closed accounts retain access; drafts are removed with account/user deletion.
+         * List opening statement revisions newest first
+         * @description Returns up to 20 inactive drafts or confirmed statements with explicit cash balances, parcel counts, operation counts and confirmation audit metadata. Saved snapshots are not current account valuations. Closed accounts retain access; drafts are removed with account/user deletion.
          */
         get: {
             parameters: {
@@ -525,7 +1570,7 @@ export interface paths {
             };
             requestBody?: never;
             responses: {
-                /** @description Inactive statement revision page. */
+                /** @description Opening statement revision page. */
                 200: {
                     headers: {
                         [name: string]: unknown;
@@ -1186,6 +2231,115 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/accounts/{id}/opening-statements/{statementId}/confirm": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Confirm one reviewed opening statement and atomically enable its cash ledger
+         * @description Per-account and retry-safe. Requires the latest clean draft, matching source records at the reviewed observation date, issue-free supported inventory, no post-boundary trades, funded replay, exact latest user-attested cash evidence and explicit acknowledgements. Saved activity on the selected draft blocks confirmation; activity on other inactive drafts is retained and explicitly excluded, never posted or promoted. Confirmation creates no valuation or performance return. This endpoint enables only the selected account and is never called implicitly.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                    statementId: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        acknowledgements: {
+                            /** @enum {boolean} */
+                            cashEvidenceUserAttested: true;
+                            /** @enum {boolean} */
+                            openingBalancesReviewed: true;
+                            /** @enum {boolean} */
+                            priorDraftActivityExcluded: true;
+                            /** @enum {boolean} */
+                            returnsUnavailableWithoutValuations: true;
+                        };
+                        expectedSourceFingerprint: string;
+                        idempotencyKey: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description Idempotent retry of the original confirmation. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            data: components["schemas"]["OpeningConfirmationResult"];
+                            success: boolean;
+                        };
+                    };
+                };
+                /** @description Opening statement confirmation and active ledger committed atomically. */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            data: components["schemas"]["OpeningConfirmationResult"];
+                            success: boolean;
+                        };
+                    };
+                };
+                /** @description Invalid confirmation command or incomplete acknowledgement. */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Authentication required. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Account or opening statement not found. */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Source/evidence drift */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Reconciliation exceeds supported confirmation limits. */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/accounts/{id}/opening-statements/{statementId}/import-events/{eventId}/cash-operation": {
         parameters: {
             query?: never;
@@ -1377,7 +2531,7 @@ export interface paths {
             };
             requestBody?: never;
             responses: {
-                /** @description Read-only draft reconciliation including cash evidence/variances, source savedFingerprint/acceptedFingerprint/currentFingerprint/correctionCount/changed, cash-operation currentRevisionId/capital cash/revisions (revisionId, reason, replacement boolean, nullable executionAudit containing number, previousFingerprint, nextFingerprint, reviewed input and before/after transaction snapshots; acquisition audits have kind BUY and input quantity, historical sale audits are untagged), effective or reversed sources, imported execution eligibility with duplicate transaction-link detection and cashManualExecutions (transactionId, positionId, kind, quantity, effectiveDate, occurredAt, currency, price, grossValue, fee, stageable, reason, operationId). Audit snapshots include transactionId, positionId, ISO date, quantity, price, totalValue, fees and currency. Manual eligibility excludes broker-linked allocations, imported/short parcels, unsupported money, boundary/future dates, stale snapshots, unavailable accounts and incompatible opening-sale proposals. */
+                /** @description Read-only draft reconciliation including cash evidence/variances, source savedFingerprint/acceptedFingerprint/currentFingerprint/correctionCount/changed, confirmationReview (eligible, blockers, excludedDraftActivity with statementId/version/operationCount), cash-operation currentRevisionId/capital cash/revisions (revisionId, reason, replacement boolean, nullable executionAudit containing number, previousFingerprint, nextFingerprint, reviewed input and before/after transaction snapshots; acquisition audits have kind BUY and input quantity, historical sale audits are untagged), effective or reversed sources, imported execution eligibility with duplicate transaction-link detection and cashManualExecutions (transactionId, positionId, kind, quantity, effectiveDate, occurredAt, currency, price, grossValue, fee, stageable, reason, operationId). Audit snapshots include transactionId, positionId, ISO date, quantity, price, totalValue, fees and currency. Manual eligibility excludes broker-linked allocations, imported/short parcels, unsupported money, boundary/future dates, stale snapshots, unavailable accounts and incompatible opening-sale proposals. */
                 200: {
                     headers: {
                         [name: string]: unknown;
@@ -1504,6 +2658,235 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/accounts/{id}/reinvestments": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Record statement-supported dividend reinvestment atomically
+         * @description Creates exactly one equity/ETF income receipt and a new BUY parcel in the same account/currency. Statement-confirmed entitlement and tax figures are authoritative; eligible historical holdings are required. Exact net income must equal acquisition consideration plus fees plus an explicit account-paid residual; issuer-held credits, extra funding, existing-receipt relinking and AMIT components are unsupported. Acquisition follows income in date/sequence order. Paired immutable links and full funded replay protect both records. Independent income revisions, acquisition corrections/voids and direct deletion are blocked; use the dedicated paired revision workflow. No activation or external capital is created.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["AccountReinvestmentInput"];
+                };
+            };
+            responses: {
+                /** @description Identical retained retry; no new records. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AccountReinvestmentResponse"];
+                    };
+                };
+                /** @description Income, new parcel and immutable linked postings committed. */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["AccountReinvestmentResponse"];
+                    };
+                };
+                /** @description Invalid fields */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unauthorized. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Owned account not found. */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unconfirmed */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Ineligible asset */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/accounts/{id}/reinvestments/{operationId}/corrections": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Review a paired reinvestment and current account audit head
+         * @description Requires an owned fresh active real ledger. Either linked operation ID resolves both current revision heads, fixed statement identity and effective-sale restriction. Terminal reversal returns current null. Archived retained audits use cash-operations.
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                    operationId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Validated current paired review. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            data?: components["schemas"]["LiveReinvestmentReview"];
+                            success?: boolean;
+                        };
+                    };
+                };
+                /** @description Unauthorized. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Owned reinvestment not found. */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unavailable */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        /**
+         * Correct or terminally reverse both reinvestment effects atomically
+         * @description Fixed account, asset, currency and statement reference. Requires both current revision heads, audit number, source fingerprint and reason. No effective SELL may remain on the new parcel. Corrections update statement tax figures and acquisition/date/order/residual together, retain all slots and require funded replay; reversal removes the effective income and parcel without a disposal. Issuer-held credits and one-sided changes remain blocked. Exact retained retries survive later activity.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                    operationId: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["ReinvestmentCorrectionInput"];
+                };
+            };
+            responses: {
+                /** @description Identical retained retry. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ReinvestmentCorrectionResponse"];
+                    };
+                };
+                /** @description Paired immutable revisions committed. */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ReinvestmentCorrectionResponse"];
+                    };
+                };
+                /** @description Invalid */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unauthorized. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Owned reinvestment not found. */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Effective sales */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unsupported entitlement or history bounds. */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/accounts/{id}/reopen": {
         parameters: {
             query?: never;
@@ -1550,6 +2933,90 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/accounts/{id}/trade-capability": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Resolve the server-owned trade-write capability for an account
+         * @description Distinguishes active confirmed ledgers from legacy, demo, archived and blocked accounts. This read never activates an account.
+         */
+        get: {
+            parameters: {
+                query: {
+                    effectiveDate: string;
+                };
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Capability and available same-day cash sequence. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            data: {
+                                accountId: string;
+                                /** Format: date */
+                                effectiveDate: string;
+                                /** @enum {string} */
+                                mode: "LIVE_LEDGER" | "LEGACY" | "DEMO" | "ARCHIVED" | "BLOCKED";
+                                nextSequence: number | null;
+                                /** Format: date */
+                                openingDate: string | null;
+                                reason: string | null;
+                            };
+                            success: boolean;
+                        };
+                    };
+                };
+                /** @description Invalid effective date. */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unauthorized. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Owned account not found. */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Ledger state or audited history is inconsistent. */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/accounts/{id}/trades": {
         parameters: {
             query?: never;
@@ -1575,15 +3042,26 @@ export interface paths {
             requestBody: {
                 content: {
                     "application/json": {
-                        /** @description Required for BUY only. */
+                        /** @description Existing asset ID for BUY; alternatively provide symbol and exchangeCode. */
                         assetId?: string;
+                        assetName?: string;
+                        /** @enum {string} */
+                        assetType?: "EQUITY" | "ETF" | "CRYPTO";
+                        /** @enum {string} */
+                        closeReason?: "STOP_LOSS" | "TARGET" | "MANUAL" | "OTHER";
                         /** Format: date */
                         effectiveDate: string;
+                        /** @description BUY exchange code when resolving an asset. */
+                        exchangeCode?: string;
                         /** @description Exact non-negative decimal fee. */
                         fees: string;
                         idempotencyKey: string;
+                        industry?: string;
                         /** @enum {string} */
                         kind: "BUY" | "SELL";
+                        /** @description SELL notes. */
+                        notes?: string;
+                        openReason?: string;
                         /** @description Required for SELL only. */
                         positionId?: string;
                         /** @description Exact positive decimal price. */
@@ -1591,6 +3069,9 @@ export interface paths {
                         /** @description Exact positive decimal quantity. */
                         quantity: string;
                         sequence: number;
+                        stopLossPrice?: string | null;
+                        /** @description BUY instrument symbol when resolving an asset. */
+                        symbol?: string;
                     };
                 };
             };
@@ -5346,6 +6827,145 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        AccountCashTransferCorrectionInput: {
+            destinationHead: components["schemas"]["TransferRevisionHead"];
+            idempotencyKey: string;
+            reason: string;
+            replacement: components["schemas"]["TransferReplacement"];
+            sourceHead: components["schemas"]["TransferRevisionHead"];
+        };
+        AccountCashTransferCorrectionResponse: {
+            data: {
+                created: boolean;
+                destinationOperationId: string;
+                destinationReplay: components["schemas"]["DraftCashReplay"];
+                destinationRevisionId: string;
+                sourceOperationId: string;
+                sourceReplay: components["schemas"]["DraftCashReplay"];
+                sourceRevisionId: string;
+            };
+            success: boolean;
+        };
+        AccountCashTransferResponse: {
+            data: {
+                created: boolean;
+                destinationOperationId: string;
+                destinationReplay: components["schemas"]["DraftCashReplay"];
+                sourceOperationId: string;
+                sourceReplay: components["schemas"]["DraftCashReplay"];
+            };
+            success: boolean;
+        };
+        AccountFxConversionInput: {
+            /** Format: date */
+            effectiveDate: string;
+            /** @description Explicit fees aggregated per exchanged currency; empty list means no separately charged fee. Do not infer spread or a market rate. */
+            fees: {
+                /** @description Exact non-negative fee. */
+                amount: string;
+                currency: string;
+            }[];
+            from: {
+                /** @description Exact positive amount exchanged before explicit fees. */
+                amount: string;
+                /** @description Supported ISO currency */
+                currency: string;
+            };
+            idempotencyKey: string;
+            sequence: number;
+            sourceReference: string;
+            to: {
+                /** @description Exact positive gross amount received before explicit fees. */
+                amount: string;
+                currency: string;
+            };
+        };
+        AccountFxConversionResponse: {
+            data: {
+                created: boolean;
+                operationId: string;
+                replay: components["schemas"]["DraftCashReplay"];
+            };
+            success: boolean;
+        };
+        AccountFxCorrectionInput: {
+            expectedAuditNumber: number;
+            expectedRevisionId: string;
+            expectedSourceFingerprint: string;
+            idempotencyKey: string;
+            reason: string;
+            replacement: components["schemas"]["FxRevisionReplacement"];
+        };
+        AccountFxCorrectionResponse: {
+            data: {
+                created: boolean;
+                operationId: string;
+                replay: components["schemas"]["DraftCashReplay"];
+                revisionId: string;
+            };
+            success: boolean;
+        };
+        AccountIncomeReceiptResponse: {
+            data: {
+                created: boolean;
+                operationId: string;
+                replay: {
+                    accountId: string;
+                    activity: Record<string, never>[];
+                    balances: Record<string, never>[];
+                    funded: boolean;
+                    fundingIssues: Record<string, never>[];
+                    /** Format: date */
+                    openingDate: string;
+                };
+            };
+            success: boolean;
+        };
+        AccountReinvestmentInput: {
+            acquisition: {
+                /** Format: date */
+                effectiveDate: string;
+                /** @description Explicit fees paid from this net distribution in the same currency. */
+                fees: string;
+                /** @description Exact unit price; total consideration must fit existing cent-precision storage without rounding. */
+                price: string;
+                /** @description Exact positive units representable by the existing quantity storage. */
+                quantity: string;
+                sequence: number;
+            };
+            idempotencyKey: string;
+            income: {
+                assetId: string;
+                currency: string;
+                /** Format: date */
+                entitlementDate: string;
+                frankedAmount: string;
+                frankingCreditAud: string;
+                grossAmount: string;
+                /** Format: date */
+                paymentDate: string;
+                sequence: number;
+                sourceReference: string;
+                unfrankedAmount: string;
+                withholdingAmount: string;
+            };
+            /** @description Explicit non-negative cash paid into the account after acquisition and fees. */
+            residualAmount: string;
+            /** @enum {string} */
+            residualDisposition: "ACCOUNT_CASH";
+            /** @enum {boolean} */
+            statementConfirmed: true;
+        };
+        AccountReinvestmentResponse: {
+            data: {
+                acquisitionOperationId: string;
+                created: boolean;
+                incomeOperationId: string;
+                positionId: string;
+                replay: components["schemas"]["DraftCashReplay"];
+            };
+            success: boolean;
+        };
         AccountTradeResponse: {
             data: {
                 created: boolean;
@@ -5363,6 +6983,40 @@ export interface components {
             };
             success: boolean;
         };
+        DraftCashReplay: {
+            accountId: string;
+            activity: {
+                changes: {
+                    amount: string;
+                    balanceAfter: string;
+                    currency: string;
+                }[];
+                /** Format: date */
+                effectiveDate: string;
+                idempotencyKey: string;
+                kind: string;
+                sequence: number;
+            }[];
+            balances: {
+                currency: string;
+                endingAmount: string;
+                minimumAmount: string;
+                /** @description Includes transfer principal for this account */
+                netExternalContribution: string;
+                openingAmount: string;
+            }[];
+            funded: boolean;
+            fundingIssues: {
+                balance: string;
+                currency: string;
+                /** Format: date */
+                effectiveDate: string;
+                idempotencyKey: string;
+                sequence: number;
+            }[];
+            /** Format: date */
+            openingDate: string;
+        };
         Error: {
             /** @description Detailed validation errors */
             details?: Record<string, never>[];
@@ -5370,6 +7024,31 @@ export interface components {
             error?: string;
             /** @description Human-readable error detail */
             message?: string;
+        };
+        FxRevisionReplacement: {
+            /** Format: date */
+            effectiveDate: string;
+            fees: {
+                /** @description Exact non-negative fee in either fixed exchanged currency. */
+                amount: string;
+                currency: string;
+            }[];
+            /** @description Exact positive exchanged amount before fees. */
+            fromAmount: string;
+            sequence: number;
+            /** @description Exact positive received amount before fees. */
+            toAmount: string;
+        } | null;
+        LiveCashTransferReview: {
+            currency: string;
+            current: components["schemas"]["TransferReplacement"];
+            destinationAccountId: string;
+            destinationHead: components["schemas"]["TransferRevisionHead"];
+            destinationOperationId: string;
+            sourceAccountId: string;
+            sourceHead: components["schemas"]["TransferRevisionHead"];
+            sourceOperationId: string;
+            sourceReference: string;
         };
         LiveExecutionCorrectionResponse: {
             data: {
@@ -5388,6 +7067,45 @@ export interface components {
             };
             success: boolean;
         };
+        LiveFxConversionReview: {
+            accountId: string;
+            auditNumber: number;
+            current: components["schemas"]["FxRevisionReplacement"];
+            expectedRevisionId: string;
+            fromCurrency: string;
+            operationId: string;
+            sourceFingerprint: string;
+            sourceReference: string;
+            toCurrency: string;
+        };
+        LiveReinvestmentReview: {
+            accountId: string;
+            acquisitionOperationId: string;
+            current: components["schemas"]["ReinvestmentCorrectionInput"]["replacement"];
+            expectedAcquisitionRevisionId: string;
+            expectedAuditNumber: number;
+            expectedIncomeRevisionId: string;
+            expectedSourceFingerprint: string;
+            hasEffectiveSales: boolean;
+            incomeOperationId: string;
+            positionId: string;
+        };
+        OpeningConfirmationResult: {
+            accountId: string;
+            confirmationAudit: {
+                [key: string]: unknown;
+            } | null;
+            /** Format: date-time */
+            confirmedAt: string | null;
+            confirmedByUserId: string | null;
+            /** @description False for an identical idempotent retry. */
+            created: boolean;
+            /** @enum {string} */
+            ledgerState: "ACTIVE";
+            /** Format: date */
+            openingDate: string;
+            statementId: string;
+        };
         OpeningStatement: {
             accountId: string;
             cashBalances: {
@@ -5395,21 +7113,74 @@ export interface components {
                 amount: string;
                 currency: string;
             }[];
+            confirmation: {
+                audit: {
+                    [key: string]: unknown;
+                } | null;
+                /** Format: date-time */
+                confirmedAt: string | null;
+                confirmedByUserId: string | null;
+            } | null;
             /** Format: date-time */
             createdAt: string;
+            /** @description Inactive operations retained on this statement; any non-zero count blocks confirmation. */
+            draftOperationCount: number;
             id: string;
             /** Format: date */
             openingDate: string;
             parcelCount: number;
             sourceFingerprint: string;
             /**
-             * @description Inactive statement; never spendable cash or confirmed accounting.
+             * @description DRAFT is inactive; CONFIRMED is linked atomically to the account's active cash ledger.
              * @enum {string}
              */
-            state: "DRAFT";
+            state: "DRAFT" | "CONFIRMED";
             /** @enum {string} */
             timezone: "Australia/Sydney";
             version: number;
+        };
+        ReinvestmentCorrectionInput: {
+            expectedAcquisitionRevisionId: string;
+            expectedAuditNumber: number;
+            expectedIncomeRevisionId: string;
+            expectedSourceFingerprint: string;
+            idempotencyKey: string;
+            reason: string;
+            replacement: {
+                acquisition: components["schemas"]["AccountReinvestmentInput"]["acquisition"];
+                income: components["schemas"]["AccountReinvestmentInput"]["income"];
+                residualAmount: string;
+                /** @enum {string} */
+                residualDisposition: "ACCOUNT_CASH";
+                /** @enum {boolean} */
+                statementConfirmed: true;
+            } | null;
+        };
+        ReinvestmentCorrectionResponse: {
+            data: {
+                acquisitionOperationId: string;
+                acquisitionRevisionId: string;
+                created: boolean;
+                incomeOperationId: string;
+                incomeRevisionId: string;
+                replay: components["schemas"]["DraftCashReplay"];
+            };
+            success: boolean;
+        };
+        TransferReplacement: {
+            /** @description Exact positive same-currency principal. */
+            amount: string;
+            destinationSequence: number;
+            /** Format: date */
+            effectiveDate: string;
+            /** @description Exact non-negative sender-paid fee. */
+            fee: string;
+            sourceSequence: number;
+        } | null;
+        TransferRevisionHead: {
+            auditNumber: number;
+            revisionId: string;
+            sourceFingerprint: string;
         };
         User: {
             /**

@@ -4,10 +4,54 @@
 > WARNING-only artifact: a non-empty drift list never fails the build (see
 > `docs/adr/0007-manual-types-mirror.md`). `src/lib/types.ts` remains the source of truth.
 
-- OpenAPI component schemas: 5
+- OpenAPI component schemas: 25
 - Schemas with drift or no matching interface: 0
 
+## `AccountCashTransferCorrectionInput`
+
+In sync. ✅
+
+## `AccountCashTransferCorrectionResponse`
+
+In sync. ✅
+
+## `AccountCashTransferResponse`
+
+In sync. ✅
+
+## `AccountFxConversionInput`
+
+In sync. ✅
+
+## `AccountFxConversionResponse`
+
+In sync. ✅
+
+## `AccountFxCorrectionInput`
+
+In sync. ✅
+
+## `AccountFxCorrectionResponse`
+
+In sync. ✅
+
+## `AccountIncomeReceiptResponse`
+
+In sync. ✅
+
+## `AccountReinvestmentInput`
+
+In sync. ✅
+
+## `AccountReinvestmentResponse`
+
+In sync. ✅
+
 ## `AccountTradeResponse`
+
+In sync. ✅
+
+## `DraftCashReplay`
 
 In sync. ✅
 
@@ -17,11 +61,47 @@ Matched to `ApiErrorResponse` in `src/lib/types.ts`.
 
 In sync. ✅
 
+## `FxRevisionReplacement`
+
+In sync. ✅
+
+## `LiveCashTransferReview`
+
+In sync. ✅
+
 ## `LiveExecutionCorrectionResponse`
 
 In sync. ✅
 
+## `LiveFxConversionReview`
+
+In sync. ✅
+
+## `LiveReinvestmentReview`
+
+In sync. ✅
+
+## `OpeningConfirmationResult`
+
+In sync. ✅
+
 ## `OpeningStatement`
+
+In sync. ✅
+
+## `ReinvestmentCorrectionInput`
+
+In sync. ✅
+
+## `ReinvestmentCorrectionResponse`
+
+In sync. ✅
+
+## `TransferReplacement`
+
+In sync. ✅
+
+## `TransferRevisionHead`
 
 In sync. ✅
 
@@ -94,6 +174,7 @@ In sync. ✅
 - `OpeningStatementPage`
 - `SaveOpeningStatementInput`
 - `SaveOpeningStatementResult`
+- `OpeningConfirmationInput`
 - `DraftCashEvidenceInput`
 - `DraftCashFlowInput`
 - `DraftCashFlowResult`
@@ -102,9 +183,34 @@ In sync. ✅
 - `DraftImportedCashCorrectionInput`
 - `DraftImportedExecutionInput`
 - `DraftImportedExecution`
-- `DraftCashReplay`
+- `AccountTradeCapability`
 - `AccountTradeResult`
 - `LiveSaleCorrectionResult`
+- `AccountCapitalFlowInput`
+- `AccountCapitalFlowResult`
+- `AccountCashTransferInput`
+- `AccountCashTransferResult`
+- `AccountCashTransferCorrectionResult`
+- `AccountIncomeReceiptInput`
+- `AccountIncomeReceiptResult`
+- `AccountReinvestmentResult`
+- `ReinvestmentCorrectionResult`
+- `AccountIncomeReceiptCorrectionReplacement`
+- `AccountIncomeReceiptCorrectionInput`
+- `AccountIncomeReceiptCorrectionResult`
+- `AccountIncomeReceiptCorrectionResponse`
+- `LiveCapitalOperationAmount`
+- `LiveCapitalOperationRevision`
+- `LiveCapitalOperation`
+- `LiveCashCommandSummary`
+- `AccountFxConversionResult`
+- `AccountFxCorrectionResult`
+- `LiveCashReviewEvidence`
+- `LiveIncomeReceiptSummary`
+- `LiveCashReviewOperation`
+- `LiveCapitalOperationsPage`
+- `AccountCapitalCorrectionInput`
+- `AccountCapitalCorrectionResult`
 - `DraftCashEvidenceComparison`
 - `DraftCashEvidenceRecord`
 - `DraftSaleCorrectionInput`

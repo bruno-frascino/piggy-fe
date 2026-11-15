@@ -47,6 +47,7 @@ export interface ExchangeSummary {
 
 export interface HoldingPosition {
   voidedAt?: string | null;
+  assetId?: string;
   acquisitionCorrection?: LiveAcquisitionCorrectionMetadata;
   importedExecutionCorrection?: LiveImportedExecutionCorrectionMetadata;
   assetType?: AssetType;
@@ -662,11 +663,17 @@ export interface OpeningStatement {
   version: number;
   openingDate: string;
   timezone: 'Australia/Sydney';
-  state: 'DRAFT';
+  state: 'DRAFT' | 'CONFIRMED';
   sourceFingerprint: string;
   createdAt: string;
   cashBalances: { currency: string; amount: string }[];
   parcelCount: number;
+  draftOperationCount: number;
+  confirmation: {
+    confirmedByUserId: string | null;
+    confirmedAt: string | null;
+    audit: unknown;
+  } | null;
 }
 
 export interface OpeningStatementPage {
@@ -680,6 +687,28 @@ export interface SaveOpeningStatementInput extends OpeningPreviewInput {
 
 export interface SaveOpeningStatementResult {
   statement: OpeningStatement;
+  created: boolean;
+}
+
+export interface OpeningConfirmationInput {
+  idempotencyKey: string;
+  expectedSourceFingerprint: string;
+  acknowledgements: {
+    openingBalancesReviewed: true;
+    cashEvidenceUserAttested: true;
+    priorDraftActivityExcluded: true;
+    returnsUnavailableWithoutValuations: true;
+  };
+}
+
+export interface OpeningConfirmationResult {
+  accountId: string;
+  statementId: string;
+  openingDate: string;
+  ledgerState: 'ACTIVE';
+  confirmedAt: string | null;
+  confirmedByUserId: string | null;
+  confirmationAudit: unknown;
   created: boolean;
 }
 
@@ -808,7 +837,45 @@ export type AccountTradeInput = {
   quantity: string;
   price: string;
   fees: string;
-} & ({ kind: 'BUY'; assetId: string } | { kind: 'SELL'; positionId: string });
+} & (
+  | {
+      kind: 'BUY';
+      assetId: string;
+      symbol?: never;
+      exchangeCode?: never;
+      assetName?: never;
+      assetType?: never;
+      industry?: never;
+      openReason?: never;
+      stopLossPrice?: never;
+    }
+  | {
+      kind: 'BUY';
+      assetId?: never;
+      symbol: string;
+      exchangeCode: string;
+      assetName?: string;
+      assetType?: AssetType;
+      industry?: string;
+      openReason?: string;
+      stopLossPrice?: string | null;
+    }
+  | {
+      kind: 'SELL';
+      positionId: string;
+      closeReason?: CloseReason;
+      notes?: string;
+    }
+);
+
+export interface AccountTradeCapability {
+  accountId: string;
+  mode: 'LIVE_LEDGER' | 'LEGACY' | 'DEMO' | 'ARCHIVED' | 'BLOCKED';
+  reason: string | null;
+  openingDate: string | null;
+  effectiveDate: string;
+  nextSequence: number | null;
+}
 
 export interface AccountTradeResult {
   operationId: string;
@@ -832,6 +899,461 @@ export interface LiveExecutionCorrectionResponse {
 export interface AccountTradeResponse {
   success: boolean;
   data: AccountTradeResult;
+}
+
+export interface AccountCapitalFlowInput {
+  kind: 'DEPOSIT' | 'WITHDRAWAL';
+  idempotencyKey: string;
+  effectiveDate: string;
+  sequence: number;
+  currency: string;
+  amount: string;
+  sourceReference: string;
+}
+
+export interface AccountCapitalFlowResult {
+  operationId: string;
+  created: boolean;
+  replay: DraftCashReplay;
+}
+
+export interface AccountCashTransferInput {
+  toAccountId: string;
+  idempotencyKey: string;
+  effectiveDate: string;
+  sourceSequence: number;
+  destinationSequence: number;
+  currency: string;
+  amount: string;
+  fee: string;
+  sourceReference: string;
+}
+
+export interface AccountCashTransferResult {
+  sourceOperationId: string;
+  destinationOperationId: string;
+  created: boolean;
+  sourceReplay: DraftCashReplay;
+  destinationReplay: DraftCashReplay;
+}
+
+export interface AccountCashTransferResponse {
+  success: boolean;
+  data: AccountCashTransferResult;
+}
+
+export interface TransferRevisionHead {
+  revisionId: string;
+  auditNumber: number;
+  sourceFingerprint: string;
+}
+
+export interface TransferReplacement {
+  effectiveDate: string;
+  sourceSequence: number;
+  destinationSequence: number;
+  amount: string;
+  fee: string;
+}
+
+export interface AccountCashTransferCorrectionInput {
+  idempotencyKey: string;
+  reason: string;
+  sourceHead: TransferRevisionHead;
+  destinationHead: TransferRevisionHead;
+  replacement: TransferReplacement | null;
+}
+
+export interface LiveCashTransferReview {
+  sourceAccountId: string;
+  destinationAccountId: string;
+  sourceOperationId: string;
+  destinationOperationId: string;
+  currency: string;
+  sourceReference: string;
+  sourceHead: TransferRevisionHead;
+  destinationHead: TransferRevisionHead;
+  current: TransferReplacement | null;
+}
+
+export interface AccountCashTransferCorrectionResult extends AccountCashTransferResult {
+  sourceRevisionId: string;
+  destinationRevisionId: string;
+}
+
+export interface AccountCashTransferCorrectionResponse {
+  success: boolean;
+  data: AccountCashTransferCorrectionResult;
+}
+
+export interface AccountIncomeReceiptInput {
+  idempotencyKey: string;
+  assetId: string;
+  entitlementDate: string;
+  paymentDate: string;
+  sequence: number;
+  currency: string;
+  grossAmount: string;
+  withholdingAmount: string;
+  frankedAmount: string;
+  unfrankedAmount: string;
+  frankingCreditAud: string;
+  sourceReference: string;
+}
+
+export interface AccountIncomeReceiptResult {
+  operationId: string;
+  created: boolean;
+  replay: DraftCashReplay;
+}
+
+export interface AccountReinvestmentInput {
+  idempotencyKey: string;
+  income: Omit<AccountIncomeReceiptInput, 'idempotencyKey'>;
+  acquisition: {
+    effectiveDate: string;
+    sequence: number;
+    quantity: string;
+    price: string;
+    fees: string;
+  };
+  residualAmount: string;
+  residualDisposition: 'ACCOUNT_CASH';
+  statementConfirmed: true;
+}
+
+export interface AccountReinvestmentResult {
+  incomeOperationId: string;
+  acquisitionOperationId: string;
+  positionId: string;
+  created: boolean;
+  replay: DraftCashReplay;
+}
+
+export interface AccountReinvestmentResponse {
+  success: boolean;
+  data: AccountReinvestmentResult;
+}
+
+export interface ReinvestmentCorrectionInput {
+  idempotencyKey: string;
+  expectedIncomeRevisionId: string;
+  expectedAcquisitionRevisionId: string;
+  expectedAuditNumber: number;
+  expectedSourceFingerprint: string;
+  reason: string;
+  replacement: Omit<AccountReinvestmentInput, 'idempotencyKey'> | null;
+}
+
+export interface LiveReinvestmentReview {
+  accountId: string;
+  incomeOperationId: string;
+  acquisitionOperationId: string;
+  positionId: string;
+  expectedIncomeRevisionId: string;
+  expectedAcquisitionRevisionId: string;
+  expectedAuditNumber: number;
+  expectedSourceFingerprint: string;
+  current: Omit<AccountReinvestmentInput, 'idempotencyKey'> | null;
+  hasEffectiveSales: boolean;
+}
+
+export interface ReinvestmentCorrectionResult {
+  incomeOperationId: string;
+  acquisitionOperationId: string;
+  incomeRevisionId: string;
+  acquisitionRevisionId: string;
+  created: boolean;
+  replay: DraftCashReplay;
+}
+
+export interface ReinvestmentCorrectionResponse {
+  success: boolean;
+  data: ReinvestmentCorrectionResult;
+}
+
+export interface AccountIncomeReceiptResponse {
+  success: boolean;
+  data: AccountIncomeReceiptResult;
+}
+
+export interface AccountIncomeReceiptCorrectionReplacement {
+  entitlementDate: string;
+  paymentDate: string;
+  sequence: number;
+  grossAmount: string;
+  withholdingAmount: string;
+  frankedAmount: string;
+  unfrankedAmount: string;
+  frankingCreditAud: string;
+}
+
+export interface AccountIncomeReceiptCorrectionInput {
+  idempotencyKey: string;
+  expectedRevisionId: string;
+  expectedAuditNumber: number;
+  expectedSourceFingerprint: string;
+  reason: string;
+  replacement: AccountIncomeReceiptCorrectionReplacement | null;
+}
+
+export interface AccountIncomeReceiptCorrectionResult {
+  operationId: string;
+  revisionId: string;
+  created: boolean;
+  replay: DraftCashReplay;
+}
+
+export interface AccountIncomeReceiptCorrectionResponse {
+  success: boolean;
+  data: AccountIncomeReceiptCorrectionResult;
+}
+
+export interface LiveCapitalOperationAmount {
+  effectiveDate: string;
+  sequence: number;
+  amount: string;
+}
+
+export interface LiveCapitalOperationRevision {
+  revisionId: string;
+  auditNumber: number;
+  reason: string;
+  recordedAt: string;
+  before: LiveCapitalOperationAmount;
+  replacement: LiveCapitalOperationAmount | null;
+  postings: {
+    phase: 'REVERSAL' | 'REPLACEMENT';
+    currency: string;
+    amount: string;
+  }[];
+}
+
+export interface LiveCapitalOperation {
+  operationId: string;
+  kind: 'DEPOSIT' | 'WITHDRAWAL';
+  currency: string;
+  sourceReference: string;
+  expectedRevisionId: string;
+  original: LiveCapitalOperationAmount;
+  current: LiveCapitalOperationAmount | null;
+  revisions: LiveCapitalOperationRevision[];
+}
+
+export interface LiveCashCommandSummary {
+  from?: { currency: string; amount: string };
+  to?: { currency: string; amount: string };
+  effectiveDate: string;
+  sequence: number;
+  kind: string;
+  source: { origin: 'MANUAL' | 'IMPORT'; reference: string };
+  cash?: { currency: string; amount: string };
+  transfer?: { fromAccountId: string; toAccountId: string };
+  fee?: string;
+  consideration?: { currency: string; amount: string };
+  fees?: { currency: string; amount: string }[];
+  income?: {
+    assetId: string;
+    entitlementDate: string;
+    grossAmount: string;
+    withholdingAmount: string;
+    frankedAmount: string;
+    unfrankedAmount: string;
+    frankingCreditAud: string;
+  };
+}
+
+export interface AccountFxConversionInput {
+  idempotencyKey: string;
+  effectiveDate: string;
+  sequence: number;
+  from: { currency: string; amount: string };
+  to: { currency: string; amount: string };
+  fees: { currency: string; amount: string }[];
+  sourceReference: string;
+}
+
+export interface AccountFxConversionResult {
+  operationId: string;
+  created: boolean;
+  replay: DraftCashReplay;
+}
+
+export interface AccountFxConversionResponse {
+  success: boolean;
+  data: AccountFxConversionResult;
+}
+
+export interface FxRevisionReplacement {
+  effectiveDate: string;
+  sequence: number;
+  fromAmount: string;
+  toAmount: string;
+  fees: { currency: string; amount: string }[];
+}
+
+export interface AccountFxCorrectionInput {
+  idempotencyKey: string;
+  expectedRevisionId: string;
+  expectedAuditNumber: number;
+  expectedSourceFingerprint: string;
+  reason: string;
+  replacement: FxRevisionReplacement | null;
+}
+
+export interface LiveFxConversionReview {
+  operationId: string;
+  accountId: string;
+  fromCurrency: string;
+  toCurrency: string;
+  sourceReference: string;
+  expectedRevisionId: string;
+  auditNumber: number;
+  sourceFingerprint: string;
+  current: FxRevisionReplacement | null;
+}
+
+export interface AccountFxCorrectionResult {
+  operationId: string;
+  revisionId: string;
+  created: boolean;
+  replay: DraftCashReplay;
+}
+
+export interface AccountFxCorrectionResponse {
+  success: boolean;
+  data: AccountFxCorrectionResult;
+}
+
+export interface LiveCashReviewEvidence {
+  id: string;
+  asOfDate: string;
+  source: string;
+  reference: string;
+  attested: boolean;
+  recordedAt: string;
+  statementBalances: { currency: string; amount: string }[];
+  decisions: DraftCashEvidenceInput['decisions'];
+  currentComparison: DraftCashEvidenceComparison;
+}
+
+export interface LiveIncomeReceiptSummary {
+  assetId: string;
+  assetSymbol: string;
+  entitlementDate: string;
+  paymentDate: string;
+  currency: string;
+  grossAmount: string;
+  withholdingAmount: string;
+  netAmount: string;
+  frankedAmount: string;
+  unfrankedAmount: string;
+  frankingCreditAud: string;
+}
+
+export interface LiveCashReviewOperation {
+  operationId: string;
+  auditNumber: number;
+  recordedAt: string;
+  expectedRevisionId: string;
+  transactionId: string | null;
+  importedEventId: string | null;
+  incomeReceipt?: LiveIncomeReceiptSummary | null;
+  reinvestment?: {
+    request: AccountReinvestmentInput;
+    incomeOperationId: string;
+    acquisitionOperationId: string;
+    positionId: string;
+  } | null;
+  currentIncomeReceipt: LiveIncomeReceiptSummary | null;
+  original: LiveCashCommandSummary;
+  current: LiveCashCommandSummary | null;
+  revisions: {
+    revisionId: string;
+    revisionNumber: number;
+    auditNumber: number;
+    reason: string;
+    recordedAt: string;
+    replacement: LiveCashCommandSummary | null;
+    incomeBefore: LiveCashCommandSummary | null;
+    incomeReplacement: LiveCashCommandSummary | null;
+    postings: {
+      phase: 'REVERSAL' | 'REPLACEMENT';
+      currency: string;
+      amount: string;
+      role: string;
+    }[];
+  }[];
+}
+
+export interface LiveCapitalOperationsPage {
+  items: LiveCapitalOperation[];
+  total: number;
+  limit: number;
+  offset: number;
+  activity: {
+    idempotencyKey: string;
+    effectiveDate: string;
+    sequence: number;
+    kind: string;
+    changes: { currency: string; amount: string; balanceAfter: string }[];
+    operationId: string;
+    auditNumber: number | null;
+    recordedAt: string;
+    sourceOrigin: 'MANUAL' | 'IMPORT';
+    sourceReference: string;
+  }[];
+  activityTotal: number;
+  auditOperations: LiveCashReviewOperation[];
+  auditTotal: number;
+  accountStatus: 'ACTIVE' | 'CLOSED';
+  ledgerState: string;
+  openingBoundary: {
+    date: string;
+    timezone: 'Australia/Sydney';
+    type: 'END_OF_DAY';
+  };
+  reviewedAsOfDate: string;
+  checkedAt: string;
+  sourceFreshness: {
+    status: 'CURRENT' | 'STALE' | 'NOT_REVALIDATED';
+    acceptedFingerprint: string;
+    currentFingerprint: string | null;
+  };
+  cashCompleteness: 'COMPLETE' | 'INCOMPLETE';
+  unsupportedEvents: {
+    code: string;
+    sourceId: string | null;
+    effectiveDate?: string;
+    message?: string;
+  }[];
+  sourceReviewIssues: {
+    code: string;
+    severity: 'BLOCKING' | 'WARNING';
+    message: string;
+    sourceId: string | null;
+  }[];
+  evidence: LiveCashReviewEvidence[];
+  evidenceStatus: 'MATCHES_REPLAY' | 'VARIANCE' | 'NO_ATTESTATION';
+  auditNumber: number;
+  sourceFingerprint: string;
+  replay: DraftCashReplay;
+}
+
+export interface AccountCapitalCorrectionInput {
+  idempotencyKey: string;
+  expectedRevisionId: string;
+  expectedAuditNumber: number;
+  expectedSourceFingerprint: string;
+  reason: string;
+  replacement: LiveCapitalOperationAmount | null;
+}
+
+export interface AccountCapitalCorrectionResult {
+  operationId: string;
+  revisionId: string;
+  created: boolean;
+  replay: DraftCashReplay;
 }
 
 export interface DraftCashEvidenceComparison {
@@ -994,6 +1516,15 @@ export interface DraftOpeningReconciliation {
       | 'AFTER_OBSERVATION_DATE';
   }[];
   previewIssues: OpeningPreview['issues'];
+  confirmationReview: {
+    eligible: boolean;
+    blockers: string[];
+    excludedDraftActivity: {
+      statementId: string;
+      version: number;
+      operationCount: number;
+    }[];
+  };
   reviewReasons: string[];
 }
 

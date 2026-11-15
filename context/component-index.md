@@ -37,7 +37,7 @@
 
 ## `LocalHolding`
 
-- File: [src/components/AddHoldingsDialog.tsx](../src/components/AddHoldingsDialog.tsx) (842 lines)
+- File: [src/components/AddHoldingsDialog.tsx](../src/components/AddHoldingsDialog.tsx) (848 lines)
 - API hooks used: useExchanges
 - Other hooks used: useAccountNameSuggestions, useEffect, useState, useSymbolSearch
 
@@ -59,7 +59,7 @@
 
 ## `ClosePositionPayload`
 
-- File: [src/components/ClosePositionDialog.tsx](../src/components/ClosePositionDialog.tsx) (361 lines)
+- File: [src/components/ClosePositionDialog.tsx](../src/components/ClosePositionDialog.tsx) (368 lines)
 - API hooks used: —
 - Other hooks used: useEffect, useMemo, usePrivacy, useState
 
@@ -82,7 +82,7 @@
 
 ## `ExchangeDefinition`
 
-- File: [src/components/DashboardView.tsx](../src/components/DashboardView.tsx) (884 lines)
+- File: [src/components/DashboardView.tsx](../src/components/DashboardView.tsx) (999 lines)
 - API hooks used: useCloseAccount, useCreateAccount, useDeleteAccount, useReopenAccount, useTradingAccounts, useUpdateAccount
 - Other hooks used: useAccountSelection, useEffect, useExchangeDiscovery, useId, useMemo, useNetworkStatus, usePrivacy, useState, useTheme
 
@@ -113,8 +113,8 @@
 
 ## `DraftCashReconciliationPanel`
 
-- File: [src/components/DraftCashReconciliationPanel.tsx](../src/components/DraftCashReconciliationPanel.tsx) (1327 lines)
-- API hooks used: useDraftOpeningReconciliation, usePreviewDraftCashEvidence, useRecordDraftCashEvidence, useSaveDraftReconciliationCashOperation, useStageDraftImportedExecutionCash, useStageDraftManualExecutionCash
+- File: [src/components/DraftCashReconciliationPanel.tsx](../src/components/DraftCashReconciliationPanel.tsx) (1496 lines)
+- API hooks used: useConfirmOpeningStatement, useDraftOpeningReconciliation, usePreviewDraftCashEvidence, useRecordDraftCashEvidence, useSaveDraftReconciliationCashOperation, useStageDraftImportedExecutionCash, useStageDraftManualExecutionCash
 - Other hooks used: useEffect, useMemo, useNetworkStatus, usePrivacy, useState
 
 ## `DraftExecutionCorrectionForm`
@@ -160,8 +160,8 @@
 
 ## `HoldingsTable`
 
-- File: [src/components/HoldingsTable.tsx](../src/components/HoldingsTable.tsx) (1262 lines)
-- API hooks used: useClosePosition, useCreatePosition, useDeletePosition, useUpdatePosition
+- File: [src/components/HoldingsTable.tsx](../src/components/HoldingsTable.tsx) (1453 lines)
+- API hooks used: useAccountTradeCapability, useClosePosition, useCreatePosition, useDeletePosition, usePostAccountTrade, useUpdatePosition
 - Other hooks used: useCallback, useEffect, useHoldingRows, useId, useNetworkStatus, usePrivacy, useQueryClient, useRef, useState, useToast
 
 ## `ImportReview`
@@ -205,11 +205,71 @@
 - API hooks used: useCorrectLiveManualAcquisition
 - Other hooks used: useNetworkStatus, usePrivacy, useRef, useState
 
+## `LiveCapitalFlowDialog`
+
+- File: [src/components/LiveCapitalFlowDialog.tsx](../src/components/LiveCapitalFlowDialog.tsx) (312 lines)
+- API hooks used: usePostAccountCapitalFlow
+- Other hooks used: useNetworkStatus, usePrivacy, useState
+
+## `LiveCapitalOperationsPanel`
+
+- File: [src/components/LiveCapitalOperationsPanel.tsx](../src/components/LiveCapitalOperationsPanel.tsx) (392 lines)
+- API hooks used: useCorrectLiveCapitalOperation, useLiveCapitalOperations
+- Other hooks used: useNetworkStatus, usePrivacy, useRef, useState
+
+## `LiveCashReviewDialog`
+
+- File: [src/components/LiveCashReviewDialog.tsx](../src/components/LiveCashReviewDialog.tsx) (427 lines)
+- API hooks used: useLiveCapitalOperations
+- Other hooks used: useNetworkStatus, usePrivacy, useState
+
+## `LiveCashTransferDialog`
+
+- File: [src/components/LiveCashTransferDialog.tsx](../src/components/LiveCashTransferDialog.tsx) (326 lines)
+- API hooks used: useAccountTradeCapability, usePostAccountCashTransfer
+- Other hooks used: useNetworkStatus, usePrivacy, useRef, useState, useToast
+
+## `LiveCashTransferRevisionDialog`
+
+- File: [src/components/LiveCashTransferRevisionDialog.tsx](../src/components/LiveCashTransferRevisionDialog.tsx) (294 lines)
+- API hooks used: useCorrectLiveCashTransfer, useLiveCashTransferReview
+- Other hooks used: useNetworkStatus, usePrivacy, useRef, useState, useToast
+
+## `LiveFxConversionDialog`
+
+- File: [src/components/LiveFxConversionDialog.tsx](../src/components/LiveFxConversionDialog.tsx) (288 lines)
+- API hooks used: useAccountTradeCapability, usePostAccountFxConversion
+- Other hooks used: useNetworkStatus, usePrivacy, useRef, useState, useToast
+
+## `LiveFxRevisionDialog`
+
+- File: [src/components/LiveFxRevisionDialog.tsx](../src/components/LiveFxRevisionDialog.tsx) (345 lines)
+- API hooks used: useCorrectLiveFxConversion, useLiveFxConversionReview
+- Other hooks used: useNetworkStatus, usePrivacy, useRef, useState, useToast
+
 ## `LiveImportedExecutionCorrectionDialog`
 
 - File: [src/components/LiveImportedExecutionCorrectionDialog.tsx](../src/components/LiveImportedExecutionCorrectionDialog.tsx) (223 lines)
 - API hooks used: useCorrectLiveImportedExecution
 - Other hooks used: useNetworkStatus, usePrivacy, useRef, useState
+
+## `LiveIncomeReceiptDialog`
+
+- File: [src/components/LiveIncomeReceiptDialog.tsx](../src/components/LiveIncomeReceiptDialog.tsx) (809 lines)
+- API hooks used: useCorrectLiveIncomeReceipt, useIncomeEligibleAssets, useLiveCapitalOperations, usePostAccountIncomeReceipt
+- Other hooks used: useMemo, useNetworkStatus, usePrivacy, useState
+
+## `LiveReinvestmentDialog`
+
+- File: [src/components/LiveReinvestmentDialog.tsx](../src/components/LiveReinvestmentDialog.tsx) (487 lines)
+- API hooks used: useAccountTradeCapability, useIncomeEligibleAssets, usePostAccountReinvestment
+- Other hooks used: useNetworkStatus, usePrivacy, useRef, useState, useToast
+
+## `LiveReinvestmentRevisionDialog`
+
+- File: [src/components/LiveReinvestmentRevisionDialog.tsx](../src/components/LiveReinvestmentRevisionDialog.tsx) (90 lines)
+- API hooks used: useCorrectLiveReinvestment, useLiveReinvestmentReview
+- Other hooks used: useNetworkStatus, useState
 
 ## `ManualTradeVoidDialog`
 
@@ -231,7 +291,7 @@
 
 ## `OpeningPreviewDialog`
 
-- File: [src/components/OpeningPreviewDialog.tsx](../src/components/OpeningPreviewDialog.tsx) (466 lines)
+- File: [src/components/OpeningPreviewDialog.tsx](../src/components/OpeningPreviewDialog.tsx) (483 lines)
 - API hooks used: useOpeningPreview, useOpeningStatements, useSaveOpeningStatement
 - Other hooks used: useNetworkStatus, usePrivacy, useState
 

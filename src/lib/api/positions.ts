@@ -7,7 +7,38 @@ import type {
   AssetType,
   AccountTradeInput,
   AccountTradeResult,
+  AccountTradeCapability,
   AccountTradeResponse,
+  AccountCapitalFlowInput,
+  AccountFxConversionInput,
+  AccountFxConversionResult,
+  AccountFxConversionResponse,
+  AccountFxCorrectionInput,
+  AccountFxCorrectionResult,
+  AccountFxCorrectionResponse,
+  LiveFxConversionReview,
+  AccountCapitalFlowResult,
+  AccountCashTransferInput,
+  AccountCashTransferResult,
+  AccountCashTransferResponse,
+  AccountCashTransferCorrectionInput,
+  AccountCashTransferCorrectionResult,
+  AccountCashTransferCorrectionResponse,
+  LiveCashTransferReview,
+  AccountIncomeReceiptInput,
+  AccountReinvestmentInput,
+  AccountReinvestmentResult,
+  AccountReinvestmentResponse,
+  ReinvestmentCorrectionInput,
+  ReinvestmentCorrectionResponse,
+  ReinvestmentCorrectionResult,
+  LiveReinvestmentReview,
+  AccountIncomeReceiptResult,
+  AccountIncomeReceiptCorrectionInput,
+  AccountIncomeReceiptCorrectionResult,
+  AccountCapitalCorrectionInput,
+  AccountCapitalCorrectionResult,
+  LiveCapitalOperationsPage,
   DraftSaleCorrectionInput,
   DraftAcquisitionCorrectionInput,
   LiveImportedExecutionCorrectionInput,
@@ -30,7 +61,7 @@ const USE_MOCK_API = process.env.NEXT_PUBLIC_USE_MOCK_API === 'true';
 
 export async function fetchOpenPositionRecords(
   client: AxiosInstance,
-  filters: { accountId?: string; exchangeCode?: string }
+  filters: { accountId?: string; exchangeCode?: string; status?: string }
 ): Promise<unknown[]> {
   const positions: unknown[] = [];
   const limit = 100;
@@ -38,7 +69,7 @@ export async function fetchOpenPositionRecords(
   do {
     const response = await client.get('/positions', {
       params: {
-        status: 'OPEN,PARTIAL',
+        status: filters.status ?? 'OPEN,PARTIAL',
         limit,
         ...(positions.length ? { offset: positions.length } : {}),
         ...(filters.exchangeCode ? { exchangeCode: filters.exchangeCode } : {}),
@@ -90,6 +121,221 @@ export function createPositionsApi(client: AxiosInstance) {
         throw new Error('Account trade posting requires the real API.');
       const response = await client.post<AccountTradeResponse>(
         `/accounts/${encodeURIComponent(accountId)}/trades`,
+        input
+      );
+      return response.data.data;
+    },
+
+    async getAccountTradeCapability(
+      accountId: string,
+      effectiveDate: string
+    ): Promise<AccountTradeCapability> {
+      if (USE_MOCK_API)
+        throw new Error('Trade capability requires the real API.');
+      const response = await client.get<{
+        success: boolean;
+        data: AccountTradeCapability;
+      }>(`/accounts/${encodeURIComponent(accountId)}/trade-capability`, {
+        params: { effectiveDate },
+      });
+      return response.data.data;
+    },
+
+    async getLiveCashTransferReview(
+      accountId: string,
+      operationId: string
+    ): Promise<LiveCashTransferReview> {
+      if (USE_MOCK_API)
+        throw new Error('Paired transfer review requires the real API.');
+      const response = await client.get<{
+        success: boolean;
+        data: LiveCashTransferReview;
+      }>(
+        `/accounts/${encodeURIComponent(accountId)}/cash-transfers/${encodeURIComponent(operationId)}/corrections`
+      );
+      return response.data.data;
+    },
+
+    async correctLiveCashTransfer(
+      accountId: string,
+      operationId: string,
+      input: AccountCashTransferCorrectionInput
+    ): Promise<AccountCashTransferCorrectionResult> {
+      if (USE_MOCK_API)
+        throw new Error('Paired transfer revisions require the real API.');
+      const response = await client.post<AccountCashTransferCorrectionResponse>(
+        `/accounts/${encodeURIComponent(accountId)}/cash-transfers/${encodeURIComponent(operationId)}/corrections`,
+        input
+      );
+      return response.data.data;
+    },
+
+    async postAccountCashTransfer(
+      accountId: string,
+      input: AccountCashTransferInput
+    ): Promise<AccountCashTransferResult> {
+      if (USE_MOCK_API)
+        throw new Error('Paired cash transfers require the real API.');
+      const response = await client.post<AccountCashTransferResponse>(
+        `/accounts/${encodeURIComponent(accountId)}/cash-transfers`,
+        input
+      );
+      return response.data.data;
+    },
+
+    async getLiveFxConversionReview(
+      accountId: string,
+      operationId: string
+    ): Promise<LiveFxConversionReview> {
+      if (USE_MOCK_API)
+        throw new Error('FX revision review requires the real API.');
+      const response = await client.get<{
+        success: boolean;
+        data: LiveFxConversionReview;
+      }>(
+        `/accounts/${encodeURIComponent(accountId)}/fx-conversions/${encodeURIComponent(operationId)}/corrections`
+      );
+      return response.data.data;
+    },
+
+    async correctLiveFxConversion(
+      accountId: string,
+      operationId: string,
+      input: AccountFxCorrectionInput
+    ): Promise<AccountFxCorrectionResult> {
+      if (USE_MOCK_API) throw new Error('FX corrections require the real API.');
+      const response = await client.post<AccountFxCorrectionResponse>(
+        `/accounts/${encodeURIComponent(accountId)}/fx-conversions/${encodeURIComponent(operationId)}/corrections`,
+        input
+      );
+      return response.data.data;
+    },
+
+    async postAccountFxConversion(
+      accountId: string,
+      input: AccountFxConversionInput
+    ): Promise<AccountFxConversionResult> {
+      if (USE_MOCK_API)
+        throw new Error('Explicit FX conversions require the real API.');
+      const response = await client.post<AccountFxConversionResponse>(
+        `/accounts/${encodeURIComponent(accountId)}/fx-conversions`,
+        input
+      );
+      return response.data.data;
+    },
+
+    async postAccountCapitalFlow(
+      accountId: string,
+      input: AccountCapitalFlowInput
+    ): Promise<AccountCapitalFlowResult> {
+      if (USE_MOCK_API)
+        throw new Error('Live cash operations require the real API.');
+      const response = await client.post<{
+        success: boolean;
+        data: AccountCapitalFlowResult;
+      }>(`/accounts/${encodeURIComponent(accountId)}/cash-operations`, input);
+      return response.data.data;
+    },
+
+    async postAccountIncomeReceipt(
+      accountId: string,
+      input: AccountIncomeReceiptInput
+    ): Promise<AccountIncomeReceiptResult> {
+      if (USE_MOCK_API)
+        throw new Error('Income receipts require the real API.');
+      const response = await client.post<{
+        success: boolean;
+        data: AccountIncomeReceiptResult;
+      }>(`/accounts/${encodeURIComponent(accountId)}/income-receipts`, input);
+      return response.data.data;
+    },
+
+    async postAccountReinvestment(
+      accountId: string,
+      input: AccountReinvestmentInput
+    ): Promise<AccountReinvestmentResult> {
+      if (USE_MOCK_API)
+        throw new Error('Dividend reinvestment requires the real API.');
+      const response = await client.post<AccountReinvestmentResponse>(
+        `/accounts/${encodeURIComponent(accountId)}/reinvestments`,
+        input
+      );
+      return response.data.data;
+    },
+
+    async getLiveReinvestmentReview(
+      accountId: string,
+      operationId: string
+    ): Promise<LiveReinvestmentReview> {
+      if (USE_MOCK_API)
+        throw new Error('Reinvestment review requires the real API.');
+      const response = await client.get<{
+        success: boolean;
+        data: LiveReinvestmentReview;
+      }>(
+        `/accounts/${encodeURIComponent(accountId)}/reinvestments/${encodeURIComponent(operationId)}/corrections`
+      );
+      return response.data.data;
+    },
+
+    async correctLiveReinvestment(
+      accountId: string,
+      operationId: string,
+      input: ReinvestmentCorrectionInput
+    ): Promise<ReinvestmentCorrectionResult> {
+      if (USE_MOCK_API)
+        throw new Error('Reinvestment revisions require the real API.');
+      const response = await client.post<ReinvestmentCorrectionResponse>(
+        `/accounts/${encodeURIComponent(accountId)}/reinvestments/${encodeURIComponent(operationId)}/corrections`,
+        input
+      );
+      return response.data.data;
+    },
+
+    async correctLiveIncomeReceipt(
+      accountId: string,
+      operationId: string,
+      input: AccountIncomeReceiptCorrectionInput
+    ): Promise<AccountIncomeReceiptCorrectionResult> {
+      if (USE_MOCK_API)
+        throw new Error('Income receipt corrections require the real API.');
+      const response = await client.post<{
+        success: boolean;
+        data: AccountIncomeReceiptCorrectionResult;
+      }>(
+        `/accounts/${encodeURIComponent(accountId)}/income-receipts/${encodeURIComponent(operationId)}/corrections`,
+        input
+      );
+      return response.data.data;
+    },
+
+    async getLiveCapitalOperations(
+      accountId: string,
+      offset = 0
+    ): Promise<LiveCapitalOperationsPage> {
+      if (USE_MOCK_API)
+        throw new Error('Live capital history requires the real API.');
+      const response = await client.get<{
+        success: boolean;
+        data: LiveCapitalOperationsPage;
+      }>(`/accounts/${encodeURIComponent(accountId)}/cash-operations`, {
+        params: { limit: 100, offset },
+      });
+      return response.data.data;
+    },
+
+    async correctLiveCapitalOperation(
+      accountId: string,
+      operationId: string,
+      input: AccountCapitalCorrectionInput
+    ): Promise<AccountCapitalCorrectionResult> {
+      if (USE_MOCK_API)
+        throw new Error('Live capital corrections require the real API.');
+      const response = await client.post<{
+        success: boolean;
+        data: AccountCapitalCorrectionResult;
+      }>(
+        `/accounts/${encodeURIComponent(accountId)}/cash-operations/${encodeURIComponent(operationId)}/corrections`,
         input
       );
       return response.data.data;
@@ -305,6 +551,25 @@ export function createPositionsApi(client: AxiosInstance) {
       return positions
         .map(mapPositionToHolding)
         .filter((h): h is HoldingPosition => h !== null);
+    },
+
+    async getIncomeEligibleAssets(
+      accountId: string
+    ): Promise<HoldingPosition[]> {
+      if (USE_MOCK_API)
+        throw new Error('Income asset history requires the real API.');
+      const positions = await fetchOpenPositionRecords(client, {
+        accountId,
+        status: 'OPEN,PARTIAL,CLOSED',
+      });
+      return positions
+        .map(mapPositionToHolding)
+        .filter(
+          (holding): holding is HoldingPosition =>
+            holding !== null &&
+            Boolean(holding.assetId) &&
+            (holding.assetType === 'EQUITY' || holding.assetType === 'ETF')
+        );
     },
 
     async getClosedPositions(

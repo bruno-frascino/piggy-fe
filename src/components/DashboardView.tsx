@@ -28,6 +28,12 @@ import AccountActionDialog from '@/components/AccountActionDialog';
 import AccountsBar from '@/components/AccountsBar';
 import EmptyAccountsState from '@/components/EmptyAccountsState';
 import OpeningPreviewDialog from '@/components/OpeningPreviewDialog';
+import LiveCapitalFlowDialog from '@/components/LiveCapitalFlowDialog';
+import LiveCashTransferDialog from '@/components/LiveCashTransferDialog';
+import LiveFxConversionDialog from '@/components/LiveFxConversionDialog';
+import LiveIncomeReceiptDialog from '@/components/LiveIncomeReceiptDialog';
+import LiveReinvestmentDialog from '@/components/LiveReinvestmentDialog';
+import LiveCashReviewDialog from '@/components/LiveCashReviewDialog';
 import { Line } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -112,6 +118,18 @@ export default function DashboardView() {
   const [previewAccount, setPreviewAccount] = useState<TradingAccount | null>(
     null
   );
+  const [capitalFlowAccount, setCapitalFlowAccount] =
+    useState<TradingAccount | null>(null);
+  const [incomeReceiptAccount, setIncomeReceiptAccount] =
+    useState<TradingAccount | null>(null);
+  const [fxAccount, setFxAccount] = useState<TradingAccount | null>(null);
+  const [reinvestmentAccount, setReinvestmentAccount] =
+    useState<TradingAccount | null>(null);
+  const [transferAccount, setTransferAccount] = useState<TradingAccount | null>(
+    null
+  );
+  const [cashReviewAccount, setCashReviewAccount] =
+    useState<TradingAccount | null>(null);
   const [accountActionDialog, setAccountActionDialog] = useState<{
     action: 'close' | 'delete';
     account: TradingAccount;
@@ -415,6 +433,9 @@ export default function DashboardView() {
           onSelectAccount={id => {
             setAccountActionError('');
             setPreviewAccount(null);
+            setCapitalFlowAccount(null);
+            setIncomeReceiptAccount(null);
+            setTransferAccount(null);
             setSelectedAccountId(id);
           }}
           onAddAccount={() => {
@@ -439,13 +460,60 @@ export default function DashboardView() {
 
       {selectedAccount && !selectedAccount.isDemo && (
         <div className='app-page py-2'>
-          <Button
-            label='Opening-balance preview'
-            icon='pi pi-calculator'
-            outlined
-            disabled={!online}
-            onClick={() => setPreviewAccount(selectedAccount)}
-          />
+          <div className='flex flex-wrap gap-2'>
+            <Button
+              label='Opening-balance preview'
+              icon='pi pi-calculator'
+              outlined
+              disabled={!online}
+              onClick={() => setPreviewAccount(selectedAccount)}
+            />
+            <Button
+              label='Live cash review'
+              icon='pi pi-list'
+              outlined
+              onClick={() => setCashReviewAccount(selectedAccount)}
+            />
+            {(selectedAccount.status ?? 'ACTIVE') !== 'CLOSED' && (
+              <>
+                <Button
+                  label='Record ledger cash flow'
+                  icon='pi pi-wallet'
+                  outlined
+                  disabled={!online}
+                  onClick={() => setCapitalFlowAccount(selectedAccount)}
+                />
+                <Button
+                  label='Record FX conversion'
+                  icon='pi pi-sync'
+                  outlined
+                  disabled={!online}
+                  onClick={() => setFxAccount(selectedAccount)}
+                />
+                <Button
+                  label='Transfer cash'
+                  icon='pi pi-arrow-right-arrow-left'
+                  outlined
+                  disabled={!online}
+                  onClick={() => setTransferAccount(selectedAccount)}
+                />
+                <Button
+                  label='Record income'
+                  icon='pi pi-money-bill'
+                  outlined
+                  disabled={!online}
+                  onClick={() => setIncomeReceiptAccount(selectedAccount)}
+                />
+                <Button
+                  label='Record dividend reinvestment'
+                  icon='pi pi-refresh'
+                  outlined
+                  disabled={!online}
+                  onClick={() => setReinvestmentAccount(selectedAccount)}
+                />
+              </>
+            )}
+          </div>
         </div>
       )}
       {previewAccount && (
@@ -453,6 +521,53 @@ export default function DashboardView() {
           key={previewAccount.id}
           account={previewAccount}
           onHide={() => setPreviewAccount(null)}
+        />
+      )}
+      {capitalFlowAccount && (
+        <LiveCapitalFlowDialog
+          key={capitalFlowAccount.id}
+          accountId={capitalFlowAccount.id}
+          accountName={capitalFlowAccount.name}
+          onHide={() => setCapitalFlowAccount(null)}
+        />
+      )}
+      {incomeReceiptAccount && (
+        <LiveIncomeReceiptDialog
+          key={incomeReceiptAccount.id}
+          accountId={incomeReceiptAccount.id}
+          accountName={incomeReceiptAccount.name}
+          onHide={() => setIncomeReceiptAccount(null)}
+        />
+      )}
+      {reinvestmentAccount && (
+        <LiveReinvestmentDialog
+          key={reinvestmentAccount.id}
+          accountId={reinvestmentAccount.id}
+          accountName={reinvestmentAccount.name}
+          onHide={() => setReinvestmentAccount(null)}
+        />
+      )}
+      {transferAccount && (
+        <LiveCashTransferDialog
+          account={transferAccount}
+          accounts={accountList}
+          onHide={() => setTransferAccount(null)}
+        />
+      )}
+      {fxAccount && (
+        <LiveFxConversionDialog
+          key={fxAccount.id}
+          accountId={fxAccount.id}
+          accountName={fxAccount.name}
+          onHide={() => setFxAccount(null)}
+        />
+      )}
+      {cashReviewAccount && (
+        <LiveCashReviewDialog
+          key={cashReviewAccount.id}
+          accountId={cashReviewAccount.id}
+          accountName={cashReviewAccount.name}
+          onHide={() => setCashReviewAccount(null)}
         />
       )}
 

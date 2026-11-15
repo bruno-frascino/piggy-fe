@@ -10,6 +10,7 @@ import { Message } from 'primereact/message';
 import DraftCashCorrectionForm from './DraftCashCorrectionForm';
 import DraftExecutionCorrectionForm from './DraftExecutionCorrectionForm';
 import {
+  useConfirmOpeningStatement,
   useDraftOpeningReconciliation,
   usePreviewDraftCashEvidence,
   useRecordDraftCashEvidence,
@@ -89,6 +90,7 @@ export default function DraftCashReconciliationPanel({
   const online = useNetworkStatus();
   const { mask, hidden } = usePrivacy();
   const reportQuery = useDraftOpeningReconciliation(accountId, statementId);
+  const confirmationMutation = useConfirmOpeningStatement();
   const previewMutation = usePreviewDraftCashEvidence();
   const recordMutation = useRecordDraftCashEvidence();
   const operationMutation = useSaveDraftReconciliationCashOperation();
@@ -102,6 +104,14 @@ export default function DraftCashReconciliationPanel({
     { currency: string; amount: string }[]
   >([]);
   const [evidenceKey, setEvidenceKey] = useState(newIdempotencyKey);
+  const [confirmationKey, setConfirmationKey] = useState(newIdempotencyKey);
+  const [confirmationAcknowledgements, setConfirmationAcknowledgements] =
+    useState({
+      openingBalancesReviewed: false,
+      cashEvidenceUserAttested: false,
+      priorDraftActivityExcluded: false,
+      returnsUnavailableWithoutValuations: false,
+    });
   const [preview, setPreview] = useState<Awaited<
     ReturnType<typeof previewMutation.mutateAsync>
   > | null>(null);
@@ -147,6 +157,16 @@ export default function DraftCashReconciliationPanel({
     setDecisions({});
     setEvidenceKey(newIdempotencyKey());
   };
+
+  useEffect(() => {
+    setConfirmationKey(newIdempotencyKey());
+    setConfirmationAcknowledgements({
+      openingBalancesReviewed: false,
+      cashEvidenceUserAttested: false,
+      priorDraftActivityExcluded: false,
+      returnsUnavailableWithoutValuations: false,
+    });
+  }, [accountId, statementId]);
 
   const today = useMemo(() => {
     const sydneyDate = new Intl.DateTimeFormat('en-CA', {
@@ -194,7 +214,36 @@ export default function DraftCashReconciliationPanel({
     operationMutation.isPending ||
     importedOperationMutation.isPending ||
     manualOperationMutation.isPending ||
+    confirmationMutation.isPending ||
     Boolean(activeCorrection);
+  const allConfirmationAcknowledgements = Object.values(
+    confirmationAcknowledgements
+  ).every(Boolean);
+
+  const confirmOpeningStatement = async () => {
+    if (!report || !report.confirmationReview.eligible) return;
+    setError('');
+    setSuccess('');
+    try {
+      await confirmationMutation.mutateAsync({
+        accountId,
+        statementId,
+        input: {
+          idempotencyKey: confirmationKey,
+          expectedSourceFingerprint: report.source.savedFingerprint,
+          acknowledgements: {
+            openingBalancesReviewed: true,
+            cashEvidenceUserAttested: true,
+            priorDraftActivityExcluded: true,
+            returnsUnavailableWithoutValuations: true,
+          },
+        },
+      });
+      onClose();
+    } catch (failure: unknown) {
+      setError(errorText(failure));
+    }
+  };
 
   const updateStatementBalance = (
     index: number,
@@ -1320,6 +1369,126 @@ export default function DraftCashReconciliationPanel({
             </table>
           </div>
         )}
+      </section>
+      <section
+        className='space-y-3 border-t pt-4'
+        aria-label='Opening statement confirmation'
+      >
+        <h4>Confirm this opening statement</h4>
+        <Message
+          severity='warn'
+          text='Confirmation enables the cash ledger for this account only. Cash evidence remains user-attested, earlier draft activity is not carried forward, and performance returns remain unavailable until valuations are sourced.'
+        />
+        {report.confirmationReview.blockers.length > 0 && (
+          <div>
+            <p>Resolve these items before confirmation:</p>
+            <ul>
+              {report.confirmationReview.blockers.map(blocker => (
+                <li key={blocker}>{blocker.replaceAll('_', ' ')}</li>
+              ))}
+            </ul>
+          </div>
+        )}
+        {report.confirmationReview.excludedDraftActivity.length === 0 ? (
+          <p>No other inactive draft contains staged activity.</p>
+        ) : (
+          <div>
+            <p>
+              The following activity will remain retained in inactive drafts and
+              will not be posted or promoted:
+            </p>
+            <ul>
+              {report.confirmationReview.excludedDraftActivity.map(draft => (
+                <li key={draft.statementId}>
+                  Draft v{draft.version} ({draft.statementId}):{' '}
+                  {draft.operationCount} staged operation(s)
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
+        <div className='space-y-2'>
+          <div className='flex items-center gap-2'>
+            <Checkbox
+              inputId='confirm-opening-balances'
+              checked={confirmationAcknowledgements.openingBalancesReviewed}
+              disabled={busy}
+              onChange={event =>
+                setConfirmationAcknowledgements(current => ({
+                  ...current,
+                  openingBalancesReviewed: event.checked === true,
+                }))
+              }
+            />
+            <label htmlFor='confirm-opening-balances'>
+              I reviewed the opening balances and holdings above.
+            </label>
+          </div>
+          <div className='flex items-center gap-2'>
+            <Checkbox
+              inputId='confirm-cash-evidence'
+              checked={confirmationAcknowledgements.cashEvidenceUserAttested}
+              disabled={busy}
+              onChange={event =>
+                setConfirmationAcknowledgements(current => ({
+                  ...current,
+                  cashEvidenceUserAttested: event.checked === true,
+                }))
+              }
+            />
+            <label htmlFor='confirm-cash-evidence'>
+              I attest that the latest cash evidence is mine to attest; it has
+              not been independently verified.
+            </label>
+          </div>
+          <div className='flex items-center gap-2'>
+            <Checkbox
+              inputId='confirm-excluded-drafts'
+              checked={confirmationAcknowledgements.priorDraftActivityExcluded}
+              disabled={busy}
+              onChange={event =>
+                setConfirmationAcknowledgements(current => ({
+                  ...current,
+                  priorDraftActivityExcluded: event.checked === true,
+                }))
+              }
+            />
+            <label htmlFor='confirm-excluded-drafts'>
+              I understand prior draft activity listed above stays inactive and
+              is excluded from this ledger.
+            </label>
+          </div>
+          <div className='flex items-center gap-2'>
+            <Checkbox
+              inputId='confirm-no-valuations'
+              checked={
+                confirmationAcknowledgements.returnsUnavailableWithoutValuations
+              }
+              disabled={busy}
+              onChange={event =>
+                setConfirmationAcknowledgements(current => ({
+                  ...current,
+                  returnsUnavailableWithoutValuations: event.checked === true,
+                }))
+              }
+            />
+            <label htmlFor='confirm-no-valuations'>
+              I understand portfolio performance returns are unavailable until
+              sourced valuations exist.
+            </label>
+          </div>
+        </div>
+        <Button
+          label='Confirm and enable this account cash ledger'
+          disabled={
+            !online ||
+            busy ||
+            !report.confirmationReview.eligible ||
+            !allConfirmationAcknowledgements
+          }
+          loading={confirmationMutation.isPending}
+          onClick={() => void confirmOpeningStatement()}
+        />
       </section>
     </section>
   );

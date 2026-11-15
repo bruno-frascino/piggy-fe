@@ -28,11 +28,15 @@ export default function ClosePositionDialog({
   initial,
   onHide,
   onSubmit,
+  onEffectiveDateChange,
+  busy = false,
 }: {
   visible: boolean;
   initial: LocalHolding | null;
   onHide: () => void;
   onSubmit: (payload: ClosePositionPayload) => void;
+  onEffectiveDateChange?: (date: string) => void;
+  busy?: boolean;
 }) {
   const [form, setForm] = useState<ClosePositionPayload>({
     closeDate: new Date().toISOString().slice(0, 10),
@@ -64,16 +68,18 @@ export default function ClosePositionDialog({
 
   useEffect(() => {
     if (!visible || !initial) return;
+    const closeDate = new Date().toISOString().slice(0, 10);
     setForm({
-      closeDate: new Date().toISOString().slice(0, 10),
+      closeDate,
       closeUnits: initial.units,
       sellPrice: (initial.currentPrice ?? initial.buyPrice) || 0,
       sellFee: 0,
       closeReason: 'MANUAL',
       comments: '',
     });
+    onEffectiveDateChange?.(closeDate);
     setErrors({});
-  }, [visible, initial]);
+  }, [visible, initial, onEffectiveDateChange]);
 
   const periodDays = useMemo(() => {
     if (!initial) return 0;
@@ -135,12 +141,14 @@ export default function ClosePositionDialog({
             severity='secondary'
             outlined
             onClick={onHide}
+            disabled={busy}
           />
           <Button
             label='Close Position'
             icon='pi pi-check'
             severity='danger'
             onClick={handleSubmit}
+            disabled={busy}
           />
         </div>
       }
@@ -184,12 +192,11 @@ export default function ClosePositionDialog({
               inputId='close-date'
               invalid={Boolean(errors.closeDate)}
               value={parseIsoDate(form.closeDate)}
-              onChange={e =>
-                setForm(f => ({
-                  ...f,
-                  closeDate: formatIsoDate(e.value as Date | null),
-                }))
-              }
+              onChange={e => {
+                const closeDate = formatIsoDate(e.value as Date | null);
+                setForm(f => ({ ...f, closeDate }));
+                onEffectiveDateChange?.(closeDate);
+              }}
               dateFormat='dd/mm/yy'
               mask='99/99/9999'
               readOnlyInput={false}

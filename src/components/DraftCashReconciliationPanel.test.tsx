@@ -25,6 +25,8 @@ const mocks = vi.hoisted(() => ({
   preview: vi.fn(),
   record: vi.fn(),
   operation: vi.fn(),
+  confirm: vi.fn(),
+  close: vi.fn(),
   importedOperation: vi.fn(),
   manualOperation: vi.fn(),
   correction: vi.fn(),
@@ -36,6 +38,10 @@ const mocks = vi.hoisted(() => ({
 
 vi.mock('@/hooks/api', () => ({
   useDraftOpeningReconciliation: () => mocks.report,
+  useConfirmOpeningStatement: () => ({
+    mutateAsync: mocks.confirm,
+    isPending: false,
+  }),
   usePreviewDraftCashEvidence: () => ({
     mutateAsync: mocks.preview,
     isPending: false,
@@ -166,7 +172,7 @@ const report: DraftOpeningReconciliation = {
   asOfDate: '2026-10-31',
   source: {
     reviewedAsOfDate: '2026-10-31',
-    savedFingerprint: 'saved',
+    savedFingerprint: 'a'.repeat(64),
     currentFingerprint: 'current',
     acceptedFingerprint: 'current',
     correctionCount: 0,
@@ -260,6 +266,13 @@ const report: DraftOpeningReconciliation = {
     },
   ],
   excludedLinkedSources: [],
+  confirmationReview: {
+    eligible: false,
+    blockers: ['POST_BOUNDARY_TRADES_PRESENT'],
+    excludedDraftActivity: [
+      { statementId: 's0', version: 1, operationCount: 2 },
+    ],
+  },
   previewIssues: [
     {
       code: 'FUNDING_GAP',
@@ -294,7 +307,7 @@ function setup(hidden = false) {
       <DraftCashReconciliationPanel
         accountId='a1'
         statementId='s1'
-        onClose={vi.fn()}
+        onClose={mocks.close}
       />
     </PrivacyProvider>
   );
@@ -318,6 +331,16 @@ beforeEach(() => {
     operationId: 'op1',
     created: true,
     replay: report.cash,
+  });
+  mocks.confirm.mockResolvedValue({
+    accountId: 'a1',
+    statementId: 's1',
+    openingDate: report.openingDate,
+    ledgerState: 'ACTIVE',
+    confirmedAt: '2026-11-11T00:00:00.000Z',
+    confirmedByUserId: 'u1',
+    confirmationAudit: {},
+    created: true,
   });
   mocks.importedOperation.mockResolvedValue({
     operationId: 'op-import',
@@ -413,6 +436,66 @@ describe('DraftCashReconciliationPanel', () => {
       },
     ],
   };
+  it('shows blockers and retained inactive draft activity without enabling confirmation', () => {
+    setup();
+
+    expect(
+      screen.getByText('POST BOUNDARY TRADES PRESENT')
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/Draft v1 \(s0\): 2 staged operation/)
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', {
+        name: 'Confirm and enable this account cash ledger',
+      })
+    ).toBeDisabled();
+  });
+
+  it('requires every acknowledgement before confirming the selected account', async () => {
+    mocks.report.data = {
+      ...report,
+      confirmationReview: {
+        eligible: true,
+        blockers: [],
+        excludedDraftActivity: [
+          { statementId: 's0', version: 1, operationCount: 2 },
+        ],
+      },
+    };
+    setup();
+    const confirmButton = screen.getByRole('button', {
+      name: 'Confirm and enable this account cash ledger',
+    });
+    expect(confirmButton).toBeDisabled();
+
+    for (const label of [
+      'I reviewed the opening balances and holdings above.',
+      'I attest that the latest cash evidence is mine to attest; it has not been independently verified.',
+      'I understand prior draft activity listed above stays inactive and is excluded from this ledger.',
+      'I understand portfolio performance returns are unavailable until sourced valuations exist.',
+    ])
+      fireEvent.click(screen.getByLabelText(label));
+
+    expect(confirmButton).toBeEnabled();
+    fireEvent.click(confirmButton);
+    await waitFor(() => expect(mocks.close).toHaveBeenCalledOnce());
+    expect(mocks.confirm).toHaveBeenCalledWith({
+      accountId: 'a1',
+      statementId: 's1',
+      input: {
+        idempotencyKey: expect.any(String),
+        expectedSourceFingerprint: 'a'.repeat(64),
+        acknowledgements: {
+          openingBalancesReviewed: true,
+          cashEvidenceUserAttested: true,
+          priorDraftActivityExcluded: true,
+          returnsUnavailableWithoutValuations: true,
+        },
+      },
+    });
+  });
+
   it('corrects purchase quantity and cost basis with explicit acknowledgement and retained retry identity', async () => {
     mocks.report.data = purchaseReport;
     mocks.acquisitionCorrection
@@ -1063,8 +1146,10 @@ describe('DraftCashReconciliationPanel', () => {
     expect(screen.getByText('MANUAL · Bank transfer 1')).toBeInTheDocument();
     expect(screen.getAllByText('Not comparable')).toHaveLength(2);
     expect(
-      screen.queryByRole('button', { name: /activate|confirm/i })
-    ).not.toBeInTheDocument();
+      screen.getByRole('button', {
+        name: 'Confirm and enable this account cash ledger',
+      })
+    ).toBeDisabled();
   });
 
   it('previews exact differences, requires a reason and note, then records attested evidence', async () => {

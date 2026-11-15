@@ -22,6 +22,16 @@ export function toLocalDateString(d: Date): string {
   return `${yyyy}-${mm}-${dd}`;
 }
 
+export function sydneyToday(): Date {
+  const date = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Australia/Sydney',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).format(new Date());
+  return new Date(`${date}T00:00:00`);
+}
+
 export type ChartTimeframe =
   | 'D'
   | 'W'

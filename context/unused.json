@@ -127,9 +127,9 @@
       "types": [
         {
           "col": 18,
-          "line": 70,
+          "line": 76,
           "name": "ExchangeDefinition",
-          "pos": 2170
+          "pos": 2610
         }
       ],
       "unlisted": [],
@@ -142,18 +142,64 @@
       "devDependencies": [],
       "duplicates": [],
       "enumMembers": [],
+      "exports": [],
+      "file": "src/components/LiveIncomeReceiptDialog.tsx",
+      "files": [],
+      "namespaceMembers": [],
+      "optionalPeerDependencies": [],
+      "types": [],
+      "unlisted": [
+        {
+          "col": 21,
+          "line": 5,
+          "name": "decimal.js",
+          "pos": 116
+        }
+      ],
+      "unresolved": []
+    },
+    {
+      "binaries": [],
+      "catalog": [],
+      "dependencies": [],
+      "devDependencies": [],
+      "duplicates": [],
+      "enumMembers": [],
+      "exports": [],
+      "file": "src/components/LiveReinvestmentDialog.tsx",
+      "files": [],
+      "namespaceMembers": [],
+      "optionalPeerDependencies": [],
+      "types": [],
+      "unlisted": [
+        {
+          "col": 21,
+          "line": 5,
+          "name": "decimal.js",
+          "pos": 115
+        }
+      ],
+      "unresolved": []
+    },
+    {
+      "binaries": [],
+      "catalog": [],
+      "dependencies": [],
+      "devDependencies": [],
+      "duplicates": [],
+      "enumMembers": [],
       "exports": [
         {
           "col": 14,
-          "line": 1051,
+          "line": 1567,
           "name": "useDeleteTaxReport",
-          "pos": 30071
+          "pos": 45009
         },
         {
           "col": 14,
-          "line": 1177,
+          "line": 1693,
           "name": "useUpcomingDividends",
-          "pos": 33262
+          "pos": 48200
         }
       ],
       "file": "src/hooks/api.ts",
@@ -229,9 +275,9 @@
         },
         {
           "col": 17,
-          "line": 262,
+          "line": 263,
           "name": "toDateStr",
-          "pos": 8418
+          "pos": 8484
         }
       ],
       "file": "src/lib/api/mappers.ts",
@@ -417,189 +463,231 @@
         },
         {
           "col": 18,
-          "line": 99,
+          "line": 100,
           "name": "ApiErrorResponse",
-          "pos": 2609
+          "pos": 2629
         },
         {
           "col": 18,
-          "line": 236,
+          "line": 237,
           "name": "ManualTradeVoidRecord",
-          "pos": 6569
+          "pos": 6589
         },
         {
           "col": 18,
-          "line": 304,
+          "line": 305,
           "name": "StatisticsTimeSeriesPoint",
-          "pos": 8402
+          "pos": 8422
         },
         {
           "col": 18,
-          "line": 316,
+          "line": 317,
           "name": "StatisticsHistogramBucket",
-          "pos": 8629
+          "pos": 8649
         },
         {
           "col": 13,
-          "line": 487,
+          "line": 488,
           "name": "ImportedEventStatus",
-          "pos": 12202
+          "pos": 12222
         },
         {
           "col": 13,
-          "line": 493,
+          "line": 494,
           "name": "ImportQuoteCurrency",
-          "pos": 12310
+          "pos": 12330
         },
         {
           "col": 18,
-          "line": 514,
+          "line": 515,
           "name": "ImportPlannedParcel",
-          "pos": 12779
+          "pos": 12799
         },
         {
           "col": 18,
-          "line": 530,
+          "line": 531,
           "name": "ImportPlannedAllocation",
-          "pos": 13128
+          "pos": 13148
         },
         {
           "col": 18,
-          "line": 539,
+          "line": 540,
           "name": "ImportEligibleParcel",
-          "pos": 13296
+          "pos": 13316
         },
         {
           "col": 13,
-          "line": 546,
+          "line": 547,
           "name": "ImportCloseReason",
-          "pos": 13420
+          "pos": 13440
         },
         {
           "col": 18,
-          "line": 565,
+          "line": 566,
           "name": "ImportStakingMonth",
-          "pos": 13898
+          "pos": 13918
         },
         {
           "col": 13,
-          "line": 575,
+          "line": 576,
           "name": "ImportIssueType",
-          "pos": 14100
+          "pos": 14120
         },
         {
           "col": 18,
-          "line": 590,
+          "line": 591,
           "name": "ImportReconciliation",
-          "pos": 14390
+          "pos": 14410
         },
         {
           "col": 18,
-          "line": 749,
+          "line": 778,
           "name": "DraftImportedExecution",
-          "pos": 18113
+          "pos": 18847
         },
         {
           "col": 18,
-          "line": 777,
+          "line": 806,
           "name": "DraftCashReplay",
-          "pos": 18796
+          "pos": 19530
         },
         {
           "col": 18,
-          "line": 837,
+          "line": 945,
+          "name": "TransferRevisionHead",
+          "pos": 22507
+        },
+        {
+          "col": 18,
+          "line": 1075,
+          "name": "AccountIncomeReceiptResponse",
+          "pos": 25752
+        },
+        {
+          "col": 18,
+          "line": 1080,
+          "name": "AccountIncomeReceiptCorrectionReplacement",
+          "pos": 25859
+        },
+        {
+          "col": 18,
+          "line": 1107,
+          "name": "AccountIncomeReceiptCorrectionResponse",
+          "pos": 26542
+        },
+        {
+          "col": 18,
+          "line": 1118,
+          "name": "LiveCapitalOperationRevision",
+          "pos": 26781
+        },
+        {
+          "col": 18,
+          "line": 1228,
+          "name": "LiveCashReviewEvidence",
+          "pos": 29564
+        },
+        {
+          "col": 18,
+          "line": 1240,
+          "name": "LiveIncomeReceiptSummary",
+          "pos": 29886
+        },
+        {
+          "col": 18,
+          "line": 1359,
           "name": "DraftCashEvidenceComparison",
-          "pos": 20106
+          "pos": 32996
         },
         {
           "col": 18,
-          "line": 848,
+          "line": 1370,
           "name": "DraftCashEvidenceRecord",
-          "pos": 20357
+          "pos": 33247
         },
         {
           "col": 18,
-          "line": 876,
+          "line": 1398,
           "name": "DraftExecutionSnapshot",
-          "pos": 21056
+          "pos": 33946
         },
         {
           "col": 18,
-          "line": 887,
+          "line": 1409,
           "name": "DraftExecutionAudit",
-          "pos": 21259
+          "pos": 34149
         },
         {
           "col": 18,
-          "line": 1014,
+          "line": 1545,
           "name": "AccountOpeningStatement",
-          "pos": 24672
+          "pos": 37756
         },
         {
           "col": 18,
-          "line": 1027,
+          "line": 1558,
           "name": "DraftCashEvidence",
-          "pos": 24931
+          "pos": 38015
         },
         {
           "col": 18,
-          "line": 1039,
+          "line": 1570,
           "name": "DraftCashEvidenceBalance",
-          "pos": 25159
+          "pos": 38243
         },
         {
           "col": 18,
-          "line": 1046,
+          "line": 1577,
           "name": "DraftCashEvidenceDecision",
-          "pos": 25280
+          "pos": 38364
         },
         {
           "col": 18,
-          "line": 1055,
+          "line": 1586,
           "name": "OpeningCashBalance",
-          "pos": 25457
+          "pos": 38541
         },
         {
           "col": 18,
-          "line": 1062,
+          "line": 1593,
           "name": "DraftCashOperation",
-          "pos": 25573
+          "pos": 38657
         },
         {
           "col": 18,
-          "line": 1078,
+          "line": 1609,
           "name": "DraftCashPosting",
-          "pos": 25894
+          "pos": 38978
         },
         {
           "col": 18,
-          "line": 1087,
+          "line": 1618,
           "name": "DraftManualTrade",
-          "pos": 26044
+          "pos": 39128
         },
         {
           "col": 18,
-          "line": 1101,
+          "line": 1632,
           "name": "DraftCashRevision",
-          "pos": 26294
+          "pos": 39378
         },
         {
           "col": 18,
-          "line": 1114,
+          "line": 1645,
           "name": "DraftCashRevisionPosting",
-          "pos": 26566
+          "pos": 39650
         },
         {
           "col": 18,
-          "line": 1124,
+          "line": 1655,
           "name": "DraftOperationTradeLink",
-          "pos": 26740
+          "pos": 39824
         },
         {
           "col": 18,
-          "line": 1131,
+          "line": 1662,
           "name": "OpeningParcelBalance",
-          "pos": 26871
+          "pos": 39955
         }
       ],
       "unlisted": [],

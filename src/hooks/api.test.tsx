@@ -27,10 +27,27 @@ const {
   correctRecordedSaleMock,
   correctRecordedAcquisitionMock,
   postAccountTradeMock,
+  getAccountTradeCapabilityMock,
+  postAccountCapitalFlowMock,
+  postAccountFxConversionMock,
+  fxReviewMock,
+  correctFxMock,
+  postAccountCashTransferMock,
+  transferReviewMock,
+  correctTransferMock,
+  postAccountIncomeReceiptMock,
+  postReinvestmentMock,
+  reinvestmentReviewMock,
+  correctReinvestmentMock,
+  correctLiveIncomeMock,
+  getIncomeEligibleAssetsMock,
+  correctLiveCapitalMock,
+  getLiveCapitalMock,
   correctLiveAcquisitionMock,
   correctLiveImportedMock,
   voidTradeMock,
   readVoidsMock,
+  confirmOpeningStatementMock,
 } = vi.hoisted(() => ({
   updatePositionMock: vi.fn(),
   updateCloseEventMock: vi.fn(),
@@ -53,10 +70,27 @@ const {
   correctRecordedSaleMock: vi.fn(),
   correctRecordedAcquisitionMock: vi.fn(),
   postAccountTradeMock: vi.fn(),
+  getAccountTradeCapabilityMock: vi.fn(),
+  postAccountCapitalFlowMock: vi.fn(),
+  postAccountFxConversionMock: vi.fn(),
+  fxReviewMock: vi.fn(),
+  correctFxMock: vi.fn(),
+  postAccountCashTransferMock: vi.fn(),
+  transferReviewMock: vi.fn(),
+  correctTransferMock: vi.fn(),
+  postAccountIncomeReceiptMock: vi.fn(),
+  postReinvestmentMock: vi.fn(),
+  reinvestmentReviewMock: vi.fn(),
+  correctReinvestmentMock: vi.fn(),
+  correctLiveIncomeMock: vi.fn(),
+  getIncomeEligibleAssetsMock: vi.fn(),
+  correctLiveCapitalMock: vi.fn(),
+  getLiveCapitalMock: vi.fn(),
   correctLiveAcquisitionMock: vi.fn(),
   correctLiveImportedMock: vi.fn(),
   voidTradeMock: vi.fn(),
   readVoidsMock: vi.fn(),
+  confirmOpeningStatementMock: vi.fn(),
 }));
 
 vi.mock('@/lib/api-client', () => ({
@@ -82,10 +116,27 @@ vi.mock('@/lib/api-client', () => ({
     correctDraftRecordedSale: correctRecordedSaleMock,
     correctDraftRecordedAcquisition: correctRecordedAcquisitionMock,
     postAccountTrade: postAccountTradeMock,
+    getAccountTradeCapability: getAccountTradeCapabilityMock,
+    postAccountCapitalFlow: postAccountCapitalFlowMock,
+    postAccountFxConversion: postAccountFxConversionMock,
+    getLiveFxConversionReview: fxReviewMock,
+    correctLiveFxConversion: correctFxMock,
+    postAccountCashTransfer: postAccountCashTransferMock,
+    getLiveCashTransferReview: transferReviewMock,
+    correctLiveCashTransfer: correctTransferMock,
+    postAccountIncomeReceipt: postAccountIncomeReceiptMock,
+    postAccountReinvestment: postReinvestmentMock,
+    getLiveReinvestmentReview: reinvestmentReviewMock,
+    correctLiveReinvestment: correctReinvestmentMock,
+    correctLiveIncomeReceipt: correctLiveIncomeMock,
+    getIncomeEligibleAssets: getIncomeEligibleAssetsMock,
+    correctLiveCapitalOperation: correctLiveCapitalMock,
+    getLiveCapitalOperations: getLiveCapitalMock,
     correctLiveManualAcquisition: correctLiveAcquisitionMock,
     correctLiveImportedExecution: correctLiveImportedMock,
     voidLiveManualTrade: voidTradeMock,
     getLiveManualTradeVoids: readVoidsMock,
+    confirmOpeningStatement: confirmOpeningStatementMock,
   },
 }));
 
@@ -111,10 +162,27 @@ import {
   useCorrectDraftRecordedSale,
   useCorrectDraftRecordedAcquisition,
   usePostAccountTrade,
+  useAccountTradeCapability,
+  usePostAccountCapitalFlow,
+  usePostAccountFxConversion,
+  useLiveFxConversionReview,
+  useCorrectLiveFxConversion,
+  usePostAccountCashTransfer,
+  useLiveCashTransferReview,
+  useCorrectLiveCashTransfer,
+  usePostAccountIncomeReceipt,
+  usePostAccountReinvestment,
+  useLiveReinvestmentReview,
+  useCorrectLiveReinvestment,
+  useIncomeEligibleAssets,
+  useCorrectLiveCapitalOperation,
+  useCorrectLiveIncomeReceipt,
+  useLiveCapitalOperations,
   useCorrectLiveManualAcquisition,
   useCorrectLiveImportedExecution,
   useVoidLiveManualTrade,
   useLiveManualTradeVoids,
+  useConfirmOpeningStatement,
 } from './api';
 import { useSymbolSearch } from './useSymbolSearch';
 
@@ -128,6 +196,144 @@ function createWrapper(queryClient: QueryClient) {
 
 beforeEach(() => {
   vi.clearAllMocks();
+});
+
+describe('explicit FX posting hook', () => {
+  it('reads current FX heads and corrects online without retries, invalidating only the affected account', async () => {
+    const client = new QueryClient();
+    fxReviewMock.mockResolvedValue({ expectedRevisionId: 'fx1' });
+    const query = renderHook(() => useLiveFxConversionReview('a1', 'fx1'), {
+      wrapper: createWrapper(client),
+    });
+    await waitFor(() =>
+      expect(query.result.current.data?.expectedRevisionId).toBe('fx1')
+    );
+    expect(fxReviewMock).toHaveBeenCalledWith('a1', 'fx1');
+    query.unmount();
+    const keys = [
+      'live-cash',
+      'live-capital-operations',
+      'fx-conversion-review',
+      'cash-transfer-review',
+      'account-trade-capability',
+    ];
+    for (const key of keys)
+      for (const id of ['a1', 'a2']) client.setQueryData([key, id], {});
+    const input = {
+      idempotencyKey: 'fx-reverse',
+      expectedRevisionId: 'fx1',
+      expectedAuditNumber: 1,
+      expectedSourceFingerprint: 'a'.repeat(64),
+      reason: 'Duplicate exchange',
+      replacement: null,
+    };
+    correctFxMock.mockResolvedValueOnce({ created: true });
+    const { result } = renderHook(() => useCorrectLiveFxConversion(), {
+      wrapper: createWrapper(client),
+    });
+    await act(async () => {
+      await result.current.mutateAsync({
+        accountId: 'a1',
+        operationId: 'fx1',
+        input,
+      });
+    });
+    expect(correctFxMock).toHaveBeenCalledWith('a1', 'fx1', input);
+    for (const key of keys) {
+      expect(client.getQueryState([key, 'a1'])?.isInvalidated).toBe(true);
+      expect(client.getQueryState([key, 'a2'])?.isInvalidated).toBe(false);
+    }
+    const offline = vi.spyOn(navigator, 'onLine', 'get').mockReturnValue(false);
+    try {
+      await act(async () => {
+        await expect(
+          result.current.mutateAsync({
+            accountId: 'a1',
+            operationId: 'fx1',
+            input,
+          })
+        ).rejects.toThrow('Offline changes are not queued');
+      });
+    } finally {
+      offline.mockRestore();
+    }
+    expect(correctFxMock).toHaveBeenCalledOnce();
+    correctFxMock.mockRejectedValueOnce(new Error('Conflict'));
+    await act(async () => {
+      await expect(
+        result.current.mutateAsync({
+          accountId: 'a1',
+          operationId: 'fx1',
+          input,
+        })
+      ).rejects.toThrow('Conflict');
+    });
+    expect(correctFxMock).toHaveBeenCalledTimes(2);
+    expect(client.getMutationCache().getAll().at(-1)?.options).toMatchObject({
+      retry: false,
+      networkMode: 'always',
+      gcTime: 0,
+    });
+    client.clear();
+  });
+  it('invalidates only the affected cash, review and capability caches; refuses offline writes and retries', async () => {
+    const client = new QueryClient();
+    const keys = [
+      'live-cash',
+      'live-capital-operations',
+      'cash-transfer-review',
+      'account-trade-capability',
+    ];
+    for (const key of keys)
+      for (const id of ['a1', 'a2']) client.setQueryData([key, id], {});
+    const input = {
+      idempotencyKey: 'fx1',
+      effectiveDate: '2026-11-12',
+      sequence: 1,
+      from: { currency: 'AUD', amount: '1500' },
+      to: { currency: 'USD', amount: '975' },
+      fees: [],
+      sourceReference: 'statement-fx',
+    };
+    postAccountFxConversionMock.mockResolvedValueOnce({ created: true });
+    const { result } = renderHook(() => usePostAccountFxConversion(), {
+      wrapper: createWrapper(client),
+    });
+    await act(async () => {
+      await result.current.mutateAsync({ accountId: 'a1', input });
+    });
+    expect(postAccountFxConversionMock).toHaveBeenCalledWith('a1', input);
+    for (const key of keys) {
+      expect(client.getQueryState([key, 'a1'])?.isInvalidated).toBe(true);
+      expect(client.getQueryState([key, 'a2'])?.isInvalidated).toBe(false);
+    }
+    const offline = vi.spyOn(navigator, 'onLine', 'get').mockReturnValue(false);
+    try {
+      await act(async () => {
+        await expect(
+          result.current.mutateAsync({ accountId: 'a1', input })
+        ).rejects.toThrow('Offline changes are not queued');
+      });
+    } finally {
+      offline.mockRestore();
+    }
+    expect(postAccountFxConversionMock).toHaveBeenCalledOnce();
+    postAccountFxConversionMock.mockRejectedValueOnce(
+      new Error('Response lost')
+    );
+    await act(async () => {
+      await expect(
+        result.current.mutateAsync({ accountId: 'a1', input })
+      ).rejects.toThrow('Response lost');
+    });
+    expect(postAccountFxConversionMock).toHaveBeenCalledTimes(2);
+    expect(client.getMutationCache().getAll().at(-1)?.options).toMatchObject({
+      retry: false,
+      networkMode: 'always',
+      gcTime: 0,
+    });
+    client.clear();
+  });
 });
 
 describe('audited manual void hooks', () => {
@@ -424,6 +630,530 @@ describe('live account trade hook', () => {
       client.clear();
     }
     expect(postAccountTradeMock).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('account trade capability hook', () => {
+  it('loads by account and effective date and can resolve a fresh capability', async () => {
+    const client = new QueryClient({
+      defaultOptions: { queries: { retry: false } },
+    });
+    const capability = {
+      accountId: 'a1',
+      mode: 'LIVE_LEDGER' as const,
+      reason: null,
+      openingDate: '2026-10-01',
+      effectiveDate: '2026-10-02',
+      nextSequence: 1,
+    };
+    getAccountTradeCapabilityMock.mockImplementation(
+      async (_accountId: string, effectiveDate: string) => ({
+        ...capability,
+        effectiveDate,
+      })
+    );
+    const { result } = renderHook(
+      () => useAccountTradeCapability('a1', '2026-10-02'),
+      { wrapper: createWrapper(client) }
+    );
+    await waitFor(() => expect(result.current.data).toEqual(capability));
+    await act(async () => {
+      await expect(result.current.resolve('2026-10-03')).resolves.toMatchObject(
+        { effectiveDate: '2026-10-03' }
+      );
+    });
+    expect(getAccountTradeCapabilityMock).toHaveBeenNthCalledWith(
+      1,
+      'a1',
+      '2026-10-02'
+    );
+    expect(getAccountTradeCapabilityMock).toHaveBeenNthCalledWith(
+      2,
+      'a1',
+      '2026-10-03'
+    );
+    expect(
+      client.getQueryData(['account-trade-capability', 'a1', '2026-10-03'])
+    ).toEqual({ ...capability, effectiveDate: '2026-10-03' });
+    client.clear();
+  });
+});
+
+describe('live account capital-flow hook', () => {
+  it('loads paired review and invalidates both actual result accounts after online-only correction', async () => {
+    const client = new QueryClient({
+      defaultOptions: { queries: { retry: false } },
+    });
+    const reviewed = {
+      sourceAccountId: 'a1',
+      destinationAccountId: 'a2',
+      current: null,
+    };
+    transferReviewMock.mockResolvedValue(reviewed);
+    const { result: query } = renderHook(
+      () => useLiveCashTransferReview('a1', 'out1'),
+      { wrapper: createWrapper(client) }
+    );
+    await waitFor(() => expect(query.current.data).toEqual(reviewed));
+    expect(transferReviewMock).toHaveBeenCalledWith('a1', 'out1');
+    for (const id of ['a1', 'a2', 'other'])
+      client.setQueryData(['live-capital-operations', id], {});
+    const input = {
+      idempotencyKey: 'fix',
+      reason: 'Duplicate transfer',
+      sourceHead: {
+        revisionId: 'out1',
+        auditNumber: 1,
+        sourceFingerprint: 'a'.repeat(64),
+      },
+      destinationHead: {
+        revisionId: 'in1',
+        auditNumber: 2,
+        sourceFingerprint: 'b'.repeat(64),
+      },
+      replacement: null,
+    };
+    correctTransferMock.mockResolvedValue({
+      sourceReplay: { accountId: 'a1' },
+      destinationReplay: { accountId: 'a2' },
+    });
+    const { result: mutation } = renderHook(
+      () => useCorrectLiveCashTransfer(),
+      { wrapper: createWrapper(client) }
+    );
+    await act(async () => {
+      await mutation.current.mutateAsync({
+        accountId: 'a1',
+        operationId: 'out1',
+        input,
+      });
+    });
+    expect(correctTransferMock).toHaveBeenCalledWith('a1', 'out1', input);
+    expect(
+      client.getQueryState(['live-capital-operations', 'a1'])?.isInvalidated
+    ).toBe(true);
+    expect(
+      client.getQueryState(['live-capital-operations', 'a2'])?.isInvalidated
+    ).toBe(true);
+    expect(
+      client.getQueryState(['live-capital-operations', 'other'])?.isInvalidated
+    ).toBe(false);
+    const offline = vi.spyOn(navigator, 'onLine', 'get').mockReturnValue(false);
+    try {
+      await act(async () => {
+        await expect(
+          mutation.current.mutateAsync({
+            accountId: 'a1',
+            operationId: 'out1',
+            input,
+          })
+        ).rejects.toThrow('Offline changes are not queued');
+      });
+    } finally {
+      offline.mockRestore();
+      client.clear();
+    }
+    expect(correctTransferMock).toHaveBeenCalledOnce();
+  });
+
+  it('posts transfers online without retry and invalidates both accounts but not unrelated ledgers', async () => {
+    const client = new QueryClient();
+    for (const id of ['a1', 'a2', 'a3']) {
+      client.setQueryData(['live-cash', id], {});
+      client.setQueryData(['live-capital-operations', id, 0], {});
+      client.setQueryData(['account-trade-capability', id, '2026-11-13'], {});
+    }
+    const input = {
+      toAccountId: 'a2',
+      idempotencyKey: 'transfer-1',
+      effectiveDate: '2026-11-13',
+      sourceSequence: 1,
+      destinationSequence: 1,
+      currency: 'AUD',
+      amount: '40',
+      fee: '1',
+      sourceReference: 'statement-1',
+    };
+    postAccountCashTransferMock.mockResolvedValue({ created: true });
+    const { result } = renderHook(() => usePostAccountCashTransfer(), {
+      wrapper: createWrapper(client),
+    });
+    await act(async () => {
+      await result.current.mutateAsync({ accountId: 'a1', input });
+    });
+    expect(postAccountCashTransferMock).toHaveBeenCalledWith('a1', input);
+    for (const id of ['a1', 'a2']) {
+      expect(client.getQueryState(['live-cash', id])?.isInvalidated).toBe(true);
+      expect(
+        client.getQueryState(['live-capital-operations', id, 0])?.isInvalidated
+      ).toBe(true);
+      expect(
+        client.getQueryState(['account-trade-capability', id, '2026-11-13'])
+          ?.isInvalidated
+      ).toBe(true);
+    }
+    expect(client.getQueryState(['live-cash', 'a3'])?.isInvalidated).toBe(
+      false
+    );
+    const offline = vi.spyOn(navigator, 'onLine', 'get').mockReturnValue(false);
+    try {
+      await act(async () => {
+        await expect(
+          result.current.mutateAsync({ accountId: 'a1', input })
+        ).rejects.toThrow('Offline changes are not queued');
+      });
+    } finally {
+      offline.mockRestore();
+    }
+    postAccountCashTransferMock.mockRejectedValueOnce(new Error('Conflict'));
+    await act(async () => {
+      await expect(
+        result.current.mutateAsync({ accountId: 'a1', input })
+      ).rejects.toThrow('Conflict');
+    });
+    expect(postAccountCashTransferMock).toHaveBeenCalledTimes(2);
+    client.clear();
+  });
+
+  it('loads historical equity and ETF assets for income entry', async () => {
+    const client = new QueryClient({
+      defaultOptions: { queries: { retry: false } },
+    });
+    const assets = [{ assetId: 'asset-1', symbol: 'ABC' }];
+    getIncomeEligibleAssetsMock.mockResolvedValue(assets);
+    const { result } = renderHook(() => useIncomeEligibleAssets('a1'), {
+      wrapper: createWrapper(client),
+    });
+    await waitFor(() => expect(result.current.data).toEqual(assets));
+    expect(getIncomeEligibleAssetsMock).toHaveBeenCalledWith('a1');
+    client.clear();
+  });
+
+  it('posts online only, does not retry and invalidates live cash queries', async () => {
+    const client = new QueryClient({
+      defaultOptions: { queries: { retry: false } },
+    });
+    client.setQueryData(['live-cash', 'a1'], {});
+    client.setQueryData(['live-capital-operations', 'a1', 0], {});
+    const input = {
+      kind: 'DEPOSIT' as const,
+      idempotencyKey: 'deposit-1',
+      effectiveDate: '2026-10-02',
+      sequence: 1,
+      currency: 'AUD',
+      amount: '100.000000000001',
+      sourceReference: 'bank-transfer-123',
+    };
+    postAccountCapitalFlowMock.mockResolvedValue({ operationId: 'op1' });
+    const { result } = renderHook(() => usePostAccountCapitalFlow(), {
+      wrapper: createWrapper(client),
+    });
+    await act(async () => {
+      await result.current.mutateAsync({ accountId: 'a1', input });
+    });
+    expect(postAccountCapitalFlowMock).toHaveBeenCalledWith('a1', input);
+    expect(client.getQueryState(['live-cash', 'a1'])?.isInvalidated).toBe(true);
+    expect(
+      client.getQueryState(['live-capital-operations', 'a1', 0])?.isInvalidated
+    ).toBe(true);
+
+    const offline = vi.spyOn(navigator, 'onLine', 'get').mockReturnValue(false);
+    try {
+      await act(async () => {
+        await expect(
+          result.current.mutateAsync({ accountId: 'a1', input })
+        ).rejects.toThrow('Offline changes are not queued');
+      });
+    } finally {
+      offline.mockRestore();
+      client.clear();
+    }
+    expect(postAccountCapitalFlowMock).toHaveBeenCalledTimes(1);
+  });
+
+  it('reviews and revises reinvestment online without automatic retry, invalidating affected heads', async () => {
+    const client = new QueryClient({
+      defaultOptions: { queries: { retry: false } },
+    });
+    reinvestmentReviewMock.mockResolvedValue({ incomeOperationId: 'i1' });
+    const { result: review } = renderHook(
+      () => useLiveReinvestmentReview('a1', 'i1'),
+      { wrapper: createWrapper(client) }
+    );
+    await waitFor(() =>
+      expect(review.current.data?.incomeOperationId).toBe('i1')
+    );
+    for (const key of [
+      ['holdings'],
+      ['live-cash', 'a1'],
+      ['live-capital-operations', 'a1'],
+      ['fx-conversion-review', 'a1'],
+      ['cash-transfer-review', 'a1'],
+    ])
+      client.setQueryData(key, {});
+    client.setQueryData(['live-cash', 'other'], {});
+    correctReinvestmentMock.mockResolvedValueOnce({ created: true });
+    const { result } = renderHook(() => useCorrectLiveReinvestment(), {
+      wrapper: createWrapper(client),
+    });
+    const input = {
+      idempotencyKey: 'rev',
+      expectedIncomeRevisionId: 'i1',
+      expectedAcquisitionRevisionId: 'b1',
+      expectedAuditNumber: 2,
+      expectedSourceFingerprint: 'a'.repeat(64),
+      reason: 'Cancelled',
+      replacement: null,
+    };
+    await act(async () => {
+      await result.current.mutateAsync({
+        accountId: 'a1',
+        operationId: 'i1',
+        input,
+      });
+    });
+    expect(correctReinvestmentMock).toHaveBeenCalledWith('a1', 'i1', input);
+    for (const key of [
+      ['holdings'],
+      ['live-cash', 'a1'],
+      ['live-capital-operations', 'a1'],
+      ['fx-conversion-review', 'a1'],
+      ['cash-transfer-review', 'a1'],
+    ])
+      expect(client.getQueryState(key)?.isInvalidated).toBe(true);
+    expect(client.getQueryState(['live-cash', 'other'])?.isInvalidated).toBe(
+      false
+    );
+    const offline = vi.spyOn(navigator, 'onLine', 'get').mockReturnValue(false);
+    try {
+      await act(async () => {
+        await expect(
+          result.current.mutateAsync({
+            accountId: 'a1',
+            operationId: 'i1',
+            input,
+          })
+        ).rejects.toThrow('Offline changes are not queued');
+      });
+      expect(correctReinvestmentMock).toHaveBeenCalledTimes(1);
+    } finally {
+      offline.mockRestore();
+      client.clear();
+    }
+  });
+
+  it('posts reinvestment online without retries and invalidates cash, holdings and review heads', async () => {
+    const client = new QueryClient({
+      defaultOptions: { queries: { retry: false } },
+    });
+    for (const key of [
+      ['holdings'],
+      ['live-cash', 'a1'],
+      ['live-capital-operations', 'a1', 0],
+      ['account-trade-capability', 'a1'],
+      ['income-eligible-assets', 'a1'],
+      ['cash-transfer-review', 'a1'],
+      ['fx-conversion-review', 'a1'],
+    ])
+      client.setQueryData(key, {});
+    client.setQueryData(['live-cash', 'other'], {});
+    const input = {
+      idempotencyKey: 'drp-1',
+      income: {
+        assetId: 'asset-1',
+        entitlementDate: '2026-10-01',
+        paymentDate: '2026-10-15',
+        sequence: 1,
+        currency: 'AUD',
+        grossAmount: '100',
+        withholdingAmount: '15',
+        frankedAmount: '60',
+        unfrankedAmount: '40',
+        frankingCreditAud: '25',
+        sourceReference: 'statement-1',
+      },
+      acquisition: {
+        effectiveDate: '2026-10-15',
+        sequence: 2,
+        quantity: '4',
+        price: '20',
+        fees: '1',
+      },
+      residualAmount: '4',
+      residualDisposition: 'ACCOUNT_CASH' as const,
+      statementConfirmed: true as const,
+    };
+    postReinvestmentMock.mockResolvedValueOnce({ positionId: 'p1' });
+    const { result } = renderHook(() => usePostAccountReinvestment(), {
+      wrapper: createWrapper(client),
+    });
+    await act(async () => {
+      await result.current.mutateAsync({ accountId: 'a1', input });
+    });
+    expect(postReinvestmentMock).toHaveBeenCalledWith('a1', input);
+    for (const key of [
+      ['holdings'],
+      ['live-cash', 'a1'],
+      ['live-capital-operations', 'a1', 0],
+      ['account-trade-capability', 'a1'],
+      ['income-eligible-assets', 'a1'],
+      ['cash-transfer-review', 'a1'],
+      ['fx-conversion-review', 'a1'],
+    ])
+      expect(client.getQueryState(key)?.isInvalidated).toBe(true);
+    expect(client.getQueryState(['live-cash', 'other'])?.isInvalidated).toBe(
+      false
+    );
+    postReinvestmentMock.mockRejectedValueOnce(new Error('Response lost'));
+    await act(async () => {
+      await expect(
+        result.current.mutateAsync({ accountId: 'a1', input })
+      ).rejects.toThrow('Response lost');
+    });
+    expect(postReinvestmentMock).toHaveBeenCalledTimes(2);
+    const offline = vi.spyOn(navigator, 'onLine', 'get').mockReturnValue(false);
+    try {
+      await act(async () => {
+        await expect(
+          result.current.mutateAsync({ accountId: 'a1', input })
+        ).rejects.toThrow('Offline changes are not queued');
+      });
+      expect(postReinvestmentMock).toHaveBeenCalledTimes(2);
+    } finally {
+      offline.mockRestore();
+      client.clear();
+    }
+  });
+
+  it('posts income online and invalidates cash and audit views', async () => {
+    const client = new QueryClient({
+      defaultOptions: { queries: { retry: false } },
+    });
+    client.setQueryData(['live-cash', 'a1'], {});
+    client.setQueryData(['live-capital-operations', 'a1', 0], {});
+    const input = {
+      idempotencyKey: 'income-1',
+      assetId: 'asset-1',
+      entitlementDate: '2026-10-01',
+      paymentDate: '2026-10-15',
+      sequence: 1,
+      currency: 'AUD',
+      grossAmount: '100',
+      withholdingAmount: '15',
+      frankedAmount: '60',
+      unfrankedAmount: '40',
+      frankingCreditAud: '25',
+      sourceReference: 'statement-1',
+    };
+    postAccountIncomeReceiptMock.mockResolvedValue({ operationId: 'income-1' });
+    const { result } = renderHook(() => usePostAccountIncomeReceipt(), {
+      wrapper: createWrapper(client),
+    });
+    await act(async () => {
+      await result.current.mutateAsync({ accountId: 'a1', input });
+    });
+    expect(postAccountIncomeReceiptMock).toHaveBeenCalledWith('a1', input);
+    expect(client.getQueryState(['live-cash', 'a1'])?.isInvalidated).toBe(true);
+    expect(
+      client.getQueryState(['live-capital-operations', 'a1', 0])?.isInvalidated
+    ).toBe(true);
+    client.clear();
+  });
+
+  it('reads live funding pages and posts corrections only while online', async () => {
+    const client = new QueryClient({
+      defaultOptions: { queries: { retry: false } },
+    });
+    const page = { items: [], total: 0 };
+    getLiveCapitalMock.mockResolvedValue(page);
+    const { result: query } = renderHook(
+      () => useLiveCapitalOperations('a1', 100),
+      { wrapper: createWrapper(client) }
+    );
+    await waitFor(() => expect(query.current.data).toEqual(page));
+    expect(getLiveCapitalMock).toHaveBeenCalledWith('a1', 100);
+
+    client.setQueryData(['live-capital-operations', 'a1', 0], {});
+    const input = {
+      idempotencyKey: 'capital-fix-1',
+      expectedRevisionId: 'operation-1',
+      expectedAuditNumber: 3,
+      expectedSourceFingerprint: 'a'.repeat(64),
+      reason: 'Correct bank line',
+      replacement: null,
+    };
+    correctLiveCapitalMock.mockResolvedValue({ revisionId: 'revision-1' });
+    const { result: mutation } = renderHook(
+      () => useCorrectLiveCapitalOperation(),
+      { wrapper: createWrapper(client) }
+    );
+    await act(async () => {
+      await mutation.current.mutateAsync({
+        accountId: 'a1',
+        operationId: 'operation-1',
+        input,
+      });
+    });
+    expect(correctLiveCapitalMock).toHaveBeenCalledWith(
+      'a1',
+      'operation-1',
+      input
+    );
+    expect(
+      client.getQueryState(['live-capital-operations', 'a1', 0])?.isInvalidated
+    ).toBe(true);
+
+    const offline = vi.spyOn(navigator, 'onLine', 'get').mockReturnValue(false);
+    try {
+      await act(async () => {
+        await expect(
+          mutation.current.mutateAsync({
+            accountId: 'a1',
+            operationId: 'operation-1',
+            input,
+          })
+        ).rejects.toThrow('Offline changes are not queued');
+      });
+    } finally {
+      offline.mockRestore();
+      client.clear();
+    }
+    expect(correctLiveCapitalMock).toHaveBeenCalledTimes(1);
+  });
+
+  it('posts audited income corrections and invalidates account cash history', async () => {
+    const client = new QueryClient();
+    client.setQueryData(['live-cash', 'a1'], {});
+    client.setQueryData(['live-capital-operations', 'a1', 0], {});
+    const input = {
+      idempotencyKey: 'income-fix-1',
+      expectedRevisionId: 'income-operation',
+      expectedAuditNumber: 3,
+      expectedSourceFingerprint: 'a'.repeat(64),
+      reason: 'Correct issuer withholding',
+      replacement: null,
+    };
+    correctLiveIncomeMock.mockResolvedValue({ revisionId: 'revision-1' });
+    const { result } = renderHook(() => useCorrectLiveIncomeReceipt(), {
+      wrapper: createWrapper(client),
+    });
+    await act(async () => {
+      await result.current.mutateAsync({
+        accountId: 'a1',
+        operationId: 'income-operation',
+        input,
+      });
+    });
+    expect(correctLiveIncomeMock).toHaveBeenCalledWith(
+      'a1',
+      'income-operation',
+      input
+    );
+    expect(client.getQueryState(['live-cash', 'a1'])?.isInvalidated).toBe(true);
+    expect(
+      client.getQueryState(['live-capital-operations', 'a1', 0])?.isInvalidated
+    ).toBe(true);
+    client.clear();
   });
 });
 
@@ -1225,5 +1955,62 @@ describe('import hooks', () => {
       skip: true,
     });
     expect(queryClient.getQueryData(['import', 'imp-1'])).toBe(detail);
+  });
+});
+
+describe('opening statement confirmation hook', () => {
+  it('confirms only while online and invalidates account-scoped ledger views', async () => {
+    const client = new QueryClient();
+    const keys = [
+      ['opening-statements', 'a1', 'latest'],
+      ['opening-reconciliation', 'a1', 's1'],
+      ['account-trade-capability', 'a1', '2026-11-11'],
+      ['live-cash', 'a1', 0],
+      ['opening-statements', 'a2', 'latest'],
+    ];
+    keys.forEach(key => client.setQueryData(key, {}));
+    const input = {
+      idempotencyKey: 'confirm-1',
+      expectedSourceFingerprint: 'a'.repeat(64),
+      acknowledgements: {
+        openingBalancesReviewed: true as const,
+        cashEvidenceUserAttested: true as const,
+        priorDraftActivityExcluded: true as const,
+        returnsUnavailableWithoutValuations: true as const,
+      },
+    };
+    confirmOpeningStatementMock.mockResolvedValue({ created: true });
+    const { result } = renderHook(() => useConfirmOpeningStatement(), {
+      wrapper: createWrapper(client),
+    });
+
+    await act(async () => {
+      await result.current.mutateAsync({
+        accountId: 'a1',
+        statementId: 's1',
+        input,
+      });
+    });
+    expect(confirmOpeningStatementMock).toHaveBeenCalledWith('a1', 's1', input);
+    for (const key of keys.slice(0, -1))
+      expect(client.getQueryState(key)?.isInvalidated).toBe(true);
+    expect(client.getQueryState(keys[4])?.isInvalidated).toBe(false);
+
+    const offline = vi.spyOn(navigator, 'onLine', 'get').mockReturnValue(false);
+    try {
+      await act(async () => {
+        await expect(
+          result.current.mutateAsync({
+            accountId: 'a1',
+            statementId: 's1',
+            input,
+          })
+        ).rejects.toThrow('Offline changes are not queued');
+      });
+      expect(confirmOpeningStatementMock).toHaveBeenCalledTimes(1);
+    } finally {
+      offline.mockRestore();
+      client.clear();
+    }
   });
 });

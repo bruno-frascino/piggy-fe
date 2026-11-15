@@ -8,10 +8,29 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 const emptyResult = vi.hoisted(() => ({ data: [] as unknown[] }));
 
 vi.mock('@/hooks/api', () => ({
+  useAccountTradeCapability: (_accountId: string, effectiveDate: string) => ({
+    data: {
+      accountId: 'acc-1',
+      mode: 'LEGACY',
+      reason: null,
+      openingDate: null,
+      effectiveDate,
+      nextSequence: null,
+    },
+    resolve: vi.fn(async () => ({
+      accountId: 'acc-1',
+      mode: 'LEGACY',
+      reason: null,
+      openingDate: null,
+      effectiveDate,
+      nextSequence: null,
+    })),
+  }),
   useHoldings: () => emptyResult,
   useQuotes: () => emptyResult,
   useRealizedPnL: () => ({ data: 0 }),
   useCreatePosition: () => ({ mutateAsync: vi.fn() }),
+  usePostAccountTrade: () => ({ mutateAsync: vi.fn() }),
   useUpdatePosition: () => ({ mutateAsync: vi.fn() }),
   useRecalculateDrawdown: () => ({ mutateAsync: vi.fn() }),
   useCheckStopLoss: () => ({ mutateAsync: vi.fn() }),

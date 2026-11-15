@@ -222,7 +222,7 @@ export default function OpeningPreviewDialog({
           </div>
         )}
         <section className='space-y-2' aria-label='Saved opening drafts'>
-          <h3>Saved inactive drafts</h3>
+          <h3>Saved opening statements</h3>
           {statements.isLoading && (
             <p role='status'>Loading opening drafts...</p>
           )}
@@ -240,7 +240,7 @@ export default function OpeningPreviewDialog({
           {statements.data && (
             <>
               {statements.data.statements.length === 0 && (
-                <p>No saved drafts on this page.</p>
+                <p>No saved opening statements on this page.</p>
               )}
               {statements.data.statements.map(statement => (
                 <div
@@ -250,23 +250,40 @@ export default function OpeningPreviewDialog({
                   <span>
                     v{statement.version} -{' '}
                     {formatDateDDMMYYYY(statement.openingDate)} -{' '}
-                    {statement.parcelCount} parcels - DRAFT
+                    {statement.parcelCount} parcels -{' '}
+                    {statement.draftOperationCount} staged operations -{' '}
+                    {statement.state === 'CONFIRMED'
+                      ? 'CONFIRMED · cash ledger active'
+                      : 'DRAFT · inactive'}
                   </span>
-                  <Button
-                    label={`Load draft v${statement.version}`}
-                    outlined
-                    disabled={busy}
-                    onClick={() => {
-                      setReconciliationStatementId('');
-                      load(statement);
-                    }}
-                  />
-                  <Button
-                    label={`Review reconciliation v${statement.version}`}
-                    outlined
-                    disabled={busy || !online}
-                    onClick={() => setReconciliationStatementId(statement.id)}
-                  />
+                  {statement.state === 'DRAFT' ? (
+                    <>
+                      <Button
+                        label={`Load draft v${statement.version}`}
+                        outlined
+                        disabled={busy}
+                        onClick={() => {
+                          setReconciliationStatementId('');
+                          load(statement);
+                        }}
+                      />
+                      <Button
+                        label={`Review reconciliation v${statement.version}`}
+                        outlined
+                        disabled={busy || !online}
+                        onClick={() =>
+                          setReconciliationStatementId(statement.id)
+                        }
+                      />
+                    </>
+                  ) : (
+                    <span>
+                      Confirmed{' '}
+                      {statement.confirmation?.confirmedAt
+                        ? formatDateDDMMYYYY(statement.confirmation.confirmedAt)
+                        : 'with retained audit'}
+                    </span>
+                  )}
                 </div>
               ))}
               {statements.data.nextBeforeVersion !== null && (

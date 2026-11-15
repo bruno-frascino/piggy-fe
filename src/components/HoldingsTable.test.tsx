@@ -47,6 +47,24 @@ const {
 }));
 
 vi.mock('@/hooks/api', () => ({
+  useAccountTradeCapability: (_accountId: string, effectiveDate: string) => ({
+    data: {
+      accountId: 'acc-1',
+      mode: 'LEGACY',
+      reason: null,
+      openingDate: null,
+      effectiveDate,
+      nextSequence: null,
+    },
+    resolve: vi.fn(async () => ({
+      accountId: 'acc-1',
+      mode: 'LEGACY',
+      reason: null,
+      openingDate: null,
+      effectiveDate,
+      nextSequence: null,
+    })),
+  }),
   useExchanges: () => ({ data: undefined }),
   useHoldings: useHoldingsMock,
   useQuotes: useQuotesMock,
@@ -54,6 +72,7 @@ vi.mock('@/hooks/api', () => ({
   useTradingAccounts: () => ({ data: undefined, isError: false }),
   useStockSearch: () => ({ data: undefined, isError: false }),
   useCreatePosition: () => ({ mutateAsync: mutationMock }),
+  usePostAccountTrade: () => ({ mutateAsync: mutationMock }),
   useUpdatePosition: () => ({ mutateAsync: updatePositionMock }),
   useRecalculateDrawdown: () => ({ mutateAsync: recalculateDrawdownMock }),
   useCheckStopLoss: () => ({ mutateAsync: checkStopLossMock }),
@@ -367,7 +386,7 @@ describe('HoldingsTable row/total computation', () => {
     fireEvent.change(screen.getByDisplayValue('Original rationale'), {
       target: { value: 'Reviewed rationale' },
     });
-    fireEvent.click(screen.getByRole('button', { name: 'Save', exact: true }));
+    fireEvent.click(screen.getByRole('button', { name: 'Save' }));
     await waitFor(() =>
       expect(updatePositionMock).toHaveBeenCalledWith({
         id: 'p1',
@@ -561,7 +580,7 @@ describe('HoldingsTable row/total computation', () => {
     expect(card).not.toHaveClass('h-[26rem]', 'overflow-hidden');
     expect(
       screen
-        .getByRole('button', { name: 'Add Position', exact: true })
+        .getByRole('button', { name: 'Add Position' })
         .closest('.holdings-header-actions')
     ).not.toBeNull();
   });

@@ -14,6 +14,9 @@ import { MASKED_VALUE } from '@/lib/format';
 vi.mock('@/lib/theme-context', () => ({
   useTheme: () => ({ resolvedTheme: 'light' }),
 }));
+vi.mock('@/lib/toast-context', () => ({
+  useToast: () => ({ show: vi.fn() }),
+}));
 
 const mockAccounts = [
   { id: 'acc-1', name: 'Account 1', status: 'ACTIVE' as const },
@@ -27,6 +30,7 @@ const {
   useTradingAccountsMock,
   createAccountMock,
   openingPreviewMock,
+  capitalFlowMock,
   privacyState,
   historyState,
   portfolioState,
@@ -37,6 +41,7 @@ const {
   useTradingAccountsMock: vi.fn(),
   createAccountMock: vi.fn(),
   openingPreviewMock: vi.fn(),
+  capitalFlowMock: vi.fn(),
   privacyState: { hidden: false },
   historyState: {
     data: [{ date: '2026-10-01', equity: 100 }] as
@@ -63,6 +68,81 @@ vi.mock('@/hooks/api', () => ({
   useSaveOpeningStatement: () => ({ isPending: false }),
   useOpeningPreview: () => ({
     mutateAsync: openingPreviewMock,
+    isPending: false,
+  }),
+  usePostAccountCapitalFlow: () => ({
+    mutateAsync: capitalFlowMock,
+    isPending: false,
+  }),
+  usePostAccountCashTransfer: () => ({
+    mutateAsync: vi.fn(),
+    isPending: false,
+  }),
+  usePostAccountFxConversion: () => ({
+    mutateAsync: vi.fn(),
+    isPending: false,
+  }),
+  usePostAccountReinvestment: () => ({
+    mutateAsync: vi.fn(),
+    isPending: false,
+  }),
+  useIncomeEligibleAssets: () => ({
+    data: [],
+    isFetching: false,
+    isError: false,
+  }),
+  useAccountTradeCapability: () => ({
+    data: { mode: 'LEGACY', nextSequence: null },
+    isFetching: false,
+    isError: false,
+  }),
+  useLiveCapitalOperations: () => ({
+    data: {
+      items: [],
+      total: 0,
+      limit: 100,
+      offset: 0,
+      activity: [],
+      activityTotal: 0,
+      auditOperations: [],
+      auditTotal: 0,
+      accountStatus: 'ACTIVE',
+      ledgerState: 'ACTIVE',
+      openingBoundary: {
+        date: '2026-10-01',
+        timezone: 'Australia/Sydney',
+        type: 'END_OF_DAY',
+      },
+      reviewedAsOfDate: '2026-10-31',
+      checkedAt: '2026-11-08T00:00:00.000Z',
+      sourceFreshness: {
+        status: 'CURRENT',
+        acceptedFingerprint: 'a'.repeat(64),
+        currentFingerprint: 'a'.repeat(64),
+      },
+      cashCompleteness: 'COMPLETE',
+      unsupportedEvents: [],
+      sourceReviewIssues: [],
+      evidence: [],
+      evidenceStatus: 'NO_ATTESTATION',
+      auditNumber: 1,
+      sourceFingerprint: 'a'.repeat(64),
+      replay: {
+        accountId: 'account-1',
+        openingDate: '2026-10-01',
+        funded: true,
+        balances: [],
+        activity: [],
+        fundingIssues: [],
+      },
+    },
+    isLoading: false,
+    isFetching: false,
+    error: null,
+    refetch: vi.fn(),
+  }),
+  useCorrectLiveCapitalOperation: () => ({
+    mutateAsync: vi.fn(),
     isPending: false,
   }),
   useTradingAccounts: useTradingAccountsMock,
@@ -127,6 +207,56 @@ useTradingAccountsMock.mockReturnValue({
 });
 
 describe('DashboardView accounts', () => {
+  it('opens reinvestment entry without enabling a legacy account', async () => {
+    render(<DashboardView />);
+    fireEvent.click(
+      await screen.findByRole('button', {
+        name: 'Record dividend reinvestment',
+      })
+    );
+    expect(
+      await screen.findByRole('dialog', {
+        name: 'Record dividend reinvestment - Account 1',
+      })
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'Record linked reinvestment' })
+    ).toBeDisabled();
+    expect(
+      screen.getByText(/This form never activates an account/)
+    ).toBeInTheDocument();
+  });
+  it('opens manual FX entry but never enables a legacy account', async () => {
+    render(<DashboardView />);
+    fireEvent.click(
+      await screen.findByRole('button', { name: 'Record FX conversion' })
+    );
+    expect(
+      await screen.findByRole('dialog', {
+        name: 'Record FX conversion - Account 1',
+      })
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/This form never activates accounts/)
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'Record linked FX conversion' })
+    ).toBeDisabled();
+  });
+  it('opens paired transfer entry without activating either legacy account', async () => {
+    render(<DashboardView />);
+    fireEvent.click(
+      await screen.findByRole('button', { name: 'Transfer cash' })
+    );
+    expect(
+      await screen.findByRole('dialog', { name: 'Transfer cash - Account 1' })
+    ).toBeInTheDocument();
+    expect(screen.getByText(/No account is activated/)).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'Record paired transfer' })
+    ).toBeDisabled();
+  });
+
   it('opens the read-only preview for the selected real account', async () => {
     render(<DashboardView />);
     fireEvent.click(
@@ -140,6 +270,13 @@ describe('DashboardView accounts', () => {
     expect(openingPreviewMock).not.toHaveBeenCalled();
   });
 
+  it('offers live cash review for the selected real account', async () => {
+    render(<DashboardView />);
+    expect(
+      await screen.findByRole('button', { name: 'Live cash review' })
+    ).toBeInTheDocument();
+  });
+
   it('does not offer accounting setup for a demo account', async () => {
     useTradingAccountsMock.mockReturnValue({
       data: [{ id: 'demo', name: 'Practice', status: 'ACTIVE', isDemo: true }],
@@ -150,6 +287,23 @@ describe('DashboardView accounts', () => {
       screen.queryByRole('button', { name: 'Opening-balance preview' })
     ).not.toBeInTheDocument();
   });
+
+  it('opens the separate live cash form without presenting it as activation', async () => {
+    render(<DashboardView />);
+    fireEvent.click(
+      await screen.findByRole('button', { name: 'Record ledger cash flow' })
+    );
+    expect(
+      await screen.findByRole('dialog', {
+        name: 'Record account cash - Account 1',
+      })
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/does not activate the account or create a trade/)
+    ).toBeInTheDocument();
+    expect(capitalFlowMock).not.toHaveBeenCalled();
+  });
+
   it('shows an account retry rather than a misleading welcome state on initial failure', () => {
     const refetch = vi.fn();
     useTradingAccountsMock.mockReturnValue({
@@ -191,9 +345,7 @@ describe('DashboardView accounts', () => {
     expect(
       screen.getByText(/No equity points for this period/)
     ).toBeInTheDocument();
-    expect(
-      screen.getByRole('button', { name: 'ALL', exact: true })
-    ).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'ALL' })).toBeInTheDocument();
   });
 
   it('keeps cached history visible on failure and exposes a scoped retry', () => {
@@ -216,7 +368,7 @@ describe('DashboardView accounts', () => {
     expect(expand).toHaveAttribute('aria-expanded', 'false');
     expect(expand).toHaveAttribute('aria-controls', container?.id);
     expect(container).not.toHaveClass('portfolio-chart-expanded');
-    fireEvent.click(screen.getByRole('button', { name: '3M', exact: true }));
+    fireEvent.click(screen.getByRole('button', { name: '3M' }));
 
     fireEvent.click(expand);
     expect(container).toHaveClass('portfolio-chart-expanded');
@@ -224,9 +376,10 @@ describe('DashboardView accounts', () => {
     expect(collapse).toHaveAttribute('aria-expanded', 'true');
     expect(screen.getByTestId('chart-stub')).toBe(chart);
     expect(screen.getByTestId('holdings-table-stub')).toBeInTheDocument();
-    expect(
-      screen.getByRole('button', { name: '3M', exact: true })
-    ).toHaveAttribute('aria-pressed', 'true');
+    expect(screen.getByRole('button', { name: '3M' })).toHaveAttribute(
+      'aria-pressed',
+      'true'
+    );
 
     fireEvent.click(collapse);
     expect(container).not.toHaveClass('portfolio-chart-expanded');
@@ -240,16 +393,19 @@ describe('DashboardView accounts', () => {
     expect(
       screen.getByRole('heading', { name: 'Your portfolio' })
     ).toBeInTheDocument();
-    expect(
-      screen.getByRole('button', { name: 'ALL', exact: true })
-    ).toHaveAttribute('aria-pressed', 'true');
-    fireEvent.click(screen.getByRole('button', { name: '3M', exact: true }));
-    expect(
-      screen.getByRole('button', { name: '3M', exact: true })
-    ).toHaveAttribute('aria-pressed', 'true');
-    expect(
-      screen.getByRole('button', { name: 'ALL', exact: true })
-    ).toHaveAttribute('aria-pressed', 'false');
+    expect(screen.getByRole('button', { name: 'ALL' })).toHaveAttribute(
+      'aria-pressed',
+      'true'
+    );
+    fireEvent.click(screen.getByRole('button', { name: '3M' }));
+    expect(screen.getByRole('button', { name: '3M' })).toHaveAttribute(
+      'aria-pressed',
+      'true'
+    );
+    expect(screen.getByRole('button', { name: 'ALL' })).toHaveAttribute(
+      'aria-pressed',
+      'false'
+    );
   });
 
   it('shows only the selected account in the bar, with a switcher and a single actions trigger', () => {

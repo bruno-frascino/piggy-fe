@@ -213,6 +213,7 @@ export function mapPositionToHolding(pos: unknown): HoldingPosition | null {
       pos.importedExecutionCorrection
     ),
     id: typeof pos.id === 'string' ? pos.id : undefined,
+    assetId: typeof asset.id === 'string' ? asset.id : undefined,
     assetType:
       asset.assetType === 'CRYPTO' ||
       asset.assetType === 'ETF' ||

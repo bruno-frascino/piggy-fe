@@ -8,32 +8,59 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 // Regression: a stop loss entered while creating a position must reach the API
 // (and survive being queued offline) instead of being silently dropped.
 
-const { createPositionMock, enqueueMock, submitValue, emptyResult } =
-  vi.hoisted(() => ({
-    emptyResult: { data: [] as unknown[] },
-    createPositionMock: vi.fn(),
-    enqueueMock: vi.fn(() => 0),
-    submitValue: {
-      current: {
-        symbol: 'AAPL',
-        name: 'Apple',
-        openDate: '2026-01-01',
-        units: 10,
-        buyPrice: 100,
-        buyFee: 1,
-        industry: '',
-        accountName: 'Main',
-        exchangeCode: 'NASDAQ',
-        stopLoss: 90 as number | undefined,
-      },
+const {
+  createPositionMock,
+  postAccountTradeMock,
+  enqueueMock,
+  submitValue,
+  emptyResult,
+  capabilityMode,
+} = vi.hoisted(() => ({
+  emptyResult: { data: [] as unknown[] },
+  createPositionMock: vi.fn(),
+  postAccountTradeMock: vi.fn(),
+  enqueueMock: vi.fn(() => 0),
+  capabilityMode: { value: 'LEGACY' as 'LEGACY' | 'LIVE_LEDGER' },
+  submitValue: {
+    current: {
+      symbol: 'AAPL',
+      name: 'Apple',
+      openDate: '2026-01-01',
+      units: 10,
+      buyPrice: 100,
+      buyFee: 1,
+      industry: '',
+      accountName: 'Main',
+      exchangeCode: 'NASDAQ',
+      stopLoss: 90 as number | undefined,
     },
-  }));
+  },
+}));
 
 vi.mock('@/hooks/api', () => ({
   useHoldings: () => emptyResult,
+  useAccountTradeCapability: (_accountId: string, effectiveDate: string) => ({
+    data: {
+      accountId: 'acc-1',
+      mode: capabilityMode.value,
+      reason: null,
+      openingDate: null,
+      effectiveDate,
+      nextSequence: null,
+    },
+    resolve: vi.fn(async (date: string) => ({
+      accountId: 'acc-1',
+      mode: capabilityMode.value,
+      reason: null,
+      openingDate: null,
+      effectiveDate: date,
+      nextSequence: null,
+    })),
+  }),
   useQuotes: () => emptyResult,
   useRealizedPnL: () => ({ data: 0 }),
   useCreatePosition: () => ({ mutateAsync: createPositionMock }),
+  usePostAccountTrade: () => ({ mutateAsync: postAccountTradeMock }),
   useUpdatePosition: () => ({ mutateAsync: vi.fn() }),
   useRecalculateDrawdown: () => ({ mutateAsync: vi.fn() }),
   useCheckStopLoss: () => ({ mutateAsync: vi.fn() }),
@@ -95,6 +122,7 @@ function setOnline(value: boolean) {
 beforeEach(() => {
   createPositionMock.mockResolvedValue(undefined);
   submitValue.current.stopLoss = 90;
+  capabilityMode.value = 'LEGACY';
   setOnline(true);
 });
 
@@ -143,5 +171,23 @@ describe('HoldingsTable create flow', () => {
         payload: expect.objectContaining({ stopLossPrice: 90 }),
       })
     );
+  });
+
+  it('does not queue an offline ledger-backed trade or fall through to legacy creation', async () => {
+    capabilityMode.value = 'LIVE_LEDGER';
+    setOnline(false);
+    renderTable();
+
+    fireEvent.click(screen.getByRole('button', { name: 'Add Position' }));
+    fireEvent.click(screen.getByText('Submit stub'));
+
+    await vi.waitFor(() =>
+      expect(
+        screen.getByText(/reconnect to verify this account's trade capability/i)
+      ).toBeInTheDocument()
+    );
+    expect(enqueueMock).not.toHaveBeenCalled();
+    expect(createPositionMock).not.toHaveBeenCalled();
+    expect(postAccountTradeMock).not.toHaveBeenCalled();
   });
 });

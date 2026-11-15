@@ -84,6 +84,129 @@ describe('apiClient mock-mode parity', () => {
     },
     // accounts
     {
+      name: 'getLiveReinvestmentReview',
+      call: () => apiClient.getLiveReinvestmentReview('a1', 'i1'),
+      expectRejection: /requires the real API/i,
+    },
+    {
+      name: 'correctLiveReinvestment',
+      call: () =>
+        apiClient.correctLiveReinvestment('a1', 'i1', {
+          idempotencyKey: 'rev',
+          expectedIncomeRevisionId: 'i1',
+          expectedAcquisitionRevisionId: 'b1',
+          expectedAuditNumber: 2,
+          expectedSourceFingerprint: 'a'.repeat(64),
+          reason: 'Cancelled',
+          replacement: null,
+        }),
+      expectRejection: /require the real API/i,
+    },
+    {
+      name: 'postAccountReinvestment',
+      call: () =>
+        apiClient.postAccountReinvestment('a1', {
+          idempotencyKey: 'drp-1',
+          income: {
+            assetId: 'asset-1',
+            entitlementDate: '2026-10-01',
+            paymentDate: '2026-10-15',
+            sequence: 1,
+            currency: 'AUD',
+            grossAmount: '100',
+            withholdingAmount: '15',
+            frankedAmount: '60',
+            unfrankedAmount: '40',
+            frankingCreditAud: '25',
+            sourceReference: 'statement-1',
+          },
+          acquisition: {
+            effectiveDate: '2026-10-15',
+            sequence: 2,
+            quantity: '4',
+            price: '20',
+            fees: '1',
+          },
+          residualAmount: '4',
+          residualDisposition: 'ACCOUNT_CASH',
+          statementConfirmed: true,
+        }),
+      expectRejection: /requires the real API/i,
+    },
+    {
+      name: 'getLiveCashTransferReview',
+      call: () => apiClient.getLiveCashTransferReview('a1', 'out1'),
+      expectRejection: /requires the real API/i,
+    },
+    {
+      name: 'correctLiveCashTransfer',
+      call: () =>
+        apiClient.correctLiveCashTransfer('a1', 'out1', {
+          idempotencyKey: 'fix',
+          reason: 'Duplicate transfer',
+          sourceHead: {
+            revisionId: 'out1',
+            auditNumber: 1,
+            sourceFingerprint: 'a'.repeat(64),
+          },
+          destinationHead: {
+            revisionId: 'in1',
+            auditNumber: 2,
+            sourceFingerprint: 'b'.repeat(64),
+          },
+          replacement: null,
+        }),
+      expectRejection: /require the real API/i,
+    },
+    {
+      name: 'getLiveFxConversionReview',
+      call: () => apiClient.getLiveFxConversionReview('a1', 'fx1'),
+      expectRejection: /requires the real API/i,
+    },
+    {
+      name: 'correctLiveFxConversion',
+      call: () =>
+        apiClient.correctLiveFxConversion('a1', 'fx1', {
+          idempotencyKey: 'fx-reverse',
+          expectedRevisionId: 'fx1',
+          expectedAuditNumber: 1,
+          expectedSourceFingerprint: 'a'.repeat(64),
+          reason: 'Duplicate',
+          replacement: null,
+        }),
+      expectRejection: /require the real API/i,
+    },
+    {
+      name: 'postAccountFxConversion',
+      call: () =>
+        apiClient.postAccountFxConversion('a1', {
+          idempotencyKey: 'fx1',
+          effectiveDate: '2026-11-12',
+          sequence: 1,
+          from: { currency: 'AUD', amount: '1500' },
+          to: { currency: 'USD', amount: '975' },
+          fees: [],
+          sourceReference: 'fx-statement',
+        }),
+      expectRejection: /require the real API/i,
+    },
+    {
+      name: 'postAccountCashTransfer',
+      call: () =>
+        apiClient.postAccountCashTransfer('a1', {
+          toAccountId: 'a2',
+          idempotencyKey: 'transfer-1',
+          effectiveDate: '2026-11-13',
+          sourceSequence: 1,
+          destinationSequence: 1,
+          currency: 'AUD',
+          amount: '40',
+          fee: '0',
+          sourceReference: 'statement-1',
+        }),
+      expectRejection: /require the real API/i,
+    },
+    {
       name: 'correctDraftRecordedAcquisition',
       call: () =>
         apiClient.correctDraftRecordedAcquisition('a1', 's1', 'op1', {
@@ -194,6 +317,21 @@ describe('apiClient mock-mode parity', () => {
       name: 'getOpeningStatements',
       call: () => apiClient.getOpeningStatements('acc-1'),
       expectRejection: /require the real API/i,
+    },
+    {
+      name: 'confirmOpeningStatement',
+      call: () =>
+        apiClient.confirmOpeningStatement('acc-1', 'stmt-1', {
+          idempotencyKey: 'confirm-1',
+          expectedSourceFingerprint: 'a'.repeat(64),
+          acknowledgements: {
+            openingBalancesReviewed: true,
+            cashEvidenceUserAttested: true,
+            priorDraftActivityExcluded: true,
+            returnsUnavailableWithoutValuations: true,
+          },
+        }),
+      expectRejection: /requires the real API/i,
     },
     {
       name: 'saveOpeningStatement',
@@ -332,6 +470,80 @@ describe('apiClient mock-mode parity', () => {
           fees: '0',
         }),
       expectRejection: /requires the real API/,
+    },
+    {
+      name: 'getAccountTradeCapability',
+      call: () => apiClient.getAccountTradeCapability('acc-1', '2026-01-02'),
+      expectRejection: /requires the real API/i,
+    },
+    {
+      name: 'postAccountCapitalFlow',
+      call: () =>
+        apiClient.postAccountCapitalFlow('acc-1', {
+          kind: 'DEPOSIT',
+          idempotencyKey: 'deposit-1',
+          effectiveDate: '2026-01-02',
+          sequence: 1,
+          currency: 'AUD',
+          amount: '10',
+          sourceReference: 'statement-1',
+        }),
+      expectRejection: /require the real API/i,
+    },
+    {
+      name: 'postAccountIncomeReceipt',
+      call: () =>
+        apiClient.postAccountIncomeReceipt('acc-1', {
+          idempotencyKey: 'income-1',
+          assetId: 'asset-1',
+          entitlementDate: '2026-01-01',
+          paymentDate: '2026-01-02',
+          sequence: 1,
+          currency: 'AUD',
+          grossAmount: '100',
+          withholdingAmount: '0',
+          frankedAmount: '100',
+          unfrankedAmount: '0',
+          frankingCreditAud: '42.857142857143',
+          sourceReference: 'statement-1',
+        }),
+      expectRejection: /require the real API/i,
+    },
+    {
+      name: 'correctLiveIncomeReceipt',
+      call: () =>
+        apiClient.correctLiveIncomeReceipt('acc-1', 'income-1', {
+          idempotencyKey: 'income-fix-1',
+          expectedRevisionId: 'income-1',
+          expectedAuditNumber: 3,
+          expectedSourceFingerprint: 'a'.repeat(64),
+          reason: 'Correct issuer statement',
+          replacement: null,
+        }),
+      expectRejection: /require the real API/i,
+    },
+    {
+      name: 'getIncomeEligibleAssets',
+      call: () => apiClient.getIncomeEligibleAssets('acc-1'),
+      expectRejection: /requires the real API/i,
+    },
+    {
+      name: 'getLiveCapitalOperations',
+      call: () => apiClient.getLiveCapitalOperations('acc-1'),
+      expectRejection: /requires the real API/i,
+    },
+    {
+      name: 'correctLiveCapitalOperation',
+      call: () =>
+        apiClient.correctLiveCapitalOperation('acc-1', 'op-1', {
+          idempotencyKey: 'capital-fix-1',
+          expectedRevisionId: 'op-1',
+          expectedAuditNumber: 1,
+          expectedSourceFingerprint: 'a'.repeat(64),
+          reason: 'Correct bank statement',
+          replacement: null,
+        }),
+      expectRejection: /require the real API/i,
     },
     {
       name: 'createPosition',

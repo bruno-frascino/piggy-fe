@@ -116,6 +116,8 @@ const draft: OpeningStatement = {
   createdAt: '2026-10-31T00:00:00Z',
   cashBalances: [{ currency: 'AUD', amount: '1000' }],
   parcelCount: 1,
+  draftOperationCount: 0,
+  confirmation: null,
 };
 function setup(hidden = false) {
   render(
@@ -148,6 +150,35 @@ beforeEach(() => {
 afterEach(cleanup);
 
 describe('OpeningPreviewDialog', () => {
+  it('displays confirmed statements without draft load or review actions', () => {
+    mocks.drafts.data = {
+      statements: [
+        {
+          ...draft,
+          state: 'CONFIRMED',
+          confirmation: {
+            confirmedByUserId: 'u1',
+            confirmedAt: '2026-11-11T00:00:00.000Z',
+            audit: {},
+          },
+        },
+      ],
+      nextBeforeVersion: null,
+    };
+    setup();
+
+    expect(
+      screen.getByText(/CONFIRMED · cash ledger active/)
+    ).toBeInTheDocument();
+    expect(screen.getByText('Confirmed 11/11/2026')).toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'Load draft v1' })
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'Review reconciliation v1' })
+    ).not.toBeInTheDocument();
+  });
+
   it('allows returning to latest drafts when fetching an older page fails', async () => {
     mocks.drafts.data = { statements: [draft], nextBeforeVersion: 1 };
     setup();

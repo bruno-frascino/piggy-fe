@@ -18,6 +18,8 @@ import type {
   DraftSaleCorrectionInput,
   DraftAcquisitionCorrectionInput,
   DraftOpeningReconciliation,
+  OpeningConfirmationInput,
+  OpeningConfirmationResult,
 } from '../types';
 import { isRecord, mapToTradingAccount, unwrapArray } from './mappers';
 
@@ -209,6 +211,25 @@ export function createAccountsApi(client: AxiosInstance) {
       }>(`/accounts/${encodeURIComponent(accountId)}/opening-statements`, {
         params: { beforeVersion },
       });
+      return response.data.data;
+    },
+
+    async confirmOpeningStatement(
+      accountId: string,
+      statementId: string,
+      input: OpeningConfirmationInput
+    ): Promise<OpeningConfirmationResult> {
+      if (USE_MOCK_API)
+        throw new Error(
+          'Opening statement confirmation requires the real API.'
+        );
+      const response = await client.post<{
+        success: boolean;
+        data: OpeningConfirmationResult;
+      }>(
+        `/accounts/${encodeURIComponent(accountId)}/opening-statements/${encodeURIComponent(statementId)}/confirm`,
+        input
+      );
       return response.data.data;
     },
 

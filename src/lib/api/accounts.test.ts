@@ -118,6 +118,25 @@ describe('opening reconciliation API', () => {
     );
   });
 
+  it('posts the reviewed confirmation to the encoded account and statement route', async () => {
+    const input = {
+      idempotencyKey: 'confirm-1',
+      expectedSourceFingerprint: 'a'.repeat(64),
+      acknowledgements: {
+        openingBalancesReviewed: true as const,
+        cashEvidenceUserAttested: true as const,
+        priorDraftActivityExcluded: true as const,
+        returnsUnavailableWithoutValuations: true as const,
+      },
+    };
+    await api.confirmOpeningStatement('account/1', 'statement 2', input);
+
+    expect(post).toHaveBeenCalledWith(
+      '/accounts/account%2F1/opening-statements/statement%202/confirm',
+      input
+    );
+  });
+
   it('previews statement evidence without changing the request body', async () => {
     const input = {
       idempotencyKey: 'key-1',

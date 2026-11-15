@@ -4,27 +4,42 @@
 
 | Query key | Read by | Invalidated by |
 | --------- | ------- | --------------- |
+| `['account-trade-capability', accountId, effectiveDate]` | useAccountTradeCapability | — |
+| `['account-trade-capability', accountId]` | useConfirmOpeningStatement, usePostAccountTrade, useCorrectLiveFxConversion, usePostAccountFxConversion | useConfirmOpeningStatement, usePostAccountTrade, useCorrectLiveFxConversion, usePostAccountFxConversion |
+| `['account-trade-capability', id]` | useCorrectLiveCashTransfer, usePostAccountCashTransfer | useCorrectLiveCashTransfer, usePostAccountCashTransfer |
+| `['cash-transfer-review', accountId, operationId]` | useLiveCashTransferReview | — |
+| `['cash-transfer-review', accountId]` | useCorrectLiveFxConversion, usePostAccountFxConversion | useCorrectLiveFxConversion, usePostAccountFxConversion |
+| `['cash-transfer-review', id]` | useCorrectLiveCashTransfer | useCorrectLiveCashTransfer |
 | `['closed-positions', params.accountId ?? 'all-accounts', params.dateFrom ?? 'all', params.dateTo ?? 'all', params.limit ?? 'default', params.offset ?? 0,]` | useClosedPositions | — |
 | `['closed-positions']` | useDeleteAccount | useDeleteAccount |
 | `['current-user']` | useCurrentUser, useUpdateCurrentUser | useUpdateCurrentUser |
 | `['exchanges', assetClass]` | useExchanges | — |
+| `['fx-conversion-review', accountId, operationId]` | useLiveFxConversionReview | — |
+| `['fx-conversion-review', accountId]` | useCorrectLiveFxConversion, usePostAccountFxConversion | useCorrectLiveFxConversion, usePostAccountFxConversion |
 | `['holdings', exchangeName ?? 'all', accountId ?? 'all']` | useHoldings | — |
 | `['holdings']` | useDeleteAccount, useCloseAccount | useDeleteAccount, useCloseAccount |
 | `['import', id]` | useImport | — |
 | `['import', importId]` | useDiscardImport | — |
 | `['imports']` | useImports, useCreateImport, useDiscardImport | useCreateImport, useDiscardImport |
+| `['income-eligible-assets', accountId]` | useIncomeEligibleAssets | — |
 | `['kraken-assets', quote, q.trim()]` | useKrakenAssetSearch | — |
+| `['live-capital-operations', accountId, offset]` | useLiveCapitalOperations | — |
+| `['live-capital-operations', accountId]` | useCorrectLiveFxConversion, usePostAccountFxConversion, usePostAccountCapitalFlow, usePostAccountIncomeReceipt, useCorrectLiveIncomeReceipt, useCorrectLiveCapitalOperation | useCorrectLiveFxConversion, usePostAccountFxConversion, usePostAccountCapitalFlow, usePostAccountIncomeReceipt, useCorrectLiveIncomeReceipt, useCorrectLiveCapitalOperation |
+| `['live-capital-operations', id]` | useCorrectLiveCashTransfer, usePostAccountCashTransfer | useCorrectLiveCashTransfer, usePostAccountCashTransfer |
+| `['live-cash', accountId]` | useConfirmOpeningStatement, useCorrectLiveFxConversion, usePostAccountFxConversion, usePostAccountCapitalFlow, usePostAccountIncomeReceipt, useCorrectLiveIncomeReceipt, useCorrectLiveCapitalOperation | useConfirmOpeningStatement, useCorrectLiveFxConversion, usePostAccountFxConversion, usePostAccountCapitalFlow, usePostAccountIncomeReceipt, useCorrectLiveIncomeReceipt, useCorrectLiveCapitalOperation |
+| `['live-cash', id]` | useCorrectLiveCashTransfer, usePostAccountCashTransfer | useCorrectLiveCashTransfer, usePostAccountCashTransfer |
 | `['manual-trade-voids', accountId, offset]` | useLiveManualTradeVoids | — |
-| `['opening-reconciliation', accountId, statementId]` | useDraftOpeningReconciliation, useRecordDraftCashEvidence, useSaveDraftReconciliationCashOperation, useCorrectDraftReconciliationCashOperation, useCorrectDraftImportedExecutionCash, useStageDraftImportedExecutionCash, useStageDraftManualExecutionCash, useCorrectDraftRecordedSale, useCorrectDraftRecordedAcquisition | useRecordDraftCashEvidence, useSaveDraftReconciliationCashOperation, useCorrectDraftReconciliationCashOperation, useCorrectDraftImportedExecutionCash, useStageDraftImportedExecutionCash, useStageDraftManualExecutionCash, useCorrectDraftRecordedSale, useCorrectDraftRecordedAcquisition |
+| `['opening-reconciliation', accountId, statementId]` | useDraftOpeningReconciliation, useRecordDraftCashEvidence, useSaveDraftReconciliationCashOperation, useCorrectDraftReconciliationCashOperation, useCorrectDraftImportedExecutionCash, useStageDraftImportedExecutionCash, useStageDraftManualExecutionCash, useCorrectDraftRecordedSale, useCorrectDraftRecordedAcquisition, useConfirmOpeningStatement | useRecordDraftCashEvidence, useSaveDraftReconciliationCashOperation, useCorrectDraftReconciliationCashOperation, useCorrectDraftImportedExecutionCash, useStageDraftImportedExecutionCash, useStageDraftManualExecutionCash, useCorrectDraftRecordedSale, useCorrectDraftRecordedAcquisition, useConfirmOpeningStatement |
 | `['opening-reconciliation']` | useCorrectDraftRecordedSale, useCorrectDraftRecordedAcquisition | useCorrectDraftRecordedSale, useCorrectDraftRecordedAcquisition |
 | `['opening-statements', accountId, beforeVersion ?? 'latest']` | useOpeningStatements | — |
-| `['opening-statements', accountId]` | useSaveOpeningStatement, useDeleteAccount | useSaveOpeningStatement |
+| `['opening-statements', accountId]` | useSaveOpeningStatement, useConfirmOpeningStatement, useDeleteAccount | useSaveOpeningStatement, useConfirmOpeningStatement |
 | `['opening-statements']` | useCorrectDraftRecordedSale, useCorrectDraftRecordedAcquisition | useCorrectDraftRecordedSale, useCorrectDraftRecordedAcquisition |
 | `['portfolio-history', accountId ?? 'none', exchangeCode ?? 'none',]` | usePortfolioHistory | — |
 | `['portfolio-history']` | useDeleteAccount, useCloseAccount, useCreatePortfolioSnapshot | useDeleteAccount, useCloseAccount, useCreatePortfolioSnapshot |
 | `['quotes', key]` | useQuotes | — |
 | `['realized-pnl', accountId ?? 'none', exchangeCode ?? 'none']` | useRealizedPnL | — |
 | `['realized-pnl']` | useDeleteAccount | useDeleteAccount |
+| `['reinvestment-review', accountId, operationId]` | useLiveReinvestmentReview | — |
 | `['saved-screens']` | useSavedScreens, useCreateSavedScreen, useDeleteSavedScreen | useCreateSavedScreen, useDeleteSavedScreen |
 | `['screener', filters]` | useScreener | — |
 | `['screener']` | useAddWatchlistItem, useRemoveWatchlistItem | useAddWatchlistItem, useRemoveWatchlistItem |
@@ -48,3 +63,4 @@
 | `['watchlist', variables.id]` | useRenameWatchlist | useRenameWatchlist |
 | `['watchlist', variables.watchlistId]` | useAddWatchlistItem, useRemoveWatchlistItem | useAddWatchlistItem, useRemoveWatchlistItem |
 | `['watchlists']` | useWatchlists, useCreateWatchlist, useRenameWatchlist, useDeleteWatchlist, useAddWatchlistItem, useRemoveWatchlistItem | useCreateWatchlist, useRenameWatchlist, useDeleteWatchlist, useAddWatchlistItem, useRemoveWatchlistItem |
+| `[key, accountId]` | usePostAccountReinvestment, useCorrectLiveReinvestment | usePostAccountReinvestment, useCorrectLiveReinvestment |

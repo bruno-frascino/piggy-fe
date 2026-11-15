@@ -27,6 +27,24 @@ describe('mutationErrorMessage', () => {
       ).toBe('Failed');
     }
   );
+  it('surfaces explicit funding guidance for insufficient-cash responses', () => {
+    expect(
+      mutationErrorMessage(
+        {
+          isAxiosError: true,
+          response: {
+            status: 422,
+            data: {
+              error: 'Insufficient Cash',
+              message:
+                'Record a deposit or correct dated activity before retrying.',
+            },
+          },
+        },
+        'Failed'
+      )
+    ).toBe('Record a deposit or correct dated activity before retrying.');
+  });
   it('preserves ordinary errors and does not expose server failure payloads', () => {
     expect(mutationErrorMessage(new Error('Offline'), 'Failed')).toBe(
       'Offline'

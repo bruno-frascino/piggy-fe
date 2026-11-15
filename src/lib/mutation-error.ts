@@ -2,8 +2,10 @@ import { isAxiosError } from 'axios';
 
 export function mutationErrorMessage(error: unknown, fallback: string): string {
   if (
-    isAxiosError<{ message?: unknown }>(error) &&
-    error.response?.status === 409 &&
+    isAxiosError<{ error?: unknown; message?: unknown }>(error) &&
+    (error.response?.status === 409 ||
+      (error.response?.status === 422 &&
+        error.response.data?.error === 'Insufficient Cash')) &&
     typeof error.response.data?.message === 'string' &&
     error.response.data.message.trim()
   ) {

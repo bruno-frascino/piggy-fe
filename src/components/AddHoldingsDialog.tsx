@@ -48,6 +48,7 @@ export default function AddHoldingsDialog({
   exchangeCode,
   onHide,
   onSubmit,
+  onEffectiveDateChange,
   onDelete,
   onImport,
   onCorrectAcquisition,
@@ -64,6 +65,7 @@ export default function AddHoldingsDialog({
   exchangeCode?: string;
   onHide: () => void;
   onSubmit: (value: LocalHolding) => void;
+  onEffectiveDateChange?: (date: string) => void;
   onDelete?: () => void;
   onImport?: () => void;
   onCorrectAcquisition?: () => void;
@@ -130,6 +132,7 @@ export default function AddHoldingsDialog({
       base.exchangeCode = initialQuote === 'USD' ? 'KRAKEN_USD' : 'KRAKEN';
     }
     setForm(base);
+    onEffectiveDateChange?.(base.openDate ?? '');
     setErrors({});
     setSymbolSuggestions([]);
     resetAccountSuggestions();
@@ -142,7 +145,7 @@ export default function AddHoldingsDialog({
       ) === 'CRYPTO'
     );
     setQuote(initialQuote);
-  }, [visible, mode, initial, accountName]);
+  }, [visible, mode, initial, accountName, onEffectiveDateChange]);
 
   const handleSymbolSelect = (result: StockSearchResult) => {
     setStockSelected(true);
@@ -627,9 +630,12 @@ export default function AddHoldingsDialog({
                   const y = d.getFullYear();
                   const mo = String(d.getMonth() + 1).padStart(2, '0');
                   const dy = String(d.getDate()).padStart(2, '0');
-                  setForm(f => ({ ...f, openDate: `${y}-${mo}-${dy}` }));
+                  const date = `${y}-${mo}-${dy}`;
+                  setForm(f => ({ ...f, openDate: date }));
+                  onEffectiveDateChange?.(date);
                 } else {
                   setForm(f => ({ ...f, openDate: '' }));
+                  onEffectiveDateChange?.('');
                 }
               }}
               dateFormat='dd/mm/yy'

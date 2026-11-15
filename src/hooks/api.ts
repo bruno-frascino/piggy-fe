@@ -22,6 +22,7 @@ import type {
   CryptoQuote,
   OpeningPreviewInput,
   SaveOpeningStatementInput,
+  OpeningConfirmationInput,
   DraftCashEvidenceInput,
   DraftCashFlowInput,
   DraftCashCorrectionInput,
@@ -30,6 +31,19 @@ import type {
   DraftSaleCorrectionInput,
   DraftAcquisitionCorrectionInput,
   AccountTradeInput,
+  AccountTradeCapability,
+  AccountCapitalFlowInput,
+  AccountFxConversionInput,
+  AccountFxCorrectionInput,
+  LiveFxConversionReview,
+  AccountCashTransferInput,
+  AccountCashTransferCorrectionInput,
+  LiveCashTransferReview,
+  AccountIncomeReceiptInput,
+  AccountReinvestmentInput,
+  ReinvestmentCorrectionInput,
+  AccountIncomeReceiptCorrectionInput,
+  AccountCapitalCorrectionInput,
   LiveSaleCorrectionResult,
   LiveImportedExecutionCorrectionInput,
   ManualTradeVoidInput,
@@ -581,6 +595,50 @@ export const useSaveOpeningStatement = () => {
   });
 };
 
+export const useConfirmOpeningStatement = () => {
+  const queryClient = useQueryClient();
+  const refresh = (accountId: string, statementId: string) =>
+    Promise.all([
+      queryClient.invalidateQueries({
+        queryKey: ['opening-statements', accountId],
+      }),
+      queryClient.invalidateQueries({
+        queryKey: ['opening-reconciliation', accountId, statementId],
+      }),
+      queryClient.invalidateQueries({
+        queryKey: ['account-trade-capability', accountId],
+      }),
+      queryClient.invalidateQueries({ queryKey: ['live-cash', accountId] }),
+    ]);
+  return useMutation({
+    mutationKey: ['confirm-opening-statement'],
+    mutationFn: ({
+      accountId,
+      statementId,
+      input,
+    }: {
+      accountId: string;
+      statementId: string;
+      input: OpeningConfirmationInput;
+    }) => {
+      if (typeof navigator !== 'undefined' && !navigator.onLine)
+        throw new Error(
+          'Reconnect to confirm this opening statement. Offline changes are not queued.'
+        );
+      return apiClient.confirmOpeningStatement(accountId, statementId, input);
+    },
+    retry: false,
+    networkMode: 'always',
+    gcTime: 0,
+    onSuccess: (_result, { accountId, statementId }) =>
+      refresh(accountId, statementId),
+    onError: (error, { accountId, statementId }) => {
+      if (isAxiosError(error) && error.response?.status === 409)
+        return refresh(accountId, statementId);
+    },
+  });
+};
+
 export const useOpeningPreview = () =>
   useMutation({
     mutationKey: ['opening-preview'],
@@ -836,6 +894,15 @@ export const useHoldings = (exchangeName?: string, accountId?: string) => {
   });
 };
 
+export const useIncomeEligibleAssets = (accountId: string) =>
+  useQuery({
+    queryKey: ['income-eligible-assets', accountId],
+    queryFn: () => apiClient.getIncomeEligibleAssets(accountId),
+    enabled: Boolean(accountId),
+    retry: false,
+    staleTime: 60_000,
+  });
+
 export const useClosedPositions = (params: ClosedTradesQuery = {}) => {
   return useQuery({
     queryKey: [
@@ -879,7 +946,456 @@ export const usePostAccountTrade = () => {
     retry: false,
     networkMode: 'always',
     gcTime: 0,
-    onSuccess: () => invalidatePositionQueries(queryClient),
+    onSuccess: (_result, { accountId }) =>
+      Promise.all([
+        invalidatePositionQueries(queryClient),
+        queryClient.invalidateQueries({
+          queryKey: ['account-trade-capability', accountId],
+        }),
+      ]),
+  });
+};
+
+export const useAccountTradeCapability = (
+  accountId: string,
+  effectiveDate: string,
+  enabled = true
+) => {
+  const queryClient = useQueryClient();
+  const query = useQuery<AccountTradeCapability>({
+    queryKey: ['account-trade-capability', accountId, effectiveDate],
+    queryFn: () =>
+      apiClient.getAccountTradeCapability(accountId, effectiveDate),
+    enabled: Boolean(accountId && effectiveDate) && enabled,
+    retry: false,
+    staleTime: 0,
+  });
+  return {
+    ...query,
+    resolve: async (date: string) => {
+      if (!accountId || !date)
+        throw new Error('Trade capability requires an account and date.');
+      const capability = await apiClient.getAccountTradeCapability(
+        accountId,
+        date
+      );
+      queryClient.setQueryData(
+        ['account-trade-capability', accountId, date],
+        capability
+      );
+      return capability;
+    },
+  };
+};
+
+export const useLiveCashTransferReview = (
+  accountId: string,
+  operationId: string
+) =>
+  useQuery<LiveCashTransferReview>({
+    queryKey: ['cash-transfer-review', accountId, operationId],
+    queryFn: () => apiClient.getLiveCashTransferReview(accountId, operationId),
+    enabled: Boolean(accountId && operationId),
+    retry: false,
+    staleTime: 0,
+  });
+
+export const useCorrectLiveCashTransfer = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      accountId,
+      operationId,
+      input,
+    }: {
+      accountId: string;
+      operationId: string;
+      input: AccountCashTransferCorrectionInput;
+    }) => {
+      if (typeof navigator !== 'undefined' && !navigator.onLine)
+        throw new Error(
+          'Reconnect to revise the transfer. Offline changes are not queued.'
+        );
+      return apiClient.correctLiveCashTransfer(accountId, operationId, input);
+    },
+    retry: false,
+    networkMode: 'always',
+    gcTime: 0,
+    onSuccess: result =>
+      Promise.all(
+        [
+          result.sourceReplay.accountId,
+          result.destinationReplay.accountId,
+        ].flatMap(id => [
+          queryClient.invalidateQueries({ queryKey: ['live-cash', id] }),
+          queryClient.invalidateQueries({
+            queryKey: ['live-capital-operations', id],
+          }),
+          queryClient.invalidateQueries({
+            queryKey: ['cash-transfer-review', id],
+          }),
+          queryClient.invalidateQueries({
+            queryKey: ['account-trade-capability', id],
+          }),
+        ])
+      ),
+  });
+};
+
+export const usePostAccountCashTransfer = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      accountId,
+      input,
+    }: {
+      accountId: string;
+      input: AccountCashTransferInput;
+    }) => {
+      if (typeof navigator !== 'undefined' && !navigator.onLine)
+        throw new Error(
+          'Reconnect to transfer cash. Offline changes are not queued.'
+        );
+      return apiClient.postAccountCashTransfer(accountId, input);
+    },
+    retry: false,
+    networkMode: 'always',
+    gcTime: 0,
+    onSuccess: (_result, { accountId, input }) =>
+      Promise.all(
+        [accountId, input.toAccountId].flatMap(id => [
+          queryClient.invalidateQueries({ queryKey: ['live-cash', id] }),
+          queryClient.invalidateQueries({
+            queryKey: ['live-capital-operations', id],
+          }),
+          queryClient.invalidateQueries({
+            queryKey: ['account-trade-capability', id],
+          }),
+        ])
+      ),
+  });
+};
+
+export const useLiveFxConversionReview = (
+  accountId: string,
+  operationId: string
+) =>
+  useQuery<LiveFxConversionReview>({
+    queryKey: ['fx-conversion-review', accountId, operationId],
+    queryFn: () => apiClient.getLiveFxConversionReview(accountId, operationId),
+    enabled: Boolean(accountId && operationId),
+    retry: false,
+    staleTime: 0,
+  });
+
+export const useCorrectLiveFxConversion = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      accountId,
+      operationId,
+      input,
+    }: {
+      accountId: string;
+      operationId: string;
+      input: AccountFxCorrectionInput;
+    }) => {
+      if (typeof navigator !== 'undefined' && !navigator.onLine)
+        throw new Error(
+          'Reconnect to revise FX. Offline changes are not queued.'
+        );
+      return apiClient.correctLiveFxConversion(accountId, operationId, input);
+    },
+    retry: false,
+    networkMode: 'always',
+    gcTime: 0,
+    onSuccess: (_result, { accountId }) =>
+      Promise.all([
+        queryClient.invalidateQueries({ queryKey: ['live-cash', accountId] }),
+        queryClient.invalidateQueries({
+          queryKey: ['live-capital-operations', accountId],
+        }),
+        queryClient.invalidateQueries({
+          queryKey: ['fx-conversion-review', accountId],
+        }),
+        queryClient.invalidateQueries({
+          queryKey: ['cash-transfer-review', accountId],
+        }),
+        queryClient.invalidateQueries({
+          queryKey: ['account-trade-capability', accountId],
+        }),
+      ]),
+  });
+};
+
+export const usePostAccountFxConversion = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      accountId,
+      input,
+    }: {
+      accountId: string;
+      input: AccountFxConversionInput;
+    }) => {
+      if (typeof navigator !== 'undefined' && !navigator.onLine)
+        throw new Error(
+          'Reconnect to record FX. Offline changes are not queued.'
+        );
+      return apiClient.postAccountFxConversion(accountId, input);
+    },
+    retry: false,
+    networkMode: 'always',
+    gcTime: 0,
+    onSuccess: (_result, { accountId }) =>
+      Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: ['fx-conversion-review', accountId],
+        }),
+        queryClient.invalidateQueries({ queryKey: ['live-cash', accountId] }),
+        queryClient.invalidateQueries({
+          queryKey: ['live-capital-operations', accountId],
+        }),
+        queryClient.invalidateQueries({
+          queryKey: ['cash-transfer-review', accountId],
+        }),
+        queryClient.invalidateQueries({
+          queryKey: ['account-trade-capability', accountId],
+        }),
+      ]),
+  });
+};
+
+export const usePostAccountCapitalFlow = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      accountId,
+      input,
+    }: {
+      accountId: string;
+      input: AccountCapitalFlowInput;
+    }) => {
+      if (typeof navigator !== 'undefined' && !navigator.onLine)
+        throw new Error(
+          'Reconnect to record account cash. Offline changes are not queued.'
+        );
+      return apiClient.postAccountCapitalFlow(accountId, input);
+    },
+    retry: false,
+    networkMode: 'always',
+    gcTime: 0,
+    onSuccess: (_result, { accountId }) =>
+      Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: ['live-cash', accountId],
+        }),
+        queryClient.invalidateQueries({
+          queryKey: ['live-capital-operations', accountId],
+        }),
+      ]),
+  });
+};
+
+export const usePostAccountIncomeReceipt = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      accountId,
+      input,
+    }: {
+      accountId: string;
+      input: AccountIncomeReceiptInput;
+    }) => {
+      if (typeof navigator !== 'undefined' && !navigator.onLine)
+        throw new Error(
+          'Reconnect to record income. Offline changes are not queued.'
+        );
+      return apiClient.postAccountIncomeReceipt(accountId, input);
+    },
+    retry: false,
+    networkMode: 'always',
+    gcTime: 0,
+    onSuccess: (_result, { accountId }) =>
+      Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: ['live-cash', accountId],
+        }),
+        queryClient.invalidateQueries({
+          queryKey: ['live-capital-operations', accountId],
+        }),
+      ]),
+  });
+};
+
+export const usePostAccountReinvestment = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      accountId,
+      input,
+    }: {
+      accountId: string;
+      input: AccountReinvestmentInput;
+    }) => {
+      if (typeof navigator !== 'undefined' && !navigator.onLine)
+        throw new Error(
+          'Reconnect to record dividend reinvestment. Offline changes are not queued.'
+        );
+      return apiClient.postAccountReinvestment(accountId, input);
+    },
+    retry: false,
+    networkMode: 'always',
+    gcTime: 0,
+    onSuccess: (_result, { accountId }) =>
+      Promise.all([
+        invalidatePositionQueries(queryClient),
+        ...[
+          'live-cash',
+          'live-capital-operations',
+          'account-trade-capability',
+          'income-eligible-assets',
+          'cash-transfer-review',
+          'fx-conversion-review',
+        ].map(key =>
+          queryClient.invalidateQueries({ queryKey: [key, accountId] })
+        ),
+      ]),
+  });
+};
+
+export const useLiveReinvestmentReview = (
+  accountId: string,
+  operationId: string
+) =>
+  useQuery({
+    queryKey: ['reinvestment-review', accountId, operationId],
+    queryFn: () => apiClient.getLiveReinvestmentReview(accountId, operationId),
+    enabled: Boolean(accountId && operationId),
+    retry: false,
+    staleTime: 0,
+    refetchOnWindowFocus: false,
+  });
+
+export const useCorrectLiveReinvestment = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      accountId,
+      operationId,
+      input,
+    }: {
+      accountId: string;
+      operationId: string;
+      input: ReinvestmentCorrectionInput;
+    }) => {
+      if (typeof navigator !== 'undefined' && !navigator.onLine)
+        throw new Error(
+          'Reconnect to revise reinvestment. Offline changes are not queued.'
+        );
+      return apiClient.correctLiveReinvestment(accountId, operationId, input);
+    },
+    retry: false,
+    networkMode: 'always',
+    gcTime: 0,
+    onSuccess: (_result, { accountId }) =>
+      Promise.all([
+        invalidatePositionQueries(queryClient),
+        ...[
+          'reinvestment-review',
+          'live-cash',
+          'live-capital-operations',
+          'account-trade-capability',
+          'income-eligible-assets',
+          'cash-transfer-review',
+          'fx-conversion-review',
+        ].map(key =>
+          queryClient.invalidateQueries({ queryKey: [key, accountId] })
+        ),
+      ]),
+  });
+};
+
+export const useCorrectLiveIncomeReceipt = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      accountId,
+      operationId,
+      input,
+    }: {
+      accountId: string;
+      operationId: string;
+      input: AccountIncomeReceiptCorrectionInput;
+    }) => {
+      if (typeof navigator !== 'undefined' && !navigator.onLine)
+        throw new Error(
+          'Reconnect to correct income. Offline changes are not queued.'
+        );
+      return apiClient.correctLiveIncomeReceipt(accountId, operationId, input);
+    },
+    retry: false,
+    networkMode: 'always',
+    gcTime: 0,
+    onSuccess: (_result, { accountId }) =>
+      Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: ['live-cash', accountId],
+        }),
+        queryClient.invalidateQueries({
+          queryKey: ['live-capital-operations', accountId],
+        }),
+      ]),
+  });
+};
+
+export const useLiveCapitalOperations = (
+  accountId: string,
+  offset = 0,
+  enabled = true
+) =>
+  useQuery({
+    queryKey: ['live-capital-operations', accountId, offset],
+    queryFn: () => apiClient.getLiveCapitalOperations(accountId, offset),
+    enabled: Boolean(accountId) && enabled,
+    retry: false,
+    staleTime: 0,
+  });
+
+export const useCorrectLiveCapitalOperation = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      accountId,
+      operationId,
+      input,
+    }: {
+      accountId: string;
+      operationId: string;
+      input: AccountCapitalCorrectionInput;
+    }) => {
+      if (typeof navigator !== 'undefined' && !navigator.onLine)
+        throw new Error(
+          'Reconnect to correct account cash. Offline changes are not queued.'
+        );
+      return apiClient.correctLiveCapitalOperation(
+        accountId,
+        operationId,
+        input
+      );
+    },
+    retry: false,
+    networkMode: 'always',
+    gcTime: 0,
+    onSuccess: (_result, { accountId }) =>
+      Promise.all([
+        queryClient.invalidateQueries({
+          queryKey: ['live-cash', accountId],
+        }),
+        queryClient.invalidateQueries({
+          queryKey: ['live-capital-operations', accountId],
+        }),
+      ]),
   });
 };
 

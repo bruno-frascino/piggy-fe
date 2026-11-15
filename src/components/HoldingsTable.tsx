@@ -21,7 +21,7 @@ import AddHoldingsDialog, {
 import ClosePositionDialog, {
   ClosePositionPayload,
 } from '@/components/ClosePositionDialog';
-import type { ExchangeKey } from '@/lib/types';
+import type { AccountTradeCapability, ExchangeKey } from '@/lib/types';
 import {
   enqueueQueuedWrite,
   syncQueuedWritesNow,
@@ -40,10 +40,19 @@ import { usePrivacy } from '@/lib/privacy-context';
 import { useHoldingRows, type HoldingRow } from '@/hooks/useHoldingRows';
 import {
   useClosePosition,
+  useAccountTradeCapability,
   useCreatePosition,
   useDeletePosition,
+  usePostAccountTrade,
   useUpdatePosition,
 } from '@/hooks/api';
+
+function tradeDecimal(value: number, maximumFractionDigits = 12): string {
+  return value.toLocaleString('en-US', {
+    useGrouping: false,
+    maximumFractionDigits,
+  });
+}
 
 function StopLossTriggeredMark({ inGain = false }: { inGain?: boolean }) {
   return (
@@ -113,9 +122,24 @@ export default function HoldingsTable({
     useCreatePosition();
   const { mutateAsync: updatePosition, isPending: updating } =
     useUpdatePosition();
-  const { mutateAsync: closePosition } = useClosePosition();
+  const { mutateAsync: closePosition, isPending: closing } = useClosePosition();
+  const { mutateAsync: postAccountTrade, isPending: postingTrade } =
+    usePostAccountTrade();
   const { mutateAsync: deletePosition } = useDeletePosition();
   const [submitError, setSubmitError] = useState<string>('');
+  const [tradeEffectiveDate, setTradeEffectiveDate] = useState(() =>
+    new Date().toISOString().slice(0, 10)
+  );
+  const tradeRetryRef = useRef<{
+    signature: string;
+    sequence: number;
+    idempotencyKey: string;
+  } | null>(null);
+  const tradeCapabilityQuery = useAccountTradeCapability(
+    selectedAccountId,
+    tradeEffectiveDate,
+    !isDemo && online
+  );
 
   const {
     holdings,
@@ -175,6 +199,18 @@ export default function HoldingsTable({
     });
   };
 
+  const tradeAttempt = (signature: string, nextSequence: number) => {
+    if (tradeRetryRef.current?.signature === signature)
+      return tradeRetryRef.current;
+    const attempt = {
+      signature,
+      sequence: nextSequence,
+      idempotencyKey: globalThis.crypto.randomUUID(),
+    };
+    tradeRetryRef.current = attempt;
+    return attempt;
+  };
+
   const openEdit = (row: HoldingRow) => {
     setDetailsSelection(null);
     setSubmitError('');
@@ -191,6 +227,7 @@ export default function HoldingsTable({
     setDetailsSelection(null);
     setCloseIdx(row.originalIndex);
     setCloseInitial({ ...row, currentPrice: row.effectivePrice });
+    setTradeEffectiveDate(new Date().toISOString().slice(0, 10));
     setShowCloseDialog(true);
   };
 
@@ -199,6 +236,7 @@ export default function HoldingsTable({
     setMode('add');
     setEditIdx(null);
     setDialogInitial(undefined);
+    setTradeEffectiveDate(new Date().toISOString().slice(0, 10));
     setShowDialog(true);
   };
 
@@ -232,6 +270,41 @@ export default function HoldingsTable({
       life: 4000,
     });
     return false;
+  };
+
+  const resolveTradeCapability = async (
+    effectiveDate: string
+  ): Promise<AccountTradeCapability | null> => {
+    if (isDemo) return null;
+    if (!selectedAccountId)
+      throw new Error('Select an account before posting a trade.');
+    if (!isOnline()) {
+      const cached = tradeCapabilityQuery.data;
+      if (!cached || (cached.mode !== 'LEGACY' && cached.mode !== 'DEMO'))
+        throw new Error(
+          "Reconnect to verify this account's trade capability. Nothing was queued."
+        );
+      return cached;
+    }
+    return tradeCapabilityQuery.resolve(effectiveDate);
+  };
+
+  const requireWritableCapability = (
+    capability: AccountTradeCapability | null
+  ) => {
+    if (capability?.mode === 'BLOCKED' || capability?.mode === 'ARCHIVED')
+      throw new Error(
+        capability.reason ?? 'This account is not available for trade entry.'
+      );
+    if (
+      capability &&
+      capability.mode !== 'LIVE_LEDGER' &&
+      capability.mode !== 'LEGACY' &&
+      capability.mode !== 'DEMO'
+    )
+      throw new Error(
+        'The account trade capability could not be verified. No changes were saved.'
+      );
   };
 
   const invalidateAfterWrite = useCallback(async () => {
@@ -294,6 +367,13 @@ export default function HoldingsTable({
   }, [syncQueuedWrites]);
 
   const showWriteError = (action: string, error: unknown) => {
+    if (
+      error &&
+      typeof error === 'object' &&
+      'response' in error &&
+      error.response
+    )
+      tradeRetryRef.current = null;
     const fallback = `Could not ${action}. Please try again.`;
     const detail = mutationErrorMessage(error, fallback);
     setSubmitError(detail || fallback);
@@ -968,7 +1048,8 @@ export default function HoldingsTable({
         lockAccount
         exchangeCode={selectedExchange}
         onHide={() => setShowDialog(false)}
-        busy={creating || updating}
+        onEffectiveDateChange={setTradeEffectiveDate}
+        busy={creating || updating || postingTrade}
         error={submitError}
         onImport={() => {
           setShowDialog(false);
@@ -1088,6 +1169,71 @@ export default function HoldingsTable({
               notes: newPos.buyComments,
             };
 
+            const capability = await resolveTradeCapability(newPos.openDate);
+            requireWritableCapability(capability);
+            if (capability?.mode === 'LIVE_LEDGER') {
+              if (!isOnline())
+                throw new Error(
+                  'Reconnect to post this ledger-backed trade. Nothing was queued.'
+                );
+              if (
+                !capability.openingDate ||
+                newPos.openDate <= capability.openingDate
+              )
+                throw new Error(
+                  'Live trades must be dated after the confirmed opening boundary.'
+                );
+              if (capability.nextSequence === null)
+                throw new Error(
+                  'A safe cash sequence is unavailable. Refresh and try again.'
+                );
+              const tradeInput = {
+                kind: 'BUY' as const,
+                symbol: newPos.symbol,
+                exchangeCode: resolvedExchange,
+                ...(newPos.name?.trim()
+                  ? { assetName: newPos.name.trim() }
+                  : {}),
+                assetType: newPos.assetType,
+                ...(newPos.industry?.trim()
+                  ? { industry: newPos.industry.trim() }
+                  : {}),
+                ...(newPos.buyComments?.trim()
+                  ? { openReason: newPos.buyComments.trim() }
+                  : {}),
+                stopLossPrice:
+                  typeof newPos.stopLoss === 'number'
+                    ? tradeDecimal(newPos.stopLoss)
+                    : null,
+                effectiveDate: newPos.openDate,
+                quantity: tradeDecimal(newPos.units),
+                price: tradeDecimal(newPos.buyPrice),
+                fees: tradeDecimal(newPos.buyFee ?? 0, 8),
+              };
+              const attempt = tradeAttempt(
+                JSON.stringify({ accountId: selectedAccountId, tradeInput }),
+                capability.nextSequence
+              );
+              await postAccountTrade({
+                accountId: selectedAccountId,
+                input: {
+                  ...tradeInput,
+                  idempotencyKey: attempt.idempotencyKey,
+                  sequence: attempt.sequence,
+                },
+              });
+              tradeRetryRef.current = null;
+              onExchangeSelected?.(resolvedExchange);
+              showToast({
+                severity: 'success',
+                summary: 'Position added',
+                detail: `${newPos.symbol} added to ${selectedAccountName ?? newPos.accountName ?? 'Main'} · ${exchangeLabel(resolvedExchange)}.`,
+              });
+              setSubmitError('');
+              setShowDialog(false);
+              return;
+            }
+
             if (!isOnline()) {
               queueWrite(
                 {
@@ -1190,6 +1336,8 @@ export default function HoldingsTable({
         visible={showCloseDialog}
         initial={closeInitial}
         onHide={() => setShowCloseDialog(false)}
+        onEffectiveDateChange={setTradeEffectiveDate}
+        busy={closing || postingTrade}
         onSubmit={(payload: ClosePositionPayload) => {
           if (closeIdx === null || closeInitial === null) return;
 
@@ -1207,7 +1355,50 @@ export default function HoldingsTable({
 
             // If the holding came from the API it has an id — persist via API
             if (closeInitial.id) {
-              if (!isOnline()) {
+              const capability = await resolveTradeCapability(
+                closePayload.closeDate
+              );
+              requireWritableCapability(capability);
+              if (capability?.mode === 'LIVE_LEDGER') {
+                if (!isOnline())
+                  throw new Error(
+                    'Reconnect to post this ledger-backed sale. Nothing was queued.'
+                  );
+                if (
+                  !capability.openingDate ||
+                  closePayload.closeDate <= capability.openingDate
+                )
+                  throw new Error(
+                    'Live trades must be dated after the confirmed opening boundary.'
+                  );
+                if (capability.nextSequence === null)
+                  throw new Error(
+                    'A safe cash sequence is unavailable. Refresh and try again.'
+                  );
+                const tradeInput = {
+                  kind: 'SELL' as const,
+                  positionId: closeInitial.id,
+                  effectiveDate: closePayload.closeDate,
+                  quantity: tradeDecimal(payload.closeUnits),
+                  price: tradeDecimal(payload.sellPrice),
+                  fees: tradeDecimal(payload.sellFee || 0, 8),
+                  closeReason: payload.closeReason,
+                  notes: payload.comments,
+                };
+                const attempt = tradeAttempt(
+                  JSON.stringify({ accountId: selectedAccountId, tradeInput }),
+                  capability.nextSequence
+                );
+                await postAccountTrade({
+                  accountId: selectedAccountId,
+                  input: {
+                    ...tradeInput,
+                    idempotencyKey: attempt.idempotencyKey,
+                    sequence: attempt.sequence,
+                  },
+                });
+                tradeRetryRef.current = null;
+              } else if (!isOnline()) {
                 queueWrite(
                   {
                     type: 'close-position',
