@@ -2691,7 +2691,7 @@
     "startLine": 91
   },
   {
-    "endLine": 115,
+    "endLine": 118,
     "file": "src/lib/types.ts",
     "jsdoc": "Stored split records are not yet exposed for posting or review.",
     "kind": "InterfaceDeclaration",
@@ -2700,1362 +2700,1362 @@
     "startLine": 101
   },
   {
-    "endLine": 123,
+    "endLine": 126,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "AccountSplitParcelEffect",
     "signature": "export interface AccountSplitParcelEffect",
-    "startLine": 117
+    "startLine": 120
   },
   {
-    "endLine": 129,
+    "endLine": 132,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "ApiErrorResponse",
     "signature": "export interface ApiErrorResponse",
-    "startLine": 125
+    "startLine": 128
   },
   {
-    "endLine": 138,
+    "endLine": 141,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "UserProfile",
     "signature": "export interface UserProfile",
-    "startLine": 131
+    "startLine": 134
   },
   {
-    "endLine": 145,
+    "endLine": 148,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "UpdateUserProfilePayload",
     "signature": "export interface UpdateUserProfilePayload",
-    "startLine": 140
+    "startLine": 143
   },
   {
-    "endLine": 169,
+    "endLine": 172,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "TaxReportLineItem",
     "signature": "export interface TaxReportLineItem",
-    "startLine": 147
-  },
-  {
-    "endLine": 192,
-    "file": "src/lib/types.ts",
-    "jsdoc": "",
-    "kind": "InterfaceDeclaration",
-    "name": "TaxReport",
-    "signature": "export interface TaxReport",
-    "startLine": 171
+    "startLine": 150
   },
   {
     "endLine": 195,
     "file": "src/lib/types.ts",
     "jsdoc": "",
+    "kind": "InterfaceDeclaration",
+    "name": "TaxReport",
+    "signature": "export interface TaxReport",
+    "startLine": 174
+  },
+  {
+    "endLine": 198,
+    "file": "src/lib/types.ts",
+    "jsdoc": "",
     "kind": "TypeAliasDeclaration",
     "name": "CloseReason",
     "signature": "export type CloseReason = 'STOP_LOSS' | 'TARGET' | 'MANUAL' | 'OTHER';",
-    "startLine": 195
+    "startLine": 198
   },
   {
-    "endLine": 228,
+    "endLine": 231,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "ClosedTrade",
     "signature": "export interface ClosedTrade",
-    "startLine": 201
+    "startLine": 204
   },
   {
-    "endLine": 236,
+    "endLine": 239,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "LiveSaleCorrectionMetadata",
     "signature": "export interface LiveSaleCorrectionMetadata",
-    "startLine": 230
+    "startLine": 233
   },
   {
-    "endLine": 244,
+    "endLine": 247,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "LiveImportedExecutionCorrectionMetadata",
     "signature": "export interface LiveImportedExecutionCorrectionMetadata extends LiveSaleCorrectionMetadata",
-    "startLine": 238
+    "startLine": 241
   },
   {
-    "endLine": 246,
+    "endLine": 249,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "TypeAliasDeclaration",
     "name": "LiveImportedExecutionCorrectionInput",
     "signature": "export type LiveImportedExecutionCorrectionInput = DraftSaleCorrectionInput;",
-    "startLine": 246
+    "startLine": 249
   },
   {
-    "endLine": 253,
+    "endLine": 256,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "LiveAcquisitionCorrectionMetadata",
     "signature": "export interface LiveAcquisitionCorrectionMetadata extends LiveSaleCorrectionMetadata",
-    "startLine": 248
+    "startLine": 251
   },
   {
-    "endLine": 260,
+    "endLine": 263,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "ManualTradeVoidInput",
     "signature": "export interface ManualTradeVoidInput",
-    "startLine": 255
+    "startLine": 258
   },
   {
-    "endLine": 271,
+    "endLine": 274,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "ManualTradeVoidRecord",
     "signature": "export interface ManualTradeVoidRecord",
-    "startLine": 262
+    "startLine": 265
   },
   {
-    "endLine": 278,
+    "endLine": 281,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "ManualTradeVoidsPage",
     "signature": "export interface ManualTradeVoidsPage",
-    "startLine": 273
+    "startLine": 276
   },
   {
-    "endLine": 288,
+    "endLine": 291,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "ClosedTradesQuery",
     "signature": "export interface ClosedTradesQuery",
-    "startLine": 282
+    "startLine": 285
   },
   {
-    "endLine": 293,
+    "endLine": 296,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "ClosedTradesPage",
     "signature": "export interface ClosedTradesPage",
-    "startLine": 290
+    "startLine": 293
   },
   {
-    "endLine": 302,
+    "endLine": 305,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "TaxReportUsage",
     "signature": "export interface TaxReportUsage",
-    "startLine": 297
+    "startLine": 300
   },
   {
-    "endLine": 304,
+    "endLine": 307,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "TypeAliasDeclaration",
     "name": "TaxReportPositionUsage",
     "signature": "export type TaxReportPositionUsage = Record<string, TaxReportUsage[]>;",
-    "startLine": 304
+    "startLine": 307
   },
   {
-    "endLine": 313,
+    "endLine": 316,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "StatisticsFilters",
     "signature": "export interface StatisticsFilters",
-    "startLine": 306
+    "startLine": 309
   },
   {
-    "endLine": 328,
+    "endLine": 331,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "StatisticsSummary",
     "signature": "export interface StatisticsSummary",
-    "startLine": 315
+    "startLine": 318
   },
   {
-    "endLine": 334,
+    "endLine": 337,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "StatisticsTimeSeriesPoint",
     "signature": "export interface StatisticsTimeSeriesPoint",
-    "startLine": 330
+    "startLine": 333
   },
   {
-    "endLine": 340,
+    "endLine": 343,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "StatisticsTimeSeries",
     "signature": "export interface StatisticsTimeSeries",
-    "startLine": 336
+    "startLine": 339
   },
   {
-    "endLine": 346,
+    "endLine": 349,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "StatisticsHistogramBucket",
     "signature": "export interface StatisticsHistogramBucket",
-    "startLine": 342
+    "startLine": 345
   },
   {
-    "endLine": 353,
+    "endLine": 356,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "StatisticsDistributions",
     "signature": "export interface StatisticsDistributions",
-    "startLine": 348
+    "startLine": 351
   },
   {
-    "endLine": 363,
+    "endLine": 366,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "StatisticsRisk",
     "signature": "export interface StatisticsRisk",
-    "startLine": 355
+    "startLine": 358
   },
   {
-    "endLine": 369,
+    "endLine": 372,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "TypeAliasDeclaration",
     "name": "StatisticsBreakdownBy",
     "signature": "export type StatisticsBreakdownBy = | 'account' | 'exchange' | 'assetType' | 'industry';",
-    "startLine": 365
+    "startLine": 368
   },
   {
-    "endLine": 374,
+    "endLine": 377,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "TypeAliasDeclaration",
     "name": "StatisticsBreakdownMetric",
     "signature": "export type StatisticsBreakdownMetric = | 'marketValue' | 'realizedPnL' | 'totalPnL';",
-    "startLine": 371
+    "startLine": 374
   },
   {
-    "endLine": 382,
+    "endLine": 385,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "StatisticsBreakdownRow",
     "signature": "export interface StatisticsBreakdownRow",
-    "startLine": 376
+    "startLine": 379
   },
   {
-    "endLine": 387,
+    "endLine": 390,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "StatisticsBreakdownsResponse",
     "signature": "export interface StatisticsBreakdownsResponse",
-    "startLine": 384
+    "startLine": 387
   },
   {
-    "endLine": 402,
+    "endLine": 405,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "StatisticsClosedTradeRow",
     "signature": "export interface StatisticsClosedTradeRow",
-    "startLine": 389
+    "startLine": 392
   },
   {
-    "endLine": 408,
+    "endLine": 411,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "TypeAliasDeclaration",
     "name": "StatisticsClosedTradesSortBy",
     "signature": "export type StatisticsClosedTradesSortBy = | 'closeDate' | 'pnl' | 'returnPct' | 'holdingDays';",
-    "startLine": 404
+    "startLine": 407
   },
   {
-    "endLine": 410,
+    "endLine": 413,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "TypeAliasDeclaration",
     "name": "StatisticsClosedTradesSortDir",
     "signature": "export type StatisticsClosedTradesSortDir = 'asc' | 'desc';",
-    "startLine": 410
+    "startLine": 413
   },
   {
-    "endLine": 419,
+    "endLine": 422,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "StatisticsClosedTradesResponse",
     "signature": "export interface StatisticsClosedTradesResponse",
-    "startLine": 412
+    "startLine": 415
   },
   {
-    "endLine": 436,
+    "endLine": 439,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "ScreenerResult",
     "signature": "export interface ScreenerResult",
-    "startLine": 423
+    "startLine": 426
   },
   {
-    "endLine": 438,
+    "endLine": 441,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "TypeAliasDeclaration",
     "name": "ScreenerMode",
     "signature": "export type ScreenerMode = 'symbol' | 'filter';",
-    "startLine": 438
+    "startLine": 441
   },
   {
-    "endLine": 451,
+    "endLine": 454,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "ScreenerFilters",
     "signature": "export interface ScreenerFilters",
-    "startLine": 440
+    "startLine": 443
   },
   {
-    "endLine": 460,
+    "endLine": 463,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "UpcomingDividend",
     "signature": "export interface UpcomingDividend",
-    "startLine": 453
+    "startLine": 456
   },
   {
-    "endLine": 468,
+    "endLine": 471,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "SavedScreen",
     "signature": "export interface SavedScreen",
-    "startLine": 462
+    "startLine": 465
   },
   {
-    "endLine": 476,
+    "endLine": 479,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "Watchlist",
     "signature": "export interface Watchlist",
-    "startLine": 470
+    "startLine": 473
   },
   {
-    "endLine": 488,
+    "endLine": 491,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "WatchlistItem",
     "signature": "export interface WatchlistItem",
-    "startLine": 478
+    "startLine": 481
   },
   {
-    "endLine": 492,
+    "endLine": 495,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "WatchlistDetail",
     "signature": "export interface WatchlistDetail extends Watchlist",
-    "startLine": 490
+    "startLine": 493
   },
   {
-    "endLine": 502,
+    "endLine": 505,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "AddWatchlistItemPayload",
     "signature": "export interface AddWatchlistItemPayload",
-    "startLine": 494
+    "startLine": 497
   },
   {
-    "endLine": 506,
+    "endLine": 509,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "TypeAliasDeclaration",
     "name": "ImportSource",
     "signature": "export type ImportSource = 'KRAKEN';",
-    "startLine": 506
+    "startLine": 509
   },
   {
-    "endLine": 512,
+    "endLine": 515,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "TypeAliasDeclaration",
     "name": "ImportBatchStatus",
     "signature": "export type ImportBatchStatus = | 'PENDING_REVIEW' | 'PARTIALLY_APPLIED' | 'COMMITTED' | 'DISCARDED' | 'FAILED';",
-    "startLine": 507
+    "startLine": 510
   },
   {
-    "endLine": 518,
+    "endLine": 521,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "TypeAliasDeclaration",
     "name": "ImportedEventStatus",
     "signature": "export type ImportedEventStatus = | 'PENDING' | 'DEFERRED' | 'APPLIED' | 'SKIPPED' | 'DUPLICATE';",
-    "startLine": 513
+    "startLine": 516
   },
   {
-    "endLine": 519,
+    "endLine": 522,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "TypeAliasDeclaration",
     "name": "ImportQuoteCurrency",
     "signature": "export type ImportQuoteCurrency = 'AUD' | 'USD';",
-    "startLine": 519
+    "startLine": 522
   },
   {
-    "endLine": 532,
+    "endLine": 535,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "ImportBatch",
     "signature": "export interface ImportBatch",
-    "startLine": 521
+    "startLine": 524
   },
   {
-    "endLine": 538,
+    "endLine": 541,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "ImportFilePayload",
     "signature": "export interface ImportFilePayload",
-    "startLine": 534
+    "startLine": 537
   },
   {
-    "endLine": 554,
+    "endLine": 557,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "ImportPlannedParcel",
     "signature": "export interface ImportPlannedParcel",
-    "startLine": 540
+    "startLine": 543
   },
   {
-    "endLine": 563,
+    "endLine": 566,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "ImportPlannedAllocation",
     "signature": "export interface ImportPlannedAllocation",
-    "startLine": 556
+    "startLine": 559
   },
   {
-    "endLine": 570,
+    "endLine": 573,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "ImportEligibleParcel",
     "signature": "export interface ImportEligibleParcel",
-    "startLine": 565
+    "startLine": 568
   },
   {
-    "endLine": 572,
+    "endLine": 575,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "TypeAliasDeclaration",
     "name": "ImportCloseReason",
     "signature": "export type ImportCloseReason = CloseReason;",
-    "startLine": 572
+    "startLine": 575
   },
   {
-    "endLine": 589,
+    "endLine": 592,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "ImportPlannedSell",
     "signature": "export interface ImportPlannedSell",
-    "startLine": 574
+    "startLine": 577
   },
   {
-    "endLine": 599,
+    "endLine": 602,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "ImportStakingMonth",
     "signature": "export interface ImportStakingMonth",
-    "startLine": 591
+    "startLine": 594
   },
   {
-    "endLine": 606,
+    "endLine": 609,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "TypeAliasDeclaration",
     "name": "ImportIssueType",
     "signature": "export type ImportIssueType = | 'INSUFFICIENT_HOLDINGS' | 'DUST_SHORTFALL' | 'INVALID_ALLOCATION' | 'MISSING_FMV' | 'MISSING_FX';",
-    "startLine": 601
+    "startLine": 604
   },
   {
-    "endLine": 614,
+    "endLine": 617,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "ImportPlanIssue",
     "signature": "export interface ImportPlanIssue",
-    "startLine": 608
+    "startLine": 611
   },
   {
-    "endLine": 624,
+    "endLine": 627,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "ImportReconciliation",
     "signature": "export interface ImportReconciliation",
-    "startLine": 616
+    "startLine": 619
   },
   {
-    "endLine": 645,
+    "endLine": 648,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "ImportPlan",
     "signature": "export interface ImportPlan",
-    "startLine": 626
+    "startLine": 629
   },
   {
-    "endLine": 651,
+    "endLine": 654,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "ImportDetail",
     "signature": "export interface ImportDetail",
-    "startLine": 647
+    "startLine": 650
   },
   {
-    "endLine": 666,
+    "endLine": 669,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "ImportUploadResult",
     "signature": "export interface ImportUploadResult",
-    "startLine": 653
+    "startLine": 656
   },
   {
-    "endLine": 674,
+    "endLine": 677,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "ImportEventResolution",
     "signature": "export interface ImportEventResolution",
-    "startLine": 668
+    "startLine": 671
   },
   {
-    "endLine": 679,
+    "endLine": 682,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "ImportCommitResult",
     "signature": "export interface ImportCommitResult",
-    "startLine": 676
+    "startLine": 679
   },
   {
-    "endLine": 683,
+    "endLine": 686,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "OpeningPreviewInput",
     "signature": "export interface OpeningPreviewInput",
-    "startLine": 680
+    "startLine": 683
   },
   {
-    "endLine": 702,
+    "endLine": 705,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "OpeningStatement",
     "signature": "export interface OpeningStatement",
-    "startLine": 685
+    "startLine": 688
   },
   {
-    "endLine": 707,
+    "endLine": 710,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "OpeningStatementPage",
     "signature": "export interface OpeningStatementPage",
-    "startLine": 704
+    "startLine": 707
   },
   {
-    "endLine": 711,
+    "endLine": 714,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "SaveOpeningStatementInput",
     "signature": "export interface SaveOpeningStatementInput extends OpeningPreviewInput",
-    "startLine": 709
+    "startLine": 712
   },
   {
-    "endLine": 716,
+    "endLine": 719,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "SaveOpeningStatementResult",
     "signature": "export interface SaveOpeningStatementResult",
-    "startLine": 713
+    "startLine": 716
   },
   {
-    "endLine": 727,
+    "endLine": 730,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "OpeningConfirmationInput",
     "signature": "export interface OpeningConfirmationInput",
-    "startLine": 718
+    "startLine": 721
   },
   {
-    "endLine": 738,
+    "endLine": 741,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "OpeningConfirmationResult",
     "signature": "export interface OpeningConfirmationResult",
-    "startLine": 729
+    "startLine": 732
   },
   {
-    "endLine": 744,
+    "endLine": 747,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "TypeAliasDeclaration",
     "name": "DraftCashEvidenceReason",
     "signature": "export type DraftCashEvidenceReason = | 'UNRECORDED_OPERATION' | 'TIMING_DIFFERENCE' | 'SOURCE_CORRECTION_REQUIRED' | 'OTHER';",
-    "startLine": 740
+    "startLine": 743
   },
   {
-    "endLine": 758,
+    "endLine": 761,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "DraftCashEvidenceInput",
     "signature": "export interface DraftCashEvidenceInput",
-    "startLine": 746
+    "startLine": 749
   },
   {
-    "endLine": 768,
+    "endLine": 771,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "DraftCashFlowInput",
     "signature": "export interface DraftCashFlowInput",
-    "startLine": 760
+    "startLine": 763
   },
   {
-    "endLine": 775,
+    "endLine": 778,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "DraftCashFlowResult",
     "signature": "export interface DraftCashFlowResult",
-    "startLine": 770
+    "startLine": 773
   },
   {
-    "endLine": 786,
+    "endLine": 789,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "DraftCashCorrectionInput",
     "signature": "export interface DraftCashCorrectionInput",
-    "startLine": 777
+    "startLine": 780
   },
   {
-    "endLine": 790,
+    "endLine": 793,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "DraftCashCorrectionResult",
     "signature": "export interface DraftCashCorrectionResult extends DraftCashFlowResult",
-    "startLine": 788
+    "startLine": 791
   },
   {
-    "endLine": 797,
+    "endLine": 800,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "DraftImportedCashCorrectionInput",
     "signature": "export interface DraftImportedCashCorrectionInput",
-    "startLine": 792
+    "startLine": 795
   },
   {
-    "endLine": 801,
+    "endLine": 804,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "DraftImportedExecutionInput",
     "signature": "export interface DraftImportedExecutionInput",
-    "startLine": 799
+    "startLine": 802
   },
   {
-    "endLine": 829,
+    "endLine": 832,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "DraftImportedExecution",
     "signature": "export interface DraftImportedExecution",
-    "startLine": 803
+    "startLine": 806
   },
   {
-    "endLine": 856,
+    "endLine": 859,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "DraftCashReplay",
     "signature": "export interface DraftCashReplay",
-    "startLine": 831
+    "startLine": 834
   },
   {
-    "endLine": 894,
+    "endLine": 897,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "TypeAliasDeclaration",
     "name": "AccountTradeInput",
     "signature": "export type AccountTradeInput =",
-    "startLine": 858
+    "startLine": 861
   },
   {
-    "endLine": 903,
+    "endLine": 906,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "AccountTradeCapability",
     "signature": "export interface AccountTradeCapability",
-    "startLine": 896
+    "startLine": 899
   },
   {
-    "endLine": 910,
+    "endLine": 913,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "AccountTradeResult",
     "signature": "export interface AccountTradeResult",
-    "startLine": 905
+    "startLine": 908
   },
   {
-    "endLine": 917,
+    "endLine": 920,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "LiveSaleCorrectionResult",
     "signature": "export interface LiveSaleCorrectionResult",
-    "startLine": 912
+    "startLine": 915
   },
   {
-    "endLine": 922,
+    "endLine": 925,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "LiveExecutionCorrectionResponse",
     "signature": "export interface LiveExecutionCorrectionResponse",
-    "startLine": 919
+    "startLine": 922
   },
   {
-    "endLine": 927,
+    "endLine": 930,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "AccountTradeResponse",
     "signature": "export interface AccountTradeResponse",
-    "startLine": 924
+    "startLine": 927
   },
   {
-    "endLine": 937,
+    "endLine": 940,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "AccountCapitalFlowInput",
     "signature": "export interface AccountCapitalFlowInput",
-    "startLine": 929
+    "startLine": 932
   },
   {
-    "endLine": 943,
+    "endLine": 946,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "AccountCapitalFlowResult",
     "signature": "export interface AccountCapitalFlowResult",
-    "startLine": 939
+    "startLine": 942
   },
   {
-    "endLine": 955,
+    "endLine": 958,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "AccountCashTransferInput",
     "signature": "export interface AccountCashTransferInput",
-    "startLine": 945
+    "startLine": 948
   },
   {
-    "endLine": 963,
+    "endLine": 966,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "AccountCashTransferResult",
     "signature": "export interface AccountCashTransferResult",
-    "startLine": 957
+    "startLine": 960
   },
   {
-    "endLine": 968,
+    "endLine": 971,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "AccountCashTransferResponse",
     "signature": "export interface AccountCashTransferResponse",
-    "startLine": 965
+    "startLine": 968
   },
   {
-    "endLine": 974,
+    "endLine": 977,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "TransferRevisionHead",
     "signature": "export interface TransferRevisionHead",
-    "startLine": 970
+    "startLine": 973
   },
   {
-    "endLine": 982,
+    "endLine": 985,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "TransferReplacement",
     "signature": "export interface TransferReplacement",
-    "startLine": 976
+    "startLine": 979
   },
   {
-    "endLine": 990,
+    "endLine": 993,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "AccountCashTransferCorrectionInput",
     "signature": "export interface AccountCashTransferCorrectionInput",
-    "startLine": 984
+    "startLine": 987
   },
   {
-    "endLine": 1002,
+    "endLine": 1005,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "LiveCashTransferReview",
     "signature": "export interface LiveCashTransferReview",
-    "startLine": 992
+    "startLine": 995
   },
   {
-    "endLine": 1007,
+    "endLine": 1010,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "AccountCashTransferCorrectionResult",
     "signature": "export interface AccountCashTransferCorrectionResult extends AccountCashTransferResult",
-    "startLine": 1004
+    "startLine": 1007
   },
   {
-    "endLine": 1012,
+    "endLine": 1015,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "AccountCashTransferCorrectionResponse",
     "signature": "export interface AccountCashTransferCorrectionResponse",
-    "startLine": 1009
+    "startLine": 1012
   },
   {
-    "endLine": 1027,
+    "endLine": 1030,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "AccountIncomeReceiptInput",
     "signature": "export interface AccountIncomeReceiptInput",
-    "startLine": 1014
+    "startLine": 1017
   },
   {
-    "endLine": 1033,
+    "endLine": 1036,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "AccountIncomeReceiptResult",
     "signature": "export interface AccountIncomeReceiptResult",
-    "startLine": 1029
+    "startLine": 1032
   },
   {
-    "endLine": 1048,
+    "endLine": 1051,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "AccountReinvestmentInput",
     "signature": "export interface AccountReinvestmentInput",
-    "startLine": 1035
+    "startLine": 1038
   },
   {
-    "endLine": 1056,
+    "endLine": 1059,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "AccountReinvestmentResult",
     "signature": "export interface AccountReinvestmentResult",
-    "startLine": 1050
+    "startLine": 1053
   },
   {
-    "endLine": 1061,
+    "endLine": 1064,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "AccountReinvestmentResponse",
     "signature": "export interface AccountReinvestmentResponse",
-    "startLine": 1058
+    "startLine": 1061
   },
   {
-    "endLine": 1071,
+    "endLine": 1074,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "ReinvestmentCorrectionInput",
     "signature": "export interface ReinvestmentCorrectionInput",
-    "startLine": 1063
+    "startLine": 1066
   },
   {
-    "endLine": 1084,
+    "endLine": 1087,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "LiveReinvestmentReview",
     "signature": "export interface LiveReinvestmentReview",
-    "startLine": 1073
+    "startLine": 1076
   },
   {
-    "endLine": 1093,
+    "endLine": 1096,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "ReinvestmentCorrectionResult",
     "signature": "export interface ReinvestmentCorrectionResult",
-    "startLine": 1086
+    "startLine": 1089
   },
   {
-    "endLine": 1098,
+    "endLine": 1101,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "ReinvestmentCorrectionResponse",
     "signature": "export interface ReinvestmentCorrectionResponse",
-    "startLine": 1095
+    "startLine": 1098
   },
   {
-    "endLine": 1103,
+    "endLine": 1106,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "AccountIncomeReceiptResponse",
     "signature": "export interface AccountIncomeReceiptResponse",
-    "startLine": 1100
+    "startLine": 1103
   },
   {
-    "endLine": 1114,
+    "endLine": 1117,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "AccountIncomeReceiptCorrectionReplacement",
     "signature": "export interface AccountIncomeReceiptCorrectionReplacement",
-    "startLine": 1105
+    "startLine": 1108
   },
   {
-    "endLine": 1123,
+    "endLine": 1126,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "AccountIncomeReceiptCorrectionInput",
     "signature": "export interface AccountIncomeReceiptCorrectionInput",
-    "startLine": 1116
+    "startLine": 1119
   },
   {
-    "endLine": 1130,
+    "endLine": 1133,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "AccountIncomeReceiptCorrectionResult",
     "signature": "export interface AccountIncomeReceiptCorrectionResult",
-    "startLine": 1125
+    "startLine": 1128
   },
   {
-    "endLine": 1135,
+    "endLine": 1138,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "AccountIncomeReceiptCorrectionResponse",
     "signature": "export interface AccountIncomeReceiptCorrectionResponse",
-    "startLine": 1132
+    "startLine": 1135
   },
   {
-    "endLine": 1141,
+    "endLine": 1144,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "LiveCapitalOperationAmount",
     "signature": "export interface LiveCapitalOperationAmount",
-    "startLine": 1137
+    "startLine": 1140
   },
   {
-    "endLine": 1155,
+    "endLine": 1158,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "LiveCapitalOperationRevision",
     "signature": "export interface LiveCapitalOperationRevision",
-    "startLine": 1143
+    "startLine": 1146
   },
   {
-    "endLine": 1166,
+    "endLine": 1169,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "LiveCapitalOperation",
     "signature": "export interface LiveCapitalOperation",
-    "startLine": 1157
+    "startLine": 1160
   },
   {
-    "endLine": 1189,
+    "endLine": 1192,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "LiveCashCommandSummary",
     "signature": "export interface LiveCashCommandSummary",
-    "startLine": 1168
+    "startLine": 1171
   },
   {
-    "endLine": 1199,
+    "endLine": 1202,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "AccountFxConversionInput",
     "signature": "export interface AccountFxConversionInput",
-    "startLine": 1191
+    "startLine": 1194
   },
   {
-    "endLine": 1205,
+    "endLine": 1208,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "AccountFxConversionResult",
     "signature": "export interface AccountFxConversionResult",
-    "startLine": 1201
+    "startLine": 1204
   },
   {
-    "endLine": 1210,
+    "endLine": 1213,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "AccountFxConversionResponse",
     "signature": "export interface AccountFxConversionResponse",
-    "startLine": 1207
+    "startLine": 1210
   },
   {
-    "endLine": 1218,
+    "endLine": 1221,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "FxRevisionReplacement",
     "signature": "export interface FxRevisionReplacement",
-    "startLine": 1212
+    "startLine": 1215
   },
   {
-    "endLine": 1227,
+    "endLine": 1230,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "AccountFxCorrectionInput",
     "signature": "export interface AccountFxCorrectionInput",
-    "startLine": 1220
+    "startLine": 1223
   },
   {
-    "endLine": 1239,
+    "endLine": 1242,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "LiveFxConversionReview",
     "signature": "export interface LiveFxConversionReview",
-    "startLine": 1229
+    "startLine": 1232
   },
   {
-    "endLine": 1246,
+    "endLine": 1249,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "AccountFxCorrectionResult",
     "signature": "export interface AccountFxCorrectionResult",
-    "startLine": 1241
+    "startLine": 1244
   },
   {
-    "endLine": 1251,
+    "endLine": 1254,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "AccountFxCorrectionResponse",
     "signature": "export interface AccountFxCorrectionResponse",
-    "startLine": 1248
+    "startLine": 1251
   },
   {
-    "endLine": 1263,
+    "endLine": 1266,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "LiveCashReviewEvidence",
     "signature": "export interface LiveCashReviewEvidence",
-    "startLine": 1253
+    "startLine": 1256
   },
   {
-    "endLine": 1277,
+    "endLine": 1280,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "LiveIncomeReceiptSummary",
     "signature": "export interface LiveIncomeReceiptSummary",
-    "startLine": 1265
+    "startLine": 1268
   },
   {
-    "endLine": 1312,
+    "endLine": 1315,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "LiveCashReviewOperation",
     "signature": "export interface LiveCashReviewOperation",
-    "startLine": 1279
+    "startLine": 1282
   },
   {
-    "endLine": 1366,
+    "endLine": 1369,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "LiveCapitalOperationsPage",
     "signature": "export interface LiveCapitalOperationsPage",
-    "startLine": 1314
+    "startLine": 1317
   },
   {
-    "endLine": 1375,
+    "endLine": 1378,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "AccountCapitalCorrectionInput",
     "signature": "export interface AccountCapitalCorrectionInput",
-    "startLine": 1368
+    "startLine": 1371
   },
   {
-    "endLine": 1382,
+    "endLine": 1385,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "AccountCapitalCorrectionResult",
     "signature": "export interface AccountCapitalCorrectionResult",
-    "startLine": 1377
+    "startLine": 1380
   },
   {
-    "endLine": 1393,
+    "endLine": 1396,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "DraftCashEvidenceComparison",
     "signature": "export interface DraftCashEvidenceComparison",
-    "startLine": 1384
+    "startLine": 1387
   },
   {
-    "endLine": 1406,
+    "endLine": 1409,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "DraftCashEvidenceRecord",
     "signature": "export interface DraftCashEvidenceRecord",
-    "startLine": 1395
+    "startLine": 1398
   },
   {
-    "endLine": 1417,
+    "endLine": 1420,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "DraftSaleCorrectionInput",
     "signature": "export interface DraftSaleCorrectionInput",
-    "startLine": 1408
+    "startLine": 1411
   },
   {
-    "endLine": 1421,
+    "endLine": 1424,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "DraftAcquisitionCorrectionInput",
     "signature": "export interface DraftAcquisitionCorrectionInput extends DraftSaleCorrectionInput",
-    "startLine": 1419
+    "startLine": 1422
   },
   {
-    "endLine": 1432,
+    "endLine": 1435,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "DraftExecutionSnapshot",
     "signature": "export interface DraftExecutionSnapshot",
-    "startLine": 1423
+    "startLine": 1426
   },
   {
-    "endLine": 1442,
+    "endLine": 1445,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "DraftExecutionAudit",
     "signature": "export interface DraftExecutionAudit",
-    "startLine": 1434
+    "startLine": 1437
   },
   {
-    "endLine": 1554,
+    "endLine": 1557,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "DraftOpeningReconciliation",
     "signature": "export interface DraftOpeningReconciliation",
-    "startLine": 1444
+    "startLine": 1447
   },
   {
-    "endLine": 1560,
+    "endLine": 1563,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "DraftCashEvidencePreview",
     "signature": "export interface DraftCashEvidencePreview",
-    "startLine": 1556
+    "startLine": 1559
   },
   {
-    "endLine": 1567,
+    "endLine": 1570,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "DraftCashEvidenceResult",
     "signature": "export interface DraftCashEvidenceResult",
-    "startLine": 1562
+    "startLine": 1565
   },
   {
-    "endLine": 1581,
+    "endLine": 1584,
     "file": "src/lib/types.ts",
     "jsdoc": "Persistence mirror; these records are inactive and never represent spendable cash.",
     "kind": "InterfaceDeclaration",
     "name": "AccountOpeningStatement",
     "signature": "export interface AccountOpeningStatement",
-    "startLine": 1570
+    "startLine": 1573
   },
   {
-    "endLine": 1593,
+    "endLine": 1596,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "DraftCashEvidence",
     "signature": "export interface DraftCashEvidence",
-    "startLine": 1583
+    "startLine": 1586
   },
   {
-    "endLine": 1600,
+    "endLine": 1603,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "DraftCashEvidenceBalance",
     "signature": "export interface DraftCashEvidenceBalance",
-    "startLine": 1595
+    "startLine": 1598
   },
   {
-    "endLine": 1609,
+    "endLine": 1612,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "DraftCashEvidenceDecision",
     "signature": "export interface DraftCashEvidenceDecision",
-    "startLine": 1602
+    "startLine": 1605
   },
   {
-    "endLine": 1616,
+    "endLine": 1619,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "OpeningCashBalance",
     "signature": "export interface OpeningCashBalance",
-    "startLine": 1611
+    "startLine": 1614
   },
   {
-    "endLine": 1632,
+    "endLine": 1635,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "DraftCashOperation",
     "signature": "export interface DraftCashOperation",
-    "startLine": 1618
+    "startLine": 1621
   },
   {
-    "endLine": 1641,
+    "endLine": 1644,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "DraftCashPosting",
     "signature": "export interface DraftCashPosting",
-    "startLine": 1634
+    "startLine": 1637
   },
   {
-    "endLine": 1655,
+    "endLine": 1658,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "DraftManualTrade",
     "signature": "export interface DraftManualTrade",
-    "startLine": 1643
+    "startLine": 1646
   },
   {
-    "endLine": 1668,
+    "endLine": 1671,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "DraftCashRevision",
     "signature": "export interface DraftCashRevision",
-    "startLine": 1657
+    "startLine": 1660
   },
   {
-    "endLine": 1678,
+    "endLine": 1681,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "DraftCashRevisionPosting",
     "signature": "export interface DraftCashRevisionPosting",
-    "startLine": 1670
+    "startLine": 1673
   },
   {
-    "endLine": 1685,
+    "endLine": 1688,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "DraftOperationTradeLink",
     "signature": "export interface DraftOperationTradeLink",
-    "startLine": 1680
+    "startLine": 1683
   },
   {
-    "endLine": 1694,
+    "endLine": 1697,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "OpeningParcelBalance",
     "signature": "export interface OpeningParcelBalance",
-    "startLine": 1687
+    "startLine": 1690
   },
   {
-    "endLine": 1729,
+    "endLine": 1732,
     "file": "src/lib/types.ts",
     "jsdoc": "",
     "kind": "InterfaceDeclaration",
     "name": "OpeningPreview",
     "signature": "export interface OpeningPreview",
-    "startLine": 1696
+    "startLine": 1699
   }
 ]

@@ -112,6 +112,9 @@ export interface AccountSplitAction {
   methodology: string;
   request: unknown;
   recordedAt: string;
+  auditNumber: number | null;
+  previousFingerprint: string | null;
+  nextFingerprint: string | null;
 }
 
 export interface AccountSplitParcelEffect {

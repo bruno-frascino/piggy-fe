@@ -34,13 +34,13 @@
     },
     "symbol-index.json": {
       "path": "context/symbol-index.json",
-      "sha256": "83a01b3cb551c60f9a9a9fd9e4d6035a8767f4db2216c467a8903b62f8f5b4f1"
+      "sha256": "3e7d00023f24ca0dca5d9d4fc188f3a04b8a04aac4f2b91bc69d9d23aa9c0134"
     },
     "unused.json": {
       "path": "context/unused.json",
-      "sha256": "1852a01ceb89ce26912e1ca3188ef548d4d0809c2796b4e8debf68e03def3bc0"
+      "sha256": "139edb4ed2e894703d11e51e9f88bfaa6d5495afb64a52729b434652f763f1ea"
     }
   },
-  "generatedAt": "2026-11-16T08:37:42.470Z",
+  "generatedAt": "2026-11-16T11:25:46.993Z",
   "generatorVersion": 1
 }
