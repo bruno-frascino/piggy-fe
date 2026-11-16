@@ -112,8 +112,9 @@ review can also inspect archived ledger accounts. Legacy/demo accounts retain ex
 demos remain excluded from real aggregates and tax. Imported voids, financial moves and
 protected-record deletion remain blocked.
 
-Next: agree a narrow corporate-action/adjustment slice. Sourced valuations and TWR/XIRR follow
-later. Existing portfolio curves and trading statistics must not be described as cash-inclusive
+Next: implement the approved stock-split/consolidation posting and history slice; no
+corporate-action UI or posting is available yet. Sourced valuations and TWR/XIRR follow later.
+Existing portfolio curves and trading statistics must not be described as cash-inclusive
 accounting-backed returns.
 
 ### Keeping each milestone aligned

@@ -97,6 +97,31 @@ export interface TradingAccount {
   isDemo?: boolean;
 }
 
+/** Stored split records are not yet exposed for posting or review. */
+export interface AccountSplitAction {
+  id: string;
+  accountId: string;
+  assetId: string;
+  effectiveDate: string;
+  newUnits: string;
+  oldUnits: string;
+  sourceReference: string;
+  idempotencyKey: string;
+  payloadHash: string;
+  sourceFingerprint: string;
+  methodology: string;
+  request: unknown;
+  recordedAt: string;
+}
+
+export interface AccountSplitParcelEffect {
+  id: string;
+  actionId: string;
+  positionId: string;
+  beforeQuantity: string;
+  afterQuantity: string;
+}
+
 export interface ApiErrorResponse {
   error: string;
   message?: string;

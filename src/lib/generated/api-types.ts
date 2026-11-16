@@ -1428,7 +1428,7 @@ export interface paths {
         put?: never;
         /**
          * Preview opening inventory and trade-only cash without saving financial data
-         * @description Read-only end-of-day Australia/Sydney reconciliation. It cannot confirm or enable accounting. Missing funding is never invented. Limited to 5000 parcels, 500 import batches, 50000 transactions and 10000 relevant import events; exceeding any limit returns 422.
+         * @description Read-only end-of-day Australia/Sydney reconciliation. Opening and current inventory replay validated retained split effects without changing trade cash. Split actions and effects are included in source fingerprints. Missing or inconsistent retained effects reject the preview rather than returning partial inventory. It cannot confirm or enable accounting; retained splits still add SPLIT_REPLAY_UNSUPPORTED until cash-ledger audit integration is complete. Missing funding is never invented. Limited to 5000 parcels, 500 import batches, 50000 transactions, 10000 relevant import events, 500 split actions and 50000 split effects; exceeding any limit returns 422.
          */
         post: {
             parameters: {
@@ -2942,7 +2942,7 @@ export interface paths {
         };
         /**
          * Resolve the server-owned trade-write capability for an account
-         * @description Distinguishes active confirmed ledgers from legacy, demo, archived and blocked accounts. This read never activates an account.
+         * @description Distinguishes active confirmed ledgers from legacy, demo, archived and blocked accounts. Retained split history returns BLOCKED until financial writes support split-aware accounting. This read never activates an account.
          */
         get: {
             parameters: {
@@ -4345,7 +4345,7 @@ export interface paths {
                     };
                     content?: never;
                 };
-                /** @description Blocking issues, chronology violation, discarded batch or concurrent event/holdings changes */
+                /** @description Blocking issues, chronology violation, discarded batch, concurrent event/holdings changes, or retained split history blocks new financial import steps pending split-aware accounting */
                 409: {
                     headers: {
                         [name: string]: unknown;
@@ -4715,7 +4715,7 @@ export interface paths {
                     };
                     content?: never;
                 };
-                /** @description Existing asset has an incompatible classification, or trading account must be reopened before adding holdings */
+                /** @description Existing asset has an incompatible classification, trading account must be reopened, or retained split history blocks financial writes pending split-aware accounting */
                 409: {
                     headers: {
                         [name: string]: unknown;
@@ -4878,7 +4878,7 @@ export interface paths {
                     };
                     content?: never;
                 };
-                /** @description Concurrent move, imported execution change or financial edit of a cash-linked trade */
+                /** @description Concurrent move, imported execution change, financial edit of a cash-linked trade, or retained split history blocking financial changes (notes remain editable) */
                 409: {
                     headers: {
                         [name: string]: unknown;
@@ -4935,7 +4935,7 @@ export interface paths {
                     };
                     content?: never;
                 };
-                /** @description Concurrent move or parcel has imported execution records or durable draft cash links */
+                /** @description Concurrent move, imported execution records, durable draft cash links, or retained split history blocks deletion pending split-aware accounting */
                 409: {
                     headers: {
                         [name: string]: unknown;
@@ -5022,7 +5022,7 @@ export interface paths {
                     };
                     content?: never;
                 };
-                /** @description Incompatible asset, concurrent account move, parcel does not have exactly one BUY, or open holdings require account reopening */
+                /** @description Incompatible asset, concurrent account move, parcel does not have exactly one BUY, open holdings require account reopening, or retained split history in either account blocks financial changes and moves (notes remain editable) */
                 409: {
                     headers: {
                         [name: string]: unknown;
@@ -5190,7 +5190,7 @@ export interface paths {
                     };
                     content?: never;
                 };
-                /** @description Position moved accounts concurrently; reload and retry */
+                /** @description Position moved accounts concurrently, or retained split history blocks sales pending split-aware accounting */
                 409: {
                     headers: {
                         [name: string]: unknown;
