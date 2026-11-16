@@ -104,6 +104,13 @@ Resume from its current status register, not from older historical progress note
   submissions are blocked offline, in privacy mode and after stale/conflicting review.
 - **Tax and current results:** voided effects are excluded from holdings, disposals and current
   CGT/statistics. Already generated PDFs remain unchanged; affected reports may need regeneration.
+- **Stock splits/consolidations (foundation only):** there is no posting form or corporate-action
+  history UI yet. Backend CGT, parcel recomputation and opening/source inventory replay validated
+  retained split effects without rewriting acquisitions or creating cash. Source fingerprints
+  include split evidence. Proposed-sale timeline checks and historical reinvestment entitlement now
+  use the same inventory reader, but this does not enable split-account writes: capability remains
+  blocked, opening confirmation is unavailable, and cash review remains incomplete until audited
+  ledger continuation and the remaining dependent calculations are integrated.
 
 Live writes require a confirmed opening statement and active real ledger; the explicit reviewed
 confirmation flow is the only user-facing way to enable one eligible real account. Saving a draft,
@@ -112,10 +119,10 @@ review can also inspect archived ledger accounts. Legacy/demo accounts retain ex
 demos remain excluded from real aggregates and tax. Imported voids, financial moves and
 protected-record deletion remain blocked.
 
-Next: implement the approved stock-split/consolidation posting and history slice; no
-corporate-action UI or posting is available yet. Sourced valuations and TWR/XIRR follow later.
-Existing portfolio curves and trading statistics must not be described as cash-inclusive
-accounting-backed returns.
+Next: complete audited split-ledger continuation and dependent holdings/statistics checks before
+enabling the approved stock-split/consolidation posting and history slice. No corporate-action UI or
+posting is available yet. Sourced valuations and TWR/XIRR follow later. Existing portfolio curves
+and trading statistics must not be described as cash-inclusive accounting-backed returns.
 
 ### Keeping each milestone aligned
 
