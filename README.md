@@ -111,8 +111,9 @@ Resume from its current status register, not from older historical progress note
   use the same inventory reader, but this does not enable split-account writes: capability remains
   blocked and opening confirmation is unavailable. Audited retained splits now advance the shared
   backend audit/source chain without cash operations; staged records are not silently adopted. Cash
-  review remains incomplete even with a current source, pending the remaining dependent calculations
-  and locked split writer.
+  review remains incomplete even with a current source, pending the remaining dependent
+  calculations. The backend has an internal locked split writer, but no posting/history API or UI is
+  available and other financial writes remain blocked.
 
 Live writes require a confirmed opening statement and active real ledger; the explicit reviewed
 confirmation flow is the only user-facing way to enable one eligible real account. Saving a draft,
