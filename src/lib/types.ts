@@ -48,6 +48,12 @@ export interface ExchangeSummary {
 export interface HoldingPosition {
   voidedAt?: string | null;
   assetId?: string;
+  splitAdjustedInventory?: {
+    remainingQuantity: number;
+    remainingCostBasis: number;
+    remainingBuyFees: number;
+    averageUnitCost: number | null;
+  };
   acquisitionCorrection?: LiveAcquisitionCorrectionMetadata;
   importedExecutionCorrection?: LiveImportedExecutionCorrectionMetadata;
   assetType?: AssetType;

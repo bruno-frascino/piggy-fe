@@ -109,6 +109,43 @@ describe('acquisition correction transport metadata', () => {
       },
     });
   });
+
+  it('uses validated split-adjusted inventory without rewriting historical acquisition price', () => {
+    const holding = mapPositionToHolding({
+      ...position,
+      quantity: 16,
+      splitAdjustedInventory: {
+        remainingQuantity: '16',
+        remainingCostBasis: '88.000000000000',
+        remainingBuyFees: '8.000000000000',
+        averageUnitCost: '5.500000000000',
+      },
+    });
+    expect(holding).toMatchObject({
+      units: 16,
+      buyPrice: Number(metadata.price),
+      buyFee: 8,
+      currentPrice: 5.5,
+      splitAdjustedInventory: {
+        remainingQuantity: 16,
+        remainingCostBasis: 88,
+        remainingBuyFees: 8,
+        averageUnitCost: 5.5,
+      },
+    });
+    expect(
+      mapPositionToHolding({
+        ...position,
+        splitAdjustedInventory: {
+          remainingQuantity: 'invalid',
+          remainingCostBasis: '88',
+          remainingBuyFees: '8',
+          averageUnitCost: '5.5',
+        },
+      })?.units
+    ).toBe(6);
+  });
+
   it('does not invent correction controls for legacy or malformed metadata', () => {
     expect(
       mapPositionToHolding(position)?.acquisitionCorrection

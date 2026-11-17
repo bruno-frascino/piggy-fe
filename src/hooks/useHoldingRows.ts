@@ -14,7 +14,7 @@ import {
 export type HoldingRow = LocalHolding & {
   openDateTs: number; // numeric timestamp for reliable sorting
   daysOpen: number; // number of calendar days position has been open
-  openPosition: number; // units * buyPrice + buyFee
+  openPosition: number; // remaining cost basis, including acquisition fees
   effectivePrice: number; // live quote price when available, fallback to stored
   currentPosition: number; // units * currentPrice
   currentReturnAbs: number; // currentPosition - openPosition
@@ -32,6 +32,17 @@ function hasStopLoss(stopLoss: number | undefined): stopLoss is number {
   return (
     typeof stopLoss === 'number' && Number.isFinite(stopLoss) && stopLoss > 0
   );
+}
+
+function holdingOpenCost(holding: LocalHolding) {
+  return (
+    holding.splitAdjustedInventory?.remainingCostBasis ??
+    holding.units * holding.buyPrice + (holding.buyFee ?? 0)
+  );
+}
+
+function holdingReferencePrice(holding: LocalHolding) {
+  return holding.splitAdjustedInventory?.averageUnitCost ?? holding.buyPrice;
 }
 
 function isOnline() {
@@ -113,7 +124,7 @@ export function useHoldingRows({
 
   const totals = useMemo(() => {
     const totalOpen = holdings.reduce(
-      (acc, h) => acc + h.units * h.buyPrice + (h.buyFee ?? 0),
+      (acc, holding) => acc + holdingOpenCost(holding),
       0
     );
     const totalCurrent = holdings.reduce((acc, h) => {
@@ -156,10 +167,7 @@ export function useHoldingRows({
 
   const rows: HoldingRow[] = useMemo(() => {
     const totalOpen =
-      holdings.reduce(
-        (acc, h) => acc + h.units * h.buyPrice + (h.buyFee ?? 0),
-        0
-      ) || 1;
+      holdings.reduce((acc, holding) => acc + holdingOpenCost(holding), 0) || 1;
 
     // Group holdings by symbol preserving first occurrence order for groups.
     interface Group {
@@ -196,7 +204,8 @@ export function useHoldingRows({
     );
 
     return ordered.map(({ h, i, ts }) => {
-      const openPosition = h.units * h.buyPrice + (h.buyFee ?? 0);
+      const openPosition = holdingOpenCost(h);
+      const referencePrice = holdingReferencePrice(h);
       const effectivePrice =
         quoteMap.get(h.symbol)?.price ?? h.currentPrice ?? h.buyPrice;
       const currentPosition = h.units * effectivePrice;
@@ -217,8 +226,8 @@ export function useHoldingRows({
           : 0;
       // Price-only drawdown from entry — only valid when a live quote exists
       const priceDrawdownPct =
-        effectivePrice > 0 && h.buyPrice > 0
-          ? ((effectivePrice - h.buyPrice) / h.buyPrice) * 100
+        effectivePrice > 0 && referencePrice > 0
+          ? ((effectivePrice - referencePrice) / referencePrice) * 100
           : 0;
       return {
         ...h,
@@ -273,7 +282,7 @@ export function useHoldingRows({
     const updates: Array<{ id: string; currentPrice: number }> = [];
 
     for (const row of rows) {
-      if (!row.id) continue;
+      if (!row.id || row.splitAdjustedInventory) continue;
       // Skip if no live quote — effectivePrice would just be the stored/entry price
       if (!quoteMap.has(row.symbol)) continue;
 

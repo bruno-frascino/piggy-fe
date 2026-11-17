@@ -613,6 +613,45 @@ describe('HoldingsTable row/total computation', () => {
     expect(lastCall.dayPL).toBeCloseTo(-20);
   });
 
+  it('uses split-adjusted remaining cost for open value and return totals', async () => {
+    setHoldings([
+      {
+        ...baseHolding,
+        units: 16,
+        buyPrice: 10,
+        buyFee: 8,
+        currentPrice: 5.5,
+        splitAdjustedInventory: {
+          remainingQuantity: 16,
+          remainingCostBasis: 88,
+          remainingBuyFees: 8,
+          averageUnitCost: 5.5,
+        },
+      },
+    ]);
+    setQuotes([
+      {
+        symbol: 'AAPL',
+        price: 6,
+        change: 0.1,
+        changePercent: 1.69,
+        currency: 'USD',
+      },
+    ]);
+    const onLiveTotals = vi.fn();
+
+    renderTable(onLiveTotals);
+
+    await waitFor(() => {
+      expect(onLiveTotals).toHaveBeenCalled();
+    });
+
+    const lastCall =
+      onLiveTotals.mock.calls[onLiveTotals.mock.calls.length - 1][0];
+    expect(lastCall.totalEquity).toBeCloseTo(96);
+    expect(lastCall.totalPL).toBeCloseTo(8);
+  });
+
   it('falls back to the stored currentPrice when no live quote exists for the symbol', async () => {
     setHoldings([{ ...baseHolding }]);
     setQuotes([]);
@@ -905,6 +944,35 @@ describe('HoldingsTable max-drawdown ratchet effect', () => {
         payload: { currentPrice: 90 },
       });
     });
+  });
+
+  it('does not persist drawdown using the pre-split acquisition price', async () => {
+    setHoldings([
+      {
+        ...baseHolding,
+        units: 16,
+        buyPrice: 10,
+        splitAdjustedInventory: {
+          remainingQuantity: 16,
+          remainingCostBasis: 88,
+          remainingBuyFees: 8,
+          averageUnitCost: 5.5,
+        },
+      },
+    ]);
+    setQuotes([
+      {
+        symbol: 'AAPL',
+        price: 4.5,
+        change: -1,
+        changePercent: -18.18,
+        currency: 'USD',
+      },
+    ]);
+
+    renderTable();
+    await new Promise(resolve => setTimeout(resolve, 50));
+    expect(updatePositionMock).not.toHaveBeenCalled();
   });
 
   it('does not update when offline', async () => {

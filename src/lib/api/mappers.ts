@@ -15,6 +15,40 @@ export function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null;
 }
 
+function decimalNumber(value: unknown): number | undefined {
+  if (
+    typeof value !== 'string' ||
+    !/^\d+(?:\.\d+)?$/.test(value) ||
+    !Number.isFinite(Number(value))
+  )
+    return undefined;
+  return Number(value);
+}
+
+function mapSplitAdjustedInventory(
+  raw: unknown
+): HoldingPosition['splitAdjustedInventory'] {
+  if (!isRecord(raw)) return undefined;
+  const remainingQuantity = decimalNumber(raw.remainingQuantity);
+  const remainingCostBasis = decimalNumber(raw.remainingCostBasis);
+  const remainingBuyFees = decimalNumber(raw.remainingBuyFees);
+  const averageUnitCost =
+    raw.averageUnitCost === null ? null : decimalNumber(raw.averageUnitCost);
+  if (
+    remainingQuantity === undefined ||
+    remainingCostBasis === undefined ||
+    remainingBuyFees === undefined ||
+    averageUnitCost === undefined
+  )
+    return undefined;
+  return {
+    remainingQuantity,
+    remainingCostBasis,
+    remainingBuyFees,
+    averageUnitCost,
+  };
+}
+
 export function unwrapArray<T>(payload: unknown): T[] {
   if (Array.isArray(payload)) {
     return payload as T[];
@@ -164,6 +198,9 @@ export function mapPositionToHolding(pos: unknown): HoldingPosition | null {
   const entryPrice = Number(pos.entryPrice) || 0;
   const quantity = Number(pos.quantity) || 0;
   const buyFees = Number(pos.buyFees) || 0;
+  const splitAdjustedInventory = mapSplitAdjustedInventory(
+    pos.splitAdjustedInventory
+  );
   const transactions = Array.isArray(pos.transactions) ? pos.transactions : [];
   const buyQty = transactions.reduce((sum, tx) => {
     if (!isRecord(tx) || tx.type !== 'BUY' || tx.voidedAt) return sum;
@@ -176,9 +213,12 @@ export function mapPositionToHolding(pos: unknown): HoldingPosition | null {
   const baseQty = buyQty > 0 ? buyQty : quantity;
   const remainingQty =
     baseQty > 0 ? Math.max(0, baseQty - sellQty) : Math.max(0, quantity);
-  const effectiveQty = sellQty > 0 ? remainingQty : quantity;
+  const effectiveQty =
+    splitAdjustedInventory?.remainingQuantity ??
+    (sellQty > 0 ? remainingQty : quantity);
   const effectiveBuyFee =
-    baseQty > 0 ? buyFees * (effectiveQty / baseQty) : buyFees;
+    splitAdjustedInventory?.remainingBuyFees ??
+    (baseQty > 0 ? buyFees * (effectiveQty / baseQty) : buyFees);
   const rawStopLoss =
     pos.stopLossPrice != null ? Number(pos.stopLossPrice) : NaN;
   // null / non-positive means "no stop loss".
@@ -187,9 +227,10 @@ export function mapPositionToHolding(pos: unknown): HoldingPosition | null {
   const unrealizedPnL =
     pos.unrealizedPnL != null ? Number(pos.unrealizedPnL) : null;
   const currentPrice =
-    unrealizedPnL !== null && effectiveQty > 0
+    splitAdjustedInventory?.averageUnitCost ??
+    (unrealizedPnL !== null && effectiveQty > 0
       ? entryPrice + unrealizedPnL / effectiveQty
-      : entryPrice;
+      : entryPrice);
   const maxDrawdownPercent =
     pos.maxDrawdownPercent != null ? Number(pos.maxDrawdownPercent) : undefined;
   const maxRunUpPercent =
@@ -209,6 +250,7 @@ export function mapPositionToHolding(pos: unknown): HoldingPosition | null {
 
   return {
     acquisitionCorrection: mapAcquisitionCorrection(pos.acquisitionCorrection),
+    splitAdjustedInventory,
     importedExecutionCorrection: mapImportedExecutionCorrection(
       pos.importedExecutionCorrection
     ),

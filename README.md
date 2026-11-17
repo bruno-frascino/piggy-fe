@@ -112,9 +112,11 @@ Resume from its current status register, not from older historical progress note
   blocked and opening confirmation is unavailable. Audited retained splits now advance the shared
   backend audit/source chain without cash operations; staged records are not silently adopted. Cash
   review remains incomplete even with a current source. Backend realized-trade statistics now use
-  validated split-adjusted parcel cost fractions; holdings cost presentation and historical/
-  saved-report protections remain. The backend has an internal locked split writer, but no
-  posting/history API or UI is available and other financial writes remain blocked.
+  validated split-adjusted parcel cost fractions. The positions read response also supplies
+  validated remaining units, cost basis, fees and average unit cost; holdings and return
+  calculations use these without rewriting original acquisition values. Historical/saved-report
+  protections remain. The backend has an internal locked split writer, but no posting/history API or
+  UI is available and other financial writes remain blocked.
 
 Live writes require a confirmed opening statement and active real ledger; the explicit reviewed
 confirmation flow is the only user-facing way to enable one eligible real account. Saving a draft,
@@ -123,10 +125,10 @@ review can also inspect archived ledger accounts. Legacy/demo accounts retain ex
 demos remain excluded from real aggregates and tax. Imported voids, financial moves and
 protected-record deletion remain blocked.
 
-Next: complete dependent mutation/revision, holdings and historical/saved-report protections before
-enabling the approved stock-split/consolidation posting and history slice. No corporate-action UI or
-posting is available yet. Sourced valuations and TWR/XIRR follow later. Existing portfolio curves
-and trading statistics must not be described as cash-inclusive accounting-backed returns.
+Next: complete dependent mutation/revision and historical/saved-report protections before enabling
+the approved stock-split/consolidation posting and history slice. No corporate-action UI or posting
+is available yet. Sourced valuations and TWR/XIRR follow later. Existing portfolio curves and
+trading statistics must not be described as cash-inclusive accounting-backed returns.
 
 ### Keeping each milestone aligned
 
