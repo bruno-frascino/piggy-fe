@@ -1428,7 +1428,7 @@ export interface paths {
         put?: never;
         /**
          * Preview opening inventory and trade-only cash without saving financial data
-         * @description Read-only end-of-day Australia/Sydney reconciliation. Opening and current inventory replay validated retained split effects without changing trade cash. Split actions and effects are included in source fingerprints. Missing or inconsistent retained effects reject the preview rather than returning partial inventory. It cannot confirm or enable accounting; retained splits still add SPLIT_REPLAY_UNSUPPORTED until cash-ledger audit integration is complete. Missing funding is never invented. Limited to 5000 parcels, 500 import batches, 50000 transactions, 10000 relevant import events, 500 split actions and 50000 split effects; exceeding any limit returns 422.
+         * @description Read-only end-of-day Australia/Sydney reconciliation. Opening and current inventory replay validated retained split effects without changing trade cash. Split actions and effects are included in source fingerprints. Missing or inconsistent retained effects reject the preview rather than returning partial inventory. It cannot confirm or enable accounting; retained splits remain a blocking issue for opening confirmation and cash-completeness certification pending broader historical protections and release review. Missing funding is never invented. Limited to 5000 parcels, 500 import batches, 50000 transactions, 10000 relevant import events, 500 split actions and 50000 split effects; exceeding any limit returns 422.
          */
         post: {
             parameters: {
@@ -2669,7 +2669,7 @@ export interface paths {
         put?: never;
         /**
          * Record statement-supported dividend reinvestment atomically
-         * @description Creates exactly one equity/ETF income receipt and a new BUY parcel in the same account/currency. Statement-confirmed entitlement and tax figures are authoritative; eligible historical holdings are required. Exact net income must equal acquisition consideration plus fees plus an explicit account-paid residual; issuer-held credits, extra funding, existing-receipt relinking and AMIT components are unsupported. Acquisition follows income in date/sequence order. Paired immutable links and full funded replay protect both records. Independent income revisions, acquisition corrections/voids and direct deletion are blocked; use the dedicated paired revision workflow. No activation or external capital is created.
+         * @description Creates exactly one equity/ETF income receipt and a new BUY parcel in the same account/currency. Statement-confirmed entitlement and tax figures are authoritative; eligible historical holdings are required. Exact net income must equal acquisition consideration plus fees plus an explicit account-paid residual; issuer-held credits, extra funding, existing-receipt relinking and AMIT components are unsupported. Acquisition follows income in date/sequence order and, with validated split history, must follow the split date. Paired immutable links and full funded replay protect both records. Independent income revisions, acquisition corrections/voids and direct deletion are blocked; use the dedicated paired revision workflow. No activation or external capital is created.
          */
         post: {
             parameters: {
@@ -2756,7 +2756,7 @@ export interface paths {
         };
         /**
          * Review a paired reinvestment and current account audit head
-         * @description Requires an owned fresh active real ledger. Either linked operation ID resolves both current revision heads, fixed statement identity and effective-sale restriction. Terminal reversal returns current null. Archived retained audits use cash-operations.
+         * @description Requires an owned fresh active real ledger. Either linked operation ID resolves both current revision heads, fixed statement identity and effective-sale restriction. With validated split history, entitlement uses split-adjusted holdings and acquisition must follow the split date. Terminal reversal returns current null. Archived retained audits use cash-operations.
          */
         get: {
             parameters: {
@@ -2808,7 +2808,7 @@ export interface paths {
         put?: never;
         /**
          * Correct or terminally reverse both reinvestment effects atomically
-         * @description Fixed account, asset, currency and statement reference. Requires both current revision heads, audit number, source fingerprint and reason. No effective SELL may remain on the new parcel. Corrections update statement tax figures and acquisition/date/order/residual together, retain all slots and require funded replay; reversal removes the effective income and parcel without a disposal. Issuer-held credits and one-sided changes remain blocked. Exact retained retries survive later activity.
+         * @description Fixed account, asset, currency and statement reference. Requires both current revision heads, audit number, source fingerprint and reason. No effective SELL may remain on the new parcel. Corrections update statement tax figures and acquisition/date/order/residual together, retain all slots and require funded replay; reversal removes the effective income and parcel without a disposal. With validated split history, entitlement uses split-adjusted holdings and acquisition must follow the split date. Issuer-held credits and one-sided changes remain blocked. Exact retained retries survive later activity.
          */
         post: {
             parameters: {
@@ -2942,7 +2942,7 @@ export interface paths {
         };
         /**
          * Resolve the server-owned trade-write capability for an account
-         * @description Distinguishes active confirmed ledgers from legacy, demo, archived and blocked accounts. Retained split history returns BLOCKED until financial writes support split-aware accounting. This read never activates an account.
+         * @description Distinguishes active confirmed ledgers from legacy, demo, archived and blocked accounts. Validated retained split history supports coordinated manual BUY/SELL, audited cash-only operations, statement-income receipts/corrections and paired dividend-reinvestment workflows; reinvestment entitlement uses split-adjusted holdings and acquisition must follow the split date. Imports, legacy financial mutations, moves and deletion remain blocked. Cash-completeness certification and opening confirmation remain blocked pending broader historical protections and release review. This read never activates an account.
          */
         get: {
             parameters: {

@@ -6,7 +6,7 @@
     },
     "api-types.ts": {
       "path": "src/lib/generated/api-types.ts",
-      "sha256": "fafd830963c45871f11a0876fa62c00c2f95210b7780c5ba9b0b60238b66c057"
+      "sha256": "c3eab587e2f3c4e8417833d81d2c172ed4f1662880b04a50775528ec13f0843e"
     },
     "component-index.md": {
       "path": "context/component-index.md",
@@ -41,6 +41,6 @@
       "sha256": "9b38f3bb2178727193954e2231450bcafd737b7eaeb98333545f702ff06f9d97"
     }
   },
-  "generatedAt": "2026-11-17T20:27:46.945Z",
+  "generatedAt": "2026-11-18T11:07:10.228Z",
   "generatorVersion": 1
 }
