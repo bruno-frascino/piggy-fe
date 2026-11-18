@@ -125,6 +125,7 @@ In sync. ✅
 - `QuoteResult`
 - `TradingAccount`
 - `AccountSplitAction`
+- `AccountSplitReversal`
 - `AccountSplitParcelEffect`
 - `UpdateUserProfilePayload`
 - `TaxReportLineItem`

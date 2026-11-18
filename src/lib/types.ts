@@ -103,7 +103,7 @@ export interface TradingAccount {
   isDemo?: boolean;
 }
 
-/** Stored split records are not yet exposed for posting or review. */
+/** Stored split records remain unavailable to the user-facing posting/history UI. */
 export interface AccountSplitAction {
   id: string;
   accountId: string;
@@ -121,6 +121,21 @@ export interface AccountSplitAction {
   auditNumber: number | null;
   previousFingerprint: string | null;
   nextFingerprint: string | null;
+  reversal?: AccountSplitReversal | null;
+}
+
+export interface AccountSplitReversal {
+  id: string;
+  accountId: string;
+  actionId: string;
+  idempotencyKey: string;
+  payloadHash: string;
+  reason: string;
+  request: unknown;
+  auditNumber: number;
+  previousFingerprint: string;
+  nextFingerprint: string;
+  recordedAt: string;
 }
 
 export interface AccountSplitParcelEffect {
