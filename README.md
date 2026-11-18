@@ -119,13 +119,16 @@ Resume from its current status register, not from older historical progress note
   backend also has an internal terminal retroactive reversal: original action/effects remain
   retained, and affected quantities are restored only when no later active split or same/later
   affected-parcel sale depends on it. Later statement-backed income receipts and their cash postings
-  remain unchanged; receipt corrections/reversals use their separate audited flow but are still
-  subject to the account-wide split-history write fence. Corrected actions can reuse the source/date
-  with a new idempotency key; split reversal itself changes no cash or acquisition records. Broader
-  historical protections remain. The internal locked writer and reversal have no posting/history API
-  or UI. Valid audited split history now allows coordinated manual BUY/SELL trades using
-  split-adjusted parcel inventory and shared cash/audit replay; BUYs on or before an active split
-  date are blocked to protect retained parcel effects. Other financial writes remain blocked.
+  remain unchanged; receipt corrections/reversals use their separate audited flow. Corrected actions
+  can reuse the source/date with a new idempotency key; split reversal itself changes no cash or
+  acquisition records. Broader historical protections remain. The internal locked writer and
+  reversal have no posting/history API or UI. Valid audited split history now allows coordinated
+  manual BUY/SELL trades using split-adjusted parcel inventory and shared cash/audit replay; BUYs on
+  or before an active split date are blocked to protect retained parcel effects. Audited
+  deposits/withdrawals, same-account FX, paired cash transfers and statement-supported income
+  receipts/corrections also validate the shared split/cash audit chain. Income eligibility uses
+  split-adjusted historical holdings on the entitlement date. Cash review remains incomplete;
+  reinvestment, imports, legacy financial edits, moves and deletion remain blocked.
 
 Live writes require a confirmed opening statement and active real ledger; the explicit reviewed
 confirmation flow is the only user-facing way to enable one eligible real account. Saving a draft,
