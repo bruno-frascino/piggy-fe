@@ -117,9 +117,11 @@ Resume from its current status register, not from older historical progress note
   calculations use these without rewriting original acquisition values. Saved tax-report revisions
   remain append-only: recalculation creates a new revision without changing its predecessor. The
   backend also has an internal terminal retroactive reversal: original action/effects remain
-  retained, and affected quantities are restored only when no later active split, same/later
-  affected-parcel sale or later asset-income receipt depends on it. Corrected actions can reuse the
-  source/date with a new idempotency key; cash and acquisition records are unchanged. Broader
+  retained, and affected quantities are restored only when no later active split or same/later
+  affected-parcel sale depends on it. Later statement-backed income receipts and their cash postings
+  remain unchanged; receipt corrections/reversals use their separate audited flow but are still
+  subject to the account-wide split-history write fence. Corrected actions can reuse the source/date
+  with a new idempotency key; split reversal itself changes no cash or acquisition records. Broader
   historical protections remain. The internal locked writer and reversal have no posting/history API
   or UI, and other financial writes remain blocked.
 
