@@ -108,12 +108,13 @@ Resume from its current status register, not from older historical progress note
   history UI yet. Backend CGT, parcel recomputation and opening/source inventory replay validated
   retained split effects without rewriting acquisitions or creating cash. Source fingerprints
   include split evidence. Proposed-sale timeline checks and historical reinvestment entitlement now
-  use the same inventory reader. Validated split history permits coordinated manual trades, audited
-  cash-only operations, statement-income receipts/corrections, and dividend reinvestments with
-  paired corrections/reversal. Reinvestment entitlement uses split-adjusted holdings and its
-  acquisition must follow the split date. Audited retained splits now advance the shared backend
-  audit/source chain without cash operations; staged records are not silently adopted. Cash review
-  remains incomplete even with a current source. Backend realized-trade statistics now use validated
+  use the same inventory reader. Validated split history permits coordinated manual trades and
+  corrections/voids strictly after the latest active split, audited cash-only operations,
+  statement-income receipts/corrections, and dividend reinvestments with paired
+  corrections/reversal. Reinvestment entitlement uses split-adjusted holdings and its acquisition
+  must follow the split date. Audited retained splits now advance the shared backend audit/source
+  chain without cash operations; staged records are not silently adopted. Cash review remains
+  incomplete even with a current source. Backend realized-trade statistics now use validated
   split-adjusted parcel cost fractions. The positions read response also supplies validated
   remaining units, cost basis, fees and average unit cost; holdings and return calculations use
   these without rewriting original acquisition values. Saved tax-report revisions remain
