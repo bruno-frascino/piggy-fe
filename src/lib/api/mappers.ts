@@ -28,7 +28,8 @@ function decimalNumber(value: unknown): number | undefined {
 function mapSplitAdjustedInventory(
   raw: unknown
 ): HoldingPosition['splitAdjustedInventory'] {
-  if (!isRecord(raw)) return undefined;
+  if (raw === undefined) return undefined;
+  if (!isRecord(raw)) throw new Error('Invalid split-adjusted inventory');
   const remainingQuantity = decimalNumber(raw.remainingQuantity);
   const remainingCostBasis = decimalNumber(raw.remainingCostBasis);
   const remainingBuyFees = decimalNumber(raw.remainingBuyFees);
@@ -40,7 +41,7 @@ function mapSplitAdjustedInventory(
     remainingBuyFees === undefined ||
     averageUnitCost === undefined
   )
-    return undefined;
+    throw new Error('Invalid split-adjusted inventory');
   return {
     remainingQuantity,
     remainingCostBasis,
@@ -198,6 +199,16 @@ export function mapPositionToHolding(pos: unknown): HoldingPosition | null {
   const entryPrice = Number(pos.entryPrice) || 0;
   const quantity = Number(pos.quantity) || 0;
   const buyFees = Number(pos.buyFees) || 0;
+  if (
+    pos.stopLossReviewRequired !== undefined &&
+    typeof pos.stopLossReviewRequired !== 'boolean'
+  )
+    throw new Error('Invalid stop-loss review state');
+  if (
+    pos.priceHistoryReviewRequired !== undefined &&
+    typeof pos.priceHistoryReviewRequired !== 'boolean'
+  )
+    throw new Error('Invalid price-history review state');
   const splitAdjustedInventory = mapSplitAdjustedInventory(
     pos.splitAdjustedInventory
   );
@@ -299,6 +310,12 @@ export function mapPositionToHolding(pos: unknown): HoldingPosition | null {
     maxDrawdownPercent,
     maxRunUpPercent,
     stopLossHitAt,
+    ...(typeof pos.stopLossReviewRequired === 'boolean'
+      ? { stopLossReviewRequired: pos.stopLossReviewRequired }
+      : {}),
+    ...(pos.priceHistoryReviewRequired === true
+      ? { priceHistoryReviewRequired: true }
+      : {}),
   };
 }
 
@@ -393,6 +410,27 @@ export function mapCloseEventToClosedTrade(event: unknown): ClosedTrade | null {
   const totalBuyFees = Number(position.buyFees) || 0;
   const proratedBuyFee =
     buyQty > 0 ? totalBuyFees * (soldQty / buyQty) : totalBuyFees;
+  let splitAdjustedSale: { costBasis: number; buyFees: number } | undefined;
+  if (event.splitAdjustedSale !== undefined) {
+    const raw = event.splitAdjustedSale;
+    if (
+      !isRecord(raw) ||
+      typeof raw.costBasis !== 'string' ||
+      typeof raw.buyFees !== 'string' ||
+      !/^\d+(?:\.\d+)?$/.test(raw.costBasis) ||
+      !/^\d+(?:\.\d+)?$/.test(raw.buyFees)
+    )
+      throw new Error('Invalid split-adjusted sale cost');
+    const costBasis = Number(raw.costBasis);
+    const buyFees = Number(raw.buyFees);
+    if (
+      !Number.isFinite(costBasis) ||
+      !Number.isFinite(buyFees) ||
+      buyFees > costBasis
+    )
+      throw new Error('Invalid split-adjusted sale cost');
+    splitAdjustedSale = { costBasis, buyFees };
+  }
 
   const start = new Date(openDate).getTime();
   const end = new Date(closeDate).getTime();
@@ -421,6 +459,12 @@ export function mapCloseEventToClosedTrade(event: unknown): ClosedTrade | null {
         }
       : undefined;
 
+  if (
+    position.priceHistoryReviewRequired !== undefined &&
+    typeof position.priceHistoryReviewRequired !== 'boolean'
+  )
+    throw new Error('Invalid price-history review state');
+
   return {
     id: eventId,
     positionId: typeof position.id === 'string' ? position.id : undefined,
@@ -434,9 +478,12 @@ export function mapCloseEventToClosedTrade(event: unknown): ClosedTrade | null {
     exchange: typeof exch?.code === 'string' ? exch.code : undefined,
     openDate,
     closeDate,
-    unitsClosed: Number(soldQty.toFixed(6)),
+    unitsClosed: splitAdjustedSale ? soldQty : Number(soldQty.toFixed(6)),
     buyPrice: Number(position.entryPrice) || 0,
-    buyFee: Number(proratedBuyFee.toFixed(6)),
+    buyFee: splitAdjustedSale?.buyFees ?? Number(proratedBuyFee.toFixed(6)),
+    ...(splitAdjustedSale
+      ? { splitAdjustedCostBasis: splitAdjustedSale.costBasis }
+      : {}),
     sellPrice: Number(event.price) || 0,
     sellFee: Number(event.fees) || 0,
     periodDays,
@@ -462,6 +509,9 @@ export function mapCloseEventToClosedTrade(event: unknown): ClosedTrade | null {
       position.maxRunUpPercent != null
         ? Number(position.maxRunUpPercent)
         : undefined,
+    ...(position.priceHistoryReviewRequired === true
+      ? { priceHistoryReviewRequired: true }
+      : {}),
     ...(cashCorrection ? { cashCorrection } : {}),
     acquisitionCorrection: mapAcquisitionCorrection(
       event.acquisitionCorrection

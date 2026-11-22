@@ -46,6 +46,13 @@ import type {
   LiveExecutionCorrectionResponse,
   ManualTradeVoidInput,
   ManualTradeVoidsPage,
+  SplitStopLossReviewInput,
+  SplitStopLossReviewResult,
+  AccountSplitInput,
+  AccountSplitResult,
+  AccountSplitHistory,
+  AccountSplitReversalInput,
+  AccountSplitReversalResult,
 } from '../types';
 import { exchanges } from '../mock-portfolio';
 import { getHoldingsForExchange } from '../mock-holdings';
@@ -527,6 +534,68 @@ export function createPositionsApi(client: AxiosInstance) {
         currentPrice !== undefined ? { currentPrice } : {}
       );
       return { stopLossHitAt: response.data?.stopLossHitAt ?? null };
+    },
+
+    async reviewSplitAffectedStopLoss(
+      id: string,
+      input: SplitStopLossReviewInput
+    ): Promise<SplitStopLossReviewResult> {
+      if (USE_MOCK_API)
+        return {
+          stopLossPrice: input.stopLossPrice,
+          stopLossSetAt: new Date().toISOString(),
+        };
+      const response = await client.post<{
+        success: boolean;
+        data: SplitStopLossReviewResult;
+      }>(`/positions/${encodeURIComponent(id)}/stop-loss-review`, input);
+      return response.data.data;
+    },
+
+    async postAccountSplit(
+      accountId: string,
+      input: AccountSplitInput
+    ): Promise<AccountSplitResult> {
+      if (USE_MOCK_API)
+        throw new Error('Stock split posting requires the real API.');
+      const response = await client.post<{
+        success: boolean;
+        data: AccountSplitResult;
+      }>(`/accounts/${encodeURIComponent(accountId)}/splits`, input);
+      return response.data.data;
+    },
+
+    async getAccountSplitHistory(
+      accountId: string,
+      limit = 100,
+      offset = 0
+    ): Promise<AccountSplitHistory> {
+      if (USE_MOCK_API)
+        throw new Error('Stock split history requires the real API.');
+      const response = await client.get<{
+        success: boolean;
+        data: AccountSplitHistory;
+      }>(`/accounts/${encodeURIComponent(accountId)}/splits`, {
+        params: { limit, offset },
+      });
+      return response.data.data;
+    },
+
+    async reverseAccountSplit(
+      accountId: string,
+      actionId: string,
+      input: AccountSplitReversalInput
+    ): Promise<AccountSplitReversalResult> {
+      if (USE_MOCK_API)
+        throw new Error('Stock split reversal requires the real API.');
+      const response = await client.post<{
+        success: boolean;
+        data: AccountSplitReversalResult;
+      }>(
+        `/accounts/${encodeURIComponent(accountId)}/splits/${encodeURIComponent(actionId)}/reversal`,
+        input
+      );
+      return response.data.data;
     },
 
     // Holdings methods

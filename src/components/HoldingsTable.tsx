@@ -67,6 +67,17 @@ function StopLossTriggeredMark({ inGain = false }: { inGain?: boolean }) {
   );
 }
 
+function StopLossReviewMark() {
+  return (
+    <i
+      className='pi pi-info-circle text-xs text-amber-600'
+      role='img'
+      title='Stop loss requires review after a split'
+      aria-label='Stop loss requires review after a split'
+    />
+  );
+}
+
 /** Gains are only tinted in demo accounts; otherwise a triggered stop gets the stop-loss tint. */
 function isGainHighlighted(r: HoldingRow, isDemo: boolean) {
   return isDemo && r.currentReturnAbs > 0;
@@ -609,6 +620,7 @@ export default function HoldingsTable({
                           inGain={isGainHighlighted(r, isDemo)}
                         />
                       )}
+                      {r.stopLossReviewRequired && <StopLossReviewMark />}
                       <span className='text-gray-400 block text-[10px]'>
                         {mask(formatNumber(r.units))}
                       </span>
@@ -736,6 +748,7 @@ export default function HoldingsTable({
                         inGain={isGainHighlighted(r, isDemo)}
                       />
                     )}
+                    {r.stopLossReviewRequired && <StopLossReviewMark />}
                   </span>
                 )}
                 frozen
@@ -891,8 +904,12 @@ export default function HoldingsTable({
                 hidden={!showAdvancedColumns}
                 body={(r: HoldingRow) => (
                   <span className='inline-flex items-center gap-1'>
-                    {r.maxDrawdownPercent != null &&
-                    r.maxDrawdownPercent > 0 ? (
+                    {r.priceHistoryReviewRequired ? (
+                      <span title='Price history is unavailable after a split'>
+                        Unavailable
+                      </span>
+                    ) : r.maxDrawdownPercent != null &&
+                      r.maxDrawdownPercent > 0 ? (
                       <>
                         <span
                           className={hidden ? 'text-gray-500' : 'text-red-600'}
@@ -910,13 +927,15 @@ export default function HoldingsTable({
                     ) : (
                       <span className='text-gray-400'>—</span>
                     )}
-                    <button
-                      title='Recalculate from price history'
-                      className='text-gray-300 hover:text-blue-500 leading-none'
-                      onClick={() => handleRecalculateDrawdown(r)}
-                    >
-                      <i className='pi pi-history text-xs' />
-                    </button>
+                    {!r.priceHistoryReviewRequired && (
+                      <button
+                        title='Recalculate from price history'
+                        className='text-gray-300 hover:text-blue-500 leading-none'
+                        onClick={() => handleRecalculateDrawdown(r)}
+                      >
+                        <i className='pi pi-history text-xs' />
+                      </button>
+                    )}
                   </span>
                 )}
                 style={{ minWidth: '170px' }}
@@ -926,7 +945,11 @@ export default function HoldingsTable({
                 hidden={!showAdvancedColumns}
                 body={(r: HoldingRow) => (
                   <span className='inline-flex items-center gap-1'>
-                    {r.maxRunUpPercent != null && r.maxRunUpPercent > 0 ? (
+                    {r.priceHistoryReviewRequired ? (
+                      <span title='Price history is unavailable after a split'>
+                        Unavailable
+                      </span>
+                    ) : r.maxRunUpPercent != null && r.maxRunUpPercent > 0 ? (
                       <>
                         <span
                           className={

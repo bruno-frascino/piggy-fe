@@ -133,7 +133,7 @@ describe('acquisition correction transport metadata', () => {
         averageUnitCost: 5.5,
       },
     });
-    expect(
+    expect(() =>
       mapPositionToHolding({
         ...position,
         splitAdjustedInventory: {
@@ -142,8 +142,49 @@ describe('acquisition correction transport metadata', () => {
           remainingBuyFees: '8',
           averageUnitCost: '5.5',
         },
-      })?.units
-    ).toBe(6);
+      })
+    ).toThrow('Invalid split-adjusted inventory');
+  });
+
+  it('retains the stop-loss review flag even when the split was reversed', () => {
+    expect(
+      mapPositionToHolding({ ...position, stopLossReviewRequired: true })
+        ?.stopLossReviewRequired
+    ).toBe(true);
+    expect(
+      mapPositionToHolding({ ...position, stopLossReviewRequired: false })
+        ?.stopLossReviewRequired
+    ).toBe(false);
+    expect(() =>
+      mapPositionToHolding({ ...position, stopLossReviewRequired: 'invalid' })
+    ).toThrow('Invalid stop-loss review state');
+  });
+
+  it('retains and validates the price-history review flag without active split inventory', () => {
+    expect(
+      mapPositionToHolding({ ...position, priceHistoryReviewRequired: true })
+        ?.priceHistoryReviewRequired
+    ).toBe(true);
+    expect(() =>
+      mapPositionToHolding({ ...position, priceHistoryReviewRequired: 'yes' })
+    ).toThrow('Invalid price-history review state');
+    const event = {
+      id: 'sale1',
+      date: '2026-10-03',
+      quantity: 4,
+      price: '20',
+      fees: '1',
+      position: { ...position, priceHistoryReviewRequired: true },
+    };
+    expect(mapCloseEventToClosedTrade(event)?.priceHistoryReviewRequired).toBe(
+      true
+    );
+    expect(() =>
+      mapCloseEventToClosedTrade({
+        ...event,
+        position: { ...position, priceHistoryReviewRequired: 'yes' },
+      })
+    ).toThrow('Invalid price-history review state');
   });
 
   it('does not invent correction controls for legacy or malformed metadata', () => {

@@ -286,6 +286,9 @@ describe('DashboardView accounts', () => {
     expect(
       screen.queryByRole('button', { name: 'Opening-balance preview' })
     ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: 'Stock splits' })
+    ).not.toBeInTheDocument();
   });
 
   it('opens the separate live cash form without presenting it as activation', async () => {

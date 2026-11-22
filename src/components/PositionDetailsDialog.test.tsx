@@ -1,18 +1,31 @@
 // @vitest-environment jsdom
 
 import '@testing-library/jest-dom/vitest';
-import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import {
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { HoldingRow } from '@/hooks/useHoldingRows';
 import { MASKED_VALUE } from '@/lib/format';
 import PositionDetailsDialog from './PositionDetailsDialog';
 
 const privacy = vi.hoisted(() => ({ hidden: false }));
+const stopLossReview = vi.hoisted(() => ({
+  mutateAsync: vi.fn(),
+  isPending: false,
+}));
 vi.mock('@/lib/privacy-context', () => ({
   usePrivacy: () => ({
     hidden: privacy.hidden,
     mask: (value: string) => (privacy.hidden ? MASKED_VALUE : value),
   }),
+}));
+vi.mock('@/hooks/api', () => ({
+  useReviewSplitStopLoss: () => stopLossReview,
 }));
 
 const row: HoldingRow = {
@@ -61,6 +74,11 @@ function renderDetails(
 afterEach(() => {
   cleanup();
   privacy.hidden = false;
+  stopLossReview.mutateAsync.mockReset();
+  stopLossReview.mutateAsync.mockResolvedValue({
+    stopLossPrice: 0.00001,
+    stopLossSetAt: '2026-11-20T00:00:00.000Z',
+  });
 });
 
 describe('PositionDetailsDialog', () => {
@@ -124,5 +142,39 @@ describe('PositionDetailsDialog', () => {
     expect(
       screen.getByRole('dialog').querySelector('.text-green-600, .text-red-600')
     ).toBeNull();
+  });
+
+  it('requires explicit confirmation to resume a split-affected stop loss', async () => {
+    stopLossReview.mutateAsync.mockResolvedValue({
+      stopLossPrice: 0.00001,
+      stopLossSetAt: '2026-11-20T00:00:00.000Z',
+    });
+    renderDetails({
+      row: {
+        ...row,
+        stopLoss: 0.00001,
+        stopLossReviewRequired: true,
+      },
+    });
+
+    fireEvent.click(screen.getByRole('button', { name: 'Review stop loss' }));
+    fireEvent.click(
+      screen.getByRole('checkbox', {
+        name: /I reviewed the split and confirm this stop price/i,
+      })
+    );
+    fireEvent.click(
+      screen.getByRole('button', { name: 'Confirm stop-loss review' })
+    );
+
+    await waitFor(() =>
+      expect(stopLossReview.mutateAsync).toHaveBeenCalledWith({
+        id: 'parcel-1',
+        input: { stopLossPrice: 0.00001, reviewConfirmed: true },
+      })
+    );
+    expect(
+      screen.queryByRole('button', { name: 'Confirm stop-loss review' })
+    ).not.toBeInTheDocument();
   });
 });

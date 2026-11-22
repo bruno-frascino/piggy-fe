@@ -121,6 +121,8 @@ In sync. ✅
 - `AvailableExchange`
 - `ExchangeSummary`
 - `HoldingPosition`
+- `SplitStopLossReviewInput`
+- `SplitStopLossReviewResult`
 - `StockSearchResult`
 - `QuoteResult`
 - `TradingAccount`
@@ -214,6 +216,12 @@ In sync. ✅
 - `LiveCapitalOperationsPage`
 - `AccountCapitalCorrectionInput`
 - `AccountCapitalCorrectionResult`
+- `AccountSplitInput`
+- `AccountSplitResult`
+- `AccountSplitHistoryItem`
+- `AccountSplitHistory`
+- `AccountSplitReversalInput`
+- `AccountSplitReversalResult`
 - `DraftCashEvidenceComparison`
 - `DraftCashEvidenceRecord`
 - `DraftSaleCorrectionInput`

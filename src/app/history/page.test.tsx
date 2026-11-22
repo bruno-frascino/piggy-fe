@@ -165,9 +165,42 @@ afterEach(() => {
   privacyState.hidden = false;
   delete rows[0].acquisitionCorrection;
   delete rows[0].accountId;
+  delete rows[0].splitAdjustedCostBasis;
+  delete rows[0].priceHistoryReviewRequired;
+  delete rows[0].maxDrawdownPercent;
+  delete rows[0].maxRunUpPercent;
 });
 
 describe('HistoryPage', () => {
+  it('marks split-affected price history unavailable', () => {
+    rows[0].priceHistoryReviewRequired = true;
+    rows[0].maxDrawdownPercent = 45;
+    rows[0].maxRunUpPercent = 60;
+    render(<HistoryPage />);
+    expect(
+      screen.getAllByTitle('Price history is unavailable after a split')
+    ).toHaveLength(2);
+    expect(screen.queryByText('-45.00%')).not.toBeInTheDocument();
+    expect(screen.queryByText('+60.00%')).not.toBeInTheDocument();
+  });
+  it('displays the split-adjusted realized P&L and return', () => {
+    const original = { ...rows[0] };
+    Object.assign(rows[0], {
+      unitsClosed: 6,
+      buyPrice: 10,
+      buyFee: 3,
+      sellPrice: 7,
+      sellFee: 1,
+      splitAdjustedCostBasis: 33,
+    });
+    try {
+      render(<HistoryPage />);
+      expect(screen.getAllByText('$8.00').length).toBeGreaterThan(0);
+      expect(screen.getAllByText('+24.24%').length).toBeGreaterThan(0);
+    } finally {
+      Object.assign(rows[0], original);
+    }
+  });
   it('opens acquisition corrections for fully closed parcels using full exact purchase metadata', () => {
     rows[0].accountId = 'acc-1';
     rows[0].acquisitionCorrection = {

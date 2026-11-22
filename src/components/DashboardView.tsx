@@ -34,6 +34,7 @@ import LiveFxConversionDialog from '@/components/LiveFxConversionDialog';
 import LiveIncomeReceiptDialog from '@/components/LiveIncomeReceiptDialog';
 import LiveReinvestmentDialog from '@/components/LiveReinvestmentDialog';
 import LiveCashReviewDialog from '@/components/LiveCashReviewDialog';
+import AccountSplitDialog from '@/components/AccountSplitDialog';
 import { Line } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -130,6 +131,7 @@ export default function DashboardView() {
   );
   const [cashReviewAccount, setCashReviewAccount] =
     useState<TradingAccount | null>(null);
+  const [splitAccount, setSplitAccount] = useState<TradingAccount | null>(null);
   const [accountActionDialog, setAccountActionDialog] = useState<{
     action: 'close' | 'delete';
     account: TradingAccount;
@@ -476,6 +478,15 @@ export default function DashboardView() {
             />
             {(selectedAccount.status ?? 'ACTIVE') !== 'CLOSED' && (
               <>
+                {!selectedAccount.isDemo && (
+                  <Button
+                    label='Stock splits'
+                    icon='pi pi-arrows-h'
+                    outlined
+                    disabled={!online}
+                    onClick={() => setSplitAccount(selectedAccount)}
+                  />
+                )}
                 <Button
                   label='Record ledger cash flow'
                   icon='pi pi-wallet'
@@ -568,6 +579,14 @@ export default function DashboardView() {
           accountId={cashReviewAccount.id}
           accountName={cashReviewAccount.name}
           onHide={() => setCashReviewAccount(null)}
+        />
+      )}
+      {splitAccount && (
+        <AccountSplitDialog
+          key={splitAccount.id}
+          accountId={splitAccount.id}
+          accountName={splitAccount.name}
+          onHide={() => setSplitAccount(null)}
         />
       )}
 

@@ -4,6 +4,7 @@
 
 | Query key | Read by | Invalidated by |
 | --------- | ------- | --------------- |
+| `['account-splits', accountId]` | useAccountSplitHistory, usePostAccountSplit, useReverseAccountSplit | usePostAccountSplit, useReverseAccountSplit |
 | `['account-trade-capability', accountId, effectiveDate]` | useAccountTradeCapability | — |
 | `['account-trade-capability', accountId]` | useConfirmOpeningStatement, usePostAccountTrade, useCorrectLiveFxConversion, usePostAccountFxConversion | useConfirmOpeningStatement, usePostAccountTrade, useCorrectLiveFxConversion, usePostAccountFxConversion |
 | `['account-trade-capability', id]` | useCorrectLiveCashTransfer, usePostAccountCashTransfer | useCorrectLiveCashTransfer, usePostAccountCashTransfer |

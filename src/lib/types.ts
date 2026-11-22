@@ -68,6 +68,8 @@ export interface HoldingPosition {
   buyPrice: number;
   buyFee: number;
   stopLoss?: number; // undefined = no stop loss set
+  stopLossReviewRequired?: boolean;
+  priceHistoryReviewRequired?: boolean;
   industry: string;
   currentPrice: number;
   buyComments?: string;
@@ -76,6 +78,16 @@ export interface HoldingPosition {
   stopLossHitAt?: string; // ISO timestamp; set once the stop loss was reached, even if price recovered
   origin?: PositionOrigin;
   externalRef?: string; // Import source key, coordinated live-trade ID, or empty for legacy manual parcels.
+}
+
+export interface SplitStopLossReviewInput {
+  stopLossPrice: number;
+  reviewConfirmed: true;
+}
+
+export interface SplitStopLossReviewResult {
+  stopLossPrice: number;
+  stopLossSetAt: string;
 }
 
 export interface StockSearchResult {
@@ -103,7 +115,7 @@ export interface TradingAccount {
   isDemo?: boolean;
 }
 
-/** Stored split records remain unavailable to the user-facing posting/history UI. */
+/** Retained split action mirror for internal accounting types. */
 export interface AccountSplitAction {
   id: string;
   accountId: string;
@@ -236,6 +248,7 @@ export interface ClosedTrade {
   unitsClosed: number;
   buyPrice: number;
   buyFee: number;
+  splitAdjustedCostBasis?: number;
   sellPrice: number;
   sellFee: number;
   periodDays: number;
@@ -245,6 +258,7 @@ export interface ClosedTrade {
   baseCurrency?: string; // placeholder for future multi-currency support
   maxDrawdownPercent?: number; // worst intra-trade drawdown from entry price, in percent (positive number)
   maxRunUpPercent?: number; // best intra-trade peak gain above entry price, in percent (positive number)
+  priceHistoryReviewRequired?: boolean;
   cashCorrection?: LiveSaleCorrectionMetadata;
   acquisitionCorrection?: LiveAcquisitionCorrectionMetadata;
   importedExecutionCorrection?: LiveImportedExecutionCorrectionMetadata;
@@ -1403,6 +1417,69 @@ export interface AccountCapitalCorrectionResult {
   revisionId: string;
   created: boolean;
   replay: DraftCashReplay;
+}
+
+export interface AccountSplitInput {
+  idempotencyKey: string;
+  assetId: string;
+  effectiveDate: string;
+  newUnits: string;
+  oldUnits: string;
+  sourceReference: string;
+  statementConfirmed: true;
+}
+
+export interface AccountSplitResult {
+  created: boolean;
+  actionId: string;
+  auditNumber: number;
+  sourceFingerprint: string;
+  affectedParcels: number;
+  reversed?: boolean;
+}
+
+export interface AccountSplitHistoryItem {
+  actionId: string;
+  assetId: string;
+  effectiveDate: string;
+  newUnits: string;
+  oldUnits: string;
+  sourceReference: string;
+  auditNumber: number | null;
+  sourceFingerprint: string | null;
+  recordedAt: string;
+  affectedParcelCount: number;
+  reversal: {
+    reversalId: string;
+    auditNumber: number;
+    reason: string;
+    recordedAt: string;
+  } | null;
+}
+
+export interface AccountSplitHistory {
+  accountId: string;
+  accountStatus: string;
+  total: number;
+  limit: number;
+  offset: number;
+  items: AccountSplitHistoryItem[];
+}
+
+export interface AccountSplitReversalInput {
+  idempotencyKey: string;
+  actionId: string;
+  expectedAuditNumber: number;
+  expectedSourceFingerprint: string;
+  reason: string;
+  reversalConfirmed: true;
+}
+
+export interface AccountSplitReversalResult {
+  created: boolean;
+  actionId: string;
+  auditNumber: number;
+  sourceFingerprint: string;
 }
 
 export interface DraftCashEvidenceComparison {

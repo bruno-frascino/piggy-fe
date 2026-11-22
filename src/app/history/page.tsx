@@ -322,7 +322,11 @@ function ExchangeTable({
           <Column
             header='Max Drawdown %'
             body={(r: ClosedTrade) =>
-              r.maxDrawdownPercent != null && r.maxDrawdownPercent > 0 ? (
+              r.priceHistoryReviewRequired ? (
+                <span title='Price history is unavailable after a split'>
+                  Unavailable
+                </span>
+              ) : r.maxDrawdownPercent != null && r.maxDrawdownPercent > 0 ? (
                 <span className={hidden ? 'text-gray-500' : 'text-red-600'}>
                   -{r.maxDrawdownPercent.toFixed(2)}%
                 </span>
@@ -335,7 +339,11 @@ function ExchangeTable({
           <Column
             header='Max Run-up %'
             body={(r: ClosedTrade) =>
-              r.maxRunUpPercent != null && r.maxRunUpPercent > 0 ? (
+              r.priceHistoryReviewRequired ? (
+                <span title='Price history is unavailable after a split'>
+                  Unavailable
+                </span>
+              ) : r.maxRunUpPercent != null && r.maxRunUpPercent > 0 ? (
                 <span className={hidden ? 'text-gray-500' : 'text-green-600'}>
                   +{r.maxRunUpPercent.toFixed(2)}%
                 </span>

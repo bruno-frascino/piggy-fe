@@ -47,6 +47,9 @@ import type {
   LiveSaleCorrectionResult,
   LiveImportedExecutionCorrectionInput,
   ManualTradeVoidInput,
+  SplitStopLossReviewInput,
+  AccountSplitInput,
+  AccountSplitReversalInput,
 } from '@/lib/types';
 
 export const useExchanges = (assetClass: 'crypto' | 'equity', enabled = true) =>
@@ -1486,6 +1489,98 @@ export const useCheckStopLoss = () => {
       console.warn('Stop loss check failed', error);
       if (isAxiosError(error) && error.response?.status === 409)
         invalidatePositionQueries(queryClient);
+    },
+  });
+};
+
+export const useReviewSplitStopLoss = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    retry: false,
+    networkMode: 'always',
+    mutationFn: ({
+      id,
+      input,
+    }: {
+      id: string;
+      input: SplitStopLossReviewInput;
+    }) => {
+      if (typeof navigator !== 'undefined' && !navigator.onLine)
+        throw new Error(
+          'Reconnect to review this stop loss. Offline changes are not queued.'
+        );
+      return apiClient.reviewSplitAffectedStopLoss(id, input);
+    },
+    onSuccess: () => invalidatePositionQueries(queryClient),
+    onError: error => {
+      if (isAxiosError(error) && error.response?.status === 409)
+        invalidatePositionQueries(queryClient);
+    },
+  });
+};
+
+export const useAccountSplitHistory = (accountId: string, enabled = true) =>
+  useQuery({
+    queryKey: ['account-splits', accountId],
+    queryFn: () => apiClient.getAccountSplitHistory(accountId),
+    enabled: Boolean(accountId) && enabled,
+    retry: false,
+    staleTime: 0,
+  });
+
+export const usePostAccountSplit = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    retry: false,
+    networkMode: 'always',
+    mutationFn: ({
+      accountId,
+      input,
+    }: {
+      accountId: string;
+      input: AccountSplitInput;
+    }) => {
+      if (typeof navigator !== 'undefined' && !navigator.onLine)
+        throw new Error(
+          'Reconnect to record this stock split. Offline changes are not queued.'
+        );
+      return apiClient.postAccountSplit(accountId, input);
+    },
+    onSuccess: (_result, { accountId }) => {
+      queryClient.invalidateQueries({
+        queryKey: ['account-splits', accountId],
+      });
+      return invalidatePositionQueries(queryClient);
+    },
+  });
+};
+
+export const useReverseAccountSplit = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    retry: false,
+    networkMode: 'always',
+    mutationFn: ({
+      accountId,
+      actionId,
+      input,
+    }: {
+      accountId: string;
+      actionId: string;
+      input: AccountSplitReversalInput;
+    }) => {
+      if (typeof navigator !== 'undefined' && !navigator.onLine)
+        throw new Error(
+          'Reconnect to reverse this stock split. Offline changes are not queued.'
+        );
+      return apiClient.reverseAccountSplit(accountId, actionId, input);
+    },
+    onSuccess: (_result, { accountId }) => {
+      queryClient.invalidateQueries({
+        queryKey: ['account-splits', accountId],
+      });
+      return invalidatePositionQueries(queryClient);
     },
   });
 };

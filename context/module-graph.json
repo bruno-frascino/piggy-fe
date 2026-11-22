@@ -210,6 +210,7 @@
         "src/components/DashboardView.tsx",
         "src/components/AccountActionDialog.tsx",
         "src/components/AccountsBar.tsx",
+        "src/components/AccountSplitDialog.tsx",
         "src/components/AddHoldingsDialog.tsx",
         "src/components/ClosePositionDialog.tsx",
         "src/components/ImportUploadDialog.tsx",
@@ -362,12 +363,14 @@
         "src/components/ImportsList.tsx",
         "src/components/TopNav.tsx",
         "src/components/DashboardView.tsx",
+        "src/components/AccountSplitDialog.tsx",
         "src/components/HoldingsTable.tsx",
         "src/components/AddHoldingsDialog.tsx",
         "src/components/CryptoCoinPicker.tsx",
         "src/hooks/useAccountNameSuggestions.ts",
         "src/hooks/useSymbolSearch.ts",
         "src/components/ImportUploadDialog.tsx",
+        "src/components/PositionDetailsDialog.tsx",
         "src/hooks/useHoldingRows.ts",
         "src/components/LiveCapitalFlowDialog.tsx",
         "src/components/LiveCapitalOperationsPanel.tsx",
@@ -1372,6 +1375,7 @@
         "src/components/ImportSellAllocation.tsx",
         "src/components/ImportsList.tsx",
         "src/components/DashboardView.tsx",
+        "src/components/AccountSplitDialog.tsx",
         "src/components/ClosePositionDialog.tsx",
         "src/components/PositionDetailsDialog.tsx",
         "src/components/LiveCapitalFlowDialog.tsx",
@@ -1918,6 +1922,7 @@
       "dependents": [
         "src/app/history/page.tsx",
         "src/components/EditClosedTradeDialog.tsx",
+        "src/lib/api/mappers.close-reason.test.ts",
         "src/lib/closed-trade-math.test.ts"
       ],
       "orphan": false,
@@ -2031,6 +2036,7 @@
         "src/components/ManualTradeVoidHistory.tsx",
         "src/components/DashboardView.tsx",
         "src/components/QueryFeedback.tsx",
+        "src/components/AccountSplitDialog.tsx",
         "src/components/HoldingsTable.tsx",
         "src/components/LiveCapitalFlowDialog.tsx",
         "src/components/LiveCapitalOperationsPanel.tsx",
@@ -3178,6 +3184,23 @@
           "exoticallyRequired": false,
           "followable": true,
           "matchesDoNotFollow": false,
+          "module": "@/components/AccountSplitDialog",
+          "moduleSystem": "es6",
+          "resolved": "src/components/AccountSplitDialog.tsx",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
           "module": "@/components/EmptyAccountsState",
           "moduleSystem": "es6",
           "resolved": "src/components/EmptyAccountsState.tsx",
@@ -3599,6 +3622,85 @@
       ],
       "orphan": false,
       "source": "src/components/DemoBadge.tsx",
+      "valid": true
+    },
+    {
+      "dependencies": [
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "local",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "./AppDialog",
+          "moduleSystem": "es6",
+          "resolved": "src/components/AppDialog.tsx",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/hooks/api",
+          "moduleSystem": "es6",
+          "resolved": "src/hooks/api.ts",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/hooks/useNetworkStatus",
+          "moduleSystem": "es6",
+          "resolved": "src/hooks/useNetworkStatus.ts",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/lib/date",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/date.ts",
+          "valid": true
+        }
+      ],
+      "dependents": [
+        "src/components/DashboardView.tsx",
+        "src/components/AccountSplitDialog.test.tsx"
+      ],
+      "orphan": false,
+      "source": "src/components/AccountSplitDialog.tsx",
       "valid": true
     },
     {
@@ -4284,6 +4386,23 @@
           "module": "./AppDialog",
           "moduleSystem": "es6",
           "resolved": "src/components/AppDialog.tsx",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "undetermined",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
+          "module": "@/hooks/api",
+          "moduleSystem": "es6",
+          "resolved": "src/hooks/api.ts",
           "valid": true
         },
         {
@@ -6989,6 +7108,31 @@
           "exoticallyRequired": false,
           "followable": true,
           "matchesDoNotFollow": false,
+          "module": "./AccountSplitDialog",
+          "moduleSystem": "es6",
+          "resolved": "src/components/AccountSplitDialog.tsx",
+          "valid": true
+        }
+      ],
+      "dependents": [],
+      "orphan": false,
+      "source": "src/components/AccountSplitDialog.test.tsx",
+      "valid": true
+    },
+    {
+      "dependencies": [
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "local",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
           "module": "./AccountsBar",
           "moduleSystem": "es6",
           "resolved": "src/components/AccountsBar.tsx",
@@ -8592,6 +8736,23 @@
           "exoticallyRequired": false,
           "followable": true,
           "matchesDoNotFollow": false,
+          "module": "../closed-trade-math",
+          "moduleSystem": "es6",
+          "resolved": "src/lib/closed-trade-math.ts",
+          "valid": true
+        },
+        {
+          "circular": false,
+          "coreModule": false,
+          "couldNotResolve": false,
+          "dependencyTypes": [
+            "local",
+            "import"
+          ],
+          "dynamic": false,
+          "exoticallyRequired": false,
+          "followable": true,
+          "matchesDoNotFollow": false,
           "module": "./mappers",
           "moduleSystem": "es6",
           "resolved": "src/lib/api/mappers.ts",
@@ -9097,8 +9258,8 @@
         }
       ]
     },
-    "totalCruised": 189,
-    "totalDependenciesCruised": 412,
+    "totalCruised": 191,
+    "totalDependenciesCruised": 420,
     "violations": [],
     "warn": 0
   }

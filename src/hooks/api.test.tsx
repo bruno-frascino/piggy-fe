@@ -10,6 +10,7 @@ const {
   updateCloseEventMock,
   recalculateDrawdownMock,
   checkStopLossMock,
+  reviewSplitStopLossMock,
   searchStocksMock,
   logoutMock,
   downloadTaxReportPdfMock,
@@ -53,6 +54,7 @@ const {
   updateCloseEventMock: vi.fn(),
   recalculateDrawdownMock: vi.fn(),
   checkStopLossMock: vi.fn(),
+  reviewSplitStopLossMock: vi.fn(),
   searchStocksMock: vi.fn(),
   logoutMock: vi.fn(),
   downloadTaxReportPdfMock: vi.fn(),
@@ -99,6 +101,7 @@ vi.mock('@/lib/api-client', () => ({
     updateCloseEvent: updateCloseEventMock,
     recalculateDrawdown: recalculateDrawdownMock,
     checkStopLoss: checkStopLossMock,
+    reviewSplitAffectedStopLoss: reviewSplitStopLossMock,
     searchStocks: searchStocksMock,
     logout: logoutMock,
     downloadTaxReportPdf: downloadTaxReportPdfMock,
@@ -142,6 +145,7 @@ vi.mock('@/lib/api-client', () => ({
 
 import {
   useCheckStopLoss,
+  useReviewSplitStopLoss,
   useCommitImport,
   useResolveImportEvent,
   useClosedPositions,
@@ -1660,6 +1664,61 @@ describe('central API mutation hooks', () => {
     );
     expect(checkStopLossMock).toHaveBeenCalledWith('position-1', 90);
     expect(invalidateQueries).toHaveBeenCalledWith({ queryKey: ['holdings'] });
+  });
+
+  it('reviews a split-affected stop online and invalidates position queries', async () => {
+    reviewSplitStopLossMock.mockResolvedValue({
+      stopLossPrice: 90,
+      stopLossSetAt: '2026-11-20T00:00:00.000Z',
+    });
+    const queryClient = new QueryClient();
+    const invalidateQueries = vi.spyOn(queryClient, 'invalidateQueries');
+    const { result } = renderHook(() => useReviewSplitStopLoss(), {
+      wrapper: createWrapper(queryClient),
+    });
+
+    await act(() =>
+      result.current.mutateAsync({
+        id: 'position-1',
+        input: { stopLossPrice: 90, reviewConfirmed: true },
+      })
+    );
+
+    expect(reviewSplitStopLossMock).toHaveBeenCalledWith('position-1', {
+      stopLossPrice: 90,
+      reviewConfirmed: true,
+    });
+    expect(invalidateQueries).toHaveBeenCalledWith({ queryKey: ['holdings'] });
+    expect(invalidateQueries).toHaveBeenCalledWith({
+      queryKey: ['closed-positions'],
+    });
+  });
+
+  it('does not queue split stop-loss review while offline', async () => {
+    const online = navigator.onLine;
+    Object.defineProperty(navigator, 'onLine', {
+      configurable: true,
+      value: false,
+    });
+    const { result } = renderHook(() => useReviewSplitStopLoss(), {
+      wrapper: createWrapper(new QueryClient()),
+    });
+    try {
+      await act(async () => {
+        await expect(
+          result.current.mutateAsync({
+            id: 'position-1',
+            input: { stopLossPrice: 90, reviewConfirmed: true },
+          })
+        ).rejects.toThrow(/offline changes are not queued/i);
+      });
+      expect(reviewSplitStopLossMock).not.toHaveBeenCalled();
+    } finally {
+      Object.defineProperty(navigator, 'onLine', {
+        configurable: true,
+        value: online,
+      });
+    }
   });
 
   it('refreshes conflicted historical calculations without retrying or hiding the error', async () => {

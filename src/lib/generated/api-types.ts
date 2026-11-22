@@ -2808,7 +2808,7 @@ export interface paths {
         put?: never;
         /**
          * Correct or terminally reverse both reinvestment effects atomically
-         * @description Fixed account, asset, currency and statement reference. Requires both current revision heads, audit number, source fingerprint and reason. No effective SELL may remain on the new parcel. Corrections update statement tax figures and acquisition/date/order/residual together, retain all slots and require funded replay; reversal removes the effective income and parcel without a disposal. With validated split history, entitlement uses split-adjusted holdings and acquisition must follow the split date. Issuer-held credits and one-sided changes remain blocked. Exact retained retries survive later activity.
+         * @description Fixed account, asset, currency and statement reference. Requires both current revision heads, audit number, source fingerprint and reason. No effective SELL may remain on the new parcel. Corrections update statement tax figures and acquisition/date/order/residual together, retain all slots and require funded replay; reversal removes the effective income and parcel without a disposal. Moving the acquisition later or reversing it must preserve historical holdings for other active income and reinvestment entitlements; review is limited to 500 distinct date/parcel checks. With validated split history, entitlement uses split-adjusted holdings. A pre-split correction must preserve the acquisition date and quantity; reverse dependent splits before changing either or reversing the reinvestment. Issuer-held credits and one-sided changes remain blocked. Exact retained retries survive later activity.
          */
         post: {
             parameters: {
@@ -2865,7 +2865,7 @@ export interface paths {
                     };
                     content?: never;
                 };
-                /** @description Effective sales */
+                /** @description Effective sales, dependent split or income entitlement, stale heads, terminal state, reserved slots or unfunded replay. */
                 409: {
                     headers: {
                         [name: string]: unknown;
@@ -2933,6 +2933,235 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/accounts/{id}/splits": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Read retained stock-split history for an account
+         * @description Returns bounded action metadata and terminal reversals. Raw parcel effects are not exposed; reversals remain visible as retained audit history.
+         */
+        get: {
+            parameters: {
+                query?: {
+                    limit?: number;
+                    offset?: number;
+                };
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Retained paginated split history. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Invalid pagination. */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unauthorized. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Owned account not found. */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        put?: never;
+        /**
+         * Post a statement-supported stock split or consolidation
+         * @description Requires an owned fresh active real ledger and complete split-aware account source replay. Applies an exact unit ratio to eligible long equity/ETF parcels without changing acquisition dates or cash. Later sales, ambiguous same-day events, missing effects, unsupported imports and stale source heads fail closed. Exact retries retain the original action.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        assetId: string;
+                        /** Format: date */
+                        effectiveDate: string;
+                        idempotencyKey: string;
+                        newUnits: string;
+                        oldUnits: string;
+                        sourceReference: string;
+                        /** @enum {boolean} */
+                        statementConfirmed: true;
+                    };
+                };
+            };
+            responses: {
+                /** @description Identical retained retry. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Split action and parcel effects committed. */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Invalid ratio */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unauthorized. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Account or asset not found. */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Stale source */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Split history or parcel bounds exceeded. */
+                422: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/accounts/{id}/splits/{actionId}/reversal": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Terminally reverse a retained stock split
+         * @description Requires the active account audit head and no dependent split effects, sales or reinvestments. Reversal restores retained parcel quantities and source history atomically; it is terminal and does not support replacement payloads.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                    actionId: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        actionId: string;
+                        expectedAuditNumber: number;
+                        expectedSourceFingerprint: string;
+                        idempotencyKey: string;
+                        reason: string;
+                        /** @enum {boolean} */
+                        reversalConfirmed: true;
+                    };
+                };
+            };
+            responses: {
+                /** @description Identical retained retry. */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Terminal reversal committed. */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Invalid reversal payload or confirmation. */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unauthorized. */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Action or account not found. */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Dependent sales/actions/reinvestments */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/accounts/{id}/trade-capability": {
         parameters: {
             query?: never;
@@ -2942,7 +3171,7 @@ export interface paths {
         };
         /**
          * Resolve the server-owned trade-write capability for an account
-         * @description Distinguishes active confirmed ledgers from legacy, demo, archived and blocked accounts. Validated retained split history supports coordinated manual BUY/SELL, audited cash-only operations, statement-income receipts/corrections and paired dividend-reinvestment workflows; reinvestment entitlement uses split-adjusted holdings and acquisition must follow the split date. Imports, legacy financial mutations, moves and deletion remain blocked. Cash-completeness certification and opening confirmation remain blocked pending broader historical protections and release review. This read never activates an account.
+         * @description Distinguishes active confirmed ledgers from legacy, demo, archived and blocked accounts. Validated retained split history supports coordinated manual BUY/SELL; post-split trade corrections/voids; and pre-split price/fee/cash-sequence corrections only when original date and quantity are preserved. Pre-split voids and inventory-changing corrections remain blocked. Audited cash-only operations, statement-income receipts/corrections and paired dividend-reinvestment workflows are also supported; reinvestment entitlement uses split-adjusted holdings and acquisition must follow the split date. Imports, legacy financial mutations, moves and deletion remain blocked. Cash-completeness certification and opening confirmation remain blocked pending broader historical protections and release review. This read never activates an account.
          */
         get: {
             parameters: {
@@ -3028,7 +3257,7 @@ export interface paths {
         put?: never;
         /**
          * Atomically post a BUY or SELL with account cash
-         * @description Available only to accounts with an explicitly confirmed opening statement and active cash ledger. Legacy account posting remains unchanged; no account is activated by this endpoint.
+         * @description Available only to accounts with an explicitly confirmed opening statement and active cash ledger. SELLs must preserve positive historical holdings for active income and reinvestment entitlements on or after the sale date; review is limited to 500 distinct date/parcel checks. Legacy account posting remains unchanged; no account is activated by this endpoint.
          */
         post: {
             parameters: {
@@ -3101,14 +3330,14 @@ export interface paths {
                     };
                     content?: never;
                 };
-                /** @description Account is not ledger-enabled, source history drifted, or cash sequence conflicts. */
+                /** @description Account is not ledger-enabled, source history drifted, cash sequence conflicts, or a sale would invalidate an income entitlement. */
                 409: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content?: never;
                 };
-                /** @description Insufficient cash or unsupported account history. */
+                /** @description Insufficient cash, unsupported account history, or entitlement review limit exceeded. */
                 422: {
                     headers: {
                         [name: string]: unknown;
@@ -3235,7 +3464,7 @@ export interface paths {
         put?: never;
         /**
          * Correct an audited live manual acquisition
-         * @description Appends an immutable BUY revision and reversal/replacement cash postings. Date, stable cash sequence, exact bought quantity, price and fees may change. All existing sales are preserved; the corrected acquisition must cover them and precede their dates and cash ordering. Imported executions, moves and reversal remain unsupported. No account is activated.
+         * @description Appends an immutable BUY revision and reversal/replacement cash postings. Date, stable cash sequence, exact bought quantity, price and fees may change. All existing sales are preserved; the corrected acquisition must cover them and precede their dates and cash ordering. A later acquisition date or reduced quantity must preserve positive historical holdings for active income and reinvestment entitlements; review is limited to 500 distinct date/parcel checks. Imported executions, moves and reversal remain unsupported. With retained split history, a pre-split correction may change price, fees or cash sequence only when acquisition date and quantity are unchanged. A date/quantity-changing correction requires both original and replacement dates to be strictly after the latest active split for the asset. No account is activated.
          */
         post: {
             parameters: {
@@ -3306,14 +3535,14 @@ export interface paths {
                     };
                     content?: never;
                 };
-                /** @description Stale revision, source drift, reserved sequence, imported allocation or invalid acquisition/sale ordering. */
+                /** @description Stale revision, source drift, reserved sequence, imported allocation, dependent income entitlement or invalid acquisition/sale ordering. */
                 409: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content?: never;
                 };
-                /** @description Correction would leave an unsupported or insufficiently funded ledger. */
+                /** @description Correction would leave an unsupported or insufficiently funded ledger, or exceed the entitlement review limit. */
                 422: {
                     headers: {
                         [name: string]: unknown;
@@ -3339,7 +3568,7 @@ export interface paths {
         put?: never;
         /**
          * Correct an audited live manual sale
-         * @description Appends an immutable correction revision for a cash-linked manual SELL. Only date, stable cash sequence, price and fees may change; quantity, source identity and imported executions are immutable. Reversal is not supported.
+         * @description Appends an immutable correction revision for a cash-linked manual SELL. Only date, stable cash sequence, price and fees may change; quantity, source identity and imported executions are immutable. Moving the sale earlier must preserve positive historical holdings for active income and reinvestment entitlements in the affected period; review is limited to 500 distinct date/parcel checks. With retained split history, a pre-split correction may change price, fees or cash sequence only when the execution date is unchanged. A date change requires both original and replacement dates to be strictly after the latest active split for the asset. Reversal is not supported.
          */
         post: {
             parameters: {
@@ -3404,14 +3633,14 @@ export interface paths {
                     };
                     content?: never;
                 };
-                /** @description Stale revision, source drift, reserved sequence or inconsistent cash history. */
+                /** @description Stale revision, source drift, reserved sequence, dependent income entitlement or inconsistent cash history. */
                 409: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content?: never;
                 };
-                /** @description Correction would leave an unsupported or insufficiently funded cash ledger. */
+                /** @description Correction would leave an unsupported or insufficiently funded cash ledger, or exceed the entitlement review limit. */
                 422: {
                     headers: {
                         [name: string]: unknown;
@@ -3437,7 +3666,7 @@ export interface paths {
         put?: never;
         /**
          * Void an audited live manual trade without deleting its records
-         * @description SELL voids restore parcel inventory and remove proceeds from cash replay. BUY voids require no effective sales. Only active real ledgers and manual parcels are supported. The terminal revision retains original trades, postings and date/sequence reservations. No account is activated.
+         * @description SELL voids restore parcel inventory and remove proceeds from cash replay. BUY voids require no effective sales and must preserve positive historical holdings for active income and reinvestment entitlements; a reinvestment's own parcel cannot establish its eligibility. Income entitlement review is limited to 500 distinct date/parcel checks. Only active real ledgers and manual parcels are supported. With retained split history, the trade must be strictly after the latest active split for its asset. The terminal revision retains original trades, postings and date/sequence reservations. No account is activated.
          */
         post: {
             parameters: {
@@ -3506,7 +3735,7 @@ export interface paths {
                     };
                     content?: never;
                 };
-                /** @description Removing the trade would leave insufficient cash or unsupported history. */
+                /** @description Removing the trade would leave insufficient cash */
                 422: {
                     headers: {
                         [name: string]: unknown;
@@ -4548,7 +4777,7 @@ export interface paths {
         put?: never;
         /**
          * Create or update today's portfolio snapshot
-         * @description Upserts a single daily legacy snapshot row under shared-user and owned-account locks. Rereads holdings after locking; a deleted user or account cannot receive a late snapshot. Legacy totals and daily date semantics are unchanged; inactive draft cash is excluded. Call this at end-of-day to record the equity curve.
+         * @description Upserts a synthetic daily legacy snapshot row under shared-user and owned-account locks. Rereads holdings after locking; a deleted user or account cannot receive a late snapshot. Split-affected open parcels use validated remaining acquisition cost; other legacy totals and daily date semantics are unchanged. Inactive draft cash is excluded. Snapshots are not sourced or verified valuations.
          */
         post: {
             parameters: {
@@ -4575,6 +4804,13 @@ export interface paths {
                 };
                 /** @description Owned account or exchange not found, including an account deleted while waiting for its lock */
                 404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Split history cannot be validated; no snapshot is saved */
+                500: {
                     headers: {
                         [name: string]: unknown;
                     };
@@ -4617,12 +4853,21 @@ export interface paths {
             };
             requestBody?: never;
             responses: {
-                /** @description Paginated list of positions. Split-bearing parcels also include `splitAdjustedInventory` with decimal-string remaining quantity, cost basis, remaining acquisition fees and average unit cost (null when fully disposed). Original acquisition price and fee fields are not rewritten. Eligible live manual acquisitions include acquisitionCorrection metadata with transactionId, operationId, expectedRevisionId, expectedSourceFingerprint, effectiveDate, sequence and exact decimal-string quantity (total bought units), price and fees. Eligible live imported Kraken BUY executions also include importedExecutionCorrection metadata containing eventId, transactionId, operationId, expectedRevisionId, expectedSourceFingerprint, effectiveDate, sequence, price, fees and currency. Demo and legacy executions do not receive correction controls. */
+                /** @description Paginated list of positions. Split-bearing parcels also include `splitAdjustedInventory` with decimal-string remaining quantity, cost basis, remaining acquisition fees and average unit cost (null when fully disposed). Original acquisition price and fee fields are not rewritten. Open long parcels with a stop loss and retained split history include `stopLossReviewRequired: true`; automatic stop-loss monitoring is unavailable until split-aware review is supported. Positions with retained relevant split history include `priceHistoryReviewRequired: true`; their drawdown and run-up values are unavailable until split-aware history is supported. Eligible live manual acquisitions include acquisitionCorrection metadata with transactionId, operationId, expectedRevisionId, expectedSourceFingerprint, effectiveDate, sequence and exact decimal-string quantity (total bought units), price and fees. Eligible live imported Kraken BUY executions also include importedExecutionCorrection metadata containing eventId, transactionId, operationId, expectedRevisionId, expectedSourceFingerprint, effectiveDate, sequence, price, fees and currency. Demo and legacy executions do not receive correction controls. */
                 200: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": {
+                            data?: {
+                                /** @description Drawdown and run-up values are unavailable due to retained split history */
+                                priceHistoryReviewRequired?: boolean;
+                                /** @description Stop-loss monitoring is unavailable due to retained split history */
+                                stopLossReviewRequired?: boolean;
+                            }[];
+                        };
+                    };
                 };
                 /** @description Unauthorized */
                 401: {
@@ -4766,14 +5011,25 @@ export interface paths {
             };
             requestBody?: never;
             responses: {
-                /** @description Paginated SELL transactions with position and asset context. Each event carries `closeReason` (STOP_LOSS | TARGET | MANUAL | OTHER, or null when unknown). Eligible live manual sales include `cashCorrection` metadata for the audited correction endpoint. Eligible live imported Kraken SELLs include `importedExecutionCorrection` with eventId, transactionId, operationId, expectedRevisionId, expectedSourceFingerprint, effectiveDate, sequence, price, fees and currency. Eligible live manual BUYs include `acquisitionCorrection`, also for fully closed parcels. Eligible live imported Kraken BUYs include `importedAcquisitionCorrection` with the same imported-execution metadata, also for fully closed parcels. Demo and legacy executions do not receive correction controls. */
+                /** @description Paginated SELL transactions with position and asset context. Each event carries `closeReason` (STOP_LOSS | TARGET | MANUAL | OTHER, or null when unknown). Eligible live manual sales include `cashCorrection` metadata for the audited correction endpoint. Eligible live imported Kraken SELLs include `importedExecutionCorrection` with eventId, transactionId, operationId, expectedRevisionId, expectedSourceFingerprint, effectiveDate, sequence, price, fees and currency. Eligible live manual BUYs include `acquisitionCorrection`, also for fully closed parcels. Eligible live imported Kraken BUYs include `importedAcquisitionCorrection` with the same imported-execution metadata, also for fully closed parcels. Demo and legacy executions do not receive correction controls. Events affected by retained split history include validated `splitAdjustedSale` costBasis and buyFees decimal strings, allocated from the original acquisition; entryPrice remains the historical acquisition price. Inconsistent split history fails closed. Positions with retained relevant split history have null drawdown and run-up values and include `position.priceHistoryReviewRequired: true`. */
                 200: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content: {
                         "application/json": {
-                            data?: Record<string, never>[];
+                            data?: {
+                                position?: {
+                                    /** @description Drawdown and run-up values are unavailable due to retained split history */
+                                    priceHistoryReviewRequired?: boolean;
+                                };
+                                splitAdjustedSale?: {
+                                    /** @description Allocated original buy fees */
+                                    buyFees: string;
+                                    /** @description Allocated original acquisition cost including buy fees */
+                                    costBasis: string;
+                                };
+                            }[];
                             meta?: {
                                 limit?: number;
                                 offset?: number;
@@ -4792,6 +5048,13 @@ export interface paths {
                 };
                 /** @description Unauthorized */
                 401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Split history cannot be validated */
+                500: {
                     headers: {
                         [name: string]: unknown;
                     };
@@ -4822,7 +5085,7 @@ export interface paths {
         head?: never;
         /**
          * Update a close event (SELL transaction)
-         * @description Updates the sale and parcel totals atomically under an owned-account and parcel lock. Does not activate or spend inactive draft cash. Concurrent parcel moves require reload. Imported broker-linked execution values are immutable here. Financial changes to cash-linked manual trades require the audited account trade correction endpoint; this ordinary editor returns 409 instead. Notes and close reason remain editable; unchanged financial values are not rewritten.
+         * @description Updates the sale and parcel totals atomically under an owned-account and parcel lock. Does not activate or spend inactive draft cash. Concurrent parcel moves require reload. Imported broker-linked execution values are immutable here. Financial changes to cash-linked manual trades require the audited account trade correction endpoint; this ordinary editor returns 409 instead. Notes and close reason remain editable; unchanged financial values are not rewritten. Metadata-only changes do not recompute or update the parcel.
          */
         patch: {
             parameters: {
@@ -4948,7 +5211,7 @@ export interface paths {
         head?: never;
         /**
          * Update a position's acquisition and metadata
-         * @description Crypto symbols must match the venue quote currency. Changing a Kraken instrument validates its market; unchanged historical instruments remain editable. Acquisition edits commit the BUY and recomputed parcel results together. Bought units cannot be reduced below already-sold units. Account moves lock both accounts in stable order and recheck the demo/real boundary. Inactive draft cash is not spent or activated. An edit or move that would leave open holdings in a closed account returns 409; reopen the account first. Corrections and moves of fully closed history remain allowed. Imported acquisition values and source identities cannot be changed here. Financial edits, instrument/account changes and deletion of cash-linked trades require coordinated correction and return 409 here, including for reversed cash operations. The opening reconciliation workflow supports manual acquisition and sale corrections, not deletion or moves. Notes and metadata remain editable; resubmitting unchanged financial values is allowed.
+         * @description Crypto symbols must match the venue quote currency. Changing a Kraken instrument validates its market; unchanged historical instruments remain editable. Acquisition edits commit the BUY and recomputed parcel results together. Bought units cannot be reduced below already-sold units. Account moves lock both accounts in stable order and recheck the demo/real boundary. Inactive draft cash is not spent or activated. An edit or move that would leave open holdings in a closed account returns 409; reopen the account first. Corrections and moves of fully closed history remain allowed. Imported acquisition values and source identities cannot be changed here. Financial edits, instrument/account changes and deletion of cash-linked trades require coordinated correction and return 409 here, including for reversed cash operations. The opening reconciliation workflow supports manual acquisition and sale corrections, not deletion or moves. Notes and metadata remain editable; resubmitting unchanged financial values is allowed. Source-neutral metadata preserves the position's updatedAt for accounting fingerprint compatibility; financial changes continue to update it.
          */
         patch: {
             parameters: {
@@ -5022,7 +5285,7 @@ export interface paths {
                     };
                     content?: never;
                 };
-                /** @description Incompatible asset, concurrent account move, parcel does not have exactly one BUY, open holdings require account reopening, or retained split history in either account blocks financial changes and moves (notes remain editable) */
+                /** @description Incompatible asset, concurrent account move, parcel does not have exactly one BUY, open holdings require account reopening, or retained split history blocks financial changes, moves, and drawdown/run-up updates (notes remain editable) */
                 409: {
                     headers: {
                         [name: string]: unknown;
@@ -5051,7 +5314,7 @@ export interface paths {
         put?: never;
         /**
          * Check whether a position's stop loss has been reached and remember it
-         * @description For an open long position with a stop loss that is not already flagged, decides whether the stop has been reached and, if so, persists stopLossHitAt so the flag survives the price recovering. If currentPrice is supplied and at or below the stop, the stop is flagged immediately. Otherwise daily lows are scanned from the time the stop was last set (or the open date, if never changed) to today; the first day whose low reached the stop becomes stopLossHitAt (day-granular). Editing the stop loss price clears the flag. Already-flagged, closed, short, or stop-less positions are returned unchanged. Saving rechecks the stop and holding inputs under user/account/parcel locks; concurrent changes return 409 rather than persisting a stale hit.
+         * @description For an open long position with a stop loss that is not already flagged, decides whether the stop has been reached and, if so, persists stopLossHitAt so the flag survives the price recovering. If currentPrice is supplied and at or below the stop, the stop is flagged immediately. Otherwise daily lows are scanned from the time the stop was last set (or the open date, if never changed) to today; the first day whose low reached the stop becomes stopLossHitAt (day-granular). Editing the stop loss price clears the flag. Already-flagged, closed, short, or stop-less positions are returned unchanged. Saving rechecks the stop and holding inputs under user/account/parcel locks; concurrent changes return 409 rather than persisting a stale hit. Split-affected stop monitoring is unavailable and returns 409, including for previously flagged stops and retained reversed splits.
          */
         post: {
             parameters: {
@@ -5105,7 +5368,7 @@ export interface paths {
                     };
                     content?: never;
                 };
-                /** @description Stop or holding changed during calculation; reload and check again */
+                /** @description Stop or holding changed during calculation, or split-affected stop monitoring requires review */
                 409: {
                     headers: {
                         [name: string]: unknown;
@@ -5216,7 +5479,7 @@ export interface paths {
         put?: never;
         /**
          * Recalculate max drawdown and max run-up from historical data
-         * @description Fetches daily OHLC history from the position's open date to today (or to the close date for closed positions, for the run-up), finds the lowest intraday low and persists it as maxDrawdownPercent, and finds the highest intraday high and persists it as maxRunUpPercent (peak unrealized gain vs entry price). Returns the new values (or null if history is unavailable / no drawdown / no run-up). Saving takes user/account/parcel locks and rejects changed calculation inputs with 409.
+         * @description Fetches daily OHLC history from the position's open date to today (or to the close date for closed positions, for the run-up), finds the lowest intraday low and persists it as maxDrawdownPercent, and finds the highest intraday high and persists it as maxRunUpPercent (peak unrealized gain vs entry price). Returns the new values (or null if history is unavailable / no drawdown / no run-up). Saving takes user/account/parcel locks and rejects changed calculation inputs with 409. Retained split history blocks this calculation, including after reversal.
          */
         post: {
             parameters: {
@@ -5257,7 +5520,91 @@ export interface paths {
                     };
                     content?: never;
                 };
-                /** @description Position changed during calculation; reload and recalculate */
+                /** @description Position changed during calculation or has retained split history */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/positions/{id}/stop-loss-review": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Confirm a manually reviewed split-affected stop loss
+         * @description Records the user's confirmed stop price and restarts hit tracking from the review time. It does not adjust the saved price by the split ratio.
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        /** @enum {boolean} */
+                        reviewConfirmed: true;
+                        stopLossPrice: number;
+                    };
+                };
+            };
+            responses: {
+                /** @description Stop-loss review recorded */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            data: {
+                                stopLossPrice: number;
+                                /** Format: date-time */
+                                stopLossSetAt: string;
+                            };
+                            success: boolean;
+                        };
+                    };
+                };
+                /** @description Invalid stop-loss price or missing confirmation */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Unauthorized */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Position not found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Position is not an open long parcel with an active stop and retained split history, or it changed during review */
                 409: {
                     headers: {
                         [name: string]: unknown;
@@ -5555,7 +5902,7 @@ export interface paths {
                     exchangeCodes?: string;
                     /** @description CSV asset types */
                     assetTypes?: "EQUITY" | "ETF" | "CRYPTO";
-                    /** @description CSV position statuses. Defaults to OPEN,PARTIAL when `metric=marketValue` (closed positions hold nothing); all statuses otherwise. For marketValue, partial positions are prorated to the quantity still held. */
+                    /** @description CSV position statuses. Defaults to OPEN,PARTIAL when `metric=marketValue` (closed positions hold nothing); all statuses otherwise. For marketValue, acquisition cost is allocated to the quantity still held, including validated split history. */
                     status?: "OPEN" | "PARTIAL" | "CLOSED";
                 };
                 header?: never;
@@ -5564,7 +5911,7 @@ export interface paths {
             };
             requestBody?: never;
             responses: {
-                /** @description Grouped rows with weights. Rows for `by=exchange` also include the exchange's ISO 4217 `currency`. */
+                /** @description Grouped rows with weights. Market value is an estimate based on remaining acquisition cost plus stored unrealized P&L, not a live valuation. Rows for `by=exchange` also include the exchange's ISO 4217 `currency`. */
                 200: {
                     headers: {
                         [name: string]: unknown;
@@ -5580,6 +5927,13 @@ export interface paths {
                 };
                 /** @description Unauthorized */
                 401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description Split history cannot be validated for the market-value estimate */
+                500: {
                     headers: {
                         [name: string]: unknown;
                     };
@@ -6062,7 +6416,7 @@ export interface paths {
         put?: never;
         /**
          * Generate (or regenerate) an ATO capital gains tax report
-         * @description Computes a capital gains summary for the given Australian financial year across an explicit set of Trading Accounts (a "declaration"), renders a PDF, and stores it as a new revision for that (financial year, account selection) combination. Previous revisions are retained and stay downloadable so an already-lodged report is never overwritten. Regenerating with unchanged content returns the existing current revision instead of creating a new one. Dates in newly generated PDFs use dd/MM/yyyy; regenerating a report with the older date format creates a new revision without modifying the original PDF. New revisions lock selected accounts in stable ID order and recheck ownership and non-demo eligibility before storing account references. A concurrent deletion or report revision change fails explicitly instead of orphaning a new report.
+         * @description Computes a capital gains summary for the given Australian financial year across an explicit set of Trading Accounts (a "declaration"), renders a PDF, and stores it as a new revision for that (financial year, account selection) combination. Previous revisions are retained and stay downloadable so an already-lodged report is never overwritten. Regenerating with unchanged content returns the existing current revision instead of creating a new one. Dates in newly generated PDFs use dd/MM/yyyy; regenerating a report with the older date format creates a new revision without modifying the original PDF. New revisions lock selected accounts in stable ID order and recheck ownership and non-demo eligibility before storing account references. A concurrent deletion or report revision change fails explicitly instead of orphaning a new report. Report inputs are rechecked under those locks before returning or saving a revision; changed holdings, disposals or loss carry-forward require a retry.
          */
         post: {
             parameters: {
@@ -6109,7 +6463,7 @@ export interface paths {
                     };
                     content?: never;
                 };
-                /** @description Account eligibility or current report revision changed during preparation */
+                /** @description Account eligibility, report inputs or current report revision changed during preparation */
                 409: {
                     headers: {
                         [name: string]: unknown;
@@ -6227,7 +6581,7 @@ export interface paths {
         post?: never;
         /**
          * Delete a persisted tax report revision
-         * @description Deleting the current revision promotes the most recent remaining revision back to current, so the carried-forward loss chain stays intact.
+         * @description Deleting the current revision promotes the most recent remaining revision back to current, so the carried-forward loss chain stays intact. Deletion is serialized with report generation and rereads the revision before promotion.
          */
         delete: {
             parameters: {

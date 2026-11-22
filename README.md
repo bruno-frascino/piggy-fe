@@ -102,37 +102,50 @@ Resume from its current status register, not from older historical progress note
   audits". This paginated read view also works on archived ledger-backed accounts; it is separate
   from effective disposal history and does not certify current reconciliation/source freshness. Void
   submissions are blocked offline, in privacy mode and after stale/conflicting review.
+- **Income dependencies:** a BUY void, correction moving the acquisition later or reducing its
+  quantity, manual SELL, correction moving a SELL earlier, or paired reinvestment reversal or
+  later-acquisition correction is rejected if it removes the only historical holding supporting
+  another active income receipt or dividend reinvestment. Correct or reverse the dependent income
+  first, or retain another eligible holding. Other inventory mutations still require separate
+  historical dependency protection.
 - **Tax and current results:** voided effects are excluded from holdings, disposals and current
   CGT/statistics. Already generated PDFs remain unchanged; affected reports may need regeneration.
 - **Stock splits/consolidations (foundation only):** there is no posting form or corporate-action
-  history UI yet. Backend CGT, parcel recomputation and opening/source inventory replay validated
-  retained split effects without rewriting acquisitions or creating cash. Source fingerprints
-  include split evidence. Proposed-sale timeline checks and historical reinvestment entitlement now
-  use the same inventory reader. Validated split history permits coordinated manual trades and
-  corrections/voids strictly after the latest active split, audited cash-only operations,
+  history UI yet. Positions with a stop loss and retained split history show a separate review icon.
+  Their saved stop price is unchanged, and stop monitoring is unavailable until split-aware review
+  and resumption are implemented. Drawdown and run-up are also unavailable for positions with
+  retained relevant split history, including reversals, until split-aware price history is
+  supported; existing recorded values are preserved. Backend CGT, parcel recomputation and
+  opening/source inventory replay validated retained split effects without rewriting acquisitions or
+  creating cash. Source fingerprints include split evidence. Proposed-sale timeline checks and
+  historical reinvestment entitlement now use the same inventory reader. Validated split history
+  permits coordinated manual trades, post-split corrections/voids, and pre-split price/fee or
+  cash-sequence corrections that preserve the original date and quantity. Pre-split voids and
+  date/quantity changes remain blocked. It also permits audited cash-only operations,
   statement-income receipts/corrections, and dividend reinvestments with paired
-  corrections/reversal. Reinvestment entitlement uses split-adjusted holdings and its acquisition
-  must follow the split date. Audited retained splits now advance the shared backend audit/source
-  chain without cash operations; staged records are not silently adopted. Cash review remains
-  incomplete even with a current source. Backend realized-trade statistics now use validated
-  split-adjusted parcel cost fractions. The positions read response also supplies validated
-  remaining units, cost basis, fees and average unit cost; holdings and return calculations use
-  these without rewriting original acquisition values. Saved tax-report revisions remain
-  append-only: recalculation creates a new revision without changing its predecessor. The backend
-  also has an internal terminal retroactive reversal: original action/effects remain retained, and
-  affected quantities are restored only when no later active split or same/later affected-parcel
-  sale depends on it. Later statement-backed income receipts and their cash postings remain
-  unchanged; receipt corrections/reversals use their separate audited flow. Corrected actions can
-  reuse the source/date with a new idempotency key; split reversal itself changes no cash or
-  acquisition records. Broader historical protections remain. The internal locked writer and
-  reversal have no posting/history API or UI. Valid audited split history now allows coordinated
-  manual BUY/SELL trades using split-adjusted parcel inventory and shared cash/audit replay; BUYs on
-  or before an active split date are blocked to protect retained parcel effects. Audited
-  deposits/withdrawals, same-account FX, paired cash transfers, statement-supported income
-  receipts/corrections, and paired dividend-reinvestment workflows also validate the shared
-  split/cash audit chain. Income eligibility uses split-adjusted historical holdings on the
-  entitlement date. Cash review remains incomplete; imports, legacy financial edits, moves and
-  deletion remain blocked.
+  corrections/reversal. Reinvestment entitlement uses split-adjusted holdings and new acquisitions
+  must follow the split date. Paired corrections of earlier reinvestments must preserve acquisition
+  date and quantity; changing either or reversing the reinvestment requires dependent splits to be
+  reversed first. Audited retained splits now advance the shared backend audit/source chain without
+  cash operations; staged records are not silently adopted. Cash review remains incomplete even with
+  a current source. Backend realized-trade statistics now use validated split-adjusted parcel cost
+  fractions. The positions read response also supplies validated remaining units, cost basis, fees
+  and average unit cost; holdings and return calculations use these without rewriting original
+  acquisition values. Saved tax-report revisions remain append-only: recalculation creates a new
+  revision without changing its predecessor. The backend also has an internal terminal retroactive
+  reversal: original action/effects remain retained, and affected quantities are restored only when
+  no later active split or same/later affected-parcel sale depends on it. Later statement-backed
+  income receipts and their cash postings remain unchanged; receipt corrections/reversals use their
+  separate audited flow. Corrected actions can reuse the source/date with a new idempotency key;
+  split reversal itself changes no cash or acquisition records. Broader historical protections
+  remain. The internal locked writer and reversal have no posting/history API or UI. Valid audited
+  split history now allows coordinated manual BUY/SELL trades using split-adjusted parcel inventory
+  and shared cash/audit replay; BUYs on or before an active split date are blocked to protect
+  retained parcel effects. Audited deposits/withdrawals, same-account FX, paired cash transfers,
+  statement-supported income receipts/corrections, and paired dividend-reinvestment workflows also
+  validate the shared split/cash audit chain. Income eligibility uses split-adjusted historical
+  holdings on the entitlement date. Cash review remains incomplete; imports, legacy financial edits,
+  moves and deletion remain blocked.
 
 Live writes require a confirmed opening statement and active real ledger; the explicit reviewed
 confirmation flow is the only user-facing way to enable one eligible real account. Saving a draft,

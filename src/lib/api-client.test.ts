@@ -467,6 +467,28 @@ describe('api-client', () => {
     );
   });
 
+  it('posts an explicit split stop-loss review without adjusting the confirmed price', async () => {
+    const api = await loadClient();
+    const result = {
+      stopLossPrice: 90,
+      stopLossSetAt: '2026-11-20T00:00:00.000Z',
+    };
+    axiosClientMock.post.mockResolvedValueOnce({
+      data: { success: true, data: result },
+    });
+
+    await expect(
+      api.reviewSplitAffectedStopLoss('position/1', {
+        stopLossPrice: 90,
+        reviewConfirmed: true,
+      })
+    ).resolves.toEqual(result);
+    expect(axiosClientMock.post).toHaveBeenCalledWith(
+      '/positions/position%2F1/stop-loss-review',
+      { stopLossPrice: 90, reviewConfirmed: true }
+    );
+  });
+
   it('maps holdings from positions endpoint', async () => {
     const apiClient = await loadClient();
 

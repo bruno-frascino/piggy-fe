@@ -35,6 +35,12 @@
   - `reopenPending?: boolean`
   - `deletePending?: boolean`
 
+## `AccountSplitDialog`
+
+- File: [src/components/AccountSplitDialog.tsx](../src/components/AccountSplitDialog.tsx) (377 lines)
+- API hooks used: useAccountSplitHistory, useHoldings, usePostAccountSplit, useReverseAccountSplit
+- Other hooks used: useMemo, useNetworkStatus, useState
+
 ## `LocalHolding`
 
 - File: [src/components/AddHoldingsDialog.tsx](../src/components/AddHoldingsDialog.tsx) (848 lines)
@@ -82,7 +88,7 @@
 
 ## `ExchangeDefinition`
 
-- File: [src/components/DashboardView.tsx](../src/components/DashboardView.tsx) (999 lines)
+- File: [src/components/DashboardView.tsx](../src/components/DashboardView.tsx) (1018 lines)
 - API hooks used: useCloseAccount, useCreateAccount, useDeleteAccount, useReopenAccount, useTradingAccounts, useUpdateAccount
 - Other hooks used: useAccountSelection, useEffect, useExchangeDiscovery, useId, useMemo, useNetworkStatus, usePrivacy, useState, useTheme
 
@@ -160,7 +166,7 @@
 
 ## `HoldingsTable`
 
-- File: [src/components/HoldingsTable.tsx](../src/components/HoldingsTable.tsx) (1453 lines)
+- File: [src/components/HoldingsTable.tsx](../src/components/HoldingsTable.tsx) (1476 lines)
 - API hooks used: useAccountTradeCapability, useClosePosition, useCreatePosition, useDeletePosition, usePostAccountTrade, useUpdatePosition
 - Other hooks used: useCallback, useEffect, useHoldingRows, useId, useNetworkStatus, usePrivacy, useQueryClient, useRef, useState, useToast
 
@@ -313,9 +319,9 @@
 
 ## `PositionDetailsDialog`
 
-- File: [src/components/PositionDetailsDialog.tsx](../src/components/PositionDetailsDialog.tsx) (222 lines)
-- API hooks used: —
-- Other hooks used: usePrivacy
+- File: [src/components/PositionDetailsDialog.tsx](../src/components/PositionDetailsDialog.tsx) (348 lines)
+- API hooks used: useReviewSplitStopLoss
+- Other hooks used: usePrivacy, useState
 
 ## `QueryFeedback`
 

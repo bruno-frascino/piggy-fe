@@ -652,6 +652,104 @@ describe('HoldingsTable row/total computation', () => {
     expect(lastCall.totalPL).toBeCloseTo(8);
   });
 
+  it('flags split-affected stops for review instead of triggering or checking them', async () => {
+    setHoldings([
+      {
+        ...baseHolding,
+        stopLoss: 95,
+        stopLossHitAt: '2026-02-03T00:00:00Z',
+        stopLossReviewRequired: true,
+        splitAdjustedInventory: {
+          remainingQuantity: 20,
+          remainingCostBasis: 1005,
+          remainingBuyFees: 5,
+          averageUnitCost: 50.25,
+        },
+        units: 20,
+      },
+    ]);
+    setQuotes([
+      {
+        symbol: 'AAPL',
+        price: 45,
+        change: 0,
+        changePercent: 0,
+        currency: 'USD',
+      },
+    ]);
+    renderTable();
+    expect(
+      await screen.findAllByRole('img', {
+        name: 'Stop loss requires review after a split',
+      })
+    ).toHaveLength(2);
+    expect(
+      screen.queryByRole('img', { name: 'Stop loss triggered' })
+    ).not.toBeInTheDocument();
+    expect(checkStopLossMock).not.toHaveBeenCalled();
+    fireEvent.click(screen.getAllByRole('button', { name: 'AAPL' })[0]);
+    expect(screen.getByText('Review required')).toBeInTheDocument();
+    expect(screen.getByText(/monitoring is unavailable/)).toBeInTheDocument();
+    expect(screen.queryByText('Value at stop loss')).not.toBeInTheDocument();
+  });
+
+  it('keeps the review indicator after a split has been reversed', async () => {
+    setHoldings([
+      {
+        ...baseHolding,
+        stopLoss: 95,
+        stopLossHitAt: '2026-02-03T00:00:00Z',
+        stopLossReviewRequired: true,
+      },
+    ]);
+    setQuotes([]);
+    renderTable();
+    expect(
+      await screen.findAllByRole('img', {
+        name: 'Stop loss requires review after a split',
+      })
+    ).toHaveLength(2);
+    expect(
+      screen.queryByRole('img', { name: 'Stop loss triggered' })
+    ).not.toBeInTheDocument();
+    expect(checkStopLossMock).not.toHaveBeenCalled();
+  });
+
+  it('disables historical price metrics after a retained split, including reversal', async () => {
+    setHoldings([
+      {
+        ...baseHolding,
+        stopLoss: undefined,
+        priceHistoryReviewRequired: true,
+        maxDrawdownPercent: 45,
+        maxRunUpPercent: 60,
+      },
+    ]);
+    setQuotes([
+      {
+        symbol: 'AAPL',
+        price: 20,
+        change: 0,
+        changePercent: 0,
+        currency: 'USD',
+      },
+    ]);
+    renderTable();
+    fireEvent.click(screen.getByRole('button', { name: 'Advanced columns' }));
+    expect(screen.getAllByText('Unavailable')).toHaveLength(2);
+    expect(screen.queryByText('-45.00%')).not.toBeInTheDocument();
+    expect(screen.queryByText('+60.00%')).not.toBeInTheDocument();
+    expect(
+      screen.queryByTitle('Recalculate from price history')
+    ).not.toBeInTheDocument();
+    fireEvent.click(screen.getAllByRole('button', { name: 'AAPL' })[0]);
+    expect(
+      screen.getByText(/drawdown and run-up are unavailable/i)
+    ).toBeInTheDocument();
+    expect(updatePositionMock).not.toHaveBeenCalled();
+    expect(recalculateDrawdownMock).not.toHaveBeenCalled();
+  });
+
   it('falls back to the stored currentPrice when no live quote exists for the symbol', async () => {
     setHoldings([{ ...baseHolding }]);
     setQuotes([]);

@@ -213,10 +213,19 @@ export function useHoldingRows({
       const currentReturnPct =
         openPosition > 0 ? currentReturnAbs / openPosition : 0;
       const hasStop = hasStopLoss(h.stopLoss);
+      const stopLossReviewRequired =
+        hasStop &&
+        (typeof h.stopLossReviewRequired === 'boolean'
+          ? h.stopLossReviewRequired
+          : Boolean(h.splitAdjustedInventory));
+      const priceHistoryReviewRequired =
+        Boolean(h.priceHistoryReviewRequired) ||
+        Boolean(h.splitAdjustedInventory);
+      const hasUsableStop = hasStop && !stopLossReviewRequired;
       const stopLossPrice = hasStop ? (h.stopLoss as number) : NaN;
-      const stopLossPosition = hasStop ? h.units * stopLossPrice : NaN;
+      const stopLossPosition = hasUsableStop ? h.units * stopLossPrice : NaN;
       const stopLossReturnPct =
-        hasStop && openPosition > 0
+        hasUsableStop && openPosition > 0
           ? (stopLossPosition - openPosition) / openPosition
           : NaN;
       const allocationPct = openPosition / totalOpen;
@@ -240,10 +249,13 @@ export function useHoldingRows({
         currentReturnAbs,
         currentReturnPct,
         priceDrawdownPct,
-        stopLossPosition: hasStop ? stopLossPosition : NaN,
-        stopLossReturnPct: hasStop ? stopLossReturnPct : NaN,
+        priceHistoryReviewRequired,
+        stopLossReviewRequired,
+        stopLossPosition,
+        stopLossReturnPct,
         stopLossTriggered:
-          hasStop && (effectivePrice <= stopLossPrice || !!h.stopLossHitAt),
+          hasUsableStop &&
+          (effectivePrice <= stopLossPrice || !!h.stopLossHitAt),
         allocationPct,
         originalIndex: i,
       };
@@ -258,7 +270,13 @@ export function useHoldingRows({
   useEffect(() => {
     if (!isOnline()) return;
     for (const row of rows) {
-      if (!row.id || row.stopLossHitAt || !hasStopLoss(row.stopLoss)) continue;
+      if (
+        !row.id ||
+        row.stopLossReviewRequired ||
+        row.stopLossHitAt ||
+        !hasStopLoss(row.stopLoss)
+      )
+        continue;
       const live =
         quoteMap.has(row.symbol) && row.effectivePrice <= row.stopLoss;
       const key = `${row.id}:${row.stopLoss}:${live ? 'live' : 'history'}`;
@@ -282,7 +300,7 @@ export function useHoldingRows({
     const updates: Array<{ id: string; currentPrice: number }> = [];
 
     for (const row of rows) {
-      if (!row.id || row.splitAdjustedInventory) continue;
+      if (!row.id || row.priceHistoryReviewRequired) continue;
       // Skip if no live quote — effectivePrice would just be the stored/entry price
       if (!quoteMap.has(row.symbol)) continue;
 
@@ -339,7 +357,7 @@ export function useHoldingRows({
 
   const handleResetMaxDrawdown = useCallback(
     (row: HoldingRow) => {
-      if (!row.id || !isOnline()) return;
+      if (!row.id || row.priceHistoryReviewRequired || !isOnline()) return;
       void updatePosition({
         id: row.id,
         payload: { maxDrawdownPercent: null },
@@ -350,7 +368,7 @@ export function useHoldingRows({
 
   const handleResetMaxRunUp = useCallback(
     (row: HoldingRow) => {
-      if (!row.id || !isOnline()) return;
+      if (!row.id || row.priceHistoryReviewRequired || !isOnline()) return;
       void updatePosition({
         id: row.id,
         payload: { maxRunUpPercent: null },
@@ -361,7 +379,7 @@ export function useHoldingRows({
 
   const handleRecalculateDrawdown = useCallback(
     (row: HoldingRow) => {
-      if (!row.id || !isOnline()) return;
+      if (!row.id || row.priceHistoryReviewRequired || !isOnline()) return;
       void recalculateDrawdown(row.id).catch(() => {});
     },
     [recalculateDrawdown]

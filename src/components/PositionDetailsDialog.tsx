@@ -1,6 +1,11 @@
 'use client';
 
+import { useState } from 'react';
 import { Button } from 'primereact/button';
+import { Checkbox } from 'primereact/checkbox';
+import { InputNumber } from 'primereact/inputnumber';
+import { Message } from 'primereact/message';
+import { useReviewSplitStopLoss } from '@/hooks/api';
 import AppDialog from './AppDialog';
 import type { HoldingRow } from '@/hooks/useHoldingRows';
 import { exchangeLabel, isCryptoExchange } from '@/lib/crypto';
@@ -43,6 +48,40 @@ export default function PositionDetailsDialog({
     row.stopLoss > 0
       ? row.stopLoss
       : undefined;
+  const [reviewingStopLoss, setReviewingStopLoss] = useState(false);
+  const [reviewPrice, setReviewPrice] = useState<number | null>(
+    stopLossPrice ?? null
+  );
+  const [reviewConfirmed, setReviewConfirmed] = useState(false);
+  const [reviewError, setReviewError] = useState<string | null>(null);
+  const { mutateAsync: reviewStopLoss, isPending: reviewing } =
+    useReviewSplitStopLoss();
+
+  const submitStopLossReview = async () => {
+    if (
+      !row.id ||
+      reviewPrice === null ||
+      !Number.isFinite(reviewPrice) ||
+      reviewPrice <= 0 ||
+      !reviewConfirmed
+    )
+      return;
+    setReviewError(null);
+    try {
+      await reviewStopLoss({
+        id: row.id,
+        input: { stopLossPrice: reviewPrice, reviewConfirmed: true },
+      });
+      setReviewingStopLoss(false);
+      setReviewConfirmed(false);
+    } catch (error: unknown) {
+      setReviewError(
+        error instanceof Error
+          ? error.message
+          : 'Stop-loss review could not be saved.'
+      );
+    }
+  };
 
   return (
     <AppDialog
@@ -143,20 +182,30 @@ export default function PositionDetailsDialog({
             <div>
               <dt>Max drawdown</dt>
               <dd>
-                {row.maxDrawdownPercent != null && row.maxDrawdownPercent > 0
-                  ? `-${row.maxDrawdownPercent.toFixed(2)}%`
-                  : '—'}
+                {row.priceHistoryReviewRequired
+                  ? 'Unavailable'
+                  : row.maxDrawdownPercent != null && row.maxDrawdownPercent > 0
+                    ? `-${row.maxDrawdownPercent.toFixed(2)}%`
+                    : '—'}
               </dd>
             </div>
             <div>
               <dt>Max run-up</dt>
               <dd>
-                {row.maxRunUpPercent != null && row.maxRunUpPercent > 0
-                  ? `+${row.maxRunUpPercent.toFixed(2)}%`
-                  : '—'}
+                {row.priceHistoryReviewRequired
+                  ? 'Unavailable'
+                  : row.maxRunUpPercent != null && row.maxRunUpPercent > 0
+                    ? `+${row.maxRunUpPercent.toFixed(2)}%`
+                    : '—'}
               </dd>
             </div>
           </dl>
+          {row.priceHistoryReviewRequired && (
+            <p className='text-xs text-gray-500 mt-3'>
+              Drawdown and run-up are unavailable until split-aware price
+              history is supported.
+            </p>
+          )}
           <p className='text-xs text-gray-500 mt-3'>
             {hasQuote
               ? 'Current price uses the latest available quote.'
@@ -176,14 +225,16 @@ export default function PositionDetailsDialog({
             <div>
               <dt>Status</dt>
               <dd>
-                {row.stopLossTriggered
-                  ? 'Triggered'
-                  : stopLossPrice !== undefined
-                    ? 'Not triggered'
-                    : '—'}
+                {row.stopLossReviewRequired
+                  ? 'Review required'
+                  : row.stopLossTriggered
+                    ? 'Triggered'
+                    : stopLossPrice !== undefined
+                      ? 'Not triggered'
+                      : '—'}
               </dd>
             </div>
-            {stopLossPrice !== undefined && (
+            {stopLossPrice !== undefined && !row.stopLossReviewRequired && (
               <>
                 <div>
                   <dt>Value at stop loss</dt>
@@ -198,6 +249,81 @@ export default function PositionDetailsDialog({
               </>
             )}
           </dl>
+          {row.stopLossReviewRequired && (
+            <div className='mt-3 space-y-3'>
+              <p className='text-sm'>
+                Monitoring is paused. The saved price has not been adjusted;
+                review the split and confirm a stop price for the current units.
+              </p>
+              {!reviewingStopLoss ? (
+                <Button
+                  label='Review stop loss'
+                  icon='pi pi-check-circle'
+                  outlined
+                  onClick={() => {
+                    setReviewPrice(stopLossPrice ?? null);
+                    setReviewConfirmed(false);
+                    setReviewError(null);
+                    setReviewingStopLoss(true);
+                  }}
+                  disabled={!row.id}
+                />
+              ) : (
+                <div className='space-y-3' aria-label='Stop-loss review form'>
+                  <label htmlFor='reviewed-stop-loss-price'>
+                    Confirmed stop-loss price
+                  </label>
+                  <InputNumber
+                    inputId='reviewed-stop-loss-price'
+                    value={reviewPrice}
+                    onValueChange={event => setReviewPrice(event.value ?? null)}
+                    mode='currency'
+                    currency={currency}
+                    min={0.000000000001}
+                    maxFractionDigits={
+                      isCryptoExchange(row.exchangeCode) ? 12 : 3
+                    }
+                  />
+                  <div className='flex items-start gap-2'>
+                    <Checkbox
+                      inputId='confirm-stop-loss-review'
+                      checked={reviewConfirmed}
+                      onChange={event =>
+                        setReviewConfirmed(event.checked === true)
+                      }
+                    />
+                    <label htmlFor='confirm-stop-loss-review'>
+                      I reviewed the split and confirm this stop price for the
+                      current units.
+                    </label>
+                  </div>
+                  {reviewError && (
+                    <Message severity='error' text={reviewError} />
+                  )}
+                  <div className='flex flex-wrap gap-2'>
+                    <Button
+                      label='Confirm stop-loss review'
+                      onClick={() => void submitStopLossReview()}
+                      disabled={
+                        reviewing ||
+                        !reviewConfirmed ||
+                        reviewPrice === null ||
+                        !Number.isFinite(reviewPrice) ||
+                        reviewPrice <= 0
+                      }
+                      loading={reviewing}
+                    />
+                    <Button
+                      label='Cancel'
+                      text
+                      onClick={() => setReviewingStopLoss(false)}
+                      disabled={reviewing}
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
         </section>
 
         <section aria-label='Buy comments'>
