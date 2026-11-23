@@ -84,6 +84,38 @@ describe('apiClient mock-mode parity', () => {
     },
     // accounts
     {
+      name: 'postAccountSplit',
+      call: () =>
+        apiClient.postAccountSplit('a1', {
+          idempotencyKey: 'split-1',
+          assetId: 'asset-1',
+          effectiveDate: '2026-10-15',
+          newUnits: '2',
+          oldUnits: '1',
+          sourceReference: 'statement-1',
+          statementConfirmed: true,
+        }),
+      expectRejection: /requires the real API/i,
+    },
+    {
+      name: 'getAccountSplitHistory',
+      call: () => apiClient.getAccountSplitHistory('a1'),
+      expectRejection: /requires the real API/i,
+    },
+    {
+      name: 'reverseAccountSplit',
+      call: () =>
+        apiClient.reverseAccountSplit('a1', 'split-1', {
+          idempotencyKey: 'split-reversal-1',
+          actionId: 'split-1',
+          expectedAuditNumber: 1,
+          expectedSourceFingerprint: 'a'.repeat(64),
+          reason: 'Incorrect statement ratio',
+          reversalConfirmed: true,
+        }),
+      expectRejection: /requires the real API/i,
+    },
+    {
       name: 'getLiveReinvestmentReview',
       call: () => apiClient.getLiveReinvestmentReview('a1', 'i1'),
       expectRejection: /requires the real API/i,
@@ -567,6 +599,14 @@ describe('apiClient mock-mode parity', () => {
     {
       name: 'checkStopLoss',
       call: () => apiClient.checkStopLoss('pos-1', 90),
+    },
+    {
+      name: 'reviewSplitAffectedStopLoss',
+      call: () =>
+        apiClient.reviewSplitAffectedStopLoss('pos-1', {
+          stopLossPrice: 90,
+          reviewConfirmed: true,
+        }),
     },
     { name: 'getHoldings', call: () => apiClient.getHoldings() },
     {

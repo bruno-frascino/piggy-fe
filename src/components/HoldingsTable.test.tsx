@@ -76,6 +76,10 @@ vi.mock('@/hooks/api', () => ({
   useUpdatePosition: () => ({ mutateAsync: updatePositionMock }),
   useRecalculateDrawdown: () => ({ mutateAsync: recalculateDrawdownMock }),
   useCheckStopLoss: () => ({ mutateAsync: checkStopLossMock }),
+  useReviewSplitStopLoss: () => ({
+    mutateAsync: mutationMock,
+    isPending: false,
+  }),
   useClosePosition: () => ({ mutateAsync: mutationMock }),
   useDeletePosition: () => ({ mutateAsync: mutationMock }),
   useCorrectLiveManualAcquisition: () => ({
@@ -689,7 +693,10 @@ describe('HoldingsTable row/total computation', () => {
     expect(checkStopLossMock).not.toHaveBeenCalled();
     fireEvent.click(screen.getAllByRole('button', { name: 'AAPL' })[0]);
     expect(screen.getByText('Review required')).toBeInTheDocument();
-    expect(screen.getByText(/monitoring is unavailable/)).toBeInTheDocument();
+    expect(screen.getByText(/Monitoring is paused/)).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: 'Review stop loss' })
+    ).toBeInTheDocument();
     expect(screen.queryByText('Value at stop loss')).not.toBeInTheDocument();
   });
 
